@@ -34,7 +34,7 @@ include __DIR__ . '/../includes/menu_guest.php';
 
     <section class="styled-section">
         <h3>Contact</h3>
-        <p>Une question, une suggestion, ou simplement envie d’échanger avec l’équipe ? N’hésitez pas à nous contacter à <a href="mailto:contact@skywings-va.fr">contact@skywings-va.fr</a>.</p>
+        <p>Une question, une suggestion, ou simplement envie d’échanger avec l’équipe ? N’hésitez pas à nous contacter à <a href="mailto:admin@skywings.ovh">admin@skywings.ovh</a>.</p>
     </section>
 </main>
 
