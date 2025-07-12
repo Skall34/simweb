@@ -28,6 +28,9 @@ if (session_status() === PHP_SESSION_NONE) {
                     <input type="password" name="password" placeholder="Mot de passe" required>
                     <button type="submit">Connexion</button>
                 </form>
+                <div style="margin-top: 5px;">
+                    <a href="/pages/forgot_password.php" style="font-size: 0.9em; color: #007bff; text-decoration: underline;">Mot de passe oublié ?</a>
+                </div>
             <?php else: ?>
                 <p>Bienvenue, <?= htmlspecialchars($_SESSION['user']['callsign']) ?> |
                     <a href="/logout.php">Déconnexion</a></p>
