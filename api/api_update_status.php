@@ -48,7 +48,7 @@ try {
         $stmt = $pdo->prepare("INSERT INTO Live_FLIGHTS (
             Callsign, ICAO_Dep, ICAO_Arr, Avion
         ) VALUES (
-            :Callsign, :ICAO_Dep, :ICAO_Arr, :immat
+            :Callsign, :ICAO_Dep, :ICAO_Arr, :Avion
         )");
         $stmt->execute([
             'Callsign'     => $callsign,
