@@ -1,0 +1,280 @@
+/* RESET DE BASE */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f4f6f8;
+  color: #333;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* HEADER */
+header {
+  background-color: #004080;
+  color: white;
+  padding: 10px 20px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.bandeau {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo-nom {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  height: 48px;
+  width: auto;
+  margin-right: 15px;
+}
+
+.btn {
+  background-color: #0066cc;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 7px 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+  background-color: #005bb5;
+}
+
+.nom-compagnie {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+/* FORMULAIRE DE CONNEXION */
+.formulaire-login form {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.formulaire-login input[type="text"],
+.formulaire-login input[type="password"] {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.formulaire-login button {
+  background-color: #0066cc;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 7px 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.formulaire-login button:hover {
+  background-color: #005bb5;
+}
+
+.formulaire-login p {
+  font-size: 1rem;
+}
+
+.formulaire-login a {
+  color: #99ccff;
+  text-decoration: none;
+  margin-left: 8px;
+  font-weight: 600;
+}
+
+.formulaire-login a:hover {
+  text-decoration: underline;
+}
+
+/* MENUS */
+nav.menu-guest,
+nav.menu-logged {
+  background-color: #004080;
+  display: flex;
+  justify-content: flex-start;
+  gap: 30px;
+  padding: 10px 20px;
+  font-weight: 600;
+  font-size: 1rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  position: sticky;
+  top: 68px;
+  z-index: 90;
+}
+
+nav.menu-guest a,
+nav.menu-logged a {
+  color: white;
+  text-decoration: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+nav.menu-guest a:hover,
+nav.menu-logged a:hover {
+  background-color: #003366;
+  color: #cce0ff;
+}
+
+/* CONTENU PRINCIPAL */
+main {
+  width: 100%;
+  max-width: none;
+  margin: 30px auto;
+  padding: 50px;
+  background-color: white;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.08);
+  border-radius: 15px;
+  min-height: 60vh;
+  overflow-x: visible;
+}
+
+/* TITRES */
+h1, h2 {
+  color: #004080;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+h2 {
+  font-size: 1.8rem;
+}
+
+/* FORMULAIRE D’INSCRIPTION */
+.form-inscription {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 450px;
+}
+
+.form-inscription label {
+  display: flex;
+  flex-direction: column;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #004080;
+}
+
+.form-inscription input[type="text"],
+.form-inscription input[type="email"],
+.form-inscription input[type="password"] {
+  width: 100%;
+  max-width: 400px;
+  padding: 0.5em;
+  box-sizing: border-box;
+}
+
+.form-inscription button {
+  width: 100%;
+  max-width: 400px;
+  padding: 7px 15px;
+  background-color: #004080;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.form-inscription button:hover {
+  background-color: #003366;
+}
+
+/* TABLEAU */
+table.table-skywings {
+  width: 100%;
+  max-width: 100%;
+  margin: 20px auto;
+  border-collapse: collapse;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  table-layout: fixed;
+  word-wrap: break-word;
+}
+
+table.table-skywings thead tr {
+  background-color: #004080;
+  color: white;
+  font-weight: 700;
+  text-align: left;
+}
+
+table.table-skywings th,
+table.table-skywings td {
+  border: 1px solid #ddd;
+  padding: 8px 10px;
+  font-size: 0.9rem;
+  vertical-align: middle;
+}
+
+table.table-skywings tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+table.table-skywings tbody tr:hover {
+  background-color: #e6f0ff;
+}
+
+/* FOOTER */
+footer {
+  background-color: #004080;
+  color: white;
+  padding: 15px 20px;
+  text-align: center;
+  font-size: 0.9rem;
+  position: relative;
+  bottom: 0;
+  width: 100%;
+  margin-top: 40px;
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* Harmonisation des champs de formulaire sur .form-inscription */
+.form-inscription input[type="text"],
+.form-inscription input[type="email"],
+.form-inscription input[type="password"],
+.form-inscription input[type="number"],
+.form-inscription input[type="datetime-local"],
+.form-inscription select,
+.form-inscription textarea {
+  width: 100%;
+  max-width: 400px;
+  padding: 0.5em;
+  box-sizing: border-box;
+  font-size: 1rem;
+}
+
+.form-inscription textarea {
+  min-height: 60px;
+  resize: vertical;
+}
+
+.form-inscription button,
+.form-inscription .btn {
+  width: 180px;
+  max-width: 100%;
+  margin-top: 0.5em;
+  align-self: flex-start;
+}
