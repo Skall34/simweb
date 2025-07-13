@@ -28,7 +28,7 @@ include __DIR__ . '/../includes/menu_logged.php';
         <table class="table-skywings" border="1" cellpadding="5" cellspacing="0">
             <thead>
                 <tr>
-                    <th>Type de flotte</th>
+                    <th>Fleet $type</th>
                     <th>Coût horaire (€)</th>
                     <th>Prix (€)</th>
                 </tr>

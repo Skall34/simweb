@@ -54,6 +54,25 @@ try {
     exit;
 }
 
+function format_chiffre($valeur) {
+    if ($valeur === null) return '0';
+    if (floor($valeur) == $valeur) {
+        return number_format($valeur, 0, ',', ' ');
+    } else {
+        return number_format($valeur, 2, ',', ' ');
+    }
+}
+
+// Calcul de la balance financière
+$sqlBalance = "SELECT 
+    COALESCE(SUM(recettes),0) AS total_recettes, 
+    COALESCE(SUM(reste_a_payer),0) AS total_reste_a_payer, 
+    COALESCE(SUM(recette_vente),0) AS total_recette_vente 
+FROM FINANCES";
+$stmtBalance = $pdo->query($sqlBalance);
+$balanceRow = $stmtBalance->fetch();
+$balance = ($balanceRow['total_recettes'] + $balanceRow['total_recette_vente']) - $balanceRow['total_reste_a_payer'];
+
 
 include __DIR__ . '/../includes/header.php';
 include __DIR__ . '/../includes/menu_logged.php';
@@ -61,6 +80,9 @@ include __DIR__ . '/../includes/menu_logged.php';
 
 <main>
     <h2>Historique financier des appareils</h2>
+    <div style="margin-bottom: 20px; font-size: 1.2em; color: #2c3e50;">
+        <strong>Balance financière de la compagnie :</strong> <?= format_chiffre($balance) ?> €
+    </div>
 
     <form method="get" action="finances.php">
         <label for="immat">Filtrer par immatriculation:</label>
@@ -72,16 +94,7 @@ include __DIR__ . '/../includes/menu_logged.php';
     <?php if (empty($finances)): ?>
         <p>Aucune donnée financière trouvée.</p>
     <?php else: ?>
-        <?php
-        function format_chiffre($valeur) {
-            if ($valeur === null) return '0';
-            if (floor($valeur) == $valeur) {
-                return number_format($valeur, 0, ',', ' ');
-            } else {
-                return number_format($valeur, 2, ',', ' ');
-            }
-        }
-        ?>
+        <?php // ...existing code... ?>
 
         <table class="table-skywings" border="1" cellpadding="5" cellspacing="0">
             <thead>

@@ -33,13 +33,21 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $fleet = $stmt->fetchAll();
 
+
+$sqlCount = "SELECT count(*) AS total FROM FLOTTE WHERE actif = 1";
+$stmtCount = $pdo->prepare($sqlCount);
+$stmtCount->execute();
+$countRow = $stmtCount->fetch();
+$count = $countRow['total'];
+
+
 include __DIR__ . '/../includes/header.php';
 include __DIR__ . '/../includes/menu_logged.php';
 
 ?>
 
 <main>
-    <h2>Liste de la flotte</h2>
+    <h2>Liste de la flotte : nous avons <?= $count ?>&nbsp;appareils actifs</h2>
 
     <form method="get" action="fleet.php">
         <label for="immat">Filtrer par immatriculation:</label>

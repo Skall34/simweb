@@ -44,7 +44,7 @@ if (!isset($_SESSION['user'])) {
                 LEFT JOIN PILOTES p ON cdvg.pilote_id = p.id
                 LEFT JOIN FLOTTE f ON cdvg.appareil_id = f.id
                 ORDER BY cdvg.date_vol DESC, cdvg.heure_depart DESC
-                LIMIT 20
+                LIMIT 10
             ";
             $stmt = $pdo->query($sql);
             $vols = $stmt->fetchAll();
@@ -55,7 +55,7 @@ if (!isset($_SESSION['user'])) {
     ?>
 
     <!-- Titre du tableau -->
-    <h2>Les 20 derniers vols</h2>
+    <h2>Les 10 derniers vols</h2>
 
     <!-- Tableau des vols -->
     <table class="table-skywings">

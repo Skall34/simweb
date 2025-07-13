@@ -61,7 +61,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'localisation' => $localisation ?: null,
                     'hub' => $hub ?: null
                 ]);
-                $successMessage = "Avion ajouté avec succès.";
+                // Récupérer l'id du nouvel avion
+                $avion_id = $pdo->lastInsertId();
+
+                // Récupérer le prix d'achat dans FLEET_TYPE via jointure
+                $stmtPrix = $pdo->prepare("SELECT cout_appareil FROM FLEET_TYPE WHERE id = :fleet_type_id");
+                $stmtPrix->execute(['fleet_type_id' => $fleet_type_id]);
+                $prix_achat = $stmtPrix->fetchColumn();
+
+                // Insérer la ligne dans FINANCES
+                $sqlFinances = "INSERT INTO FINANCES (
+                    avion_id, date_achat, recettes, nb_annees_credit, taux_percent, remboursement, traite_payee_cumulee, reste_a_payer
+                ) VALUES (
+                    :avion_id, :date_achat, 0, 20, 2, :remboursement, 0, 0
+                )";
+                $stmtFinances = $pdo->prepare($sqlFinances);
+                $stmtFinances->execute([
+                    'avion_id' => $avion_id,
+                    'date_achat' => date('Y-m-d'),
+                    'remboursement' => $prix_achat
+                ]);
+
+                $successMessage = "Avion ajouté avec succès et ligne finances créée.";
             }
         } catch (PDOException $e) {
             $errorMessage = "Erreur SQL : " . htmlspecialchars($e->getMessage());

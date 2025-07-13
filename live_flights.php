@@ -15,7 +15,7 @@ try {
                     <th>Callsign</th>
                     <th>Départ</th>
                     <th>Destination</th>
-                    <th>Avion</th>
+                    <th>Appareil</th>
                 </tr>
             </thead>
             <tbody>
