@@ -162,7 +162,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                 <input name="wikipedia_link" value="<?= htmlspecialchars($aeroport['wikipedia_link']) ?>">
             </label>
 
-            <label>Fret (0 ou 1) :
+            <label>Fret présent sur place :
                 <input name="fret" type="number" value="<?= htmlspecialchars($aeroport['fret']) ?>">
             </label>
 

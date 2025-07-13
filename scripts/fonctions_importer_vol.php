@@ -1,13 +1,39 @@
 <?php
-// Fonction utilitaire pour tracer les étapes avec horodatage
-function log_trace($message) {
-    error_log("[TRACE] " . $message);
-}
+/*
+-------------------------------------------------------------
+ Script : fonctions_importer_vol.php
+ Emplacement : scripts/
+
+ Description :
+ Ce fichier regroupe les fonctions utilitaires pour l'import et le traitement des vols dans la compagnie aérienne virtuelle.
+ Il gère la mise à jour du fret, des finances, du carnet de vol, de la flotte, l'usure des appareils, et le rejet des vols.
+
+ Log :
+ Les étapes et anomalies sont tracées via logMsg() et error_log().
+
+ Principales fonctions :
+ - deduireFretDepart : Déduit le fret au départ d'un aéroport.
+ - ajouterFretDestination : Ajoute du fret à l'arrivée.
+ - remplirCarnetVolGeneral : Insère un vol dans le carnet général.
+ - mettreAJourFinances : Met à jour les recettes d'un appareil.
+ - mettreAJourFlotte : Met à jour l'état et la localisation d'un appareil.
+ - deduireUsure : Applique l'usure selon la note du vol.
+ - rejeterVol : Insère un vol rejeté, envoie un mail et supprime le vol ACARS.
+
+ Utilisation :
+ - Ces fonctions sont appelées lors de l'import de vols ou du traitement ACARS.
+ - Vérifier les logs en cas d'anomalie ou d'échec d'opération.
+
+ Auteur :
+ - Automatisé avec GitHub Copilot
+-------------------------------------------------------------
+*/
+require_once __DIR__ . '/../includes/log_func.php';
+$logFile = __DIR__ . '/logs/import_vol.log';
 
 function deduireFretDepart($icao, $fret_demande) {
     global $pdo;
-
-    log_trace("Déduction fret départ : ICAO=$icao, Demande=$fret_demande");
+    logMsg("Déduction fret départ : ICAO=$icao, Demande=$fret_demande", $logFile);
 
     $stmt = $pdo->prepare("SELECT fret FROM AEROPORTS WHERE ident = :icao");
     $stmt->execute(['icao' => $icao]);
@@ -20,7 +46,7 @@ function deduireFretDepart($icao, $fret_demande) {
 
     $fret_dispo = $result['fret'];
     $fret_effectif = min($fret_dispo, $fret_demande);
-    log_trace("Fret disponible=$fret_dispo, Fret effectif déduit=$fret_effectif");
+    logMsg("Fret disponible=$fret_dispo, Fret effectif déduit=$fret_effectif", $logFile);
 
     $update = $pdo->prepare("
         UPDATE AEROPORTS 
@@ -34,15 +60,14 @@ function deduireFretDepart($icao, $fret_demande) {
     $stmtNew->execute(['icao' => $icao]);
     $newFret = $stmtNew->fetchColumn();
 
-    log_trace("Nouveau fret restant à $icao : $newFret");
+    logMsg("Nouveau fret restant à $icao : $newFret", $logFile);
 
     return $fret_effectif;
 }
 
 function ajouterFretDestination($icao, $fret) {
     global $pdo;
-
-    log_trace("Ajout fret destination : ICAO=$icao, Fret à ajouter=$fret");
+    logMsg("Ajout fret destination : ICAO=$icao, Fret à ajouter=$fret", $logFile);
 
     // Vérifie si l'aéroport existe
     $stmt = $pdo->prepare("SELECT fret FROM AEROPORTS WHERE ident = :icao");
@@ -57,7 +82,7 @@ function ajouterFretDestination($icao, $fret) {
     $fret_avant = $result['fret'];
     $fret_apres = $fret_avant + $fret;
 
-    log_trace("Fret actuel=$fret_avant, Fret après ajout=$fret_apres");
+    logMsg("Fret actuel=$fret_avant, Fret après ajout=$fret_apres", $logFile);
 
     // Mise à jour
     $update = $pdo->prepare("UPDATE AEROPORTS SET fret = fret + :fret WHERE ident = :icao");
@@ -68,7 +93,7 @@ function ajouterFretDestination($icao, $fret) {
     $stmtNew->execute(['icao' => $icao]);
     $newFret = $stmtNew->fetchColumn();
 
-    log_trace("Nouveau fret total à $icao : $newFret");
+    logMsg("Nouveau fret total à $icao : $newFret", $logFile);
 }
 
 function remplirCarnetVolGeneral(
@@ -77,8 +102,7 @@ function remplirCarnetVolGeneral(
     $mission, $commentaire, $note, $cout_vol
     ) {
     global $pdo;
-
-    log_trace("Remplissage carnet vol : $callsign, $immat, $depart -> $arrivee, cout_vol=$cout_vol");
+    logMsg("Remplissage carnet vol : $callsign, $immat, $depart -> $arrivee, cout_vol=$cout_vol", $logFile);
 
     $stmtAppareil = $pdo->prepare("SELECT id FROM FLOTTE WHERE immat = :immat");
     $stmtAppareil->execute(['immat' => $immat]);
@@ -114,15 +138,14 @@ function remplirCarnetVolGeneral(
         $mission_id, $commentaire, $note, $cout_vol
     ]);
 
-    log_trace("Vol enregistré avec succès pour $callsign ($immat)");
+    logMsg("Vol enregistré avec succès pour $callsign ($immat)", $logFile);
 
     return true;
 }
 
 function mettreAJourFinances($immat, $cout_vol) {
     global $pdo;
-
-    log_trace("Mise à jour finances : immat=$immat, cout_vol=$cout_vol");
+    logMsg("Mise à jour finances : immat=$immat, cout_vol=$cout_vol", $logFile);
 
     if (!$immat || $cout_vol === null) {
         error_log("⚠ Paramètres manquants dans mettreAJourFinances: " . print_r([
@@ -155,12 +178,12 @@ function mettreAJourFinances($immat, $cout_vol) {
     $recette_old = floatval($finance['recettes']);
     $recette_new = $recette_old + floatval($cout_vol);
 
-    log_trace("Recette ancienne: $recette_old €, nouvelle recette: $recette_new €");
+    logMsg("Recette ancienne: $recette_old €, nouvelle recette: $recette_new €", $logFile);
 
     try {
         $update = $pdo->prepare("UPDATE FINANCES SET recettes = :recette_new WHERE avion_id = :id_avion");
         $update->execute(['recette_new' => $recette_new, 'id_avion' => $avion_id]);
-        log_trace("Finances mises à jour pour avion_id=$avion_id");
+        logMsg("Finances mises à jour pour avion_id=$avion_id", $logFile);
     } catch (PDOException $e) {
         error_log("❌ ERREUR SQL dans mettreAJourFinances: " . $e->getMessage());
         throw $e;
@@ -169,8 +192,7 @@ function mettreAJourFinances($immat, $cout_vol) {
 
 function mettreAJourFlotte($immat, $fuel_arr, $callsign, $arrivee) {
     global $pdo;
-
-    log_trace("Mise à jour flotte : immat=$immat, fuel=$fuel_arr, callsign=$callsign, localisation=$arrivee");
+    logMsg("Mise à jour flotte : immat=$immat, fuel=$fuel_arr, callsign=$callsign, localisation=$arrivee", $logFile);
 
     if (!$immat || !$fuel_arr || !$callsign || !$arrivee) {
         error_log("⚠ Paramètres manquants dans mettreAJourFlotte: " . print_r([
@@ -206,7 +228,7 @@ function mettreAJourFlotte($immat, $fuel_arr, $callsign, $arrivee) {
             'immat' => $immat
         ]);
 
-        log_trace("Flotte mise à jour pour $immat");
+        logMsg("Flotte mise à jour pour $immat", $logFile);
     } catch (PDOException $e) {
         error_log("❌ ERREUR SQL dans mettreAJourFlotte: " . $e->getMessage());
         throw $e;
@@ -247,12 +269,12 @@ function deduireUsure(string $immat, int $note): void {
     } else {
         $update = $pdo->prepare("UPDATE FLOTTE SET etat = :etat WHERE id = :id");
         $update->execute(['etat' => $nouvelEtat, 'id' => $id]);
-        log_trace("Usure avion $immat : $etatActuel% → $nouvelEtat% (note $note)");
+        logMsg("Usure avion $immat : $etatActuel% → $nouvelEtat% (note $note)", $logFile);
     }
 }
 
 function rejeterVol($pdo, $vol, $motif) {
-    log_trace("🔴 Rejet du vol ACARS ID=" . $vol['id'] . " | Motif : $motif");
+    logMsg("🔴 Rejet du vol ACARS ID=" . $vol['id'] . " | Motif : $motif", $logFile);
 
     $stmt = $pdo->prepare("
         INSERT INTO VOLS_REJETES
@@ -282,7 +304,7 @@ function rejeterVol($pdo, $vol, $motif) {
         'motif_rejet' => $motif
     ]);
 
-    log_trace("✅ Vol rejeté inséré dans VOLS_REJETES pour ACARS ID=" . $vol['id']);
+    logMsg("✅ Vol rejeté inséré dans VOLS_REJETES pour ACARS ID=" . $vol['id'], $logFile);
 
     // Envoi d'un mail après rejet
     try {
@@ -311,7 +333,7 @@ function rejeterVol($pdo, $vol, $motif) {
             "Arrivée : " . $vol['arrival_icao'] . "\n" .
             "Motif du rejet : " . $motif . "\n";
         $mail->send();
-        log_trace("📧 Mail envoyé pour vol rejeté ACARS ID=" . $vol['id']);
+        logMsg("📧 Mail envoyé pour vol rejeté ACARS ID=" . $vol['id'], $logFile);
     } catch (Exception $e) {
         error_log("Erreur lors de l'envoi du mail de vol rejeté : " . $e->getMessage());
     }
@@ -319,5 +341,5 @@ function rejeterVol($pdo, $vol, $motif) {
     $del = $pdo->prepare("DELETE FROM FROM_ACARS WHERE id = :id");
     $del->execute(['id' => $vol['id']]);
 
-    log_trace("🗑️ Vol supprimé de FROM_ACARS pour ACARS ID=" . $vol['id']);
+    logMsg("🗑️ Vol supprimé de FROM_ACARS pour ACARS ID=" . $vol['id'], $logFile);
 }

@@ -1,14 +1,38 @@
 <?php
-// calcul_cout.php
+/*
+-------------------------------------------------------------
+ Script : calcul_cout.php
+ Emplacement : scripts/
 
+ Description :
+ Librairie de fonctions pour le calcul des coûts et revenus des vols.
+ Permet de récupérer les coefficients, majorations, coûts horaires et de calculer le revenu net d'un vol.
+ Toutes les opérations et erreurs sont loguées dans scripts/logs/calcul_cout.log via logMsg().
+
+ Fonctionnement :
+ - coef_note($note) : Retourne le coefficient selon la note du vol.
+ - getMajorationMission($mission_libelle) : Récupère la majoration de la mission.
+ - getCoutHoraire($immat) : Récupère le coût horaire de l'appareil.
+ - calculerRevenuNetVol(...) : Calcule le revenu net d'un vol.
+
+ Utilisation :
+ - À inclure dans les scripts de traitement de vol ou d'analyse financière.
+ - Vérifier le log en cas d'anomalie ou d'échec d'opération.
+
+ Auteur :
+ - Automatisé avec GitHub Copilot
+-------------------------------------------------------------
+*/
 require_once __DIR__ . '/../includes/db_connect.php'; // Assure la connexion PDO
+require_once __DIR__ . '/../includes/log_func.php';
+$logFile = __DIR__ . '/logs/calcul_cout.log';
 
 /**
  * Retourne le coefficient basé sur la note du vol
  */
 function coef_note($note) {
     if ($note === null || $note === '') return 1;
-    return match((int)$note) {
+    $val = match((int)$note) {
         1 => 100,
         2 => 50,
         3 => 1.8,
@@ -21,6 +45,8 @@ function coef_note($note) {
         10 => 0.5,
         default => 1,
     };
+    logMsg("coef_note($note) = $val", $logFile);
+    return $val;
 }
 
 /**
@@ -28,12 +54,12 @@ function coef_note($note) {
  */
 function getMajorationMission($mission_libelle) {
     global $pdo;
-
     $stmt = $pdo->prepare("SELECT majoration_mission FROM MISSIONS WHERE libelle = :libelle");
     $stmt->execute(['libelle' => $mission_libelle]);
     $result = $stmt->fetch();
-
-    return $result ? (float)$result['majoration_mission'] : 1.0; // défaut à 1.0 si mission non trouvée
+    $val = $result ? (float)$result['majoration_mission'] : 1.0;
+    logMsg("getMajorationMission('$mission_libelle') = $val", $logFile);
+    return $val;
 }
 
 /**
@@ -41,7 +67,6 @@ function getMajorationMission($mission_libelle) {
  */
 function getCoutHoraire($immat) {
     global $pdo;
-
     $stmt = $pdo->prepare("
         SELECT ft.cout_horaire 
         FROM FLOTTE f 
@@ -50,8 +75,9 @@ function getCoutHoraire($immat) {
     ");
     $stmt->execute(['immat' => $immat]);
     $result = $stmt->fetch();
-
-    return $result ? (float)$result['cout_horaire'] : 0.0;
+    $val = $result ? (float)$result['cout_horaire'] : 0.0;
+    logMsg("getCoutHoraire('$immat') = $val", $logFile);
+    return $val;
 }
 
 /**
@@ -60,14 +86,11 @@ function getCoutHoraire($immat) {
 function calculerRevenuNetVol($payload, $temps_vol, $majoration_mission, $carburant, $note, $cout_horaire) {
     [$h, $m, $s] = sscanf($temps_vol, "%d:%d:%d");
     $heures = $h + ($m / 60) + ($s / 3600);
-
     $coef_note_val = coef_note($note);
-
     $revenu_brut = $payload * 5 * $heures * $majoration_mission;
     $cout_carburant = $carburant * 0.88;
     $cout_appareil = $cout_horaire * $heures * $coef_note_val;
-
     $revenu_net = $revenu_brut - ($cout_carburant + $cout_appareil);
-
+    logMsg("calculerRevenuNetVol: payload=$payload, temps_vol=$temps_vol, majoration_mission=$majoration_mission, carburant=$carburant, note=$note, cout_horaire=$cout_horaire => revenu_net=$revenu_net", $logFile);
     return round($revenu_net, 2);
 }

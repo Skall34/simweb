@@ -1,28 +1,58 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-ini_set('log_errors', 1);
-ini_set('error_log', __DIR__ . '/logs/importer_vol.log');
+/*
+-------------------------------------------------------------
+ Script : importer_vol.php
+ Emplacement : scripts/
 
+ Description :
+ Ce script traite les vols ACARS non encore importés dans la base.
+ Il vérifie et formate les données, rejette les vols invalides, met à jour le fret, la flotte, les finances, le carnet de vol, et applique l'usure.
+ Il marque chaque vol comme traité et met à jour la balance commerciale si besoin.
+
+ Log :
+ Toutes les opérations et erreurs sont enregistrées dans scripts/logs/importer_vol.log via logMsg().
+
+ Fonctionnement :
+ 1. Sélectionne tous les vols non traités dans FROM_ACARS.
+ 2. Pour chaque vol :
+    - Vérifie la validité des données et rejette si besoin (avec log et motif).
+    - Met à jour le fret, la flotte, les finances, le carnet de vol, et l'usure.
+    - Marque le vol comme traité.
+ 3. Met à jour la balance commerciale si au moins un vol importé.
+ 4. Logue chaque étape et erreur dans le fichier log.
+
+ Utilisation :
+ - À lancer pour importer les nouveaux vols ACARS.
+ - Vérifier le log en cas d'anomalie ou d'échec d'opération.
+
+ Auteur :
+ - Automatisé avec GitHub Copilot
+-------------------------------------------------------------
+*/
+
+$mailSummaryEnabled = true; // Active l'envoi du mail récapitulatif
 require_once __DIR__ . '/../includes/db_connect.php';
-
-// Charger les fonctions nécessaires (à créer ensuite)
+require_once __DIR__ . '/../includes/log_func.php';
+require_once __DIR__ . '/../includes/mail_utils.php';
 require_once __DIR__ . '/fonctions_importer_vol.php';
 require_once __DIR__ . '/calcul_cout.php';
 
 date_default_timezone_set('Europe/Paris');
-
+$logFile = __DIR__ . '/logs/importer_vol.log';
 
 try {
     $stmt = $pdo->query("SELECT * FROM FROM_ACARS WHERE processed = 0 ORDER BY id ASC");
     $vols = $stmt->fetchAll();
 
     if (empty($vols)) {
-        log_trace("Aucun nouveau vol à traiter.");
-        exit;
+        logMsg("Aucun nouveau vol à traiter.", $logFile);
+        echo "Aucun nouveau vol à traiter.\n";
+        return;
     }
-    
-    log_trace("Début du traitement des vols ACARS non traités : " . count($vols) . " vols trouvés.");
+
+    logMsg("Début du traitement des vols ACARS non traités : " . count($vols) . " vols trouvés.", $logFile);
+    $vols_importes = 0;
+    $vols_details = [];
     foreach ($vols as $vol) {
         $id = $vol['id'];
         $erreurs = [];
@@ -70,7 +100,7 @@ try {
         // Si erreurs, rejeter le vol avec tous les motifs
         if (!empty($erreurs)) {
             foreach ($erreurs as $err) {
-                log_trace("❌ $err");
+                logMsg("❌ $err", $logFile);
             }
             rejeterVol($pdo, $vol, implode(' | ', $erreurs));
             continue;
@@ -111,12 +141,59 @@ try {
         $updateStmt = $pdo->prepare("UPDATE FROM_ACARS SET processed = 1 WHERE id = :id");
         $updateStmt->execute(['id' => $id]);
 
-        log_trace("✅ Vol #$id traité avec succès (callsign: $callsign)");
+        logMsg("✅ Vol #$id traité avec succès (callsign: $callsign)", $logFile);
+        $vols_importes++;
+        $vols_details[] = [
+            'callsign' => $callsign,
+            'depart' => $depart,
+            'dest' => $dest
+        ];
     }
 
-    log_trace("Import terminé.");
+    // Mise à jour de la balance commerciale et envoi du mail si au moins un vol importé
+    if ($vols_importes > 0) {
+        require_once __DIR__ . '/mise_a_jour_balance.php';
+        logMsg("Balance commerciale mise à jour après import.", $logFile);
+        // Envoi du mail récapitulatif enrichi
+        if ($mailSummaryEnabled && function_exists('sendSummaryMail')) {
+            $subject = "[SimWeb] Rapport import vols ACARS - " . date('d/m/Y H:i');
+            $body = "Bonjour,\n\nImport des vols ACARS terminé.";
+            $body .= "\nNombre de vols importés : $vols_importes";
+            if ($vols_importes > 0) {
+                $body .= "\nDétail des vols :";
+                foreach ($vols_details as $v) {
+                    $body .= "\n - Pilote : " . $v['callsign'] . ", Trajet : " . $v['depart'] . " -> " . $v['dest'];
+                }
+            }
+            // Ajout des détails de la balance commerciale
+            $balanceLogFile = __DIR__ . '/logs/mise_a_jour_balance.log';
+            $balanceDetails = '';
+            if (file_exists($balanceLogFile)) {
+                $lines = file($balanceLogFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+                foreach (array_reverse($lines) as $line) {
+                    if (strpos($line, 'Balance commerciale mise à jour') !== false || strpos($line, 'Balance commerciale créée') !== false) {
+                        $balanceDetails = $line;
+                        break;
+                    }
+                }
+            }
+            if ($balanceDetails) {
+                $body .= "\n\nDernière mise à jour balance commerciale :\n" . $balanceDetails;
+            }
+            $body .= "\n\nCeci est un message automatique.";
+            $to = ADMIN_EMAIL;
+            $mailResult = sendSummaryMail($subject, $body, $to);
+            if ($mailResult === true || $mailResult === null) {
+                logMsg("Mail récapitulatif envoyé à $to", $logFile);
+            } else {
+                logMsg("Erreur lors de l'envoi du mail récapitulatif : $mailResult", $logFile);
+            }
+        }
+    }
+
+    logMsg("Import terminé.", $logFile);
     echo "✅ Import terminé.\n";
 } catch (PDOException $e) {
-    log_trace("❌ Erreur DB : " . $e->getMessage());
+    logMsg("❌ Erreur DB : " . $e->getMessage(), $logFile);
     echo "Erreur : " . $e->getMessage();
 }

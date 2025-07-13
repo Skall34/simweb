@@ -2,6 +2,8 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
+
 ?>
 
 <nav class="menu-logged">
@@ -33,6 +35,9 @@ if (session_status() === PHP_SESSION_NONE) {
                     <a href="/admin/admin_missions.php">Administration des missions</a>
                     <a href="/admin/admin_gestion_pilotes.php">Administration des pilotes</a>
                 </div>
+                <?php if (isset($_SESSION['user']['callsign']) && $_SESSION['user']['callsign'] === 'SKY0707'): ?>
+                    <a href="/admin/admin_sky0707.php" style="color: #c00; font-weight: bold; margin-left: 10px;">Admin SKY0707</a>
+                <?php endif; ?>
             </div>
             <?php
         }

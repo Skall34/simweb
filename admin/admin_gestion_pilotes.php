@@ -39,10 +39,9 @@ if (isset($_POST['update']) && $info) {
     $stmt = $pdo->prepare('UPDATE PILOTES SET prenom = ?, nom = ?, email = ?, admin = ? WHERE id = ?');
     if ($stmt->execute([$prenom, $nom, $email, $admin, $selected_id])) {
         $message = "Modifications enregistrées.";
-        // Recharge les infos
-        $stmt = $pdo->prepare('SELECT * FROM PILOTES WHERE id = ?');
-        $stmt->execute([$selected_id]);
-        $info = $stmt->fetch(PDO::FETCH_ASSOC);
+        // Réinitialise la sélection du pilote
+        $selected_id = null;
+        $info = null;
     } else {
         $message = "Erreur lors de la modification.";
     }

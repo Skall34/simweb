@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : skywinjsky0707.mysql.db
--- Généré le : sam. 12 juil. 2025 à 15:23
+-- Généré le : dim. 13 juil. 2025 à 23:20
 -- Version du serveur : 8.4.5-5
 -- Version de PHP : 8.1.32
 
@@ -20,9 +20,6 @@ SET time_zone = "+00:00";
 --
 -- Base de données : `skywinjsky0707`
 --
-DROP DATABASE IF EXISTS `skywinjsky0707`;
-CREATE DATABASE IF NOT EXISTS `skywinjsky0707` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
-USE `skywinjsky0707`;
 
 -- --------------------------------------------------------
 
@@ -30,6 +27,7 @@ USE `skywinjsky0707`;
 -- Structure de la table `AEROPORTS`
 --
 
+DROP TABLE IF EXISTS `AEROPORTS`;
 CREATE TABLE `AEROPORTS` (
   `ident` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
   `type_aeroport` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
@@ -52,8 +50,26 @@ CREATE TABLE `AEROPORTS` (
 -- Structure de la table `AEROPORTS_LAST_ADMIN_UPDATE`
 --
 
+DROP TABLE IF EXISTS `AEROPORTS_LAST_ADMIN_UPDATE`;
 CREATE TABLE `AEROPORTS_LAST_ADMIN_UPDATE` (
   `last_update` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `BALANCE_COMMERCIALE`
+--
+
+DROP TABLE IF EXISTS `BALANCE_COMMERCIALE`;
+CREATE TABLE `BALANCE_COMMERCIALE` (
+  `id` int NOT NULL,
+  `balance_actuelle` decimal(20,2) DEFAULT NULL,
+  `recettes` decimal(20,2) DEFAULT NULL,
+  `cout_avions` decimal(20,2) DEFAULT NULL,
+  `apport_initial` decimal(20,2) DEFAULT NULL,
+  `date_maj` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `assurance` decimal(20,2) NOT NULL DEFAULT '0.00'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -62,6 +78,7 @@ CREATE TABLE `AEROPORTS_LAST_ADMIN_UPDATE` (
 -- Structure de la table `CARNET_DE_VOL_GENERAL`
 --
 
+DROP TABLE IF EXISTS `CARNET_DE_VOL_GENERAL`;
 CREATE TABLE `CARNET_DE_VOL_GENERAL` (
   `id` int NOT NULL,
   `date_vol` date NOT NULL,
@@ -86,13 +103,14 @@ CREATE TABLE `CARNET_DE_VOL_GENERAL` (
 -- Structure de la table `FINANCES`
 --
 
+DROP TABLE IF EXISTS `FINANCES`;
 CREATE TABLE `FINANCES` (
   `id` int NOT NULL,
   `avion_id` int NOT NULL,
   `date_achat` date NOT NULL,
   `recettes` decimal(15,2) DEFAULT NULL,
   `nb_annees_credit` int DEFAULT NULL,
-  `taux_percent` decimal(5,2) NOT NULL,
+  `taux_percent` decimal(5,2) DEFAULT NULL,
   `remboursement` decimal(15,2) DEFAULT NULL,
   `traite_payee_cumulee` decimal(15,2) DEFAULT NULL,
   `reste_a_payer` decimal(15,2) DEFAULT NULL,
@@ -106,6 +124,7 @@ CREATE TABLE `FINANCES` (
 -- Structure de la table `FLEET_TYPE`
 --
 
+DROP TABLE IF EXISTS `FLEET_TYPE`;
 CREATE TABLE `FLEET_TYPE` (
   `id` int NOT NULL,
   `fleet_type` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
@@ -119,6 +138,7 @@ CREATE TABLE `FLEET_TYPE` (
 -- Structure de la table `FLOTTE`
 --
 
+DROP TABLE IF EXISTS `FLOTTE`;
 CREATE TABLE `FLOTTE` (
   `id` int NOT NULL,
   `fleet_type` int DEFAULT NULL,
@@ -142,6 +162,7 @@ CREATE TABLE `FLOTTE` (
 -- Structure de la table `FROM_ACARS`
 --
 
+DROP TABLE IF EXISTS `FROM_ACARS`;
 CREATE TABLE `FROM_ACARS` (
   `id` int NOT NULL,
   `horodateur` datetime NOT NULL,
@@ -167,6 +188,7 @@ CREATE TABLE `FROM_ACARS` (
 -- Structure de la table `Live_FLIGHTS`
 --
 
+DROP TABLE IF EXISTS `Live_FLIGHTS`;
 CREATE TABLE `Live_FLIGHTS` (
   `Callsign` varchar(7) COLLATE utf8mb4_general_ci NOT NULL,
   `ICAO_Dep` varchar(4) COLLATE utf8mb4_general_ci NOT NULL,
@@ -180,6 +202,7 @@ CREATE TABLE `Live_FLIGHTS` (
 -- Structure de la table `MISSIONS`
 --
 
+DROP TABLE IF EXISTS `MISSIONS`;
 CREATE TABLE `MISSIONS` (
   `id` int NOT NULL,
   `libelle` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
@@ -193,6 +216,7 @@ CREATE TABLE `MISSIONS` (
 -- Structure de la table `password_resets`
 --
 
+DROP TABLE IF EXISTS `password_resets`;
 CREATE TABLE `password_resets` (
   `id` int NOT NULL,
   `email` varchar(255) NOT NULL,
@@ -206,13 +230,15 @@ CREATE TABLE `password_resets` (
 -- Structure de la table `PILOTES`
 --
 
+DROP TABLE IF EXISTS `PILOTES`;
 CREATE TABLE `PILOTES` (
   `id` int NOT NULL,
   `callsign` varchar(7) COLLATE utf8mb4_general_ci NOT NULL,
   `password` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `prenom` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
   `nom` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
-  `email` varchar(255) COLLATE utf8mb4_general_ci NOT NULL
+  `email` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `admin` tinyint(1) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -221,6 +247,7 @@ CREATE TABLE `PILOTES` (
 -- Structure de la table `VOLS_REJETES`
 --
 
+DROP TABLE IF EXISTS `VOLS_REJETES`;
 CREATE TABLE `VOLS_REJETES` (
   `id` int NOT NULL,
   `acars_id` int NOT NULL,
@@ -250,6 +277,12 @@ CREATE TABLE `VOLS_REJETES` (
 --
 ALTER TABLE `AEROPORTS`
   ADD PRIMARY KEY (`ident`);
+
+--
+-- Index pour la table `BALANCE_COMMERCIALE`
+--
+ALTER TABLE `BALANCE_COMMERCIALE`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Index pour la table `CARNET_DE_VOL_GENERAL`
@@ -313,6 +346,12 @@ ALTER TABLE `VOLS_REJETES`
 --
 -- AUTO_INCREMENT pour les tables déchargées
 --
+
+--
+-- AUTO_INCREMENT pour la table `BALANCE_COMMERCIALE`
+--
+ALTER TABLE `BALANCE_COMMERCIALE`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT pour la table `CARNET_DE_VOL_GENERAL`
