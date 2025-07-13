@@ -96,7 +96,6 @@ CREATE TABLE `FINANCES` (
   `remboursement` decimal(15,2) DEFAULT NULL,
   `traite_payee_cumulee` decimal(15,2) DEFAULT NULL,
   `reste_a_payer` decimal(15,2) DEFAULT NULL,
-  `vente` decimal(10,2) DEFAULT NULL,
   `recette_vente` decimal(15,2) DEFAULT NULL,
   `date_vente` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

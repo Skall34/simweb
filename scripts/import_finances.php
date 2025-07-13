@@ -55,7 +55,6 @@ while (($row = fgetcsv($handle, 0, ";", '"', "\\")) !== false) {
         $remboursement,
         $traite_payee_cumulee,
         $reste_a_payer,
-        $vente,
         $recette_vente,
         $date_vente
     ] = array_pad($row, 11, null);
@@ -74,8 +73,7 @@ while (($row = fgetcsv($handle, 0, ";", '"', "\\")) !== false) {
     echo "<pre>Ligne $ligneNum → INSERT INTO FINANCES (
         avion_id, date_achat, recettes,
         nb_annees_credit, taux_percent, remboursement,
-        traite_payee_cumulee, reste_a_payer,
-        vente, recette_vente, date_vente
+        traite_payee_cumulee, reste_a_payer, recette_vente, date_vente
     ) VALUES (
         {$avion_id},
         '" . convert_date($date_achat) . "',
@@ -85,7 +83,6 @@ while (($row = fgetcsv($handle, 0, ";", '"', "\\")) !== false) {
         " . clean_money($remboursement) . ",
         " . clean_money($traite_payee_cumulee) . ",
         " . clean_money($reste_a_payer) . ",
-        " . ($vente !== '' ? clean_money($vente) : 'NULL') . ",
         " . ($recette_vente !== '' ? clean_money($recette_vente) : 'NULL') . ",
         '" . convert_date($date_vente) . "'
     )</pre>";
@@ -96,12 +93,12 @@ while (($row = fgetcsv($handle, 0, ";", '"', "\\")) !== false) {
                 avion_id, date_achat, recettes,
                 nb_annees_credit, taux_percent, remboursement,
                 traite_payee_cumulee, reste_a_payer,
-                vente, recette_vente, date_vente
+                recette_vente, date_vente
             ) VALUES (
                 :avion_id, :date_achat, :recettes,
                 :nb_annees_credit, :taux_percent, :remboursement,
                 :traite_payee_cumulee, :reste_a_payer,
-                :vente, :recette_vente, :date_vente
+                :recette_vente, :date_vente
             )
         ");
 
@@ -114,7 +111,6 @@ while (($row = fgetcsv($handle, 0, ";", '"', "\\")) !== false) {
             ':remboursement' => clean_money($remboursement),
             ':traite_payee_cumulee' => clean_money($traite_payee_cumulee),
             ':reste_a_payer' => clean_money($reste_a_payer),
-            ':vente' => $vente !== '' ? clean_money($vente) : null,
             ':recette_vente' => $recette_vente !== '' ? clean_money($recette_vente) : null,
             ':date_vente' => convert_date($date_vente)
         ]);

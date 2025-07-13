@@ -7,29 +7,38 @@ include __DIR__ . '/../includes/menu_logged.php';
 $successMessage = '';
 $errorMessage = '';
 
-// Récupérer les fleet types pour la liste déroulante
+// Récupérer les fleet types pour la liste déroulante et leurs prix
 $fleetTypes = [];
+$fleetTypePrices = [];
 try {
-    $stmt = $pdo->query("SELECT id, fleet_type FROM FLEET_TYPE ORDER BY fleet_type");
+    $stmt = $pdo->query("SELECT id, fleet_type, cout_appareil FROM FLEET_TYPE ORDER BY fleet_type");
     $fleetTypes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($fleetTypes as $ft) {
+        $fleetTypePrices[$ft['id']] = $ft['cout_appareil'];
+    }
 } catch (PDOException $e) {
     $errorMessage = "Erreur lors de la récupération des types de flotte : " . htmlspecialchars($e->getMessage());
 }
 
 // Traitement du formulaire
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
     $fleet_type_id = intval($_POST['fleet_type'] ?? 0);
     $type = trim($_POST['type'] ?? '');
     $immat = strtoupper(trim($_POST['immat'] ?? ''));
     $localisation = strtoupper(trim($_POST['localisation'] ?? ''));
     $hub = strtoupper(trim($_POST['hub'] ?? ''));
+    $achat_mode = $_POST['achat_mode'] ?? 'comptant';
+    $nb_annees_credit = ($achat_mode === 'credit') ? intval($_POST['nb_annees_credit'] ?? 0) : 0;
+    $taux_percent = ($achat_mode === 'credit') ? floatval($_POST['taux_percent'] ?? 0) : 0;
 
     // Validation des champs
     if (
         $fleet_type_id === 0 || $type === '' || $immat === '' ||
         strlen($immat) > 10 ||
         strlen($localisation) > 4 || !preg_match('/^[A-Z0-9]{0,4}$/', $localisation) ||
-        strlen($hub) > 4 || !preg_match('/^[A-Z0-9]{0,4}$/', $hub)
+        strlen($hub) > 4 || !preg_match('/^[A-Z0-9]{0,4}$/', $hub) ||
+        ($achat_mode === 'credit' && ($nb_annees_credit <= 0 || $taux_percent <= 0))
     ) {
         $errorMessage = "Tous les champs obligatoires doivent être remplis correctement avec les formats demandés.";
     } else {
@@ -64,25 +73,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Récupérer l'id du nouvel avion
                 $avion_id = $pdo->lastInsertId();
 
-                // Récupérer le prix d'achat dans FLEET_TYPE via jointure
+                // Récupérer le prix d'achat dans FLEET_TYPE
                 $stmtPrix = $pdo->prepare("SELECT cout_appareil FROM FLEET_TYPE WHERE id = :fleet_type_id");
                 $stmtPrix->execute(['fleet_type_id' => $fleet_type_id]);
                 $prix_achat = $stmtPrix->fetchColumn();
 
-                // Insérer la ligne dans FINANCES
-                $sqlFinances = "INSERT INTO FINANCES (
-                    avion_id, date_achat, recettes, nb_annees_credit, taux_percent, remboursement, traite_payee_cumulee, reste_a_payer
-                ) VALUES (
-                    :avion_id, :date_achat, 0, 20, 2, :remboursement, 0, 0
-                )";
+                // Insérer la ligne dans FINANCES selon le mode d'achat
+                if ($achat_mode === 'comptant') {
+                    $sqlFinances = "INSERT INTO FINANCES (
+                        avion_id, date_achat, recettes, nb_annees_credit, taux_percent, remboursement, traite_payee_cumulee, reste_a_payer
+                    ) VALUES (
+                        :avion_id, :date_achat, 0, 0, 0, 0, 0, 0
+                    )";
+                    $paramsFinances = [
+                        'avion_id' => $avion_id,
+                        'date_achat' => date('Y-m-d')
+                    ];
+                } else {
+                    $sqlFinances = "INSERT INTO FINANCES (
+                        avion_id, date_achat, recettes, nb_annees_credit, taux_percent, remboursement, traite_payee_cumulee, reste_a_payer
+                    ) VALUES (
+                        :avion_id, :date_achat, 0, :nb_annees_credit, :taux_percent, 0, 0, :reste_a_payer
+                    )";
+                    $paramsFinances = [
+                        'avion_id' => $avion_id,
+                        'date_achat' => date('Y-m-d'),
+                        'nb_annees_credit' => $nb_annees_credit,
+                        'taux_percent' => $taux_percent,
+                        'reste_a_payer' => $prix_achat
+                    ];
+                }
                 $stmtFinances = $pdo->prepare($sqlFinances);
-                $stmtFinances->execute([
-                    'avion_id' => $avion_id,
-                    'date_achat' => date('Y-m-d'),
-                    'remboursement' => $prix_achat
-                ]);
+                $stmtFinances->execute($paramsFinances);
 
-                $successMessage = "Avion ajouté avec succès et ligne finances créée.";
+                $successMessage = "L'appareil $immat a été acheté avec succès. Félicitations !!";
+                // Réinitialiser les valeurs du formulaire
+                $_POST = [];
             }
         } catch (PDOException $e) {
             $errorMessage = "Erreur SQL : " . htmlspecialchars($e->getMessage());
@@ -92,18 +118,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 
 <main>
-    <h2>Ajouter un avion</h2>
+    <h2>Acheter un appareil</h2>
 
     <?php if ($successMessage): ?>
-        <p style="color: green;"><?= $successMessage ?></p>
+        <p style="color: green; font-weight:bold;"><?= $successMessage ?></p>
     <?php elseif ($errorMessage): ?>
-        <p style="color: red;"><?= $errorMessage ?></p>
+        <p style="color: red; font-weight:bold;"><?= $errorMessage ?></p>
     <?php endif; ?>
 
     <form method="post" action="" class="form-inscription" id="form-avion">
 
+        <div style="margin-bottom:10px;">
+            <div class="radio-group">
+                <label class="radio-label">
+                    <input type="radio" name="achat_mode" value="comptant" id="achat_comptant" <?= (!isset($_POST['achat_mode']) || $_POST['achat_mode'] === 'comptant') ? 'checked' : '' ?>>
+                    <span>Achat comptant</span>
+                </label>
+                <label class="radio-label">
+                    <input type="radio" name="achat_mode" value="credit" id="achat_credit" <?= (isset($_POST['achat_mode']) && $_POST['achat_mode'] === 'credit') ? 'checked' : '' ?>>
+                    <span>Achat à crédit</span>
+                </label>
+            </div>
+        </div>
+
         <label>Fleet type * :
-            <select name="fleet_type" required>
+            <select name="fleet_type" id="fleetTypeSelect" required>
                 <option value="">-- Choisissez un fleet type --</option>
                 <?php foreach ($fleetTypes as $ft): ?>
                     <option value="<?= htmlspecialchars($ft['id']) ?>" <?= (isset($_POST['fleet_type']) && $_POST['fleet_type'] == $ft['id']) ? 'selected' : '' ?>>
@@ -112,6 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php endforeach; ?>
             </select>
         </label>
+        <div id="prixAchatFleetType" style="margin:8px 0 0 0; font-weight:bold; color:#0066cc;"></div>
 
         <label>Type * :
             <select name="type" required>
@@ -136,17 +176,79 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <input type="text" name="hub" maxlength="4" pattern="[A-Z0-9]{0,4}" title="Max 4 caractères alphanumériques en majuscule" value="<?= htmlspecialchars($_POST['hub'] ?? '') ?>">
         </label>
 
+        <div id="credit-fields" style="display: none; margin-top:10px;">
+            <label>Nombre d'années de crédit * :
+                <input type="number" name="nb_annees_credit" min="1" max="50" value="<?= htmlspecialchars($_POST['nb_annees_credit'] ?? '') ?>">
+            </label>
+            <label>Taux (%) * :
+                <input type="number" name="taux_percent" min="1" step="1" max="100" value="<?= htmlspecialchars($_POST['taux_percent'] ?? '') ?>">
+            </label>
+        </div>
+
     </form>
 
     <div class="form-buttons">
-        <button type="submit" form="form-avion">Ajouter</button>
+        <button type="submit" form="form-avion">Signer le bon de commande</button>
         <button type="reset" form="form-avion">Réinitialiser</button>
     </div>
 </main>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Prix d'achat des fleet types
+    var fleetTypePrices = <?php echo json_encode($fleetTypePrices); ?>;
+    var selectFleetType = document.getElementById('fleetTypeSelect');
+    var prixAchatDiv = document.getElementById('prixAchatFleetType');
+
+    function updatePrixAchat() {
+        var val = selectFleetType.value;
+        if (val && fleetTypePrices[val]) {
+            prixAchatDiv.textContent = 'Prix d\'achat : ' + fleetTypePrices[val] + ' €';
+        } else {
+            prixAchatDiv.textContent = '';
+        }
+    }
+    selectFleetType.addEventListener('change', updatePrixAchat);
+    updatePrixAchat();
+
+    // Affichage des champs crédit
+    function toggleCreditFields() {
+        var creditFields = document.getElementById('credit-fields');
+        var achatCredit = document.getElementById('achat_credit');
+        creditFields.style.display = achatCredit.checked ? 'block' : 'none';
+    }
+    document.getElementById('achat_comptant').addEventListener('change', toggleCreditFields);
+    document.getElementById('achat_credit').addEventListener('change', toggleCreditFields);
+    toggleCreditFields();
+});
+</script>
+
 <style>
 main {
     padding-left: 30px;
+}
+
+/* Boutons radio stylés et alignés */
+.radio-group {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.radio-label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-weight: bold;
+    font-size: 1.05em;
+    color: #0066cc;
+}
+.radio-label input[type="radio"] {
+    accent-color: #0066cc;
+    width: 18px;
+    height: 18px;
+    margin: 0;
 }
 
 .form-inscription {

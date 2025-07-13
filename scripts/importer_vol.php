@@ -51,23 +51,12 @@ try {
             $erreurs[] = "Note du vol invalide ($note) pour le vol #$id";
         }
 
-        if (!empty($erreurs)) {
-            foreach ($erreurs as $err) {
-                log_trace("❌ $err");
-            }
-            rejeterVol($pdo, $vol, implode(' | ', $erreurs));
-            continue;
-        }
-
         // Vérification du pilote
         $stmtPilote = $pdo->prepare("SELECT id FROM PILOTES WHERE callsign = :callsign");
         $stmtPilote->execute(['callsign' => $callsign]);
         $pilote = $stmtPilote->fetch();
         if (!$pilote) {
-            $motif = "Pilote '$callsign' introuvable dans PILOTES.";
-            log_trace("❌ Vol #$id non importé : $motif");
-            rejeterVol($pdo, $vol, $motif);
-            continue;
+            $erreurs[] = "Pilote '$callsign' introuvable dans PILOTES.";
         }
 
         // Vérification de l'avion actif
@@ -75,9 +64,15 @@ try {
         $stmtAvion->execute(['immat' => $immat]);
         $avion = $stmtAvion->fetch();
         if (!$avion) {
-            $motif = "Avion '$immat' introuvable ou inactif dans FLOTTE.";
-            log_trace("❌ Vol #$id non importé : $motif");
-            rejeterVol($pdo, $vol, $motif);
+            $erreurs[] = "Avion '$immat' introuvable ou inactif dans FLOTTE.";
+        }
+
+        // Si erreurs, rejeter le vol avec tous les motifs
+        if (!empty($erreurs)) {
+            foreach ($erreurs as $err) {
+                log_trace("❌ $err");
+            }
+            rejeterVol($pdo, $vol, implode(' | ', $erreurs));
             continue;
         }
 

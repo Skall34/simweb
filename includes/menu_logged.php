@@ -12,8 +12,9 @@
     <div class="menu-admin">
         <span>Admin</span>
         <div class="submenu-admin">
-            <a href="/admin/admin_fleet_type.php">Ajouter un Fleet Type</a>
-            <a href="/admin/admin_fleet.php">Ajouter un Appareil</a>
+            <a href="/admin/admin_fleet_type.php">Créér un Fleet Type</a>
+            <a href="/admin/admin_fleet.php">Acheter un appareil</a>
+            <a href="/admin/admin_vendre_appareil.php">Vendre un appareil</a>
             <a href="/admin/admin_aeroport.php">Administration de la base des aéroports</a>
             <a href="/admin/admin_missions.php">Administration des missions</a>
         </div>

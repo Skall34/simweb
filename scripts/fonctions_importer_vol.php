@@ -284,6 +284,38 @@ function rejeterVol($pdo, $vol, $motif) {
 
     log_trace("✅ Vol rejeté inséré dans VOLS_REJETES pour ACARS ID=" . $vol['id']);
 
+    // Envoi d'un mail après rejet
+    try {
+        require_once __DIR__ . '/../includes/PHPMailer/PHPMailer.php';
+        require_once __DIR__ . '/../includes/PHPMailer/SMTP.php';
+        require_once __DIR__ . '/../includes/PHPMailer/Exception.php';
+        
+        $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+
+        $mail->isSMTP();
+        $mail->Host = 'ssl0.ovh.net';
+        $mail->SMTPAuth = true;
+        $mail->Username = 'admin@skywings.ovh';
+        $mail->Password = 'La6mulationCestCool!';
+        $mail->SMTPSecure = 'tls';
+        $mail->Port = 587;
+        $mail->setFrom('admin@skywings.ovh', 'Skywings');
+        $mail->addAddress('zjfk7400@gmail.com'); // Remplace par l'adresse souhaitée
+        $mail->Subject = 'Vol rejeté';
+        $mail->CharSet = 'UTF-8';
+        $mail->Body = "Un vol a été rejeté :\n" .
+            "ACARS ID : " . $vol['id'] . "\n" .
+            "Callsign : " . $vol['callsign'] . "\n" .
+            "Immatriculation : " . $vol['immatriculation'] . "\n" .
+            "Départ : " . $vol['departure_icao'] . "\n" .
+            "Arrivée : " . $vol['arrival_icao'] . "\n" .
+            "Motif du rejet : " . $motif . "\n";
+        $mail->send();
+        log_trace("📧 Mail envoyé pour vol rejeté ACARS ID=" . $vol['id']);
+    } catch (Exception $e) {
+        error_log("Erreur lors de l'envoi du mail de vol rejeté : " . $e->getMessage());
+    }
+
     $del = $pdo->prepare("DELETE FROM FROM_ACARS WHERE id = :id");
     $del->execute(['id' => $vol['id']]);
 

@@ -26,8 +26,7 @@ $sql = "
         fi.taux_percent, 
         fi.remboursement, 
         fi.traite_payee_cumulee, 
-        fi.reste_a_payer, 
-        fi.vente, 
+        fi.reste_a_payer,
         fi.recette_vente, 
         fi.date_vente 
     FROM FINANCES fi 
@@ -109,7 +108,6 @@ include __DIR__ . '/../includes/menu_logged.php';
                     <th>Remboursement (€)</th>
                     <th>Traités payés cumulés</th>
                     <th>Reste à payer (€)</th>
-                    <th>Vendu</th>
                     <th>Recette vente (€)</th>
                     <th>Date vente</th>
                 </tr>
@@ -127,7 +125,6 @@ include __DIR__ . '/../includes/menu_logged.php';
                         <td><?= format_chiffre($ligne['remboursement'] ?? 0) ?></td>
                         <td><?= htmlspecialchars($ligne['traite_payee_cumulee'] ?? 'N/A') ?></td>
                         <td><?= format_chiffre($ligne['reste_a_payer'] ?? 0) ?></td>
-                        <td><?= !empty($ligne['vente']) ? 'Oui' : 'Non' ?></td>
                         <td><?= format_chiffre($ligne['recette_vente'] ?? 0) ?></td>
                         <td><?= !empty($ligne['date_vente']) ? date('d/m/Y', strtotime($ligne['date_vente'])) : 'N/A' ?></td>
                     </tr>

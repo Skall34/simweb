@@ -63,11 +63,11 @@ include __DIR__ . '/../includes/menu_logged.php';
             <thead>
                 <tr>
                     <th>Immatriculation</th>
-                    <th>Type</th>
-                    <th>Type interne</th>
+                    <th>Fleet_type</th>
+                    <th>Catégorie</th>
                     <th>Localisation</th>
-                    <th>Hub</th>
-                    <th>Status</th>
+                    <th>Hub de rattachement</th>
+                    <th>Statut</th>
                     <th>État</th>
                     <th>Dernier utilisateur</th>
                     <th>Carburant restant</th>
