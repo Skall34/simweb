@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($errors)) {
         $hash = password_hash($mdp, PASSWORD_DEFAULT);
 
-        $stmt = $pdo->prepare("INSERT INTO PILOTES (callsign, password, prenom, nom, email) VALUES (?, ?, ?, ?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO PILOTES (callsign, password, prenom, nom, email, admin) VALUES (?, ?, ?, ?, ?, 0)");
         if(!$stmt->execute([$callsign, $hash, $prenom, $nom, $email])) {
             $errors[] = "Erreur lors de l'inscription, veuillez réessayer.";
         } else {

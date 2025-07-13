@@ -1,3 +1,9 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>
+
 <nav class="menu-logged">
     <a href="/index.php">Accueil</a>
     <a href="/pages/tableau_vols.php">Carnet de vol général</a>
@@ -8,17 +14,30 @@
     <a href="/pages/stats.php">Stats</a>
     <a href="/pages/finances.php">Finances</a>
     <a href="/pages/saisie_manuelle.php">Saisie Manuelle</a>
+    <a href="/pages/mon_compte.php">Mon compte</a>
     
-    <div class="menu-admin">
-        <span>Admin</span>
-        <div class="submenu-admin">
-            <a href="/admin/admin_fleet_type.php">Créér un Fleet Type</a>
-            <a href="/admin/admin_fleet.php">Acheter un appareil</a>
-            <a href="/admin/admin_vendre_appareil.php">Vendre un appareil</a>
-            <a href="/admin/admin_aeroport.php">Administration de la base des aéroports</a>
-            <a href="/admin/admin_missions.php">Administration des missions</a>
-        </div>
-    </div>
+    <?php
+    if (isset($_SESSION['user']['callsign'])) {
+        require_once __DIR__ . '/db_connect.php';
+        $stmt = $pdo->prepare("SELECT admin FROM PILOTES WHERE callsign = :callsign");
+        $stmt->execute(['callsign' => $_SESSION['user']['callsign']]);
+        $isAdmin = $stmt->fetchColumn();
+        if ($isAdmin == 1) {
+            ?>
+            <div class="menu-admin">
+                <span>Admin</span>
+                <div class="submenu-admin">
+                    <a href="/admin/admin_fleet_type.php">Ajouter un Fleet Type</a>
+                    <a href="/admin/admin_fleet.php">Ajouter un Appareil</a>
+                    <a href="/admin/admin_aeroport.php">Administration de la base des aéroports</a>
+                    <a href="/admin/admin_missions.php">Administration des missions</a>
+                    <a href="/admin/admin_gestion_pilotes.php">Administration des pilotes</a>
+                </div>
+            </div>
+            <?php
+        }
+    }
+    ?>
 </nav>
 
 <style>
