@@ -167,11 +167,15 @@ include __DIR__ . '/../includes/menu_logged.php';
             </label>
 
             <br>
-            <button type="submit" name="action" value="<?= $etat === 'edition' ? 'mettre_a_jour' : 'creer' ?>">
-                <?= $etat === 'edition' ? 'Mettre à jour' : 'Créer' ?>
-            </button>
+            <div style="display: flex; gap: 15px; margin-top: 10px;">
+                <button type="submit" name="action" value="<?= $etat === 'edition' ? 'mettre_a_jour' : 'creer' ?>" style="padding: 8px 20px; font-size: 1rem;">
+                    <?= $etat === 'edition' ? 'Mettre à jour' : 'Créer' ?>
+                </button>
+                <button type="button" style="padding: 8px 20px; font-size: 1rem;" onclick="window.location.href='admin_aeroport.php'">Retour</button>
+            </div>
         </form>
     <?php endif; ?>
 </main>
+
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>

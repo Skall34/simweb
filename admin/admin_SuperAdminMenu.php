@@ -24,6 +24,7 @@ $scripts = [
     'maintenance.php' => 'Maintenance flotte',
     'assurance_mensuelle.php' => "Assurance mensuelle",
     'credit_mensualite.php' => "Mensualités crédit",
+    'update_fret.php' => "Mise à jour du fret",
     'admin_retablir_balance.php' => 'Rétablir la cohérence balance'
 ];
 
@@ -38,7 +39,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['script'])) {
     if (file_exists($scriptPath)) {
         ob_start();
         include $scriptPath;
-        $result = ob_get_clean();
+        $result = trim(ob_get_clean());
+        // Pour update_fret.php, on retire tout éventuel <html> ou <body> parasite
+        if ($script === 'update_fret.php') {
+            // On ne garde que le contenu brut, sans balises HTML globales
+            $result = preg_replace('#<\/?(html|body)[^>]*>#i', '', $result);
+        }
     } else {
         $result = "<div class='alert error'>Script introuvable : $script</div>";
     }

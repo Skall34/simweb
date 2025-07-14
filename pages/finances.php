@@ -63,14 +63,11 @@ function format_chiffre($valeur) {
 }
 
 // Calcul de la balance financière
-$sqlBalance = "SELECT 
-    COALESCE(SUM(recettes),0) AS total_recettes, 
-    COALESCE(SUM(reste_a_payer),0) AS total_reste_a_payer, 
-    COALESCE(SUM(recette_vente),0) AS total_recette_vente 
-FROM FINANCES";
+
+// Récupère la balance financière depuis la table BALANCE_FINANCIERE
+$sqlBalance = "SELECT balance_actuelle FROM BALANCE_COMMERCIALE";
 $stmtBalance = $pdo->query($sqlBalance);
-$balanceRow = $stmtBalance->fetch();
-$balance = ($balanceRow['total_recettes'] + $balanceRow['total_recette_vente']) - $balanceRow['total_reste_a_payer'];
+$balance = $stmtBalance->fetchColumn();
 
 
 include __DIR__ . '/../includes/header.php';
