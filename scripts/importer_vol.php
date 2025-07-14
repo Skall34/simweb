@@ -126,15 +126,19 @@ try {
         $cout_vol = calculerRevenuNetVol($payload, $temps_vol, $majoration_mission, $carburant, $note, $cout_horaire);
 
         // 5. Ajout au carnet de vol avec le coût
+        logMsg("Ajout au carnet de vol : callsign=$callsign, immat=$immat, depart=$depart, dest=$dest, payload=$payload, cout_vol=$cout_vol", $logFile);
         remplirCarnetVolGeneral($horodateur, $callsign, $immat, $depart, $dest, $fuelDep, $fuelArr, $payload, $timeDep, $timeArr, $mission, $commentaire, $note, $cout_vol);
 
         // 6. Mise à jour de la flotte
+        logMsg("Mise à jour flotte : immat=$immat, fuel=$fuelArr, callsign=$callsign, localisation=$dest", $logFile);
         mettreAJourFlotte($immat, $fuelArr, $callsign, $dest);
-        
+
         // Mettre à jour finances
+        logMsg("Mise à jour finances : immat=$immat, cout_vol=$cout_vol", $logFile);
         mettreAJourFinances($immat, $cout_vol);
 
         // 7. Usure
+        logMsg("Usure avion $immat : note=$note", $logFile);
         deduireUsure($immat, $note);
 
         // 8. Marquer comme traité

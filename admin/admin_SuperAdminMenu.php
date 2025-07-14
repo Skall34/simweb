@@ -28,7 +28,15 @@ $scripts = [
     'admin_retablir_balance.php' => 'Rétablir la cohérence balance'
 ];
 
+// Scripts nécessitant un CSV
+$csvScripts = [
+    'import_finances.php' => 'Import finances (CSV)',
+    'import_from_acars.php' => 'Import FROM_ACARS (CSV)'
+];
+
 $result = '';
+
+// Exécution script classique
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['script'])) {
     $script = basename($_POST['script']);
     if (strpos($script, 'admin_') === 0) {
@@ -40,13 +48,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['script'])) {
         ob_start();
         include $scriptPath;
         $result = trim(ob_get_clean());
-        // Pour update_fret.php, on retire tout éventuel <html> ou <body> parasite
         if ($script === 'update_fret.php') {
-            // On ne garde que le contenu brut, sans balises HTML globales
             $result = preg_replace('#<\/?(html|body)[^>]*>#i', '', $result);
         }
     } else {
         $result = "<div class='alert error'>Script introuvable : $script</div>";
+    }
+}
+
+// Traitement import CSV
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['csv_script']) && isset($_FILES['csv_file'])) {
+    $csvScript = basename($_POST['csv_script']);
+    $csvTmp = $_FILES['csv_file']['tmp_name'];
+    $csvName = basename($_FILES['csv_file']['name']);
+    $uploadDir = __DIR__ . '/../scripts/uploads/';
+    if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
+    $destPath = $uploadDir . uniqid('csv_') . '_' . $csvName;
+    if (move_uploaded_file($csvTmp, $destPath)) {
+        $scriptPath = __DIR__ . '/../scripts/' . $csvScript;
+        if (file_exists($scriptPath)) {
+            $_POST['csv_path'] = $destPath;
+            ob_start();
+            include $scriptPath;
+            $result = trim(ob_get_clean());
+        } else {
+            $result = "<div class='alert error'>Script introuvable : $csvScript</div>";
+        }
+    } else {
+        $result = "<div class='alert error'>Erreur lors de l'upload du fichier CSV.";
     }
 }
 ?>
@@ -61,6 +90,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['script'])) {
         </select>
         <button type="submit" class="btn" id="btn-executer">Exécuter</button>
     </form>
+
+    <h3>Import CSV</h3>
+    <?php foreach ($csvScripts as $csvFile => $csvLabel): ?>
+        <form method="post" enctype="multipart/form-data" style="margin-bottom:2em;">
+            <input type="hidden" name="csv_script" value="<?= htmlspecialchars($csvFile) ?>">
+            <label><?= htmlspecialchars($csvLabel) ?> :
+                <input type="file" name="csv_file" accept=".csv" required>
+            </label>
+            <?php if ($csvFile === 'import_from_acars.php'): ?>
+                <label style="margin-left:15px;">
+                    <input type="checkbox" name="dryrun" value="1"> Mode simulation (dry-run)
+                </label>
+            <?php endif; ?>
+            <button type="submit" class="btn">Lancer l'import</button>
+        </form>
+    <?php endforeach; ?>
+
     <script>
     const form = document.getElementById('form-admin-sky0707');
     const btn = document.getElementById('btn-executer');

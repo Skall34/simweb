@@ -34,17 +34,29 @@ try {
     // Récupérer la somme des recettes et des coûts des avions
     $stmtRecettes = $pdo->query("SELECT SUM(recettes) FROM FINANCES");
     $recettes = (float) $stmtRecettes->fetchColumn();
+    logMsg("[BALANCE] Recettes totales FINANCES: $recettes", $logFile);
     $stmtCout = $pdo->query("SELECT SUM(traite_payee_cumulee) FROM FINANCES");
     $cout_avions = (float) $stmtCout->fetchColumn();
+    logMsg("[BALANCE] Coût total avions FINANCES: $cout_avions", $logFile);
 
-    // Récupérer l'apport initial (première ligne ou valeur par défaut)
+    // Récupérer l'apport initial et l'assurance (première ligne ou valeur par défaut)
     $apport_initial = 0.0;
-    $stmtApport = $pdo->query("SELECT apport_initial FROM BALANCE_COMMERCIALE ORDER BY id ASC LIMIT 1");
-    $apport_initial = (float) $stmtApport->fetchColumn();
-    if ($apport_initial === false) $apport_initial = 1000;
+    $assurance = 0.0;
+    $stmtBalance = $pdo->query("SELECT apport_initial, assurance FROM BALANCE_COMMERCIALE ORDER BY id ASC LIMIT 1");
+    $rowBalance = $stmtBalance->fetch(PDO::FETCH_ASSOC);
+    if ($rowBalance) {
+        $apport_initial = (float) $rowBalance['apport_initial'];
+        $assurance = isset($rowBalance['assurance']) ? (float) $rowBalance['assurance'] : 0.0;
+    } else {
+        $apport_initial = 1000;
+        $assurance = 0.0;
+    }
+    logMsg("[BALANCE] Apport initial: $apport_initial", $logFile);
+    logMsg("[BALANCE] Assurance: $assurance", $logFile);
 
     // Calculer la balance actuelle
-    $balance_actuelle = $apport_initial + $recettes - $cout_avions;
+    $balance_actuelle = $apport_initial + $recettes - $cout_avions - $assurance;
+    logMsg("[BALANCE] Calcul balance_actuelle = apport_initial + recettes - cout_avions - assurance = $apport_initial + $recettes - $cout_avions - $assurance = $balance_actuelle", $logFile);
 
     // Mettre à jour ou insérer la ligne
     $stmtCheck = $pdo->query("SELECT id FROM BALANCE_COMMERCIALE LIMIT 1");

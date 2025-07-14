@@ -102,7 +102,7 @@ function remplirCarnetVolGeneral(
     $mission, $commentaire, $note, $cout_vol
     ) {
     global $pdo;
-    logMsg("Remplissage carnet vol : $callsign, $immat, $depart -> $arrivee, cout_vol=$cout_vol", $logFile);
+    logMsg("Remplissage carnet vol : callsign=$callsign, immat=$immat, depart=$depart, arrivee=$arrivee, fuel_dep=$fuel_dep, fuel_arr=$fuel_arr, fret=$fret, heure_dep=$heure_dep, heure_arr=$heure_arr, mission=$mission, note=$note, cout_vol=$cout_vol", $logFile);
 
     $stmtAppareil = $pdo->prepare("SELECT id FROM FLOTTE WHERE immat = :immat");
     $stmtAppareil->execute(['immat' => $immat]);
@@ -146,7 +146,7 @@ function remplirCarnetVolGeneral(
 function mettreAJourFinances($immat, $cout_vol) {
     global $pdo;
     logMsg("Mise à jour finances : immat=$immat, cout_vol=$cout_vol", $logFile);
-
+    // Log avant et après modification
     if (!$immat || $cout_vol === null) {
         error_log("⚠ Paramètres manquants dans mettreAJourFinances: " . print_r([
             'immat' => $immat,
@@ -168,16 +168,9 @@ function mettreAJourFinances($immat, $cout_vol) {
 
     $stmt = $pdo->prepare("SELECT recettes FROM FINANCES WHERE avion_id = :avion_id");
     $stmt->execute(['avion_id' => $avion_id]);
-    $finance = $stmt->fetch();
-
-    if (!$finance) {
-        error_log("❌ Pas de ligne FINANCES pour avion_id : $avion_id.");
-        return;
-    }
-
-    $recette_old = floatval($finance['recettes']);
+    $row = $stmt->fetch();
+    $recette_old = $row ? floatval($row['recettes']) : 0.0;
     $recette_new = $recette_old + floatval($cout_vol);
-
     logMsg("Recette ancienne: $recette_old €, nouvelle recette: $recette_new €", $logFile);
 
     try {
@@ -236,6 +229,7 @@ function mettreAJourFlotte($immat, $fuel_arr, $callsign, $arrivee) {
 }
 
 function deduireUsure(string $immat, int $note): void {
+    logMsg("Usure avion $immat : note=$note", $logFile);
     global $pdo;
 
     $pourcentages = [
