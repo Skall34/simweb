@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['script'])) {
 }
 ?>
 <main>
-    <h2>Administration SKY0707</h2>
+    <h2>Super Administration</h2>
     <form method="post" style="margin-bottom:2em;" id="form-admin-sky0707">
         <label for="script">Choisir un script à exécuter :</label>
         <select name="script" id="script">
