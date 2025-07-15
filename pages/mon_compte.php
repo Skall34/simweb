@@ -13,11 +13,27 @@ $id = $_SESSION['user']['id'];
 $stmt = $pdo->prepare('SELECT * FROM PILOTES WHERE id = ?');
 $stmt->execute([$id]);
 $pilote = $stmt->fetch();
+// Récupérer le libellé du grade
+$grade_nom = '';
+if (!empty($pilote['grade_id'])) {
+    $stmt = $pdo->prepare('SELECT nom FROM GRADES WHERE id = ?');
+    $stmt->execute([$pilote['grade_id']]);
+    $grade_nom = $stmt->fetchColumn();
+}
 
 // Nombre de vols
 $stmt = $pdo->prepare('SELECT COUNT(*) FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = ?');
 $stmt->execute([$id]);
 $nb_vols = $stmt->fetchColumn();
+// Nombre d'heures de vol
+$stmt = $pdo->prepare('SELECT SUM(TIME_TO_SEC(temps_vol)) FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = ?');
+$stmt->execute([$id]);
+$total_sec = (int)$stmt->fetchColumn();
+$heures = $total_sec / 3600;
+// Recettes rapportées
+$stmt = $pdo->prepare('SELECT SUM(cout_vol) FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = ?');
+$stmt->execute([$id]);
+$recettes = (float)$stmt->fetchColumn();
 
 // 3 aéroports les plus fréquentés avec ident
 $stmt = $pdo->prepare('SELECT c.destination, COUNT(*) as freq, a.ident FROM CARNET_DE_VOL_GENERAL c LEFT JOIN AEROPORTS a ON c.destination = a.ident WHERE c.pilote_id = ? GROUP BY c.destination ORDER BY freq DESC LIMIT 3');
@@ -62,6 +78,7 @@ include __DIR__ . '/../includes/menu_logged.php';
             <p><strong>Nom :</strong> <?= htmlspecialchars($pilote['nom'] ?? '') ?></p>
             <p><strong>Prénom :</strong> <?= htmlspecialchars($pilote['prenom'] ?? '') ?></p>
             <p><strong>Email :</strong> <?= htmlspecialchars($pilote['email'] ?? '') ?></p>
+            <p><strong>Grade :</strong> <?= htmlspecialchars($grade_nom) ?></p>
             <!-- Ajoute d'autres champs si besoin -->
         </div>
     </div>

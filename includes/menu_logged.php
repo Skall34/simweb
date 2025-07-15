@@ -15,6 +15,7 @@ if (session_status() === PHP_SESSION_NONE) {
     <a href="/pages/flights.php">Mes vols</a>
     <a href="/pages/stats.php">Stats</a>
     <a href="/pages/finances.php">Finances</a>
+    <a href="/pages/grades.php">Grades</a>
     <a href="/pages/saisie_manuelle.php">Saisie Manuelle</a>
     <a href="/pages/mon_compte.php">Mon compte</a>
     
@@ -30,7 +31,8 @@ if (session_status() === PHP_SESSION_NONE) {
                 <span>Admin</span>
                 <div class="submenu-admin">
                     <a href="/admin/admin_fleet_type.php">Ajouter un Fleet Type</a>
-                    <a href="/admin/admin_fleet.php">Ajouter un Appareil</a>
+                    <a href="/admin/admin_fleet.php">Acheter un Appareil</a>
+                    <a href="/admin/admin_vendre_appareil.php">Vendre un Appareil</a>
                     <a href="/admin/admin_aeroport.php">Administration de la base des aéroports</a>
                     <a href="/admin/admin_missions.php">Administration des missions</a>
                     <a href="/admin/admin_gestion_pilotes.php">Administration des pilotes</a>

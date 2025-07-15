@@ -24,6 +24,7 @@ try {
       cdvg.heure_arrivee,
       cdvg.note_du_vol,
       m.libelle AS mission_libelle,
+      cdvg.cout_vol,
       cdvg.pirep_maintenance,
       TIMEDIFF(cdvg.heure_arrivee, cdvg.heure_depart) AS block_time,
       (cdvg.fuel_depart - cdvg.fuel_arrivee) AS conso
@@ -93,8 +94,9 @@ try {
                     <th>Heure départ</th>
                     <th>Heure arrivée</th>
                     <th>Block time</th>
-                    <th>Note du vol</th>
+                    <th style="width:110px;">Note du vol</th>
                     <th>Mission</th>
+                    <th>Coût du vol</th>
                     <th>Pirep maintenance</th>
                 </tr>
             </thead>
@@ -117,8 +119,9 @@ try {
                     <td><?php echo htmlspecialchars($vol['heure_depart']); ?></td>
                     <td><?php echo htmlspecialchars($vol['heure_arrivee']); ?></td>
                     <td><?php echo htmlspecialchars($vol['block_time']); ?></td>
-                    <td><?php echo htmlspecialchars($vol['note_du_vol']); ?></td>
+                    <td style="max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><?php echo htmlspecialchars($vol['note_du_vol']); ?></td>
                     <td><?php echo htmlspecialchars($vol['mission_libelle']); ?></td>
+                    <td><?php echo number_format($vol['cout_vol'] !== null ? (float)$vol['cout_vol'] : 0, 2) . ' €'; ?></td>
                     <td title="<?= htmlspecialchars($pirep_complet) ?>"><?= htmlspecialchars($pirep_court) ?></td>
                 </tr>
             <?php endforeach; ?>
