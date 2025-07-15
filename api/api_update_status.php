@@ -44,28 +44,29 @@ $flying = intval($data['flying']);
 
 // Insertion en base
 try {
-    if ($flying == 1) { 
+    if ($flying == 1) {
         $stmt = $pdo->prepare("INSERT INTO Live_FLIGHTS (
             Callsign, ICAO_Dep, ICAO_Arr, Avion
         ) VALUES (
             :Callsign, :ICAO_Dep, :ICAO_Arr, :Avion
-        )");
+        )
+        ON DUPLICATE KEY UPDATE
+            ICAO_Dep = VALUES(ICAO_Dep),
+            ICAO_Arr = VALUES(ICAO_Arr),
+            Avion = VALUES(Avion)");
+
         $stmt->execute([
-            'Callsign'     => $callsign,
-            'ICAO_Dep'     => $departure_icao,
-            'ICAO_Arr'     => $arrival_icao,
+            'Callsign'  => $callsign,
+            'ICAO_Dep'  => $departure_icao,
+            'ICAO_Arr'  => $arrival_icao,
             'Avion'     => $immat,
         ]);
-
-    }else{
-
-        $stmt = $pdo->prepare("DELETE FROM Live_FLIGHTS WHERE Callsign= :cs");
+    } else {
+        $stmt = $pdo->prepare("DELETE FROM Live_FLIGHTS WHERE Callsign = :cs");
         $stmt->execute([
-            'cs'     => $callsign
+            'cs' => $callsign
         ]);
-
     }
-
 
     echo json_encode(['status' => 'success', 'message' => '✅ status mis à jour avec succès']);
 } catch (PDOException $e) {
