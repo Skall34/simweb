@@ -63,8 +63,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Si toujours pas d'erreur, on insert
     if (empty($errors)) {
         $hash = password_hash($mdp, PASSWORD_DEFAULT);
-
-        $stmt = $pdo->prepare("INSERT INTO PILOTES (callsign, password, prenom, nom, email, admin) VALUES (?, ?, ?, ?, ?, 0)");
+        // Affecter le grade 1 (Junior) à tout nouveau pilote
+        $stmt = $pdo->prepare("INSERT INTO PILOTES (callsign, password, prenom, nom, email, admin, grade_id) VALUES (?, ?, ?, ?, ?, 0, 1)");
         if(!$stmt->execute([$callsign, $hash, $prenom, $nom, $email])) {
             $errors[] = "Erreur lors de l'inscription, veuillez réessayer.";
         } else {
@@ -73,8 +73,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'prenom' => $prenom,
                 'nom' => $nom,
             ];
-            header("Location: /index.php");
-            exit;
         }
     }
 }
