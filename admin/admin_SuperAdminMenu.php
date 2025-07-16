@@ -20,7 +20,7 @@ if (!isset($_SESSION['user']['callsign']) || $_SESSION['user']['callsign'] !== '
 }
 
 $scripts = [
-    'importer_vol.php' => 'Importer les vols ACARS',
+    'importer_vol.php' => 'Importer les vols depuis FROM_ACARS',
     'maintenance.php' => 'Maintenance flotte',
     'assurance_mensuelle.php' => "Assurance mensuelle",
     'credit_mensualite.php' => "Mensualités crédit",
@@ -31,7 +31,7 @@ $scripts = [
 // Scripts nécessitant un CSV
 $csvScripts = [
     'import_finances.php' => 'Import finances (CSV)',
-    'import_from_acars.php' => 'Import FROM_ACARS (CSV)'
+    'import_from_acars.php' => 'Import dans la base FROM_ACARS depuis un CSV'
 ];
 
 $result = '';

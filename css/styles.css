@@ -1,3 +1,38 @@
+/* Style moderne pour la liste de sélection Skywings */
+.select-skywings {
+    position: relative;
+    display: inline-block;
+    width: 180px;
+    margin-bottom: 12px;
+}
+.select-skywings-select {
+    width: 100%;
+    padding: 7px 32px 7px 10px;
+    border-radius: 10px;
+    border: 1px solid #b3c6e0;
+    background: #f7fbff;
+    font-size: 0.98em;
+    color: #0066cc;
+    font-weight: bold;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    transition: border-color 0.2s;
+}
+.select-skywings-select:focus {
+    border-color: #0066cc;
+    outline: none;
+}
+.select-skywings-arrow {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    font-size: 1em;
+    color: #0066cc;
+}
 /* RESET DE BASE */
 * {
   box-sizing: border-box;

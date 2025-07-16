@@ -1,4 +1,5 @@
 <?php
+// ...existing code...
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/menu_logged.php';
 ?>
@@ -16,5 +17,8 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/menu_logged.php';
             <li>Log des opérations dans le fichier dédié.</li>
         </ul>
     </section>
+    <div style="text-align:center; margin-top:38px;">
+        <a href="/pages/documentation.php" class="btn" style="min-width:180px;text-decoration:none;">← Retour à la documentation</a>
+    </div>
 </div>
 <?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php'; ?>

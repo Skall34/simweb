@@ -106,6 +106,17 @@ try {
             continue;
         }
 
+        // 3. Vérification des doublons
+        if (empty($erreurs)) {
+            require_once __DIR__ . '/fonctions_importer_vol.php';
+            if (detecterDoublonVol($pdo, $callsign, $depart, $dest, $fuelDep, $fuelArr, $payload, $note, $mission)) {
+                $msgDoublon = "Vol #$id doublon détecté pour le pilote '$callsign' (depart=$depart, dest=$dest, payload=$payload, fuelDep=$fuelDep, fuelArr=$fuelArr, note=$note, mission=$mission)";
+                logMsg("❌ $msgDoublon", $logFile);
+                rejeterVol($pdo, $vol, $msgDoublon);
+                continue;
+            }
+        }
+
         // 3. Traitement du fret
         if ($payload > 0) {
             $fret_transporte = deduireFretDepart($depart, $payload);

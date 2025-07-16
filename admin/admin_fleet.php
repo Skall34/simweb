@@ -106,6 +106,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmtFinances = $pdo->prepare($sqlFinances);
                 $stmtFinances->execute($paramsFinances);
 
+                // Mettre à jour le champ cout_avions dans BALANCE_COMMERCIALE
+                $stmtGetCout = $pdo->query("SELECT cout_avions FROM BALANCE_COMMERCIALE WHERE id = 1");
+                $cout_avions = $stmtGetCout->fetchColumn();
+                if ($cout_avions === false || $cout_avions === null) {
+                    $cout_avions = 0;
+                }
+                $nouveau_cout = $cout_avions + $prix_achat;
+                $stmtUpdateCout = $pdo->prepare("UPDATE BALANCE_COMMERCIALE SET cout_avions = :nouveau_cout WHERE id = 1");
+                $stmtUpdateCout->execute(['nouveau_cout' => $nouveau_cout]);
+                // Recalculer et vérifier la balance commerciale après l'achat
+                $stmtCheck = $pdo->query("SELECT apport_initial, recettes, recettes_ventes_appareils, cout_avions, assurance, paiement_salaires FROM BALANCE_COMMERCIALE WHERE id = 1");
+                $row = $stmtCheck->fetch(PDO::FETCH_ASSOC);
+                $balance_theorique = ($row['apport_initial'] + $row['recettes'] + $row['recettes_ventes_appareils']) - ($row['cout_avions'] + $row['assurance'] + $row['paiement_salaires']);
+                $stmtBalance = $pdo->query("SELECT balance_actuelle FROM BALANCE_COMMERCIALE WHERE id = 1");
+                $balance_actuelle = $stmtBalance->fetchColumn();
+                if (abs($balance_actuelle - $balance_theorique) > 0.01) {
+                    // Correction automatique de la balance_actuelle
+                    $stmtUpdateBalance = $pdo->prepare("UPDATE BALANCE_COMMERCIALE SET balance_actuelle = :balance_theorique WHERE id = 1");
+                    $stmtUpdateBalance->execute(['balance_theorique' => $balance_theorique]);
+                    // Optionnel : log ou message d'alerte
+                    $successMessage .= "<br><span style='color:orange;'>[Alerte] Balance commerciale corrigée automatiquement.</span>";
+                }
+
                 $successMessage = "L'appareil $immat a été acheté avec succès. Félicitations !!";
                 // Réinitialiser les valeurs du formulaire
                 $_POST = [];

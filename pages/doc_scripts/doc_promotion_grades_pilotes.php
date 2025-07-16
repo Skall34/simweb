@@ -1,4 +1,5 @@
 <?php
+
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/menu_logged.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/db_connect.php';
@@ -7,7 +8,7 @@ $stmt = $pdo->query('SELECT nom, description, taux_horaire, niveau FROM GRADES O
 $grades = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <div class="container" style="max-width:900px;margin:40px auto;background:#fff;padding:32px;border-radius:12px;box-shadow:0 2px 16px rgba(0,0,0,0.08);">
-    <h1 style="text-align:center;color:#2c3e50;margin-bottom:32px;">Script : promotion_grades_pilotes</h1>
+    <h1 style="text-align:center;color:#2c3e50;margin-bottom:32px;">Script : Promotion des pilotes</h1>
     <section>
         <h2>Fonction métier</h2>
         <p>Ce script automatise la promotion des pilotes selon leurs heures de vol cumulées. Il met à jour le grade, envoie un mail de notification au pilote promu, logue chaque promotion et envoie un récapitulatif à l'administrateur.</p>
@@ -73,5 +74,8 @@ $grades = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </style>
     </section>
    
+    <div style="text-align:center; margin-top:38px;">
+        <a href="/pages/documentation.php" class="btn" style="min-width:180px;text-decoration:none;">← Retour à la documentation</a>
+    </div>
 </div>
 <?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php'; ?>

@@ -25,20 +25,29 @@ include __DIR__ . '/../includes/menu_logged.php';
     <?php if (empty($types)): ?>
         <p>Aucun type trouvé.</p>
     <?php else: ?>
+        <style>
+            .table-skywings th, .table-skywings td {
+                padding: 4px 6px;
+                font-size: 14px;
+            }
+            .table-skywings th.fleet_type, .table-skywings td.fleet_type { width: 120px; }
+            .table-skywings th.cout_horaire, .table-skywings td.cout_horaire { width: 110px; }
+            .table-skywings th.prix, .table-skywings td.prix { width: 100px; }
+        </style>
         <table class="table-skywings" border="1" cellpadding="5" cellspacing="0">
             <thead>
                 <tr>
-                    <th>Fleet $type</th>
-                    <th>Coût horaire (€)</th>
-                    <th>Prix (€)</th>
+                    <th class="fleet_type">Fleet type</th>
+                    <th class="cout_horaire">Coût horaire (€)</th>
+                    <th class="prix">Prix (€)</th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($types as $type): ?>
                 <tr>
-                    <td><?= htmlspecialchars($type['fleet_type']) ?></td>
-                    <td><?= number_format($type['cout_horaire'], 2, ',', ' ') ?></td>
-                    <td><?= number_format($type['cout_appareil'], 0, '', ' ') ?></td>
+                    <td class="fleet_type"><?= htmlspecialchars($type['fleet_type']) ?></td>
+                    <td class="cout_horaire"><?= number_format($type['cout_horaire'], 2, ',', ' ') ?></td>
+                    <td class="prix"><?= number_format($type['cout_appareil'], 0, '', ' ') ?></td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>

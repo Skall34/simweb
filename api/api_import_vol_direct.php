@@ -1,7 +1,32 @@
 <?php
-// Active les erreurs (en dev uniquement)
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+/*
+-------------------------------------------------------------
+ Script : api_import_vol_direct.php
+ Emplacement : api/
+
+ Description :
+ API REST permettant d'importer un vol ACARS en base via une requête POST.
+ Vérifie et formate les données reçues, rejette les vols invalides, met à jour le fret, la flotte, les finances, le carnet de vol, et applique l'usure.
+ Toutes les opérations et erreurs sont enregistrées dans api/logs/importer_vol_direct.log via logMsg().
+
+ Fonctionnement :
+ 1. Vérifie la méthode HTTP (POST uniquement).
+ 2. Vérifie la présence et la validité des champs requis dans $_POST.
+ 3. Formate et nettoie les données reçues.
+ 4. Insère le vol dans FROM_ACARS (marqué comme traité).
+ 5. Contrôles métier : validité des données, existence du pilote et de l'avion.
+ 6. Met à jour le fret, la flotte, les finances, le carnet de vol, et l'usure.
+ 7. Logue chaque étape et erreur dans le fichier log.
+ 8. Retourne une réponse JSON indiquant le succès ou l'erreur.
+
+ Utilisation :
+ - À appeler via une requête HTTP POST depuis un client ACARS ou une interface web.
+ - Vérifier le log en cas d'anomalie ou d'échec d'opération.
+
+ Auteur :
+ - Automatisé avec GitHub Copilot
+-------------------------------------------------------------
+*/
 
 // Connexion BDD
 require_once __DIR__ . '/../includes/db_connect.php';
@@ -12,6 +37,7 @@ require_once __DIR__ . '/../scripts/calcul_cout.php';
 
 date_default_timezone_set('Europe/Paris');
 $logFile = __DIR__ . '/logs/importer_vol_direct.log';
+$mailSummaryEnabled = true; // Active l'envoi du mail récapitulatif (mettre à false pour désactiver)
 
 // Réponse en JSON
 header('Content-Type: application/json');
@@ -83,7 +109,7 @@ try {
         'note'         => $note,
         'mission'      => $mission
     ]);
-    
+
     $erreurs = [];
 
         // 2. Contrôles basiques
@@ -111,12 +137,24 @@ try {
         $erreurs[] = "Avion '$immat' introuvable ou inactif dans FLOTTE.";
     }
 
+
+    // Vérification des doublons
+    if (empty($erreurs)) {
+        if (detecterDoublonVol($pdo, $callsign, $departure_icao, $arrival_icao, $departure_fuel, $arrival_fuel, $payload, $note, $mission)) {
+            $msgDoublon = "Vol doublon détecté pour le pilote '$callsign' (depart=$departure_icao, dest=$arrival_icao, payload=$payload, fuelDep=$departure_fuel, fuelArr=$arrival_fuel, note=$note, mission=$mission)";
+            logMsg("❌ $msgDoublon", $logFile);
+            rejeterVol($pdo, $_POST, $msgDoublon);
+            echo json_encode(['status' => 'error', 'message' => $msgDoublon]);
+            return;
+        }
+    }
+
     // Si erreurs, rejeter le vol avec tous les motifs
     if (!empty($erreurs)) {
         foreach ($erreurs as $err) {
             logMsg("❌ $err", $logFile);
         }
-        //rejeterVol($pdo, $vol, implode(' | ', $erreurs));
+        rejeterVol($pdo, $_POST, implode(' | ', $erreurs));
         echo json_encode(['status' => 'error', 'message' => implode(' | ', $erreurs)]);
         return;
     }
@@ -151,6 +189,7 @@ try {
     // Mettre à jour finances
     logMsg("Mise à jour finances : immat=$immat, cout_vol=$cout_vol", $logFile);
     mettreAJourFinances($immat, $cout_vol);
+    mettreAJourRecettesBalanceCommerciale($pdo);
 
     // 7. Usure
     logMsg("Usure avion $immat : note=$note", $logFile);
@@ -158,6 +197,26 @@ try {
 
     logMsg("✅ Vol traité avec succès (callsign: $callsign)", $logFile);
 
+    // Envoi du mail récapitulatif enrichi
+    if ($mailSummaryEnabled && function_exists('sendSummaryMail')) {
+        $subject = "[SimWeb] Rapport import vol direct ACARS - " . date('d/m/Y H:i');
+        $body = "Bonjour,\n\nImport d'un vol ACARS direct terminé.";
+        $body .= "\nPilote : $callsign";
+        $body .= "\nTrajet : $departure_icao -> $arrival_icao";
+        $body .= "\nImmatriculation : $immat";
+        $body .= "\nMission : $mission";
+        $body .= "\nPayload : $payload";
+        $body .= "\nNote : $note";
+        $body .= "\nCoût du vol : $cout_vol €";
+        $body .= "\n\nCeci est un message automatique.";
+        $to = defined('ADMIN_EMAIL') ? ADMIN_EMAIL : 'zjfk7400@gmail.com';
+        $mailResult = sendSummaryMail($subject, $body, $to);
+        if ($mailResult === true || $mailResult === null) {
+            logMsg("Mail récapitulatif envoyé à $to", $logFile);
+        } else {
+            logMsg("Erreur lors de l'envoi du mail récapitulatif : $mailResult", $logFile);
+        }
+    }
 
     echo json_encode(['status' => 'success', 'message' => '✅ Vol inséré avec succès']);
 } catch (PDOException $e) {

@@ -31,6 +31,12 @@
 require_once __DIR__ . '/../includes/log_func.php';
 $logFile = __DIR__ . '/logs/import_vol.log';
 
+/**
+ * Déduit le fret disponible au départ d'un aéroport et le met à jour.
+ * @param string $icao Code ICAO de l'aéroport de départ
+ * @param float $fret_demande Quantité de fret demandée
+ * @return float Quantité de fret effectivement déduite
+ */
 function deduireFretDepart($icao, $fret_demande) {
     global $pdo;
     logMsg("Déduction fret départ : ICAO=$icao, Demande=$fret_demande", $logFile);
@@ -65,6 +71,71 @@ function deduireFretDepart($icao, $fret_demande) {
     return $fret_effectif;
 }
 
+/**
+ * Recalcule la somme des recettes de tous les avions et met à jour le champ recettes dans BALANCE_COMMERCIALE.
+ * @param PDO $pdo
+ * @return void
+ */
+function mettreAJourRecettesBalanceCommerciale($pdo) {
+    // Calculer la somme des recettes de tous les avions
+    $stmt = $pdo->query("SELECT SUM(recettes) AS total_recettes FROM FINANCES");
+    $total = $stmt->fetchColumn();
+    if ($total === false) $total = 0;
+    // Mettre à jour le champ recettes dans BALANCE_COMMERCIALE (id=1 par défaut)
+    $update = $pdo->prepare("UPDATE BALANCE_COMMERCIALE SET recettes = :recettes WHERE id = 1");
+    $update->execute(['recettes' => $total]);
+    logMsg("Balance commerciale : recettes mises à jour à $total", __DIR__ . '/logs/importer_vol_direct.log');
+}
+
+
+/**
+ * Vérifie s'il existe un vol identique dans CARNET_DE_VOL_GENERAL pour le même pilote.
+ * @param PDO $pdo
+ * @param string $callsign
+ * @param string $depart
+ * @param string $dest
+ * @param float $fuelDep
+ * @param float $fuelArr
+ * @param float $payload
+ * @param int $note
+ * @param string $mission
+ * @return bool True si doublon trouvé, False sinon
+ */
+function detecterDoublonVol($pdo, $callsign, $depart, $dest, $fuelDep, $fuelArr, $payload, $note, $mission) {
+    // Récupérer l'id du pilote à partir du callsign
+    $stmtPilote = $pdo->prepare("SELECT id FROM PILOTES WHERE callsign = :callsign");
+    $stmtPilote->execute(['callsign' => $callsign]);
+    $pilote = $stmtPilote->fetch();
+    if (!$pilote) {
+        // Si le pilote n'existe pas, on ne peut pas détecter de doublon
+        return false;
+    }
+    $pilote_id = $pilote['id'];
+
+    $sql = "SELECT COUNT(*) FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = :pilote_id AND depart = :depart AND destination = :dest AND fuel_depart = :fuelDep AND fuel_arrivee = :fuelArr AND payload = :payload AND note_du_vol = :note AND mission_id = (
+        SELECT id FROM MISSIONS WHERE libelle = :mission LIMIT 1
+    )";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([
+        'pilote_id' => $pilote_id,
+        'depart' => $depart,
+        'dest' => $dest,
+        'fuelDep' => $fuelDep,
+        'fuelArr' => $fuelArr,
+        'payload' => $payload,
+        'note' => $note,
+        'mission' => $mission
+    ]);
+    return $stmt->fetchColumn() > 0;
+}
+
+
+/**
+ * Ajoute du fret à l'arrivée sur un aéroport donné.
+ * @param string $icao Code ICAO de l'aéroport d'arrivée
+ * @param float $fret Quantité de fret à ajouter
+ * @return void
+ */
 function ajouterFretDestination($icao, $fret) {
     global $pdo;
     logMsg("Ajout fret destination : ICAO=$icao, Fret à ajouter=$fret", $logFile);
@@ -96,6 +167,24 @@ function ajouterFretDestination($icao, $fret) {
     logMsg("Nouveau fret total à $icao : $newFret", $logFile);
 }
 
+/**
+ * Insère un vol dans le carnet de vol général (CARNET_DE_VOL_GENERAL).
+ * @param string $date_vol Date et heure du vol
+ * @param string $callsign Callsign du pilote
+ * @param string $immat Immatriculation de l'appareil
+ * @param string $depart Code ICAO de départ
+ * @param string $arrivee Code ICAO d'arrivée
+ * @param float $fuel_dep Carburant au départ
+ * @param float $fuel_arr Carburant à l'arrivée
+ * @param float $fret Quantité de fret transportée
+ * @param string $heure_dep Heure de départ
+ * @param string $heure_arr Heure d'arrivée
+ * @param string $mission Libellé de la mission
+ * @param string $commentaire Commentaire PIREP/maintenance
+ * @param int $note Note du vol
+ * @param float $cout_vol Coût ou revenu net du vol
+ * @return bool True si insertion réussie, False sinon
+ */
 function remplirCarnetVolGeneral(
     $date_vol, $callsign, $immat, $depart, $arrivee,
     $fuel_dep, $fuel_arr, $fret, $heure_dep, $heure_arr,
@@ -143,6 +232,12 @@ function remplirCarnetVolGeneral(
     return true;
 }
 
+/**
+ * Met à jour les recettes de l'appareil dans la table FINANCES.
+ * @param string $immat Immatriculation de l'appareil
+ * @param float $cout_vol Revenu net du vol à ajouter
+ * @return void
+ */
 function mettreAJourFinances($immat, $cout_vol) {
     global $pdo;
     logMsg("Mise à jour finances : immat=$immat, cout_vol=$cout_vol", $logFile);
@@ -183,6 +278,14 @@ function mettreAJourFinances($immat, $cout_vol) {
     }
 }
 
+/**
+ * Met à jour l'état, le carburant et la localisation d'un appareil dans la flotte.
+ * @param string $immat Immatriculation de l'appareil
+ * @param float $fuel_arr Carburant restant à l'arrivée
+ * @param string $callsign Callsign du pilote
+ * @param string $arrivee Code ICAO d'arrivée
+ * @return void
+ */
 function mettreAJourFlotte($immat, $fuel_arr, $callsign, $arrivee) {
     global $pdo;
     logMsg("Mise à jour flotte : immat=$immat, fuel=$fuel_arr, callsign=$callsign, localisation=$arrivee", $logFile);
@@ -228,6 +331,12 @@ function mettreAJourFlotte($immat, $fuel_arr, $callsign, $arrivee) {
     }
 }
 
+/**
+ * Applique l'usure à un appareil selon la note du vol. Met à jour l'état et le statut en cas de crash.
+ * @param string $immat Immatriculation de l'appareil
+ * @param int $note Note du vol (1 à 10)
+ * @return void
+ */
 function deduireUsure(string $immat, int $note): void {
     logMsg("Usure avion $immat : note=$note", $logFile);
     global $pdo;
@@ -267,6 +376,13 @@ function deduireUsure(string $immat, int $note): void {
     }
 }
 
+/**
+ * Insère un vol rejeté dans VOLS_REJETES, envoie un mail et supprime le vol ACARS.
+ * @param PDO $pdo Instance PDO
+ * @param array $vol Données du vol ACARS
+ * @param string $motif Motif du rejet
+ * @return void
+ */
 function rejeterVol($pdo, $vol, $motif) {
     logMsg("🔴 Rejet du vol ACARS ID=" . $vol['id'] . " | Motif : $motif", $logFile);
 

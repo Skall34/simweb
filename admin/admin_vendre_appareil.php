@@ -81,6 +81,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['avion_id'])) {
         $nouvelle_recette = $recettes_existantes + $recette_vente;
         $stmtUpdateRecettes = $pdo->prepare("UPDATE BALANCE_COMMERCIALE SET recettes_ventes_appareils = :nouvelle_recette");
         $stmtUpdateRecettes->execute(['nouvelle_recette' => $nouvelle_recette]);
+        // Recalculer et vérifier la balance commerciale après la vente
+        $stmtCheck = $pdo->query("SELECT apport_initial, recettes, recettes_ventes_appareils, cout_avions, assurance, paiement_salaires FROM BALANCE_COMMERCIALE LIMIT 1");
+        $row = $stmtCheck->fetch(PDO::FETCH_ASSOC);
+        $balance_theorique = ($row['apport_initial'] + $row['recettes'] + $row['recettes_ventes_appareils']) - ($row['cout_avions'] + $row['assurance'] + $row['paiement_salaires']);
+        $stmtBalance = $pdo->query("SELECT balance_actuelle FROM BALANCE_COMMERCIALE LIMIT 1");
+        $balance_actuelle = $stmtBalance->fetchColumn();
+        if (abs($balance_actuelle - $balance_theorique) > 0.01) {
+            // Correction automatique de la balance_actuelle
+            $stmtUpdateBalance = $pdo->prepare("UPDATE BALANCE_COMMERCIALE SET balance_actuelle = :balance_theorique");
+            $stmtUpdateBalance->execute(['balance_theorique' => $balance_theorique]);
+            // Optionnel : log ou message d'alerte
+            $successMessage .= "<br><span style='color:orange;'>[Alerte] Balance commerciale corrigée automatiquement.</span>";
+        }
 
         // Récupérer l'immatriculation pour le message
         $stmtImmat = $pdo->prepare("SELECT immat FROM FLOTTE WHERE id = :id");
@@ -94,6 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['avion_id'])) {
 ?>
 
 <main>
+    <a href="/pages/documentation.php" class="btn" style="margin-bottom:18px;display:inline-block;">← Retour à la documentation</a>
     <h2>Vendre un appareil</h2>
     <?php if ($successMessage): ?>
         <p style="color: green; font-weight:bold;"><?= $successMessage ?></p>
@@ -110,26 +124,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['avion_id'])) {
         <p>Aucun appareil actif à vendre.</p>
     <?php else: ?>
         <form id="venteForm" method="post" action="" onsubmit="return confirm('Confirmez-vous la vente de cet appareil ?');">
-            <label for="avionSelect"><strong>Choisir un appareil à vendre :</strong></label>
-            <select id="avionSelect" name="avion_id" style="margin-bottom:15px;">
-                <option value="">-- Sélectionner --</option>
-                <?php foreach ($flotte as $avion): ?>
-                    <option value="<?= $avion['id'] ?>"
-                        data-type="<?= htmlspecialchars($avion['type']) ?>"
-                        data-localisation="<?= htmlspecialchars($avion['localisation']) ?>"
-                        data-hub="<?= htmlspecialchars($avion['hub']) ?>"
-                        data-reste="<?= is_null($avion['reste_a_payer']) ? '' : htmlspecialchars($avion['reste_a_payer']) ?>"
-                        data-dateachat="<?= is_null($avion['date_achat']) ? '' : htmlspecialchars($avion['date_achat']) ?>"
-                        data-datevente="<?= is_null($avion['date_vente']) ? '' : htmlspecialchars($avion['date_vente']) ?>"
-                        data-recettevente="<?= is_null($avion['recette_vente']) ? '' : htmlspecialchars($avion['recette_vente']) ?>"
-                        data-recettes="<?= is_null($avion['recettes']) ? '' : htmlspecialchars($avion['recettes']) ?>"
-                        data-prixvente="<?= $avion['prix_vente_prevu'] !== '' ? htmlspecialchars($avion['prix_vente_prevu']) : '' ?>"
-                        data-modeachat="<?= htmlspecialchars($avion['mode_achat']) ?>"
-                    >
-                        <?= htmlspecialchars($avion['immat']) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
+            <label for="avionSelect" style="font-weight:bold;display:block;margin-bottom:7px;">
+                <span style="color:#0066cc;font-size:1.15em;vertical-align:middle;">✈️</span> Choisir un appareil à vendre :
+            </label>
+            <div class="select-wrapper">
+                <select id="avionSelect" name="avion_id">
+                    <option value="">-- Sélectionner --</option>
+                    <?php foreach ($flotte as $avion): ?>
+                        <option value="<?= $avion['id'] ?>"
+                            data-type="<?= htmlspecialchars($avion['type']) ?>"
+                            data-localisation="<?= htmlspecialchars($avion['localisation']) ?>"
+                            data-hub="<?= htmlspecialchars($avion['hub']) ?>"
+                            data-reste="<?= is_null($avion['reste_a_payer']) ? '' : htmlspecialchars($avion['reste_a_payer']) ?>"
+                            data-dateachat="<?= is_null($avion['date_achat']) ? '' : htmlspecialchars($avion['date_achat']) ?>"
+                            data-datevente="<?= is_null($avion['date_vente']) ? '' : htmlspecialchars($avion['date_vente']) ?>"
+                            data-recettevente="<?= is_null($avion['recette_vente']) ? '' : htmlspecialchars($avion['recette_vente']) ?>"
+                            data-recettes="<?= is_null($avion['recettes']) ? '' : htmlspecialchars($avion['recettes']) ?>"
+                            data-prixvente="<?= $avion['prix_vente_prevu'] !== '' ? htmlspecialchars($avion['prix_vente_prevu']) : '' ?>"
+                            data-modeachat="<?= htmlspecialchars($avion['mode_achat']) ?>"
+                        >
+                            <?= htmlspecialchars($avion['immat']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <span class="select-arrow">▼</span>
+            </div>
             <div id="detailsAvion" style="display:none; margin-bottom:15px;">
                 <p><strong>Type :</strong> <span id="detailType"></span></p>
                 <p><strong>Localisation :</strong> <span id="detailLocalisation"></span></p>
@@ -206,6 +225,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['avion_id'])) {
 }
 .btn:hover {
     background-color: #005bb5;
+}
+/* Style moderne pour la liste de sélection */
+.select-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 270px;
+    margin-bottom: 15px;
+}
+#avionSelect {
+    width: 100%;
+    padding: 9px 38px 9px 12px;
+    border-radius: 12px;
+    border: 1px solid #b3c6e0;
+    background: #f7fbff;
+    font-size: 1.08em;
+    color: #0066cc;
+    font-weight: bold;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    transition: border-color 0.2s;
+}
+#avionSelect:focus {
+    border-color: #0066cc;
+    outline: none;
+}
+.select-arrow {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    font-size: 1.1em;
+    color: #0066cc;
 }
 </style>
 
