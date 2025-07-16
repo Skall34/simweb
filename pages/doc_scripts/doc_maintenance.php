@@ -1,5 +1,5 @@
 <?php
-// ...existing code...
+
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/menu_logged.php';
 ?>

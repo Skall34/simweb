@@ -80,7 +80,7 @@ include __DIR__ . '/../includes/menu_logged.php';
     </form>
 
     <?php if (empty($fleet)): ?>
-        <p>Aucun avion trouvé.</p>
+        <p style="font-size:1.25em;color:#0066cc;font-weight:600;background:#f7fbff;padding:18px 0;border-radius:8px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.04);margin:28px 0;">Aucun appareil trouvé.</p>
     <?php else: ?>
         <style>
             .table-skywings th, .table-skywings td {
