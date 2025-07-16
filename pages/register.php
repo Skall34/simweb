@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($errors)) {
         $hash = password_hash($mdp, PASSWORD_DEFAULT);
         // Affecter le grade 1 (Junior) à tout nouveau pilote
-        $stmt = $pdo->prepare("INSERT INTO PILOTES (callsign, password, prenom, nom, email, admin, grade_id) VALUES (?, ?, ?, ?, ?, 0, 1)");
+        $stmt = $pdo->prepare("INSERT INTO PILOTES (callsign, password, prenom, nom, email, admin, grade_id, revenus) VALUES (?, ?, ?, ?, ?, 0, 1, 0)");
         if(!$stmt->execute([$callsign, $hash, $prenom, $nom, $email])) {
             $errors[] = "Erreur lors de l'inscription, veuillez réessayer.";
         } else {

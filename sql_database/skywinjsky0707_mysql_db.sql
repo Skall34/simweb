@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : skywinjsky0707.mysql.db
--- Généré le : dim. 13 juil. 2025 à 23:20
+-- Généré le : mer. 16 juil. 2025 à 10:42
 -- Version du serveur : 8.4.5-5
 -- Version de PHP : 8.1.32
 
@@ -20,6 +20,8 @@ SET time_zone = "+00:00";
 --
 -- Base de données : `skywinjsky0707`
 --
+CREATE DATABASE IF NOT EXISTS `skywinjsky0707` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+USE `skywinjsky0707`;
 
 -- --------------------------------------------------------
 
@@ -69,7 +71,9 @@ CREATE TABLE `BALANCE_COMMERCIALE` (
   `cout_avions` decimal(20,2) DEFAULT NULL,
   `apport_initial` decimal(20,2) DEFAULT NULL,
   `date_maj` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `assurance` decimal(20,2) NOT NULL DEFAULT '0.00'
+  `assurance` decimal(20,2) NOT NULL DEFAULT '0.00',
+  `paiement_salaires` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `recettes_ventes_appareils` decimal(15,2) DEFAULT '0.00'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -91,6 +95,7 @@ CREATE TABLE `CARNET_DE_VOL_GENERAL` (
   `payload` int DEFAULT NULL,
   `heure_depart` time NOT NULL,
   `heure_arrivee` time NOT NULL,
+  `temps_vol` time DEFAULT NULL,
   `note_du_vol` tinyint DEFAULT NULL,
   `mission_id` int DEFAULT NULL,
   `pirep_maintenance` text COLLATE utf8mb4_general_ci,
@@ -185,6 +190,22 @@ CREATE TABLE `FROM_ACARS` (
 -- --------------------------------------------------------
 
 --
+-- Structure de la table `GRADES`
+--
+
+DROP TABLE IF EXISTS `GRADES`;
+CREATE TABLE `GRADES` (
+  `id` int NOT NULL,
+  `nom` varchar(50) NOT NULL,
+  `description` text,
+  `niveau` int NOT NULL DEFAULT '1',
+  `date_creation` datetime DEFAULT CURRENT_TIMESTAMP,
+  `taux_horaire` decimal(6,2) NOT NULL DEFAULT '10.00'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Structure de la table `Live_FLIGHTS`
 --
 
@@ -234,12 +255,28 @@ DROP TABLE IF EXISTS `PILOTES`;
 CREATE TABLE `PILOTES` (
   `id` int NOT NULL,
   `callsign` varchar(7) COLLATE utf8mb4_general_ci NOT NULL,
+  `grade_id` int DEFAULT NULL,
   `password` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `prenom` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
   `nom` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
   `email` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-  `admin` tinyint(1) NOT NULL DEFAULT '0'
+  `admin` tinyint(1) NOT NULL DEFAULT '0',
+  `revenus` decimal(10,2) NOT NULL DEFAULT '0.00'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `SALAIRES`
+--
+
+DROP TABLE IF EXISTS `SALAIRES`;
+CREATE TABLE `SALAIRES` (
+  `id` int NOT NULL,
+  `id_pilote` int NOT NULL,
+  `date_de_paiement` date NOT NULL,
+  `montant` decimal(10,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -319,6 +356,18 @@ ALTER TABLE `FROM_ACARS`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Index pour la table `GRADES`
+--
+ALTER TABLE `GRADES`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Index pour la table `Live_FLIGHTS`
+--
+ALTER TABLE `Live_FLIGHTS`
+  ADD PRIMARY KEY (`Callsign`);
+
+--
 -- Index pour la table `MISSIONS`
 --
 ALTER TABLE `MISSIONS`
@@ -336,6 +385,13 @@ ALTER TABLE `password_resets`
 ALTER TABLE `PILOTES`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `email` (`email`);
+
+--
+-- Index pour la table `SALAIRES`
+--
+ALTER TABLE `SALAIRES`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `id_pilote` (`id_pilote`);
 
 --
 -- Index pour la table `VOLS_REJETES`
@@ -384,6 +440,12 @@ ALTER TABLE `FROM_ACARS`
   MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT pour la table `GRADES`
+--
+ALTER TABLE `GRADES`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT pour la table `MISSIONS`
 --
 ALTER TABLE `MISSIONS`
@@ -399,6 +461,12 @@ ALTER TABLE `password_resets`
 -- AUTO_INCREMENT pour la table `PILOTES`
 --
 ALTER TABLE `PILOTES`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT pour la table `SALAIRES`
+--
+ALTER TABLE `SALAIRES`
   MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
@@ -424,6 +492,12 @@ ALTER TABLE `CARNET_DE_VOL_GENERAL`
 --
 ALTER TABLE `FINANCES`
   ADD CONSTRAINT `FINANCES_ibfk_1` FOREIGN KEY (`avion_id`) REFERENCES `FLOTTE` (`id`);
+
+--
+-- Contraintes pour la table `SALAIRES`
+--
+ALTER TABLE `SALAIRES`
+  ADD CONSTRAINT `SALAIRES_ibfk_1` FOREIGN KEY (`id_pilote`) REFERENCES `PILOTES` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

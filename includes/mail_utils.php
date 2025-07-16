@@ -32,7 +32,14 @@ function sendSummaryMail($subject, $body, $to = ADMIN_EMAIL) {
         $mail->addAddress($to);
         $mail->Subject = $subject;
         $mail->CharSet = 'UTF-8';
-        $mail->Body = $body;
+        // Envoi en HTML uniquement si le corps contient des balises HTML
+        if (preg_match('/<[^>]+>/', $body)) {
+            $mail->isHTML(true);
+            $mail->Body = $body;
+            $mail->AltBody = strip_tags($body);
+        } else {
+            $mail->Body = $body;
+        }
         $mail->send();
         return true;
     } catch (Exception $e) {

@@ -8,6 +8,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 <nav class="menu-logged">
     <a href="/index.php">Accueil</a>
+    <a href="/pages/documentation.php">Fonctionnement VA</a>
     <a href="/pages/tableau_vols.php">Carnet de vol général</a>
     <a href="/pages/fleet.php">Flotte</a>
     <a href="/pages/fleet_type.php">Fleet Type</a>
@@ -15,7 +16,6 @@ if (session_status() === PHP_SESSION_NONE) {
     <a href="/pages/flights.php">Mes vols</a>
     <a href="/pages/stats.php">Stats</a>
     <a href="/pages/finances.php">Finances</a>
-    <a href="/pages/grades.php">Grades</a>
     <a href="/pages/saisie_manuelle.php">Saisie Manuelle</a>
     <a href="/pages/mon_compte.php">Mon compte</a>
     

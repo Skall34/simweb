@@ -72,6 +72,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['avion_id'])) {
             'avion_id' => $avion_id
         ]);
 
+        // Mettre à jour BALANCE_COMMERCIALE (recettes_ventes_appareils)
+        $stmtGetRecettes = $pdo->query("SELECT recettes_ventes_appareils FROM BALANCE_COMMERCIALE LIMIT 1");
+        $recettes_existantes = $stmtGetRecettes->fetchColumn();
+        if ($recettes_existantes === false || $recettes_existantes === null) {
+            $recettes_existantes = 0;
+        }
+        $nouvelle_recette = $recettes_existantes + $recette_vente;
+        $stmtUpdateRecettes = $pdo->prepare("UPDATE BALANCE_COMMERCIALE SET recettes_ventes_appareils = :nouvelle_recette");
+        $stmtUpdateRecettes->execute(['nouvelle_recette' => $nouvelle_recette]);
+
         // Récupérer l'immatriculation pour le message
         $stmtImmat = $pdo->prepare("SELECT immat FROM FLOTTE WHERE id = :id");
         $stmtImmat->execute(['id' => $avion_id]);

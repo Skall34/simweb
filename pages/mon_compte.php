@@ -13,6 +13,11 @@ $id = $_SESSION['user']['id'];
 $stmt = $pdo->prepare('SELECT * FROM PILOTES WHERE id = ?');
 $stmt->execute([$id]);
 $pilote = $stmt->fetch();
+
+// Récupérer le dernier salaire versé
+$stmt = $pdo->prepare('SELECT montant, date_de_paiement FROM SALAIRES WHERE id_pilote = ? ORDER BY date_de_paiement DESC LIMIT 1');
+$stmt->execute([$id]);
+$dernier_salaire = $stmt->fetch();
 // Récupérer le libellé du grade
 $grade_nom = '';
 if (!empty($pilote['grade_id'])) {
@@ -79,7 +84,10 @@ include __DIR__ . '/../includes/menu_logged.php';
             <p><strong>Prénom :</strong> <?= htmlspecialchars($pilote['prenom'] ?? '') ?></p>
             <p><strong>Email :</strong> <?= htmlspecialchars($pilote['email'] ?? '') ?></p>
             <p><strong>Grade :</strong> <?= htmlspecialchars($grade_nom) ?></p>
-            <!-- Ajoute d'autres champs si besoin -->
+            <p><strong>Revenu cumulé :</strong> <?= isset($pilote['revenus']) ? number_format($pilote['revenus'], 2) : '0.00' ?> €</p>
+            <?php if ($dernier_salaire): ?>
+                <p><strong>Dernier salaire :</strong> <?= number_format($dernier_salaire['montant'], 2) ?> € (<?= htmlspecialchars($dernier_salaire['date_de_paiement']) ?>)</p>
+            <?php endif; ?>
         </div>
     </div>
 
