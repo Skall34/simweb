@@ -17,15 +17,33 @@ if (!isset($_SESSION['user'])) {
         ?>
         <div style="display: flex; justify-content: center; align-items: flex-start; gap: 2rem; margin-top: 2rem; flex-wrap: wrap;">
             <!-- Texte à gauche -->
-            <div style="max-width: 600px; border: 1px solid #ccc; border-radius: 10px; padding: 1rem; background-color: #f9f9f9; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                <h2>Bienvenue sur <strong>SkyWings VA</strong></h2>
-                <p>Veuillez vous connecter pour accéder à vos vols.</p>
+            <div style="max-width: 900px; border: 1px solid #ccc; border-radius: 10px; padding: 1rem; background-color: #f9f9f9; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <h2>Bienvenue sur <strong>SkyWings VA</strong></h2>                
                 <p><strong>SkyWings VA</strong> est une compagnie aérienne virtuelle qui vous permet de suivre vos vols, de gérer votre flotte, et de participer à des missions variées dans un univers immersif.</p>
+                <p>Une fois inscrit sur notre site, vous aurez accès à <b>SimAddon</b>, un logiciel qui va vous permettre de monitorer vos vols sur simulateur (XPlane ou FS2020, ou FS2024).</p>
+                <p><b>SimAddon</b>, vous permettra, entre autre, d'envoyer votre rapport de vol à la fin de votre périple, dans la base de données du site.</p>
+                <p>Il sera alors importé. Voici les étapes qu'il va suivre:</p>
+                <ul style="margin-left: 2.2em;">
+                    <li>Vérification de la validité du rapport de vol</li>
+                    <li>Extraction des informations du vol (pilote, heure, aéroports, appareil, etc.)</li>
+                    <li>Enregistrement des données dans la base de données</li>
+                    <li>Met à jour le fret, la flotte, les finances, le carnet de vol, et l'usure des appareils.</li>
+                    <li>Met à jour la balance commerciale.</li>
+                    <li>Met à jour votre carnet de vol personnel</li>
+                </ul>
+                <p>Le site permet une gestion complète d'une flotte d'appareils, avec une gestion automatique de la maintenance.</p>
+                <p>Il gère aussi un système de grades pour les pilotes, qui a une influence sur les salaires.</p>
             </div>
 
-            <!-- Image à droite -->
-            <div style="max-width: 600px;">
+            <!-- Image + Vols en cours à droite -->
+            <div style="max-width: 600px; display: flex; flex-direction: column; gap: 1.5rem;">
                 <img src="assets/images/accueil.jpg" alt="SkyWings" style="width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+                <section style="margin: 0; max-width: 100%;">
+                    <h2 style="margin-top: 0;">Vols en cours</h2>
+                    <div id="live-flights-container">
+                        <p>Chargement des vols en cours...</p>
+                    </div>
+                </section>
             </div>
         </div>
         <?php
@@ -53,6 +71,19 @@ if (!isset($_SESSION['user'])) {
             $vols = [];
         }
     ?>
+
+        <div style="max-width: 600px; display: flex; flex-direction: column; gap: 1.5rem;">
+            
+            <section style="margin: 0; max-width: 100%;">
+                <h2 style="margin-top: 0;">Vols en cours</h2>
+                <div id="live-flights-container">
+                    <p>Chargement des vols en cours...</p>
+                </div>
+            </section>
+        </div>
+
+    <!-- Espace vertical avant le tableau -->
+    <div style="height: 2.5rem;"></div>
 
     <!-- Titre du tableau -->
     <h2>Les 10 derniers vols</h2>
@@ -90,14 +121,6 @@ if (!isset($_SESSION['user'])) {
 
     <?php } ?>
 
-    <!-- Section des vols en cours (live_flights) -->
-    <section style="margin: 2rem auto; max-width: 1000px;">
-        <h2>Vols en cours</h2>
-        <div id="live-flights-container">
-            <p>Chargement des vols en cours...</p>
-        </div>
-    </section>
-
     <script>
     function chargerVolsEnCours() {
         fetch('live_flights.php')
@@ -114,8 +137,8 @@ if (!isset($_SESSION['user'])) {
     // Chargement initial
     chargerVolsEnCours();
 
-    // Rafraîchissement toutes les 30 secondes
-    setInterval(chargerVolsEnCours, 30000);
+    // Rafraîchissement toutes les 20 secondes
+    setInterval(chargerVolsEnCours, 20000);
     </script>
 
 </main>

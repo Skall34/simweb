@@ -20,31 +20,34 @@ include __DIR__ . '/../includes/menu_logged.php';
 
 <main>
     <h2>Liste des pilotes</h2>
-
-    <?php if (empty($pilotes)): ?>
-        <p>Aucun pilote trouvé.</p>
-    <?php else: ?>
-        <div class="table-section">
-            <table class="table-skywings">
-                <thead>
-                    <tr>
-                        <th>Callsign</th>
-                        <th>Prénom</th>
-                        <th>Nom</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($pilotes as $pilote): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($pilote['callsign']) ?></td>
-                        <td><?= htmlspecialchars($pilote['prenom']) ?></td>
-                        <td><?= htmlspecialchars($pilote['nom']) ?></td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+    <div style="display: flex; justify-content: flex-start; margin-top: 1.2rem;">
+        <div style="min-width:370px;">
+            <?php if (empty($pilotes)): ?>
+                <p>Aucun pilote trouvé.</p>
+            <?php else: ?>
+                <div class="table-section">
+                    <table class="table-skywings">
+                        <thead>
+                            <tr>
+                                <th>Callsign</th>
+                                <th>Prénom</th>
+                                <th>Nom</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($pilotes as $pilote): ?>
+                            <tr>
+                                <td><?= htmlspecialchars($pilote['callsign']) ?></td>
+                                <td><?= htmlspecialchars($pilote['prenom']) ?></td>
+                                <td><?= htmlspecialchars($pilote['nom']) ?></td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
         </div>
-    <?php endif; ?>
+    </div>
 </main>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>
