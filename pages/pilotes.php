@@ -24,24 +24,26 @@ include __DIR__ . '/../includes/menu_logged.php';
     <?php if (empty($pilotes)): ?>
         <p>Aucun pilote trouvé.</p>
     <?php else: ?>
-        <table class="table-skywings" border="1" cellpadding="5" cellspacing="0">
-            <thead>
-                <tr>
-                    <th>Callsign</th>
-                    <th>Prénom</th>
-                    <th>Nom</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($pilotes as $pilote): ?>
-                <tr>
-                    <td><?= htmlspecialchars($pilote['callsign']) ?></td>
-                    <td><?= htmlspecialchars($pilote['prenom']) ?></td>
-                    <td><?= htmlspecialchars($pilote['nom']) ?></td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+        <div class="table-section">
+            <table class="table-skywings">
+                <thead>
+                    <tr>
+                        <th>Callsign</th>
+                        <th>Prénom</th>
+                        <th>Nom</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($pilotes as $pilote): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($pilote['callsign']) ?></td>
+                        <td><?= htmlspecialchars($pilote['prenom']) ?></td>
+                        <td><?= htmlspecialchars($pilote['nom']) ?></td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
     <?php endif; ?>
 </main>
 

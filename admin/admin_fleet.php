@@ -1,8 +1,10 @@
 <?php
+
 session_start();
 require __DIR__ . '/../includes/db_connect.php';
 include __DIR__ . '/../includes/header.php';
 include __DIR__ . '/../includes/menu_logged.php';
+require_once __DIR__ . '/../includes/mail_utils.php';
 
 $successMessage = '';
 $errorMessage = '';
@@ -115,21 +117,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $nouveau_cout = $cout_avions + $prix_achat;
                 $stmtUpdateCout = $pdo->prepare("UPDATE BALANCE_COMMERCIALE SET cout_avions = :nouveau_cout WHERE id = 1");
                 $stmtUpdateCout->execute(['nouveau_cout' => $nouveau_cout]);
-                // Recalculer et vérifier la balance commerciale après l'achat
-                $stmtCheck = $pdo->query("SELECT apport_initial, recettes, recettes_ventes_appareils, cout_avions, assurance, paiement_salaires FROM BALANCE_COMMERCIALE WHERE id = 1");
-                $row = $stmtCheck->fetch(PDO::FETCH_ASSOC);
-                $balance_theorique = ($row['apport_initial'] + $row['recettes'] + $row['recettes_ventes_appareils']) - ($row['cout_avions'] + $row['assurance'] + $row['paiement_salaires']);
-                $stmtBalance = $pdo->query("SELECT balance_actuelle FROM BALANCE_COMMERCIALE WHERE id = 1");
-                $balance_actuelle = $stmtBalance->fetchColumn();
-                if (abs($balance_actuelle - $balance_theorique) > 0.01) {
-                    // Correction automatique de la balance_actuelle
-                    $stmtUpdateBalance = $pdo->prepare("UPDATE BALANCE_COMMERCIALE SET balance_actuelle = :balance_theorique WHERE id = 1");
-                    $stmtUpdateBalance->execute(['balance_theorique' => $balance_theorique]);
-                    // Optionnel : log ou message d'alerte
-                    $successMessage .= "<br><span style='color:orange;'>[Alerte] Balance commerciale corrigée automatiquement.</span>";
-                }
 
                 $successMessage = "L'appareil $immat a été acheté avec succès. Félicitations !!";
+
+                // Envoi du mail récapitulatif via mail_utils.php
+                $mailSubject = "Nouvel achat d'appareil";
+                $mailBody = '<h3>Nouvel achat d\'appareil</h3>' .
+                    '<ul>' .
+                    '<li><strong>Immatriculation :</strong> ' . htmlspecialchars($immat) . '</li>' .
+                    '<li><strong>Type :</strong> ' . htmlspecialchars($type) . '</li>' .
+                    '<li><strong>Fleet type :</strong> ' . htmlspecialchars($fleetTypes[array_search($fleet_type_id, array_column($fleetTypes, 'id'))]['fleet_type'] ?? $fleet_type_id) . '</li>' .
+                    '<li><strong>Localisation :</strong> ' . htmlspecialchars($localisation) . '</li>' .
+                    '<li><strong>Hub :</strong> ' . htmlspecialchars($hub) . '</li>' .
+                    '<li><strong>Prix d\'achat :</strong> ' . number_format($prix_achat, 2) . ' €</li>' .
+                    '<li><strong>Mode d\'achat :</strong> ' . ($achat_mode === 'credit' ? 'Crédit' : 'Comptant') . '</li>' .
+                    ($achat_mode === 'credit' ? '<li><strong>Années crédit :</strong> ' . $nb_annees_credit . '</li><li><strong>Taux :</strong> ' . $taux_percent . '%</li>' : '') .
+                    '</ul>';
+                $to = ADMIN_EMAIL;
+                $mailResult = sendSummaryMail($mailSubject, $mailBody, $to);
+                if ($mailResult === true) {
+                    $successMessage .= '<br><span style="color:green;">Un mail de notification a été envoyé à l\'administrateur.</span>';
+                } else {
+                    $successMessage .= '<br><span style="color:orange;">Mail non envoyé : ' . htmlspecialchars($mailResult) . '</span>';
+                }
+
                 // Réinitialiser les valeurs du formulaire
                 $_POST = [];
             }

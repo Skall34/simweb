@@ -7,17 +7,43 @@ if (session_status() === PHP_SESSION_NONE) {
 ?>
 
 <nav class="menu-logged">
-    <a href="/index.php">Accueil</a>
-    <a href="/pages/documentation.php">Fonctionnement VA</a>
-    <a href="/pages/tableau_vols.php">Carnet de vol général</a>
-    <a href="/pages/fleet.php">Flotte</a>
-    <a href="/pages/fleet_type.php">Fleet Type</a>
-    <a href="/pages/pilotes.php">Pilotes</a>
-    <a href="/pages/flights.php">Mes vols</a>
-    <a href="/pages/stats.php">Stats</a>
-    <a href="/pages/finances.php">Finances</a>
-    <a href="/pages/saisie_manuelle.php">Saisie Manuelle</a>
-    <a href="/pages/mon_compte.php">Mon compte</a>
+    <a href="/index.php">🏠 Accueil</a>
+    <a href="/pages/tableau_vols.php">📒 Carnet de vol</a>
+    <a href="/pages/fleet.php">✈️ Flotte</a>
+    <a href="/pages/flights.php">🛫 Mes vols</a>
+<!-- 
+    <div class="menu-missions">
+        <span class="missions-label">🗺️ Missions</span>
+        <div class="submenu-missions">
+            <?php
+            require_once __DIR__ . '/db_connect.php';
+            $missions = [];
+            try {
+                $stmtMissions = $pdo->query("SELECT libelle FROM MISSIONS ORDER BY libelle ASC");
+                $missions = $stmtMissions->fetchAll(PDO::FETCH_COLUMN);
+            } catch (PDOException $e) {
+                echo '<span style="color:red;">Erreur chargement missions</span>';
+            }
+            foreach ($missions as $mission) {
+                $url = '/pages/missions/' . urlencode($mission) . '.php';
+                echo '<a href="' . $url . '">' . htmlspecialchars($mission) . '</a>';
+            }
+            ?>
+        </div>
+    </div> -->
+
+    <div class="menu-plus">
+        <span>➕ Plus</span>
+        <div class="submenu-plus">
+            <a href="/pages/documentation.php">📖 Documentation</a>
+            <a href="/pages/fleet_type.php">🛩️ Fleet Type</a>
+            <a href="/pages/pilotes.php">👨‍✈️ Pilotes</a>
+            <a href="/pages/stats.php">📊 Stats</a>
+            <a href="/pages/finances.php">💶 Finances</a>
+            <a href="/pages/grades.php">🧑‍✈️ Grades</a>
+            <a href="/pages/saisie_manuelle.php">📝 Saisie Manuelle</a>
+        </div>
+    </div>
     
     <?php
     if (isset($_SESSION['user']['callsign'])) {
@@ -45,9 +71,52 @@ if (session_status() === PHP_SESSION_NONE) {
         }
     }
     ?>
+
 </nav>
 
 <style>
+
+/* Sous-menu Plus */
+.menu-plus {
+    position: relative;
+    margin-left: 10px;
+    color: white;
+    display: flex;
+    align-items: center;
+}
+.menu-plus span {
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+    color: white;
+    display: inline-block;
+}
+.submenu-plus {
+    display: none;
+    position: absolute;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    z-index: 100;
+    padding: 5px;
+    min-width: 180px;
+    color: blue !important;
+    font-size: 0.85rem;
+    top: 100%;
+    left: 0;
+}
+.menu-plus:hover .submenu-plus {
+    display: block;
+}
+.submenu-plus a {
+    display: block;
+    padding: 5px;
+    text-decoration: none;
+    color: blue !important;
+}
+.submenu-plus a:hover {
+    background-color: blue;
+    color: white !important;
+}
 
 .menu-logged {
     /* Pour que les liens soient bien alignés avec flexbox */
@@ -104,5 +173,56 @@ if (session_status() === PHP_SESSION_NONE) {
 .submenu-admin a:hover {
     background-color: blue;
     color: white !important; /* texte blanc au hover */
+}
+/* Sous-menu Missions */
+.menu-missions {
+    position: relative;
+    margin-left: 10px;
+    color: white;
+    display: flex;
+    align-items: center;
+}
+.missions-label {
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+    color: white;
+    display: inline-block;
+    background: transparent;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+    transition: color 0.2s;
+}
+.menu-missions:hover .missions-label,
+.menu-missions:focus-within .missions-label,
+.missions-label:hover {
+    color: #cce0ff;
+}
+.submenu-missions {
+    display: none;
+    position: absolute;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    z-index: 100;
+    padding: 5px;
+    min-width: 180px;
+    color: blue !important;
+    font-size: 0.85rem;
+    top: 100%;
+    left: 0;
+}
+.menu-missions:hover .submenu-missions {
+    display: block;
+}
+.submenu-missions a {
+    display: block;
+    padding: 5px;
+    text-decoration: none;
+    color: blue !important;
+}
+.submenu-missions a:hover {
+    background-color: blue;
+    color: white !important;
 }
 </style>

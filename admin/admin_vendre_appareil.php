@@ -81,20 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['avion_id'])) {
         $nouvelle_recette = $recettes_existantes + $recette_vente;
         $stmtUpdateRecettes = $pdo->prepare("UPDATE BALANCE_COMMERCIALE SET recettes_ventes_appareils = :nouvelle_recette");
         $stmtUpdateRecettes->execute(['nouvelle_recette' => $nouvelle_recette]);
-        // Recalculer et vérifier la balance commerciale après la vente
-        $stmtCheck = $pdo->query("SELECT apport_initial, recettes, recettes_ventes_appareils, cout_avions, assurance, paiement_salaires FROM BALANCE_COMMERCIALE LIMIT 1");
-        $row = $stmtCheck->fetch(PDO::FETCH_ASSOC);
-        $balance_theorique = ($row['apport_initial'] + $row['recettes'] + $row['recettes_ventes_appareils']) - ($row['cout_avions'] + $row['assurance'] + $row['paiement_salaires']);
-        $stmtBalance = $pdo->query("SELECT balance_actuelle FROM BALANCE_COMMERCIALE LIMIT 1");
-        $balance_actuelle = $stmtBalance->fetchColumn();
-        if (abs($balance_actuelle - $balance_theorique) > 0.01) {
-            // Correction automatique de la balance_actuelle
-            $stmtUpdateBalance = $pdo->prepare("UPDATE BALANCE_COMMERCIALE SET balance_actuelle = :balance_theorique");
-            $stmtUpdateBalance->execute(['balance_theorique' => $balance_theorique]);
-            // Optionnel : log ou message d'alerte
-            $successMessage .= "<br><span style='color:orange;'>[Alerte] Balance commerciale corrigée automatiquement.</span>";
-        }
-
+        
         // Récupérer l'immatriculation pour le message
         $stmtImmat = $pdo->prepare("SELECT immat FROM FLOTTE WHERE id = :id");
         $stmtImmat->execute(['id' => $avion_id]);
