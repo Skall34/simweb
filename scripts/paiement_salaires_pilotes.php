@@ -128,6 +128,14 @@ foreach ($pilotes as $index => $pilote) {
         echo "ERREUR Update paiement_salaires : " . htmlspecialchars($e->getMessage()) . "\n";
         continue;
     }
+    // Recalculer et vérifier la balance commerciale après la vente
+    $sqlGetBalance = "SELECT balance_actuelle FROM BALANCE_COMMERCIALE";
+    $stmtBalance = $pdo->query($sqlGetBalance);
+    $balance = $stmtBalance->fetchColumn();
+    $balance_actuelle = $balance - $montant;
+    $sqlUpdateBalance = "UPDATE BALANCE_COMMERCIALE SET balance_actuelle = :balance_actuelle";
+    $stmtUpdateBalance = $pdo->prepare($sqlUpdateBalance);
+    $stmtUpdateBalance->execute(['balance_actuelle' => $balance_actuelle]);
 
     $log_msg = "Salaire: " . $pilote['callsign'] . " (" . $pilote['prenom'] . " " . $pilote['nom'] . ") - Heures: " . number_format($heures_mois, 2) . " - Fret: " . number_format($total_fret_kg, 2) . "kg - Bonus fret: " . number_format($bonus_fret, 2) . "€ - Montant: " . number_format($montant, 2) . "€";
     logMsg($log_msg, __DIR__ . '/logs/paiement_salaires.log');

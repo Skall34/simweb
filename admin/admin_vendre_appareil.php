@@ -81,7 +81,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['avion_id'])) {
         $nouvelle_recette = $recettes_existantes + $recette_vente;
         $stmtUpdateRecettes = $pdo->prepare("UPDATE BALANCE_COMMERCIALE SET recettes_ventes_appareils = :nouvelle_recette");
         $stmtUpdateRecettes->execute(['nouvelle_recette' => $nouvelle_recette]);
-        
+
+        // Déduire le prix de vente du champ cout_avions
+        $stmtGetCout = $pdo->query("SELECT cout_avions FROM BALANCE_COMMERCIALE LIMIT 1");
+        $cout_avions = $stmtGetCout->fetchColumn();
+        if ($cout_avions === false || $cout_avions === null) {
+            $cout_avions = 0;
+        }
+        $nouveau_cout_avions = $cout_avions - $recette_vente;
+        if ($nouveau_cout_avions < 0) $nouveau_cout_avions = 0;
+        $stmtUpdateCout = $pdo->prepare("UPDATE BALANCE_COMMERCIALE SET cout_avions = :nouveau_cout_avions");
+        $stmtUpdateCout->execute(['nouveau_cout_avions' => $nouveau_cout_avions]);
+        // Recalculer et vérifier la balance commerciale après la vente
+        $sqlGetBalance = "SELECT balance_actuelle FROM BALANCE_COMMERCIALE";
+        $stmtBalance = $pdo->query($sqlGetBalance);
+        $balance = $stmtBalance->fetchColumn();
+        $balance_actuelle = $balance + $nouvelle_recette;
+        $sqlUpdateBalance = "UPDATE BALANCE_COMMERCIALE SET balance_actuelle = :balance_actuelle";
+        $stmtUpdateBalance = $pdo->prepare($sqlUpdateBalance);
+        $stmtUpdateBalance->execute(['balance_actuelle' => $balance_actuelle]);
+
         // Récupérer l'immatriculation pour le message
         $stmtImmat = $pdo->prepare("SELECT immat FROM FLOTTE WHERE id = :id");
         $stmtImmat->execute(['id' => $avion_id]);
@@ -94,7 +113,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['avion_id'])) {
 ?>
 
 <main>
-    <a href="/pages/documentation.php" class="btn" style="margin-bottom:18px;display:inline-block;">← Retour à la documentation</a>
     <h2>Vendre un appareil</h2>
     <?php if ($successMessage): ?>
         <p style="color: green; font-weight:bold;"><?= $successMessage ?></p>

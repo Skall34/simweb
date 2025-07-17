@@ -54,11 +54,11 @@ try {
     $sqlUpdateAssurance = "UPDATE BALANCE_COMMERCIALE SET assurance = assurance + :assurance2";
     $stmtUpdateAssurance = $pdo->prepare($sqlUpdateAssurance);
     $stmtUpdateAssurance->execute(['assurance2' => $assurance_mensuelle]);
-    // Recalculer la balance_actuelle avec le nouveau montant d'assurance
-    $sqlGetFields = "SELECT recettes, cout_avions, apport_initial, assurance FROM BALANCE_COMMERCIALE";
-    $stmtFields = $pdo->query($sqlGetFields);
-    $row = $stmtFields->fetch(PDO::FETCH_ASSOC);
-    $balance_actuelle = $row['recettes'] - $row['cout_avions'] + $row['apport_initial'] - $row['assurance'];
+    // Recalculer la balance_actuelle en soustrayant le montant de l'assurance prélevée
+    $sqlGetBalance = "SELECT balance_actuelle FROM BALANCE_COMMERCIALE";
+    $stmtBalance = $pdo->query($sqlGetBalance);
+    $balance = $stmtBalance->fetchColumn();
+    $balance_actuelle = $balance - $assurance_mensuelle;
     $sqlUpdateBalance = "UPDATE BALANCE_COMMERCIALE SET balance_actuelle = :balance_actuelle";
     $stmtUpdateBalance = $pdo->prepare($sqlUpdateBalance);
     $stmtUpdateBalance->execute(['balance_actuelle' => $balance_actuelle]);

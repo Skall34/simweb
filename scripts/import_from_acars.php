@@ -81,9 +81,11 @@ while (($line = fgets($handle)) !== false) {
     // Note du vol : conversion en entier si possible
     $note_du_vol = is_numeric($fields[11]) ? intval($fields[11]) : null;
 
-    // Mission : nettoyage et correction
-    $mission = strtoupper(trim($fields[12]));
-    if ($mission === 'LONG, MOYEN COURRIER') {
+    // Mission : nettoyage et correction, valeur par défaut si vide
+    $mission = isset($fields[12]) ? strtoupper(trim($fields[12])) : '';
+    if ($mission === '') {
+        $mission = 'VOLLIBRE';
+    } elseif ($mission === 'LONG, MOYEN COURRIER') {
         $mission = 'Long/moyen courrier';
     } elseif ($mission === 'LONG COURRIER') {
         $mission = 'Long courrier';
