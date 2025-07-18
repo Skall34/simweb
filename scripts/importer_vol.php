@@ -144,15 +144,19 @@ try {
         logMsg("Mise à jour flotte : immat=$immat, fuel=$fuelArr, callsign=$callsign, localisation=$dest", $logFile);
         mettreAJourFlotte($immat, $fuelArr, $callsign, $dest);
 
-        // Mettre à jour finances
+        // 7. Mettre à jour finances
         logMsg("Mise à jour finances : immat=$immat, cout_vol=$cout_vol", $logFile);
         mettreAJourFinances($immat, $cout_vol);
 
-        // 7. Usure
+        // 8. Mise à jour de la balance commerciale via fonction dédiée
+        logMsg("Mise à jour balance commerciale : cout_vol=$cout_vol", $logFile);
+        mettreAJourBalanceCommerciale($cout_vol);
+
+        // 9. Usure
         logMsg("Usure avion $immat : note=$note", $logFile);
         deduireUsure($immat, $note);
 
-        // 8. Marquer comme traité
+        // 10. Marquer comme traité
         $updateStmt = $pdo->prepare("UPDATE FROM_ACARS SET processed = 1 WHERE id = :id");
         $updateStmt->execute(['id' => $id]);
 
@@ -165,10 +169,8 @@ try {
         ];
     }
 
-    // Mise à jour de la balance commerciale et envoi du mail si au moins un vol importé
+    // Envoi du mail si au moins un vol importé
     if ($vols_importes > 0) {
-        require_once __DIR__ . '/mise_a_jour_balance.php';
-        logMsg("Balance commerciale mise à jour après import.", $logFile);
         // Envoi du mail récapitulatif enrichi
         if ($mailSummaryEnabled && function_exists('sendSummaryMail')) {
             $subject = "[SimWeb] Rapport import vols ACARS - " . date('d/m/Y H:i');
@@ -180,21 +182,7 @@ try {
                     $body .= "\n - Pilote : " . $v['callsign'] . ", Trajet : " . $v['depart'] . " -> " . $v['dest'];
                 }
             }
-            // Ajout des détails de la balance commerciale
-            $balanceLogFile = __DIR__ . '/logs/mise_a_jour_balance.log';
-            $balanceDetails = '';
-            if (file_exists($balanceLogFile)) {
-                $lines = file($balanceLogFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-                foreach (array_reverse($lines) as $line) {
-                    if (strpos($line, 'Balance commerciale mise à jour') !== false || strpos($line, 'Balance commerciale créée') !== false) {
-                        $balanceDetails = $line;
-                        break;
-                    }
-                }
-            }
-            if ($balanceDetails) {
-                $body .= "\n\nDernière mise à jour balance commerciale :\n" . $balanceDetails;
-            }
+            
             $body .= "\n\nCeci est un message automatique.";
             $to = ADMIN_EMAIL;
             $mailResult = sendSummaryMail($subject, $body, $to);

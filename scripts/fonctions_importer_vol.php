@@ -453,3 +453,29 @@ function rejeterVol($pdo, $vol, $motif) {
 
     logMsg("🗑️ Vol supprimé de FROM_ACARS pour ACARS ID=" . $vol['id'], $logFile);
 }
+
+/**
+ * Met à jour la balance commerciale :
+ * - additionne toutes les recettes de FINANCES
+ * - met à jour le champ recettes dans BALANCE_COMMERCIALE
+ * - ajoute le cout_vol à balance_actuelle
+ *
+ * @param PDO $pdo
+ * @param float $cout_vol
+ * @param string $logFile (optionnel)
+ */
+function mettreAJourBalanceCommerciale($cout_vol) {
+    global $pdo, $logFile;
+    // 1. Additionner toutes les recettes de la table FINANCES
+    $stmtRecettes = $pdo->query("SELECT SUM(recette) as total_recettes FROM FINANCES");
+    $rowRecettes = $stmtRecettes->fetch();
+    $total_recettes = $rowRecettes && $rowRecettes['total_recettes'] !== null ? (float)$rowRecettes['total_recettes'] : 0;
+
+    // 2. Mettre à jour le champ recettes dans BALANCE_COMMERCIALE (on suppose une seule ligne, sinon adapter WHERE)
+    $pdo->exec("UPDATE BALANCE_COMMERCIALE SET recettes = $total_recettes");
+
+    // 3. Ajouter le cout_vol à balance_actuelle
+    $pdo->exec("UPDATE BALANCE_COMMERCIALE SET balance_actuelle = balance_actuelle + $cout_vol");
+
+    logMsg("Balance commerciale mise à jour : recettes=$total_recettes, +$cout_vol sur balance_actuelle", $logFile);
+}

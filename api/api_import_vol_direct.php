@@ -84,35 +84,11 @@ $commentaire = isset($data['commentaire']) ? trim($data['commentaire']) : '';
 $mission = trim($data['mission']);
 $horodateur = date("Y-m-d H:i:s");
 
-// Insertion en base
+// Harmonisation avec importer_vol.php :
 try {
-    $stmt = $pdo->prepare("INSERT INTO FROM_ACARS (
-        horodateur, callsign, immatriculation, departure_icao, departure_fuel, departure_time,
-        arrival_icao, arrival_fuel, arrival_time, payload, commentaire, note_du_vol, mission, processed, created_at
-    ) VALUES (
-        :horodateur, :callsign, :immat, :dep_icao, :dep_fuel, :dep_time,
-        :arr_icao, :arr_fuel, :arr_time, :payload, :commentaire, :note, :mission, 1, NOW()
-    )");
-
-    $stmt->execute([
-        'horodateur'   => $horodateur,
-        'callsign'     => $callsign,
-        'immat'        => $immat,
-        'dep_icao'     => $departure_icao,
-        'dep_fuel'     => $departure_fuel,
-        'dep_time'     => $departure_time,
-        'arr_icao'     => $arrival_icao,
-        'arr_fuel'     => $arrival_fuel,
-        'arr_time'     => $arrival_time,
-        'payload'      => $payload,
-        'commentaire'  => $commentaire,
-        'note'         => $note,
-        'mission'      => $mission
-    ]);
-
     $erreurs = [];
 
-        // 2. Contrôles basiques
+    // 2. Contrôles basiques
     if (!$callsign || !$immat || !$departure_icao || !$arrival_icao) {
         $erreurs[] = "Vol invalide : données manquantes (callsign, immat, depart ou destination)";
     }
@@ -137,7 +113,6 @@ try {
         $erreurs[] = "Avion '$immat' introuvable ou inactif dans FLOTTE.";
     }
 
-
     // Vérification des doublons
     if (empty($erreurs)) {
         if (detecterDoublonVol($pdo, $callsign, $departure_icao, $arrival_icao, $departure_fuel, $arrival_fuel, $payload, $note, $mission)) {
@@ -158,6 +133,31 @@ try {
         echo json_encode(['status' => 'error', 'message' => implode(' | ', $erreurs)]);
         return;
     }
+
+    // Insertion en base (vol traité)
+    $stmt = $pdo->prepare("INSERT INTO FROM_ACARS (
+        horodateur, callsign, immatriculation, departure_icao, departure_fuel, departure_time,
+        arrival_icao, arrival_fuel, arrival_time, payload, commentaire, note_du_vol, mission, processed, created_at
+    ) VALUES (
+        :horodateur, :callsign, :immat, :dep_icao, :dep_fuel, :dep_time,
+        :arr_icao, :arr_fuel, :arr_time, :payload, :commentaire, :note, :mission, 1, NOW()
+    )");
+
+    $stmt->execute([
+        'horodateur'   => $horodateur,
+        'callsign'     => $callsign,
+        'immat'        => $immat,
+        'dep_icao'     => $departure_icao,
+        'dep_fuel'     => $departure_fuel,
+        'dep_time'     => $departure_time,
+        'arr_icao'     => $arrival_icao,
+        'arr_fuel'     => $arrival_fuel,
+        'arr_time'     => $arrival_time,
+        'payload'      => $payload,
+        'commentaire'  => $commentaire,
+        'note'         => $note,
+        'mission'      => $mission
+    ]);
 
     // 3. Traitement du fret
     if ($payload > 0) {
@@ -180,7 +180,7 @@ try {
 
     // 5. Ajout au carnet de vol avec le coût
     logMsg("Ajout au carnet de vol : callsign=$callsign, immat=$immat, depart=$departure_icao, dest=$arrival_icao, payload=$payload, cout_vol=$cout_vol", $logFile);
-    remplirCarnetVolGeneral($horodateur, $callsign, $immat, $departure_icao, $arrival_icao, $departure_fuel, $arrival_fuel, $payload, $departure_time, $arrival_time, $mission, $commentaire, $note, $cout_vol);
+    remplirCarnetVolGeneral($horodateur, $callsign, $immat, $departure_icao, $arrival_icao, $departure_fuel, $arrival_fuel, $payload, $departure_time, $arrival_time, $mission, $commentaire, $note, $cout_vol, $temps_vol);
 
     // 6. Mise à jour de la flotte
     logMsg("Mise à jour flotte : immat=$immat, fuel=$arrival_fuel, callsign=$callsign, localisation=$arrival_icao", $logFile);
@@ -189,14 +189,15 @@ try {
     // Mettre à jour finances
     logMsg("Mise à jour finances : immat=$immat, cout_vol=$cout_vol", $logFile);
     mettreAJourFinances($immat, $cout_vol);
-    mettreAJourRecettesBalanceCommerciale($pdo);
+
+    // Mise à jour de la balance commerciale via fonction dédiée
+    logMsg("Mise à jour balance commerciale : cout_vol=$cout_vol", $logFile);
+    mettreAJourBalanceCommerciale($cout_vol);
 
     // 7. Usure
     logMsg("Usure avion $immat : note=$note", $logFile);
     deduireUsure($immat, $note);
-
-    logMsg("✅ Vol traité avec succès (callsign: $callsign)", $logFile);
-
+    
     // Envoi du mail récapitulatif enrichi
     if ($mailSummaryEnabled && function_exists('sendSummaryMail')) {
         $subject = "[SimWeb] Rapport import vol direct ACARS - " . date('d/m/Y H:i');
@@ -208,6 +209,7 @@ try {
         $body .= "\nPayload : $payload";
         $body .= "\nNote : $note";
         $body .= "\nCoût du vol : $cout_vol €";
+        
         $body .= "\n\nCeci est un message automatique.";
         $to = defined('ADMIN_EMAIL') ? ADMIN_EMAIL : 'zjfk7400@gmail.com';
         $mailResult = sendSummaryMail($subject, $body, $to);
@@ -218,8 +220,10 @@ try {
         }
     }
 
+    logMsg("✅ Vol traité avec succès (callsign: $callsign)", $logFile);
     echo json_encode(['status' => 'success', 'message' => '✅ Vol inséré avec succès']);
 } catch (PDOException $e) {
+    logMsg("❌ Erreur DB : " . $e->getMessage(), $logFile);
     http_response_code(500); // Erreur serveur
     echo json_encode(['status' => 'error', 'message' => '❌ Erreur SQL : ' . $e->getMessage()]);
 }

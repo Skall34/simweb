@@ -119,6 +119,32 @@ if (!isset($_SESSION['user'])) {
         </tbody>
     </table>
 
+
+    <?php
+    // Affichage de la balance commerciale sous le tableau
+    // Fonction de formatage (copiée de finances.php)
+    function format_chiffre($valeur) {
+        if ($valeur === null) return '0';
+        if (floor($valeur) == $valeur) {
+            return number_format($valeur, 0, ',', ' ');
+        } else {
+            return number_format($valeur, 2, ',', ' ');
+        }
+    }
+    // Récupère la balance financière depuis la table BALANCE_COMMERCIALE
+    try {
+        $sqlBalance = "SELECT balance_actuelle FROM BALANCE_COMMERCIALE";
+        $stmtBalance = $pdo->query($sqlBalance);
+        $balance = $stmtBalance->fetchColumn();
+    } catch (PDOException $e) {
+        $balance = null;
+    }
+    ?>
+
+    <div style="margin: 32px 0 0 0; font-size: 1.2em; color: #2c3e50;">
+        <strong>Balance commerciale de la compagnie :</strong> <?= format_chiffre($balance) ?> €
+    </div>
+
     <?php } ?>
 
     <script>

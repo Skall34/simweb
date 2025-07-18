@@ -163,12 +163,49 @@ include __DIR__ . '/../includes/menu_logged.php';
                         if (!empty($finances)) {
                             foreach ($finances as $idx => $fin) {
                                 // Ajoute un titre pour le bloc finances (une seule fois si plusieurs lignes)
-                                $details['__FINANCES_TITRE__'.($idx+1)] = 'Finances :';
+                                $details['__FINANCES_TITRE__'.($idx+1)] = 'Données financiaires :';
                                 foreach ($fin as $k => $v) {
                                     if ($k === 'id' || $k === 'avion_id') continue; // On masque ces champs
-                                    // Optionnel : tu peux ici personnaliser chaque libellé si besoin
-                                    $libelle = ucfirst(str_replace('_', ' ', $k));
-                                    $details['__FINANCES__'.($idx+1).'_'.$k] = $libelle.' : '.$v;
+                                    // Personnalisation des libellés et affichages
+                                    if ($k === 'taux_percent') {
+                                        $libelle = 'Taux crédit';
+                                        $affichage = $v . ' %';
+                                    } elseif (in_array(strtolower($k), ['remboursement', 'traite_payee_cumulee', 'reste_a_payer'])) {
+                                        // Ajoute € à la fin
+                                        $libelle = ucfirst(str_replace('_', ' ', $k));
+                                        $affichage = $v . ' €';
+                                    } elseif (strtolower($k) === 'recettes') {
+                                        $libelle = 'Recettes';
+                                        $affichage = $v . ' €';
+                                    } elseif (strtolower($k) === 'recette_vente') {
+                                        // Gère le cas spécial avec date_vente
+                                        $libelle = 'Recette vente';
+                                        $dateVente = $fin['date_vente'] ?? '';
+                                        if (empty($dateVente)) {
+                                            $affichage = 'N/A';
+                                        } else {
+                                            $affichage = $v . ' €';
+                                        }
+                                    } elseif (strtolower($k) === 'date_achat') {
+                                        $libelle = 'Date achat';
+                                        if (!empty($v) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $v)) {
+                                            $parts = explode('-', $v);
+                                            $affichage = $parts[2] . '-' . $parts[1] . '-' . $parts[0];
+                                        } else {
+                                            $affichage = $v;
+                                        }
+                                    } elseif (strtolower($k) === 'date_vente') {
+                                        $libelle = 'Date vente';
+                                        if (empty($v)) {
+                                            $affichage = 'N/A';
+                                        } else {
+                                            $affichage = $v;
+                                        }
+                                    } else {
+                                        $libelle = ucfirst(str_replace('_', ' ', $k));
+                                        $affichage = $v;
+                                    }
+                                    $details['__FINANCES__'.($idx+1).'_'.$k] = $libelle.' : '.$affichage;
                                 }
                             }
                         }
