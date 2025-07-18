@@ -81,38 +81,58 @@ try {
 
     <div class="table-main-padding">
         <!-- Tableau d'en-tête fixe -->
-        <table class="table-skywings table-header-fixed">
+        <table class="table-skywings table-header-fixed" style="table-layout:fixed;">
             <thead>
                 <tr>
-                    <th style="min-width:90px;">Date vol</th>
-                    <th style="min-width:90px;">Callsign</th>
-                    <th style="min-width:90px;">Immat</th>
-                    <th style="min-width:90px;">Départ</th>
-                    <th style="min-width:90px;">Destination</th>
-                    <th style="min-width:90px;">Fuel départ</th>
-                    <th style="min-width:90px;">Fuel arrivée</th>
-                    <th style="min-width:90px;">Conso</th>
-                    <th style="min-width:90px;">Payload</th>
-                    <th style="min-width:90px;">Heure départ</th>
-                    <th style="min-width:90px;">Heure arrivée</th>
-                    <th style="min-width:90px;">Block time</th>
-                    <th style="min-width:110px;">Note du vol</th>
-                    <th style="min-width:90px;">Mission</th>
-                    <th style="min-width:110px;">Coût du vol</th>
-                    <th style="min-width:120px;">Pirep</th>
+                    <th style="width:95px;">Date vol</th>
+                    <th style="width:95px;">Callsign</th>
+                    <th style="width:98px;">Immat</th>
+                    <th style="width:90px;">Départ</th>
+                    <th style="width:90px;">Destination</th>
+                    <th style="width:95px;">Fuel départ</th>
+                    <th style="width:95px;">Fuel arrivée</th>
+                    <th style="width:94px;">Conso</th>
+                    <th style="width:97px;">Payload</th>
+                    <th style="width:95px;">Heure départ</th>
+                    <th style="width:95px;">Heure arrivée</th>
+                    <th style="width:102px;">Block time</th>
+                    <th style="width:60px;">Note</th>
+                    <th style="width:70px;">Mission</th>
+                    <th style="width:100px;">Recette</th>
+                    <th style="width:100px;">Pirep</th>
                 </tr>
             </thead>
         </table>
         <!-- Tableau scrollable des données -->
         <div class="table-scroll-wrapper">
-            <table class="table-skywings">
+            <table class="table-skywings" style="table-layout:fixed;">
                 <tbody>
-                <?php foreach ($vols as $vol):
+                <?php foreach ($vols as $i => $vol):
                     $pirep_complet = $vol['pirep_maintenance'];
                     $pirep_court = mb_strimwidth($pirep_complet, 0, 13, '...');
                     $date_formatee = date("d-m-Y", strtotime($vol['date_vol']));
+                    // Préparer les données pour le popup (JSON encodé, puis échappé)
+                    $details = [
+                        'Date vol' => $date_formatee,
+                        'Callsign' => $vol['callsign'],
+                        'Immat' => $vol['immat'],
+                        'Départ' => $vol['depart'],
+                        'Destination' => $vol['destination'],
+                        'Fuel départ' => $vol['fuel_depart'],
+                        'Fuel arrivée' => $vol['fuel_arrivee'],
+                        'Conso' => $vol['conso'],
+                        'Payload' => $vol['payload'],
+                        'Heure départ' => $vol['heure_depart'],
+                        'Heure arrivée' => $vol['heure_arrivee'],
+                        'Block time' => $vol['block_time'],
+                        'Note du vol' => $vol['note_du_vol'],
+                        'Mission' => $vol['mission_libelle'],
+                        'Coût du vol' => number_format($vol['cout_vol'] !== null ? (float)$vol['cout_vol'] : 0, 2) . ' €',
+                        'Pirep' => $pirep_complet
+                    ];
+                    $details_json = htmlspecialchars(json_encode($details), ENT_QUOTES, 'UTF-8');
                 ?>
-                    <tr>
+                    <tr class="vol-row" data-details="<?= $details_json ?>">
                         <td><?= $date_formatee ?></td>
                         <td><?php echo htmlspecialchars($vol['callsign']); ?></td>
                         <td><?php echo htmlspecialchars($vol['immat']); ?></td>
@@ -125,14 +145,25 @@ try {
                         <td><?php echo htmlspecialchars($vol['heure_depart']); ?></td>
                         <td><?php echo htmlspecialchars($vol['heure_arrivee']); ?></td>
                         <td><?php echo htmlspecialchars($vol['block_time']); ?></td>
-                        <td style="max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><?php echo htmlspecialchars($vol['note_du_vol']); ?></td>
-                    <td style="max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="<?php echo htmlspecialchars($vol['mission_libelle']); ?>">
-                        <?php echo mb_strimwidth($vol['mission_libelle'], 0, 11, '...'); ?>
-                    </td>
+                        <td style="width:90px;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;\"><?php echo htmlspecialchars($vol['note_du_vol']); ?></td>
+                        <td style="width:90px;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="<?php echo htmlspecialchars($vol['mission_libelle']); ?>">
+                            <?php echo mb_strimwidth($vol['mission_libelle'], 0, 11, '...'); ?>
+                        </td>
                         <td><?php echo number_format($vol['cout_vol'] !== null ? (float)$vol['cout_vol'] : 0, 2) . ' €'; ?></td>
                         <td title="<?= htmlspecialchars($pirep_complet) ?>"><?= htmlspecialchars($pirep_court) ?></td>
                     </tr>
                 <?php endforeach; ?>
+</div>
+<!-- Popup modale pour détails du vol -->
+<div id="vol-modal" class="vol-modal" style="display:none;">
+    <div class="vol-modal-content">
+        <span class="vol-modal-close" id="vol-modal-close">&times;</span>
+        <h3>Détails du vol</h3>
+        <div id="vol-modal-body">
+            <!-- Les détails du vol seront injectés ici -->
+        </div>
+    </div>
+</div>
                 </tbody>
             </table>
         </div>
@@ -144,7 +175,7 @@ try {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-    table-layout: auto;
+    table-layout: fixed;
     margin-bottom: 0;
 }
 .table-header-fixed th {
@@ -170,7 +201,7 @@ try {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-    table-layout: auto;
+    table-layout: fixed;
 }
 .table-skywings td, .table-skywings th {
     padding: 8px 10px;
@@ -184,43 +215,72 @@ try {
     padding-left: 32px;
 }
 
+.vol-modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.vol-modal-content {
+    background: #fff;
+    padding: 24px 32px;
+    border-radius: 10px;
+    min-width: 320px;
+    max-width: 90vw;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+    position: relative;
+}
+.vol-modal-close {
+    position: absolute;
+    top: 12px;
+    right: 18px;
+    font-size: 2em;
+    color: #0d47a1;
+    cursor: pointer;
+}
+
 </style>
 
 
 </style>
 
 <script>
-// Synchronise dynamiquement la largeur des colonnes du header avec celles du tableau de données
-function syncHeaderWidths() {
-    const headerTable = document.querySelector('.table-header-fixed');
-    const dataTable = document.querySelector('.table-scroll-wrapper .table-skywings');
-    if (!headerTable || !dataTable) return;
-    const headerCells = headerTable.querySelectorAll('th');
-    const dataRow = dataTable.querySelector('tr');
-    if (!dataRow) return;
-    const dataCells = dataRow.querySelectorAll('td');
-    if (headerCells.length !== dataCells.length) return;
-    // Reset widths
-    headerCells.forEach(th => th.style.width = '');
-    dataCells.forEach(td => td.style.width = '');
-    // Get computed widths from data cells
-    for (let i = 0; i < headerCells.length; i++) {
-        const width = dataCells[i].getBoundingClientRect().width + 'px';
-        headerCells[i].style.width = width;
-        dataCells[i].style.width = width;
-    }
-    // Ajuste la largeur du headerTable pour ne pas dépasser le dataTable (évite le débordement dû au scrollbar)
-    headerTable.style.width = dataTable.getBoundingClientRect().width + 'px';
-}
 
-window.addEventListener('load', syncHeaderWidths);
-window.addEventListener('resize', syncHeaderWidths);
+// Synchronisation du scroll horizontal de l'en-tête
 document.querySelector('.table-scroll-wrapper').addEventListener('scroll', function() {
-    // Optionnel : si besoin de synchroniser lors du scroll horizontal
     document.querySelector('.table-header-fixed').scrollLeft = this.scrollLeft;
 });
 
-// Si le contenu du tableau change dynamiquement, on peut rappeler syncHeaderWidths()
+// Gestion du popup détails vol
+document.querySelectorAll('.vol-row').forEach(function(row) {
+    row.addEventListener('click', function() {
+        const details = JSON.parse(this.getAttribute('data-details'));
+        let html = '<table style="width:100%;border-collapse:collapse;">';
+        for (const key in details) {
+            html += '<tr><td style="font-weight:bold;padding:4px 8px;color:#0d47a1;">' + key + '</td><td style="padding:4px 8px;">' + (details[key] ?? '') + '</td></tr>';
+        }
+        html += '</table>';
+        document.getElementById('vol-modal-body').innerHTML = html;
+        document.getElementById('vol-modal').style.display = 'flex';
+    });
+});
+document.getElementById('vol-modal-close').onclick = function() {
+    document.getElementById('vol-modal').style.display = 'none';
+};
+window.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') document.getElementById('vol-modal').style.display = 'none';
+});
+document.getElementById('vol-modal').addEventListener('click', function(e) {
+    if (e.target === this) this.style.display = 'none';
+});
 </script>
 
 <?php include '../includes/footer.php'; ?>

@@ -25,8 +25,17 @@ if (session_status() === PHP_SESSION_NONE) {
                 echo '<span style="color:red;">Erreur chargement missions</span>';
             }
             foreach ($missions as $mission) {
+                // Tableau de correspondance pour les noms jolis
+                $missionLabels = [
+                    'RTESOIE' => 'Route de la soie',
+                    'RTEGRECE' => 'Grèce',
+                    'CARAIBES' => 'Caraïbes',
+                    'ESQUIMOS' => 'Esquimaux',
+                    // Ajouter d'autres exceptions ici si besoin
+                ];
                 $url = '/pages/missions/' . urlencode($mission) . '.php';
-                echo '<a href="' . $url . '">' . htmlspecialchars($mission) . '</a>';
+                $label = isset($missionLabels[$mission]) ? $missionLabels[$mission] : htmlspecialchars($mission);
+                echo '<a href="' . $url . '">' . $label . '</a>';
             }
             ?>
         </div>
