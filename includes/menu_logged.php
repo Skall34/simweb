@@ -27,10 +27,17 @@ if (session_status() === PHP_SESSION_NONE) {
             foreach ($missions as $mission) {
                 // Tableau de correspondance pour les noms jolis
                 $missionLabels = [
+                    'NORMANDIE 80' => 'Normandie 80',
+                    'HYDRAVIONS' => 'Hydravions',
+                    'CANNES 2024' => 'Cannes 2024',
                     'RTESOIE' => 'Route de la soie',
                     'RTEGRECE' => 'Grèce',
                     'CARAIBES' => 'Caraïbes',
-                    'ESQUIMOS' => 'Esquimaux',
+                    'ESQUIMOS' => 'Esquimos',
+                    'OPFRANCE' => 'OP France',
+                    'OPLINER' => 'OP Liner',
+                    'OPPNG' => 'OP Papouasie',
+                    'VOLLIBRE' => 'Vol libre',
                     // Ajouter d'autres exceptions ici si besoin
                 ];
                 $url = '/pages/missions/' . urlencode($mission) . '.php';

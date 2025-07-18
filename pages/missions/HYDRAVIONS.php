@@ -18,9 +18,9 @@ include '../../includes/menu_logged.php';
     <section style="max-width:700px;margin:0 auto 32px auto;background:#fff;padding:24px;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,0.04);">
         <h2 style="color:#1a3552;">Sceneries</h2>
         <p>Vous trouverez ci-dessous des scènes pour MSFS2020. Soit pour des bases manquantes, soit juste pour ajouter des places de parking sur l'eau, afin de commencer la balade moteur éteint.</p>
-        <ul>
-            <li><a href="https://drive.google.com/file/d/1uc1I_ZD1BYsSrGybxRaLLJE2Dh3hH-aZ/view?usp=drive_link" target="_blank" style="color:#1a3552;font-weight:bold;text-decoration:underline;">Télécharger le zip de toutes les scènes</a></li>
-            <li><a href="https://docs.google.com/folderview?id=1jY2StxB27Ot6sKyqbMu0JwvTVHnCX79N" target="_blank" style="color:#1a3552;font-weight:bold;text-decoration:underline;">Ouvrir le dossier Drive (MSFS2020)</a></li>
+        <ul style="list-style:disc inside; padding-left:20px; font-size:1.08em;">
+            <li style="margin-bottom:10px;"><a href="https://drive.google.com/file/d/1uc1I_ZD1BYsSrGybxRaLLJE2Dh3hH-aZ/view?usp=drive_link" target="_blank" style="color:#1a3552;font-weight:bold;text-decoration:underline;display:inline-block;">Télécharger le zip de toutes les scènes</a></li>
+            <li><a href="https://docs.google.com/folderview?id=1jY2StxB27Ot6sKyqbMu0JwvTVHnCX79N" target="_blank" style="color:#1a3552;font-weight:bold;text-decoration:underline;display:inline-block;">Ouvrir le dossier Drive (MSFS2020)</a></li>
         </ul>
     </section>
 </main>

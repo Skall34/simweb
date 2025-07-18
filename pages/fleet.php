@@ -1,4 +1,7 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 session_start();
 
 require __DIR__ . '/../includes/db_connect.php';
@@ -43,10 +46,25 @@ if ($fleetTypeFilter !== '') {
 
 $sql .= " ORDER BY f.immat";
 
+
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $fleet = $stmt->fetchAll();
 
+// Récupérer les infos finances pour chaque avion (clé = id de FLOTTE)
+$financesByAvionId = [];
+if (!empty($fleet)) {
+    $avionIds = array_column($fleet, 'id');
+    if (!empty($avionIds)) {
+        $inQuery = implode(',', array_fill(0, count($avionIds), '?'));
+        $sqlFin = "SELECT * FROM FINANCES WHERE avion_id IN ($inQuery)";
+        $stmtFin = $pdo->prepare($sqlFin);
+        $stmtFin->execute($avionIds);
+        while ($row = $stmtFin->fetch(PDO::FETCH_ASSOC)) {
+            $financesByAvionId[$row['avion_id']][] = $row;
+        }
+    }
+}
 
 $sqlCount = "SELECT count(*) AS total FROM FLOTTE WHERE actif = 1";
 $stmtCount = $pdo->prepare($sqlCount);
@@ -123,24 +141,66 @@ include __DIR__ . '/../includes/menu_logged.php';
         <div class="table-scroll-wrapper-fleet">
             <table class="table-skywings">
                 <tbody>
-                    <?php foreach ($fleet as $avion): ?>
-                        <tr>
-                            <td class="immat"><?= htmlspecialchars($avion['immat']) ?></td>
-                            <td class="fleet_type"><?= htmlspecialchars($avion['type_libelle']) ?></td>
-                            <td class="categorie"><?= htmlspecialchars($avion['type']) ?></td>
-                            <td class="localisation"><?= htmlspecialchars($avion['localisation']) ?></td>
-                            <td class="hub"><?= htmlspecialchars($avion['hub']) ?></td>
-                            <td class="status"><?= htmlspecialchars($avion['status']) ?></td>
-                            <td class="etat"><?= htmlspecialchars($avion['etat']) ?></td>
-                            <td class="pilote"><?= htmlspecialchars($avion['pilote_callsign'] ?? 'N/A') ?></td>
-                            <td class="fuel"><?= htmlspecialchars($avion['fuel_restant']) ?></td>
-                            <td class="compteur"><?= htmlspecialchars($avion['compteur_immo']) ?></td>
-                            <td class="envol"><?= htmlspecialchars($avion['en_vol']) ?></td>
-                            <td class="maintenance"><?= htmlspecialchars($avion['nb_maintenance']) ?></td>
+                    <?php foreach ($fleet as $avion):
+                        $avionId = $avion['id'];
+                        // Préparer les détails FLOTTE
+                        $details = [
+                            'Immatriculation' => $avion['immat'],
+                            'Fleet_type' => $avion['type_libelle'],
+                            'Catégorie' => $avion['type'],
+                            'Localisation' => $avion['localisation'],
+                            'Hub de rattachement' => $avion['hub'],
+                            'Statut' => $avion['status'],
+                            'État' => $avion['etat'],
+                            'Dernier utilisateur' => $avion['pilote_callsign'] ?? 'N/A',
+                            'Carburant restant' => $avion['fuel_restant'],
+                            'Compteur Immo' => $avion['compteur_immo'],
+                            'En vol' => $avion['en_vol'],
+                            'Nombre maintenance' => $avion['nb_maintenance'],
+                        ];
+                        // Ajouter les infos FINANCES (plusieurs lignes possibles)
+                        $finances = $financesByAvionId[$avionId] ?? [];
+                        if (!empty($finances)) {
+                            foreach ($finances as $idx => $fin) {
+                                // Ajoute un titre pour le bloc finances (une seule fois si plusieurs lignes)
+                                $details['__FINANCES_TITRE__'.($idx+1)] = 'Finances :';
+                                foreach ($fin as $k => $v) {
+                                    if ($k === 'id' || $k === 'avion_id') continue; // On masque ces champs
+                                    // Optionnel : tu peux ici personnaliser chaque libellé si besoin
+                                    $libelle = ucfirst(str_replace('_', ' ', $k));
+                                    $details['__FINANCES__'.($idx+1).'_'.$k] = $libelle.' : '.$v;
+                                }
+                            }
+                        }
+                        $details_json = htmlspecialchars(json_encode($details), ENT_QUOTES, 'UTF-8');
+                    ?>
+                        <tr class="fleet-row" data-details="<?= $details_json ?>">
+                            <td class="immat"><?= htmlspecialchars($avion['immat'] ?? '') ?></td>
+                            <td class="fleet_type"><?= htmlspecialchars($avion['type_libelle'] ?? '') ?></td>
+                            <td class="categorie"><?= htmlspecialchars($avion['type'] ?? '') ?></td>
+                            <td class="localisation"><?= htmlspecialchars($avion['localisation'] ?? '') ?></td>
+                            <td class="hub"><?= htmlspecialchars($avion['hub'] ?? '') ?></td>
+                            <td class="status"><?= htmlspecialchars($avion['status'] ?? '') ?></td>
+                            <td class="etat"><?= htmlspecialchars($avion['etat'] ?? '') ?></td>
+                            <td class="pilote"><?= htmlspecialchars(($avion['pilote_callsign'] ?? 'N/A') ?: '') ?></td>
+                            <td class="fuel"><?= htmlspecialchars($avion['fuel_restant'] ?? '') ?></td>
+                            <td class="compteur"><?= htmlspecialchars($avion['compteur_immo'] ?? '') ?></td>
+                            <td class="envol"><?= htmlspecialchars($avion['en_vol'] ?? '') ?></td>
+                            <td class="maintenance"><?= htmlspecialchars($avion['nb_maintenance'] ?? '') ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
+        </div>
+        <!-- Popup modale pour détails avion -->
+        <div id="fleet-modal" class="fleet-modal" style="display:none;">
+            <div class="fleet-modal-content">
+                <span class="fleet-modal-close" id="fleet-modal-close">&times;</span>
+                <h3>Détails de l'appareil</h3>
+                <div id="fleet-modal-body">
+                    <!-- Les détails seront injectés ici -->
+                </div>
+            </div>
         </div>
         <style>
             .table-skywings th, .table-skywings td {
@@ -189,6 +249,39 @@ include __DIR__ . '/../includes/menu_logged.php';
                 border-top: none;
             }
         </style>
+        <style>
+        .fleet-modal {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .fleet-modal-content {
+            background: #fff;
+            padding: 24px 32px;
+            border-radius: 10px;
+            min-width: 320px;
+            max-width: 90vw;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+            position: relative;
+        }
+        .fleet-modal-close {
+            position: absolute;
+            top: 12px;
+            right: 18px;
+            font-size: 2em;
+            color: #0d47a1;
+            cursor: pointer;
+        }
+        </style>
         <script>
         // Synchronise dynamiquement la largeur des colonnes du header avec celles du tableau de données
         function syncHeaderWidthsFleet() {
@@ -216,6 +309,37 @@ include __DIR__ . '/../includes/menu_logged.php';
         window.addEventListener('resize', syncHeaderWidthsFleet);
         document.querySelector('.table-scroll-wrapper-fleet').addEventListener('scroll', function() {
             document.querySelector('.table-header-fixed-fleet').scrollLeft = this.scrollLeft;
+        });
+
+        // Gestion du popup détails avion
+        document.querySelectorAll('.fleet-row').forEach(function(row) {
+            row.addEventListener('click', function() {
+                const details = JSON.parse(this.getAttribute('data-details'));
+                let html = '<table style="width:100%;border-collapse:collapse;">';
+                for (const key in Object.keys(details)) {
+                    const k = Object.keys(details)[key];
+                    const v = details[k];
+                    if (k.startsWith('__FINANCES_TITRE__')) {
+                        html += '<tr><td colspan="2" style="font-weight:bold;padding:8px 8px 4px 8px;color:#0d47a1;font-size:1.1em;text-align:left;">'+v+'</td></tr>';
+                    } else if (k.startsWith('__FINANCES__')) {
+                        html += '<tr><td colspan="2" style="padding:4px 8px 4px 32px;">'+v+'</td></tr>';
+                    } else {
+                        html += '<tr><td style="font-weight:bold;padding:4px 8px;color:#0d47a1;">' + k + '</td><td style="padding:4px 8px;">' + (v ?? '') + '</td></tr>';
+                    }
+                }
+                html += '</table>';
+                document.getElementById('fleet-modal-body').innerHTML = html;
+                document.getElementById('fleet-modal').style.display = 'flex';
+            });
+        });
+        document.getElementById('fleet-modal-close').onclick = function() {
+            document.getElementById('fleet-modal').style.display = 'none';
+        };
+        window.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') document.getElementById('fleet-modal').style.display = 'none';
+        });
+        document.getElementById('fleet-modal').addEventListener('click', function(e) {
+            if (e.target === this) this.style.display = 'none';
         });
         </script>
     <?php endif; ?>
