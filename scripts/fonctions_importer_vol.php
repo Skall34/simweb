@@ -72,23 +72,6 @@ function deduireFretDepart($icao, $fret_demande) {
 }
 
 /**
- * Recalcule la somme des recettes de tous les avions et met à jour le champ recettes dans BALANCE_COMMERCIALE.
- * @param PDO $pdo
- * @return void
- */
-function mettreAJourRecettesBalanceCommerciale($pdo) {
-    // Calculer la somme des recettes de tous les avions
-    $stmt = $pdo->query("SELECT SUM(recettes) AS total_recettes FROM FINANCES");
-    $total = $stmt->fetchColumn();
-    if ($total === false) $total = 0;
-    // Mettre à jour le champ recettes dans BALANCE_COMMERCIALE (id=1 par défaut)
-    $update = $pdo->prepare("UPDATE BALANCE_COMMERCIALE SET recettes = :recettes WHERE id = 1");
-    $update->execute(['recettes' => $total]);
-    logMsg("Balance commerciale : recettes mises à jour à $total", __DIR__ . '/logs/importer_vol_direct.log');
-}
-
-
-/**
  * Vérifie s'il existe un vol identique dans CARNET_DE_VOL_GENERAL pour le même pilote.
  * @param PDO $pdo
  * @param string $callsign
@@ -188,10 +171,10 @@ function ajouterFretDestination($icao, $fret) {
 function remplirCarnetVolGeneral(
     $date_vol, $callsign, $immat, $depart, $arrivee,
     $fuel_dep, $fuel_arr, $fret, $heure_dep, $heure_arr,
-    $mission, $commentaire, $note, $cout_vol
+    $mission, $commentaire, $note, $cout_vol, $temps_vol
     ) {
     global $pdo;
-    logMsg("Remplissage carnet vol : callsign=$callsign, immat=$immat, depart=$depart, arrivee=$arrivee, fuel_dep=$fuel_dep, fuel_arr=$fuel_arr, fret=$fret, heure_dep=$heure_dep, heure_arr=$heure_arr, mission=$mission, note=$note, cout_vol=$cout_vol", $logFile);
+    logMsg("Remplissage carnet vol : callsign=$callsign, immat=$immat, depart=$depart, arrivee=$arrivee, fuel_dep=$fuel_dep, fuel_arr=$fuel_arr, fret=$fret, heure_dep=$heure_dep, heure_arr=$heure_arr, mission=$mission, note=$note, cout_vol=$cout_vol, temps_vol=$temps_vol", $logFile);
 
     $stmtAppareil = $pdo->prepare("SELECT id FROM FLOTTE WHERE immat = :immat");
     $stmtAppareil->execute(['immat' => $immat]);
@@ -218,13 +201,13 @@ function remplirCarnetVolGeneral(
 
     $stmt = $pdo->prepare("
         INSERT INTO CARNET_DE_VOL_GENERAL
-        (date_vol, pilote_id, appareil_id, depart, destination, fuel_depart, fuel_arrivee, payload, heure_depart, heure_arrivee, mission_id, pirep_maintenance, note_du_vol, cout_vol)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (date_vol, pilote_id, appareil_id, depart, destination, fuel_depart, fuel_arrivee, payload, heure_depart, heure_arrivee, mission_id, pirep_maintenance, note_du_vol, cout_vol, temps_vol)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
     $stmt->execute([
         $date_vol, $pilote_id, $appareil_id, $depart, $arrivee,
         $fuel_dep, $fuel_arr, $fret, $heure_dep, $heure_arr,
-        $mission_id, $commentaire, $note, $cout_vol
+        $mission_id, $commentaire, $note, $cout_vol, $temps_vol
     ]);
 
     logMsg("Vol enregistré avec succès pour $callsign ($immat)", $logFile);
@@ -467,7 +450,7 @@ function rejeterVol($pdo, $vol, $motif) {
 function mettreAJourBalanceCommerciale($cout_vol) {
     global $pdo, $logFile;
     // 1. Additionner toutes les recettes de la table FINANCES
-    $stmtRecettes = $pdo->query("SELECT SUM(recette) as total_recettes FROM FINANCES");
+    $stmtRecettes = $pdo->query("SELECT SUM(recettes) as total_recettes FROM FINANCES");
     $rowRecettes = $stmtRecettes->fetch();
     $total_recettes = $rowRecettes && $rowRecettes['total_recettes'] !== null ? (float)$rowRecettes['total_recettes'] : 0;
 

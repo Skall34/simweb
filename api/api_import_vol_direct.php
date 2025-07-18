@@ -114,14 +114,8 @@ try {
     }
 
     // Vérification des doublons
-    if (empty($erreurs)) {
-        if (detecterDoublonVol($pdo, $callsign, $departure_icao, $arrival_icao, $departure_fuel, $arrival_fuel, $payload, $note, $mission)) {
-            $msgDoublon = "Vol doublon détecté pour le pilote '$callsign' (depart=$departure_icao, dest=$arrival_icao, payload=$payload, fuelDep=$departure_fuel, fuelArr=$arrival_fuel, note=$note, mission=$mission)";
-            logMsg("❌ $msgDoublon", $logFile);
-            rejeterVol($pdo, $_POST, $msgDoublon);
-            echo json_encode(['status' => 'error', 'message' => $msgDoublon]);
-            return;
-        }
+    if (detecterDoublonVol($pdo, $callsign, $departure_icao, $arrival_icao, $departure_fuel, $arrival_fuel, $payload, $note, $mission)) {
+        $erreurs[] = "Vol doublon détecté pour le pilote '$callsign' (depart=$departure_icao, dest=$arrival_icao, payload=$payload, fuelDep=$departure_fuel, fuelArr=$arrival_fuel, note=$note, mission=$mission)";        
     }
 
     // Si erreurs, rejeter le vol avec tous les motifs
@@ -201,16 +195,16 @@ try {
     // Envoi du mail récapitulatif enrichi
     if ($mailSummaryEnabled && function_exists('sendSummaryMail')) {
         $subject = "[SimWeb] Rapport import vol direct ACARS - " . date('d/m/Y H:i');
-        $body = "Bonjour,\n\nImport d'un vol ACARS direct terminé.";
+        $body = "Salut ma poule,\n\nImport d'un vol ACARS direct terminé.";
         $body .= "\nPilote : $callsign";
         $body .= "\nTrajet : $departure_icao -> $arrival_icao";
         $body .= "\nImmatriculation : $immat";
         $body .= "\nMission : $mission";
         $body .= "\nPayload : $payload";
         $body .= "\nNote : $note";
-        $body .= "\nCoût du vol : $cout_vol €";
+        $body .= "\nRecettes du vol : $cout_vol €";
         
-        $body .= "\n\nCeci est un message automatique.";
+        $body .= "\n\nCeci est un message automatique, donc n'y réponds pas cono !.";
         $to = defined('ADMIN_EMAIL') ? ADMIN_EMAIL : 'zjfk7400@gmail.com';
         $mailResult = sendSummaryMail($subject, $body, $to);
         if ($mailResult === true || $mailResult === null) {
