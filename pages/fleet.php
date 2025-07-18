@@ -100,7 +100,8 @@ include __DIR__ . '/../includes/menu_logged.php';
             .table-skywings th.envol, .table-skywings td.envol { width: 50px; }
             .table-skywings th.maintenance, .table-skywings td.maintenance { width: 70px; }
         </style>
-        <table class="table-skywings" border="1" cellpadding="5" cellspacing="0">
+        <!-- Tableau d'en-tête fixe -->
+        <table class="table-skywings table-header-fixed-fleet">
             <thead>
                 <tr>
                     <th class="immat">Immatriculation</th>
@@ -117,25 +118,106 @@ include __DIR__ . '/../includes/menu_logged.php';
                     <th class="maintenance">Nombre maintenance</th>
                 </tr>
             </thead>
-            <tbody>
-                <?php foreach ($fleet as $avion): ?>
-                    <tr>
-                        <td class="immat"><?= htmlspecialchars($avion['immat']) ?></td>
-                        <td class="fleet_type"><?= htmlspecialchars($avion['type_libelle']) ?></td>
-                        <td class="categorie"><?= htmlspecialchars($avion['type']) ?></td>
-                        <td class="localisation"><?= htmlspecialchars($avion['localisation']) ?></td>
-                        <td class="hub"><?= htmlspecialchars($avion['hub']) ?></td>
-                        <td class="status"><?= htmlspecialchars($avion['status']) ?></td>
-                        <td class="etat"><?= htmlspecialchars($avion['etat']) ?></td>
-                        <td class="pilote"><?= htmlspecialchars($avion['pilote_callsign'] ?? 'N/A') ?></td>
-                        <td class="fuel"><?= htmlspecialchars($avion['fuel_restant']) ?></td>
-                        <td class="compteur"><?= htmlspecialchars($avion['compteur_immo']) ?></td>
-                        <td class="envol"><?= htmlspecialchars($avion['en_vol']) ?></td>
-                        <td class="maintenance"><?= htmlspecialchars($avion['nb_maintenance']) ?></td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
         </table>
+        <!-- Tableau scrollable des données -->
+        <div class="table-scroll-wrapper-fleet">
+            <table class="table-skywings">
+                <tbody>
+                    <?php foreach ($fleet as $avion): ?>
+                        <tr>
+                            <td class="immat"><?= htmlspecialchars($avion['immat']) ?></td>
+                            <td class="fleet_type"><?= htmlspecialchars($avion['type_libelle']) ?></td>
+                            <td class="categorie"><?= htmlspecialchars($avion['type']) ?></td>
+                            <td class="localisation"><?= htmlspecialchars($avion['localisation']) ?></td>
+                            <td class="hub"><?= htmlspecialchars($avion['hub']) ?></td>
+                            <td class="status"><?= htmlspecialchars($avion['status']) ?></td>
+                            <td class="etat"><?= htmlspecialchars($avion['etat']) ?></td>
+                            <td class="pilote"><?= htmlspecialchars($avion['pilote_callsign'] ?? 'N/A') ?></td>
+                            <td class="fuel"><?= htmlspecialchars($avion['fuel_restant']) ?></td>
+                            <td class="compteur"><?= htmlspecialchars($avion['compteur_immo']) ?></td>
+                            <td class="envol"><?= htmlspecialchars($avion['en_vol']) ?></td>
+                            <td class="maintenance"><?= htmlspecialchars($avion['nb_maintenance']) ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+        <style>
+            .table-skywings th, .table-skywings td {
+                padding: 4px 6px;
+                font-size: 14px;
+                box-sizing: border-box;
+            }
+            .table-skywings th {
+                white-space: normal;
+                word-break: break-word;
+            }
+            .table-skywings th.immat, .table-skywings td.immat { width: 90px; }
+            .table-skywings th.fleet_type, .table-skywings td.fleet_type { width: 90px; }
+            .table-skywings th.categorie, .table-skywings td.categorie { width: 80px; }
+            .table-skywings th.localisation, .table-skywings td.localisation { width: 80px; }
+            .table-skywings th.hub, .table-skywings td.hub { width: 80px; }
+            .table-skywings th.status, .table-skywings td.status { width: 70px; }
+            .table-skywings th.etat, .table-skywings td.etat { width: 70px; }
+            .table-skywings th.pilote, .table-skywings td.pilote { width: 90px; }
+            .table-skywings th.fuel, .table-skywings td.fuel { width: 70px; }
+            .table-skywings th.compteur, .table-skywings td.compteur { width: 70px; }
+            .table-skywings th.envol, .table-skywings td.envol { width: 50px; }
+            .table-skywings th.maintenance, .table-skywings td.maintenance { width: 70px; }
+            .table-header-fixed-fleet th {
+                background: #0d47a1;
+                color: #fff;
+                border-bottom: 2px solid #08306b;
+                z-index: 10;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+                text-align: center;
+                font-weight: bold;
+                letter-spacing: 0.5px;
+            }
+            .table-header-fixed-fleet {
+                width: 100%;
+                border-collapse: separate;
+                border-spacing: 0;
+                table-layout: auto;
+                margin-bottom: 0;
+            }
+            .table-scroll-wrapper-fleet {
+                width: 100%;
+                max-height: 60vh;
+                overflow-y: auto;
+                overflow-x: auto;
+                border-top: none;
+            }
+        </style>
+        <script>
+        // Synchronise dynamiquement la largeur des colonnes du header avec celles du tableau de données
+        function syncHeaderWidthsFleet() {
+            const headerTable = document.querySelector('.table-header-fixed-fleet');
+            const dataTable = document.querySelector('.table-scroll-wrapper-fleet .table-skywings');
+            if (!headerTable || !dataTable) return;
+            const headerCells = headerTable.querySelectorAll('th');
+            const dataRow = dataTable.querySelector('tr');
+            if (!dataRow) return;
+            const dataCells = dataRow.querySelectorAll('td');
+            if (headerCells.length !== dataCells.length) return;
+            // Reset widths
+            headerCells.forEach(th => th.style.width = '');
+            dataCells.forEach(td => td.style.width = '');
+            // Get computed widths from data cells
+            for (let i = 0; i < headerCells.length; i++) {
+                const width = dataCells[i].getBoundingClientRect().width + 'px';
+                headerCells[i].style.width = width;
+                dataCells[i].style.width = width;
+            }
+            // Ajuste la largeur du headerTable pour ne pas dépasser le dataTable (évite le débordement dû au scrollbar)
+            headerTable.style.width = dataTable.getBoundingClientRect().width + 'px';
+        }
+        window.addEventListener('load', syncHeaderWidthsFleet);
+        window.addEventListener('resize', syncHeaderWidthsFleet);
+        document.querySelector('.table-scroll-wrapper-fleet').addEventListener('scroll', function() {
+            document.querySelector('.table-header-fixed-fleet').scrollLeft = this.scrollLeft;
+        });
+        </script>
     <?php endif; ?>
 </main>
 

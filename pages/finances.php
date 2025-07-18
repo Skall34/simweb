@@ -18,6 +18,7 @@ $immatFilter = $_GET['immat'] ?? '';
 $sql = "
     SELECT 
         f.immat, 
+        ft.fleet_type AS fleet_type_libelle,
         fi.date_achat, 
         fi.recettes, 
         ft.cout_horaire, 
@@ -92,10 +93,12 @@ include __DIR__ . '/../includes/menu_logged.php';
     <?php else: ?>
         <?php // ...existing code... ?>
 
-        <table class="table-skywings" border="1" cellpadding="5" cellspacing="0">
+        <!-- Tableau d'en-tête fixe -->
+        <table class="table-skywings table-header-fixed-finances">
             <thead>
                 <tr>
                     <th>Immatriculation</th>
+                    <th>Fleet type</th>
                     <th>Date d'achat</th>
                     <th>Recettes (€)</th>
                     <th>Coût horaire (€)</th>
@@ -109,25 +112,95 @@ include __DIR__ . '/../includes/menu_logged.php';
                     <th>Date vente</th>
                 </tr>
             </thead>
-            <tbody>
-                <?php foreach ($finances as $ligne): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($ligne['immat'] ?? 'N/A') ?></td>
-                        <td><?= !empty($ligne['date_achat']) ? date('d/m/Y', strtotime($ligne['date_achat'])) : 'N/A' ?></td>
-                        <td><?= format_chiffre($ligne['recettes'] ?? 0) ?></td>
-                        <td><?= format_chiffre($ligne['cout_horaire'] ?? 0) ?></td>
-                        <td><?= format_chiffre($ligne['prix_achat'] ?? 0) ?></td>
-                        <td><?= htmlspecialchars($ligne['nb_annees_credit'] ?? 'N/A') ?></td>
-                        <td><?= format_chiffre($ligne['taux_percent'] ?? 0) ?></td>
-                        <td><?= format_chiffre($ligne['remboursement'] ?? 0) ?></td>
-                        <td><?= htmlspecialchars($ligne['traite_payee_cumulee'] ?? 'N/A') ?></td>
-                        <td><?= format_chiffre($ligne['reste_a_payer'] ?? 0) ?></td>
-                        <td><?= format_chiffre($ligne['recette_vente'] ?? 0) ?></td>
-                        <td><?= !empty($ligne['date_vente']) ? date('d/m/Y', strtotime($ligne['date_vente'])) : 'N/A' ?></td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
         </table>
+        <!-- Tableau scrollable des données -->
+        <div class="table-scroll-wrapper-finances">
+            <table class="table-skywings">
+                <tbody>
+                    <?php foreach ($finances as $ligne): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($ligne['immat'] ?? 'N/A') ?></td>
+                            <td><?= htmlspecialchars($ligne['fleet_type_libelle'] ?? 'N/A') ?></td>
+                            <td><?= !empty($ligne['date_achat']) ? date('d/m/Y', strtotime($ligne['date_achat'])) : 'N/A' ?></td>
+                            <td><?= format_chiffre($ligne['recettes'] ?? 0) ?></td>
+                            <td><?= format_chiffre($ligne['cout_horaire'] ?? 0) ?></td>
+                            <td><?= format_chiffre($ligne['prix_achat'] ?? 0) ?></td>
+                            <td><?= htmlspecialchars($ligne['nb_annees_credit'] ?? 'N/A') ?></td>
+                            <td><?= format_chiffre($ligne['taux_percent'] ?? 0) ?></td>
+                            <td><?= format_chiffre($ligne['remboursement'] ?? 0) ?></td>
+                            <td><?= htmlspecialchars($ligne['traite_payee_cumulee'] ?? 'N/A') ?></td>
+                            <td><?= format_chiffre($ligne['reste_a_payer'] ?? 0) ?></td>
+                            <td><?= format_chiffre($ligne['recette_vente'] ?? 0) ?></td>
+                            <td><?= !empty($ligne['date_vente']) ? date('d/m/Y', strtotime($ligne['date_vente'])) : 'N/A' ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+        <style>
+            .table-skywings th, .table-skywings td {
+                padding: 4px 6px;
+                font-size: 14px;
+                box-sizing: border-box;
+            }
+            .table-skywings th {
+                white-space: normal;
+                word-break: break-word;
+            }
+            .table-header-fixed-finances th {
+                background: #0d47a1;
+                color: #fff;
+                border-bottom: 2px solid #08306b;
+                z-index: 10;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+                text-align: center;
+                font-weight: bold;
+                letter-spacing: 0.5px;
+            }
+            .table-header-fixed-finances {
+                width: 100%;
+                border-collapse: separate;
+                border-spacing: 0;
+                table-layout: auto;
+                margin-bottom: 0;
+            }
+            .table-scroll-wrapper-finances {
+                width: 100%;
+                max-height: 60vh;
+                overflow-y: auto;
+                overflow-x: auto;
+                border-top: none;
+            }
+        </style>
+        <script>
+        // Synchronise dynamiquement la largeur des colonnes du header avec celles du tableau de données
+        function syncHeaderWidthsFinances() {
+            const headerTable = document.querySelector('.table-header-fixed-finances');
+            const dataTable = document.querySelector('.table-scroll-wrapper-finances .table-skywings');
+            if (!headerTable || !dataTable) return;
+            const headerCells = headerTable.querySelectorAll('th');
+            const dataRow = dataTable.querySelector('tr');
+            if (!dataRow) return;
+            const dataCells = dataRow.querySelectorAll('td');
+            if (headerCells.length !== dataCells.length) return;
+            // Reset widths
+            headerCells.forEach(th => th.style.width = '');
+            dataCells.forEach(td => td.style.width = '');
+            // Get computed widths from data cells
+            for (let i = 0; i < headerCells.length; i++) {
+                const width = dataCells[i].getBoundingClientRect().width + 'px';
+                headerCells[i].style.width = width;
+                dataCells[i].style.width = width;
+            }
+            // Ajuste la largeur du headerTable pour ne pas dépasser le dataTable (évite le débordement dû au scrollbar)
+            headerTable.style.width = dataTable.getBoundingClientRect().width + 'px';
+        }
+        window.addEventListener('load', syncHeaderWidthsFinances);
+        window.addEventListener('resize', syncHeaderWidthsFinances);
+        document.querySelector('.table-scroll-wrapper-finances').addEventListener('scroll', function() {
+            document.querySelector('.table-header-fixed-finances').scrollLeft = this.scrollLeft;
+        });
+        </script>
 
     <?php endif; ?>
 </main>
