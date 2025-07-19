@@ -32,8 +32,9 @@
 require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/log_func.php';
 require_once __DIR__ . '/../includes/mail_utils.php';
-require_once __DIR__ . '/../scripts/fonctions_importer_vol.php';
-require_once __DIR__ . '/../scripts/calcul_cout.php';
+require_once __DIR__ . '/../includes/fonctions_financieres.php';
+require_once __DIR__ . '/../includes/fonctions_importer_vol.php';
+require_once __DIR__ . '/../includes/calcul_cout.php';
 
 date_default_timezone_set('Europe/Paris');
 $logFile = __DIR__ . '/logs/importer_vol_direct.log';
@@ -174,7 +175,7 @@ try {
 
     // 5. Ajout au carnet de vol avec le coût
     logMsg("Ajout au carnet de vol : callsign=$callsign, immat=$immat, depart=$departure_icao, dest=$arrival_icao, payload=$payload, cout_vol=$cout_vol", $logFile);
-    remplirCarnetVolGeneral($horodateur, $callsign, $immat, $departure_icao, $arrival_icao, $departure_fuel, $arrival_fuel, $payload, $departure_time, $arrival_time, $mission, $commentaire, $note, $cout_vol, $temps_vol);
+    $vol_id = remplirCarnetVolGeneral($horodateur, $callsign, $immat, $departure_icao, $arrival_icao, $departure_fuel, $arrival_fuel, $payload, $departure_time, $arrival_time, $mission, $commentaire, $note, $cout_vol, $temps_vol);
 
     // 6. Mise à jour de la flotte
     logMsg("Mise à jour flotte : immat=$immat, fuel=$arrival_fuel, callsign=$callsign, localisation=$arrival_icao", $logFile);
@@ -185,8 +186,8 @@ try {
     mettreAJourFinances($immat, $cout_vol);
 
     // Mise à jour de la balance commerciale via fonction dédiée
-    logMsg("Mise à jour balance commerciale : cout_vol=$cout_vol", $logFile);
-    mettreAJourBalanceCommerciale($cout_vol);
+    logMsg("Ajout recette dans finances_recettes : cout_vol=$cout_vol, vol_id=$vol_id", $logFile);
+    mettreAJourRecettes($cout_vol, $vol_id, $immat, $callsign, 'vol', $commentaire);
 
     // 7. Usure
     logMsg("Usure avion $immat : note=$note", $logFile);

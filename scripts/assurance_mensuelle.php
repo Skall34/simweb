@@ -37,6 +37,7 @@ $mailSummaryEnabled = true; // Active l'envoi du mail récapitulatif
 require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/log_func.php';
 require_once __DIR__ . '/../includes/mail_utils.php';
+require_once __DIR__ . '/../includes/fonctions_financieres.php';
 $logFile = __DIR__ . '/logs/assurance_mensuelle.log';
 logMsg("--- Démarrage du script d'assurance mensuelle ---", $logFile);
 logMsg("--- Script assurance_mensuelle.php lancé ---", $logFile);
@@ -50,21 +51,9 @@ try {
     logMsg("Cout total des avions (cout_avions): $cout_avions", $logFile);
     $pourcentage = 0.002; // 0.2% par mois
     $assurance_mensuelle = round($cout_avions * $pourcentage, 2);
-    // Mettre à jour le cumul d'assurance
-    $sqlUpdateAssurance = "UPDATE BALANCE_COMMERCIALE SET assurance = assurance + :assurance2";
-    $stmtUpdateAssurance = $pdo->prepare($sqlUpdateAssurance);
-    $stmtUpdateAssurance->execute(['assurance2' => $assurance_mensuelle]);
-    // Recalculer la balance_actuelle en soustrayant le montant de l'assurance prélevée
-    $sqlGetBalance = "SELECT balance_actuelle FROM BALANCE_COMMERCIALE";
-    $stmtBalance = $pdo->query($sqlGetBalance);
-    $balance = $stmtBalance->fetchColumn();
-    $balance_actuelle = $balance - $assurance_mensuelle;
-    $sqlUpdateBalance = "UPDATE BALANCE_COMMERCIALE SET balance_actuelle = :balance_actuelle";
-    $stmtUpdateBalance = $pdo->prepare($sqlUpdateBalance);
-    $stmtUpdateBalance->execute(['balance_actuelle' => $balance_actuelle]);
-    logMsg("Assurance mensuelle calculée sur cout_avions: $assurance_mensuelle ajoutée.", $logFile);
-    logMsg("Balance recalculée après mise à jour de l'assurance: $balance_actuelle", $logFile);
-    $balance_apres = $balance_actuelle;
+    
+    mettreAJourDepenses($assurance_mensuelle, null, '', '', 'assurance', 'Prélèvement assurance mensuelle');
+    logMsg("Assurance mensuelle enregistrée dans finances_depenses: $assurance_mensuelle", $logFile);
     logMsg("Traitement terminé.", $logFile);
     // Affichage récapitulatif pour l'admin
     $message = "Traitement d'assurance mensuelle terminé.\n";
@@ -73,9 +62,7 @@ try {
     if ($balance_apres !== null) {
         $message .= "Balance après : $balance_apres €\n";
     }
-    if ($alerte_balance) {
-        $message .= "[ALERTE] Balance incohérente : aucune opération effectuée.\n";
-    }
+   
     echo $message;
     // Envoi du mail récapitulatif enrichi
     if ($mailSummaryEnabled && function_exists('sendSummaryMail')) {

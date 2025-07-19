@@ -3,6 +3,7 @@ session_start();
 require __DIR__ . '/../includes/db_connect.php';
 include __DIR__ . '/../includes/header.php';
 include __DIR__ . '/../includes/menu_logged.php';
+require_once __DIR__ . '/../includes/fonctions_financieres.php';
 
 $successMessage = '';
 $errorMessage = '';
@@ -72,34 +73,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['avion_id'])) {
             'avion_id' => $avion_id
         ]);
 
-        // Mettre à jour BALANCE_COMMERCIALE (recettes_ventes_appareils)
-        $stmtGetRecettes = $pdo->query("SELECT recettes_ventes_appareils FROM BALANCE_COMMERCIALE LIMIT 1");
-        $recettes_existantes = $stmtGetRecettes->fetchColumn();
-        if ($recettes_existantes === false || $recettes_existantes === null) {
-            $recettes_existantes = 0;
-        }
-        $nouvelle_recette = $recettes_existantes + $recette_vente;
-        $stmtUpdateRecettes = $pdo->prepare("UPDATE BALANCE_COMMERCIALE SET recettes_ventes_appareils = :nouvelle_recette");
-        $stmtUpdateRecettes->execute(['nouvelle_recette' => $nouvelle_recette]);
-
-        // Déduire le prix de vente du champ cout_avions
-        $stmtGetCout = $pdo->query("SELECT cout_avions FROM BALANCE_COMMERCIALE LIMIT 1");
-        $cout_avions = $stmtGetCout->fetchColumn();
-        if ($cout_avions === false || $cout_avions === null) {
-            $cout_avions = 0;
-        }
-        $nouveau_cout_avions = $cout_avions - $recette_vente;
-        if ($nouveau_cout_avions < 0) $nouveau_cout_avions = 0;
-        $stmtUpdateCout = $pdo->prepare("UPDATE BALANCE_COMMERCIALE SET cout_avions = :nouveau_cout_avions");
-        $stmtUpdateCout->execute(['nouveau_cout_avions' => $nouveau_cout_avions]);
-        // Recalculer et vérifier la balance commerciale après la vente
-        $sqlGetBalance = "SELECT balance_actuelle FROM BALANCE_COMMERCIALE";
-        $stmtBalance = $pdo->query($sqlGetBalance);
-        $balance = $stmtBalance->fetchColumn();
-        $balance_actuelle = $balance + $nouvelle_recette;
-        $sqlUpdateBalance = "UPDATE BALANCE_COMMERCIALE SET balance_actuelle = :balance_actuelle";
-        $stmtUpdateBalance = $pdo->prepare($sqlUpdateBalance);
-        $stmtUpdateBalance->execute(['balance_actuelle' => $balance_actuelle]);
+        // Enregistrer la vente dans finances_recettes (nouveau système)
+        
+        // Récupérer l'immatriculation de l'appareil vendu
+        $stmtImmat = $pdo->prepare("SELECT immat FROM FLOTTE WHERE id = :id");
+        $stmtImmat->execute(['id' => $avion_id]);
+        $immat_vendue = $stmtImmat->fetchColumn();
+        // On peut utiliser le callsign de l'utilisateur connecté si besoin, sinon laisser vide
+        $callsign_vendeur = isset($_SESSION['callsign']) ? $_SESSION['callsign'] : '';
+        mettreAJourRecettes($recette_vente, null, $immat_vendue, $callsign_vendeur, 'vente', 'Vente appareil');
 
         // Récupérer l'immatriculation pour le message
         $stmtImmat = $pdo->prepare("SELECT immat FROM FLOTTE WHERE id = :id");

@@ -5,6 +5,7 @@ require __DIR__ . '/../includes/db_connect.php';
 include __DIR__ . '/../includes/header.php';
 include __DIR__ . '/../includes/menu_logged.php';
 require_once __DIR__ . '/../includes/mail_utils.php';
+require_once __DIR__ . '/../includes/fonctions_financieres.php';
 
 $successMessage = '';
 $errorMessage = '';
@@ -108,23 +109,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmtFinances = $pdo->prepare($sqlFinances);
                 $stmtFinances->execute($paramsFinances);
 
-                // Mettre à jour le champ cout_avions dans BALANCE_COMMERCIALE
-                $stmtGetCout = $pdo->query("SELECT cout_avions FROM BALANCE_COMMERCIALE WHERE id = 1");
-                $cout_avions = $stmtGetCout->fetchColumn();
-                if ($cout_avions === false || $cout_avions === null) {
-                    $cout_avions = 0;
-                }
-                $nouveau_cout = $cout_avions + $prix_achat;
-                $stmtUpdateCout = $pdo->prepare("UPDATE BALANCE_COMMERCIALE SET cout_avions = :nouveau_cout WHERE id = 1");
-                $stmtUpdateCout->execute(['nouveau_cout' => $nouveau_cout]);
-             // Recalculer et vérifier la balance commerciale après la vente
-                $sqlGetBalance = "SELECT balance_actuelle FROM BALANCE_COMMERCIALE";
-                $stmtBalance = $pdo->query($sqlGetBalance);
-                $balance = $stmtBalance->fetchColumn();
-                $balance_actuelle = $balance + $nouveau_cout;
-                $sqlUpdateBalance = "UPDATE BALANCE_COMMERCIALE SET balance_actuelle = :balance_actuelle";
-                $stmtUpdateBalance = $pdo->prepare($sqlUpdateBalance);
-                $stmtUpdateBalance->execute(['balance_actuelle' => $balance_actuelle]);
+                
+                // Enregistrer l'achat dans finances_depenses (nouveau système)
+                $callsign_acheteur = isset($_SESSION['callsign']) ? $_SESSION['callsign'] : '';
+                mettreAJourDepenses($prix_achat, $avion_id, $immat, $callsign_acheteur, 'achat', 'Achat appareil');
                 $successMessage = "L'appareil $immat a été acheté avec succès. Félicitations !!";
 
                 // Envoi du mail récapitulatif via mail_utils.php
