@@ -25,7 +25,7 @@ $scripts = [
     'assurance_mensuelle.php' => "Assurance mensuelle",
     'credit_mensualite.php' => "Mensualités crédit",
     'update_fret.php' => "Mise à jour du fret",
-    'admin_retablir_balance.php' => 'Rétablir la cohérence balance'
+    'paiement_salaires_pilotes.php' => "Paiement salaires pilotes"
 ];
 
 // Scripts nécessitant un CSV

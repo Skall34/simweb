@@ -43,11 +43,10 @@ $recap = [];
 foreach ($pilotes as $index => $pilote) {
     logMsg('[TRACE] --- Début traitement pilote ---', __DIR__ . '/logs/paiement_salaires.log');
     echo "<pre>--- Début traitement pilote ---\n";
-    logMsg('[TRACE] Pilote : ' . print_r($pilote, true), __DIR__ . '/logs/paiement_salaires.log');
-    echo "Pilote : " . htmlspecialchars(print_r($pilote, true)) . "\n";
+    logMsg('[TRACE] Pilote : ' . $pilote['callsign'], __DIR__ . '/logs/paiement_salaires.log');
+    echo "Pilote : " . htmlspecialchars($pilote['callsign']) . "\n";
     $requete_heures = "SELECT SUM(TIME_TO_SEC(temps_vol)) FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = " . $pilote['id'] . " AND DATE(date_vol) >= '" . $debut_mois . "' AND DATE(date_vol) < '" . $fin_mois . "'";
-    logMsg('[TRACE] Requête heures : ' . $requete_heures, __DIR__ . '/logs/paiement_salaires.log');
-    echo "Requête heures : $requete_heures\n";
+    
     try {
         $stmtTaux = $pdo->prepare("SELECT taux_horaire FROM GRADES WHERE id = ?");
         $stmtTaux->execute([$pilote['grade_id']]);
@@ -119,36 +118,25 @@ foreach ($pilotes as $index => $pilote) {
         continue;
     }
 
-    try {
-        // Enregistrer le paiement des salaires dans finances_depenses (nouveau système)
-        mettreAJourDepenses($montant, $pilote['id'], '', $pilote['callsign'], 'salaire', 'Paiement salaire mensuel');
-        logMsg('[TRACE] Paiement salaire enregistré dans finances_depenses', __DIR__ . '/logs/paiement_salaires.log');
-        echo "Paiement salaire enregistré dans finances_depenses\n";
-    } catch (Exception $e) {
-        logMsg('[ERREUR] Paiement salaire finances_depenses : ' . $e->getMessage(), __DIR__ . '/logs/paiement_salaires.log');
-        echo "ERREUR Paiement salaire finances_depenses : " . htmlspecialchars($e->getMessage()) . "\n";
-        continue;
-    }
-
-    $log_msg = "Salaire: " . $pilote['callsign'] . " (" . $pilote['prenom'] . " " . $pilote['nom'] . ") - Heures: " . number_format($heures_mois, 2) . " - Fret: " . number_format($total_fret_kg, 2) . "kg - Bonus fret: " . number_format($bonus_fret, 2) . "€ - Montant: " . number_format($montant, 2) . "€";
+    $log_msg = "[TRACE] Salaire: " . $pilote['callsign'] . " (" . $pilote['prenom'] . " " . $pilote['nom'] . ") - Heures: " . number_format($heures_mois, 2) . " - Fret: " . number_format($total_fret_kg, 2) . "kg - Bonus fret: " . number_format($bonus_fret, 2) . "€ - Montant: " . number_format($montant, 2) . "€";
     logMsg($log_msg, __DIR__ . '/logs/paiement_salaires.log');
     // Log utile : mail envoyé ou erreur
     $to = $test_mode ? ADMIN_EMAIL : $pilote['email'];
     $subject = "Votre salaire du mois";
-    $message = "Bonjour " . $pilote['prenom'] . " " . $pilote['nom'] . ",\n\n";
-    $message .= "Vous avez effectué " . number_format($heures_mois, 2) . " heures de vol ce mois-ci.\n";
-    $message .= "Vous avez transporté " . number_format($total_fret_kg, 2) . " kg de fret, soit un bonus de " . number_format($bonus_fret, 2) . "€.\n";
-    $message .= "Votre salaire total est de " . number_format($montant, 2) . "€.\n\n";
-    $message .= "Cordialement,\nL'équipe Skywings";
+    $message = "Bonjour " . $pilote['prenom'] . ",\n\n";
+    $message .= "Tu as effectué " . number_format($heures_mois, 2) . " heures de vol ce mois-ci.\n";
+    $message .= "Tu as transporté " . number_format($total_fret_kg, 2) . " kg de fret, soit un bonus de " . number_format($bonus_fret, 2) . "€.\n";
+    $message .= "Ton salaire total bien mérité est de " . number_format($montant, 2) . "€.\n\n";
+    $message .= "Merci de voler pour Skywings,\nL'équipe Skywings";
     try {
         if ($index === count($pilotes) - 1) {
             sleep(5);
         }
         $mailResult = sendSummaryMail($subject, $message, $to);
         if ($mailResult === true || $mailResult === null) {
-            logMsg("Mail de salaire envoyé à $to", __DIR__ . '/logs/paiement_salaires.log');
+            logMsg("[TRACE] Mail de salaire envoyé à $to", __DIR__ . '/logs/paiement_salaires.log');
         } else {
-            logMsg("Erreur lors de l'envoi du mail de salaire à $to : $mailResult", __DIR__ . '/logs/paiement_salaires.log');
+            logMsg("[ERREUR] Envoi mail salaire à $to : $mailResult", __DIR__ . '/logs/paiement_salaires.log');
         }
         sleep(1);
     } catch (Exception $e) {
@@ -156,8 +144,25 @@ foreach ($pilotes as $index => $pilote) {
     }
     // Log utile : fin traitement pilote
     $recap[] = date('Y-m-d H:i:s') . ' | ' . $pilote['callsign'] . ' (' . $pilote['prenom'] . ' ' . $pilote['nom'] . ') - Heures: ' . number_format($heures_mois, 2) . ' - Fret: ' . number_format($total_fret_kg, 2) . 'kg - Bonus fret: ' . number_format($bonus_fret, 2) . '€ - Montant: ' . number_format($montant, 2) . "€\n";
+    // On cumule le montant total des salaires versés
+    if (!isset($total_salaires)) $total_salaires = 0;
+    $total_salaires += $montant;
+    logMsg('[TRACE] Fin traitement pilote : ' . $pilote['callsign'], __DIR__ . '/logs/paiement_salaires.log');
 }
 
+// Après la boucle, enregistrer la dépense globale dans finances_depenses si au moins un salaire a été versé
+if (!empty($recap) && isset($total_salaires) && $total_salaires > 0) {
+    try {
+        $nb_pilotes_payes = count($recap);
+        $commentaire = "Paiement mensuel des salaires pour $nb_pilotes_payes pilotes";
+        mettreAJourDepenses($total_salaires, null, '', 'SYSTEM', 'salaire', $commentaire);
+        logMsg("[TRACE] Dépense globale enregistrée dans finances_depenses : $total_salaires € pour $nb_pilotes_payes pilotes", __DIR__ . '/logs/paiement_salaires.log');
+        echo "Dépense globale enregistrée dans finances_depenses : $total_salaires € pour $nb_pilotes_payes pilotes\n";
+    } catch (Exception $e) {
+        logMsg('[ERREUR] Paiement global finances_depenses : ' . $e->getMessage(), __DIR__ . '/logs/paiement_salaires.log');
+        echo "ERREUR Paiement global finances_depenses : " . htmlspecialchars($e->getMessage()) . "\n";
+    }
+}
 logMsg('[SALAIRE] Fin du script de paiement des salaires', __DIR__ . '/logs/paiement_salaires.log');
 echo "Paiement des salaires terminé.";
 // Envoi du mail récapitulatif à l'administrateur SKY0707
@@ -165,20 +170,21 @@ if (!empty($recap)) {
     $subject = "Récapitulatif des salaires versés";
     $maxLines = 50;
     $recap_limited = array_slice($recap, 0, $maxLines);
-    $body = "Salut SKY0707,\n\nVoici la liste des salaires versés ce mois-ci (max $maxLines lignes) :\n" . implode("", $recap_limited) . "\nCordialement,\nLe système automatique Skywings";
+    $total_salaires_str = isset($total_salaires) ? number_format($total_salaires, 2, ',', ' ') : '0.00';
+    $body = "Salut SKY0707,\n\nVoici la liste des salaires versés ce mois-ci (max $maxLines lignes) :\n" . implode("", $recap_limited) . "\n\nSomme totale des salaires versés : $total_salaires_str €\n\nCordialement,\nLe système automatique Skywings";
     $mailResult = sendSummaryMail($subject, $body, ADMIN_EMAIL);
     if ($mailResult === true || $mailResult === null) {
-        logMsg("Mail récapitulatif des salaires envoyé à " . ADMIN_EMAIL, __DIR__ . '/logs/paiement_salaires.log');
+        logMsg("[TRACE] Mail récapitulatif des salaires envoyé à " . ADMIN_EMAIL, __DIR__ . '/logs/paiement_salaires.log');
     } else {
-        logMsg("Erreur lors de l'envoi du mail récapitulatif des salaires : $mailResult", __DIR__ . '/logs/paiement_salaires.log');
+        logMsg("[ERREUR] Envoi mail récapitulatif des salaires à " . ADMIN_EMAIL . " : $mailResult", __DIR__ . '/logs/paiement_salaires.log');
     }
 } else {
     $subject = "Récapitulatif des salaires versés";
-    $body = "Bonjour Administrateur,\n\nAucun salaire n'a été versé ce mois-ci.\n\nCordialement,\nLe système automatique Skywings";
+    $body = "Salut SKY0707,\n\nAucun salaire n'a été versé ce mois-ci.\n\nCordialement,\nLe système automatique Skywings";
     $mailResult = sendSummaryMail($subject, $body, ADMIN_EMAIL);
     if ($mailResult === true || $mailResult === null) {
-        logMsg("Mail récapitulatif (aucun salaire) envoyé à " . ADMIN_EMAIL, __DIR__ . '/logs/paiement_salaires.log');
+        logMsg("[TRACE] Mail récapitulatif (aucun salaire) envoyé à " . ADMIN_EMAIL, __DIR__ . '/logs/paiement_salaires.log');
     } else {
-        logMsg("Erreur lors de l'envoi du mail récapitulatif (aucun salaire) : $mailResult", __DIR__ . '/logs/paiement_salaires.log');
+        logMsg("[ERREUR] Envoi mail récapitulatif (aucun salaire) à " . ADMIN_EMAIL . " : $mailResult", __DIR__ . '/logs/paiement_salaires.log');
     }
 }

@@ -40,9 +40,9 @@ function mettreAJourRecettes($montant, $reference_id = null, $immat = '', $calls
             'commentaire' => $comment
         ];
         $stmt->execute($params);
-        if (function_exists('logMsg')) {
-            logMsg('Recette insérée : ' . json_encode($params), $logFile);
-        }
+    
+        logMsg('Recette insérée : ' . json_encode($params), $logFile);
+    
         mettreAJourBalanceCommerciale($comment);
     } catch (PDOException $e) {
         error_log("❌ ERREUR SQL dans mettreAJourRecettes: " . $e->getMessage());
@@ -78,12 +78,12 @@ function mettreAJourDepenses($montant, $reference_id = null, $immat = '', $calls
             'commentaire' => $comment
         ];
         $stmt->execute($params);
-        if (function_exists('logMsg')) {
-            logMsg('Dépense insérée : ' . json_encode($params), $logFile);
-        }
+    
+        logMsg('[TRACE DEPENSE] Dépense insérée : ' . json_encode($params), $logFile);
         mettreAJourBalanceCommerciale($comment);
     } catch (PDOException $e) {
         error_log("❌ ERREUR SQL dans mettreAJourDepenses: " . $e->getMessage());
+        logMsg('[ERREUR] SQL mettreAJourDepenses: ' . $e->getMessage(), $logFile);
         throw $e;
     }
 }
@@ -95,9 +95,11 @@ function mettreAJourDepenses($montant, $reference_id = null, $immat = '', $calls
  */
 function mettreAJourBalanceCommerciale($commentaire = '') {
     global $pdo;
+    global $logFile;
     $recettes = $pdo->query('SELECT SUM(montant) FROM finances_recettes')->fetchColumn();
     $depenses = $pdo->query('SELECT SUM(montant) FROM finances_depenses')->fetchColumn();
     $balance = round(floatval($recettes) - floatval($depenses), 2);
+    logMsg('[TRACE BALANCE] Recalcul balance : recettes=' . $recettes . ' depenses=' . $depenses . ' => balance=' . $balance, $logFile);
     $stmt = $pdo->prepare('UPDATE BALANCE_COMMERCIALE SET balance_actuelle = :balance, derniere_maj = NOW(), commentaire = :commentaire WHERE id = 1');
     $stmt->execute(['balance' => $balance, 'commentaire' => $commentaire]);
 }
