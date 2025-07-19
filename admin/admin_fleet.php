@@ -6,6 +6,7 @@ include __DIR__ . '/../includes/header.php';
 include __DIR__ . '/../includes/menu_logged.php';
 require_once __DIR__ . '/../includes/mail_utils.php';
 require_once __DIR__ . '/../includes/fonctions_financieres.php';
+require_once __DIR__ . '/../includes/log_func.php';
 
 $successMessage = '';
 $errorMessage = '';
@@ -26,6 +27,10 @@ try {
 // Traitement du formulaire
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
+
+    $logFile = dirname(__DIR__) . '/scripts/logs/admin_fleet.log';
+    logMsg('[FLEET] Début traitement achat appareil', $logFile);
+
     $fleet_type_id = intval($_POST['fleet_type'] ?? 0);
     $type = trim($_POST['type'] ?? '');
     $immat = strtoupper(trim($_POST['immat'] ?? ''));
@@ -34,6 +39,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $achat_mode = $_POST['achat_mode'] ?? 'comptant';
     $nb_annees_credit = ($achat_mode === 'credit') ? intval($_POST['nb_annees_credit'] ?? 0) : 0;
     $taux_percent = ($achat_mode === 'credit') ? floatval($_POST['taux_percent'] ?? 0) : 0;
+
+    logMsg("Vérification existence immatriculation : $immat", $logFile);
 
     // Validation des champs
     if (
@@ -50,6 +57,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $pdo->prepare("SELECT COUNT(*) FROM FLOTTE WHERE immat = :immat");
             $stmt->execute(['immat' => $immat]);
             if ($stmt->fetchColumn() > 0) {
+                logMsg("[ERREUR] Immatriculation déjà existante : $immat", $logFile);
+                logMsg("Insertion nouvel appareil : immat=$immat, type=$type, fleet_type_id=$fleet_type_id, localisation=$localisation, hub=$hub", $logFile);
                 $errorMessage = "Un avion avec cette immatriculation existe déjà.";
             } else {
                 // Construction de la requête
@@ -60,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         compteur_immo, en_vol, nb_maintenance, Actif
                     ) VALUES (
                         :fleet_type, :type, :immat, :localisation, :hub,
-                        0, 0, NULL, NULL,
+                        0, 100, NULL, NULL,
                         0, 0, 0, 1
                     )
                 ";
@@ -73,16 +82,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'localisation' => $localisation ?: null,
                     'hub' => $hub ?: null
                 ]);
+                
                 // Récupérer l'id du nouvel avion
                 $avion_id = $pdo->lastInsertId();
-
+                logMsg("Appareil inséré en base, id=$avion_id", $logFile);
                 // Récupérer le prix d'achat dans FLEET_TYPE
                 $stmtPrix = $pdo->prepare("SELECT cout_appareil FROM FLEET_TYPE WHERE id = :fleet_type_id");
                 $stmtPrix->execute(['fleet_type_id' => $fleet_type_id]);
                 $prix_achat = $stmtPrix->fetchColumn();
+                logMsg("Prix d'achat récupéré pour fleet_type_id=$fleet_type_id : $prix_achat €", $logFile);
 
                 // Insérer la ligne dans FINANCES selon le mode d'achat
                 if ($achat_mode === 'comptant') {
+                    logMsg("Mode d'achat : comptant", $logFile);
                     $sqlFinances = "INSERT INTO FINANCES (
                         avion_id, date_achat, recettes, nb_annees_credit, taux_percent, remboursement, traite_payee_cumulee, reste_a_payer
                     ) VALUES (
@@ -93,6 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'date_achat' => date('Y-m-d')
                     ];
                 } else {
+                    logMsg("Mode d'achat : crédit ($nb_annees_credit ans, taux $taux_percent%)", $logFile);
                     $sqlFinances = "INSERT INTO FINANCES (
                         avion_id, date_achat, recettes, nb_annees_credit, taux_percent, remboursement, traite_payee_cumulee, reste_a_payer
                     ) VALUES (
@@ -108,12 +121,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 $stmtFinances = $pdo->prepare($sqlFinances);
                 $stmtFinances->execute($paramsFinances);
+                logMsg("Ligne FINANCES insérée pour avion_id=$avion_id", $logFile);
 
                 
                 // Enregistrer l'achat dans finances_depenses (nouveau système)
                 $callsign_acheteur = isset($_SESSION['callsign']) ? $_SESSION['callsign'] : '';
-                mettreAJourDepenses($prix_achat, $avion_id, $immat, $callsign_acheteur, 'achat', 'Achat appareil');
+                $commentaire_finance = "Achat appareil $immat par $callsign_acheteur";
+                mettreAJourDepenses($prix_achat, $avion_id, $immat, $callsign_acheteur, 'achat', $commentaire_finance);
+                logMsg("Achat enregistré dans finances_depenses pour immat=$immat, montant=$prix_achat", $logFile);
                 $successMessage = "L'appareil $immat a été acheté avec succès. Félicitations !!";
+                logMsg("[FLEET] Achat terminé pour immat=$immat", $logFile);
 
                 // Envoi du mail récapitulatif via mail_utils.php
                 $mailSubject = "Nouvel achat d'appareil";

@@ -17,6 +17,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'id' => $user['id'],
             'callsign' => $user['callsign']
         ];
+        // Ajout : instanciation explicite du callsign pour la session
+        $_SESSION['callsign'] = $user['callsign'];
         header('Location: index.php');
         exit;
     } else {

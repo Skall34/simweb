@@ -43,7 +43,7 @@ function mettreAJourRecettes($montant, $reference_id = null, $immat = '', $calls
         if (function_exists('logMsg')) {
             logMsg('Recette insérée : ' . json_encode($params), $logFile);
         }
-        mettreAJourBalanceCommerciale();
+        mettreAJourBalanceCommerciale($comment);
     } catch (PDOException $e) {
         error_log("❌ ERREUR SQL dans mettreAJourRecettes: " . $e->getMessage());
         throw $e;
@@ -81,7 +81,7 @@ function mettreAJourDepenses($montant, $reference_id = null, $immat = '', $calls
         if (function_exists('logMsg')) {
             logMsg('Dépense insérée : ' . json_encode($params), $logFile);
         }
-        mettreAJourBalanceCommerciale();
+        mettreAJourBalanceCommerciale($comment);
     } catch (PDOException $e) {
         error_log("❌ ERREUR SQL dans mettreAJourDepenses: " . $e->getMessage());
         throw $e;
@@ -91,6 +91,7 @@ function mettreAJourDepenses($montant, $reference_id = null, $immat = '', $calls
 /**
  * Recalcule la balance commerciale à partir des recettes et dépenses.
  * À appeler après chaque ajout de recette ou dépense.
+ * @param string $commentaire Commentaire à enregistrer dans la balance (optionnel)
  */
 function mettreAJourBalanceCommerciale($commentaire = '') {
     global $pdo;

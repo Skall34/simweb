@@ -1,12 +1,74 @@
+
+
 <?php
 session_start();
 require __DIR__ . '/../includes/db_connect.php';
-include __DIR__ . '/../includes/header.php';
-include __DIR__ . '/../includes/menu_logged.php';
+require_once __DIR__ . '/../includes/log_func.php';
 require_once __DIR__ . '/../includes/fonctions_financieres.php';
 
 $successMessage = '';
 $errorMessage = '';
+
+// Traitement de la vente AVANT toute sortie HTML ou include
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['avion_id'])) {
+    $logFile = dirname(__DIR__) . '/scripts/logs/admin_vendre_appareil.log';
+    $avion_id = intval($_POST['avion_id']);
+    logMsg('[VENTE] Début traitement vente appareil, avion_id=' . $avion_id, $logFile);
+    try {
+        // Récupérer le reste à payer
+        $stmtFinance = $pdo->prepare("SELECT reste_a_payer FROM FINANCES WHERE avion_id = :avion_id");
+        $stmtFinance->execute(['avion_id' => $avion_id]);
+        $reste_a_payer = $stmtFinance->fetchColumn();
+        logMsg("Reste à payer récupéré pour avion_id=$avion_id : $reste_a_payer", $logFile);
+
+        // Calculer la recette de vente
+        if ($reste_a_payer > 0) {
+            $recette_vente = $reste_a_payer;
+            logMsg("Mode crédit : recette_vente = reste à payer = $recette_vente", $logFile);
+        } else {
+            $stmtPrix = $pdo->prepare("SELECT ft.cout_appareil FROM FLOTTE f JOIN FLEET_TYPE ft ON f.fleet_type = ft.id WHERE f.id = :avion_id");
+            $stmtPrix->execute(['avion_id' => $avion_id]);
+            $prix_neuf = $stmtPrix->fetchColumn();
+            $recette_vente = round($prix_neuf * 0.8, 2);
+            logMsg("Mode comptant : prix neuf = $prix_neuf, recette_vente (80%) = $recette_vente", $logFile);
+        }
+
+        // Mettre à jour FLOTTE (actif = 0, status = 1, etat = 0)
+        $stmtUpdateF = $pdo->prepare("UPDATE FLOTTE SET actif = 0, status = 1, etat = 0 WHERE id = :id");
+        $stmtUpdateF->execute(['id' => $avion_id]);
+        logMsg("FLOTTE mis à jour (actif=0, status=1, etat=0) pour avion_id=$avion_id", $logFile);
+
+        // Mettre à jour FINANCES
+        $stmtUpdateFin = $pdo->prepare("UPDATE FINANCES SET date_vente = :date_vente, recette_vente = :recette_vente, reste_a_payer = 0 WHERE avion_id = :avion_id");
+        $stmtUpdateFin->execute([
+            'date_vente' => date('Y-m-d'),
+            'recette_vente' => $recette_vente,
+            'avion_id' => $avion_id
+        ]);
+        logMsg("FINANCES mis à jour pour avion_id=$avion_id, recette_vente=$recette_vente", $logFile);
+
+        // Enregistrer la vente dans finances_recettes (nouveau système)
+        $stmtImmat = $pdo->prepare("SELECT immat FROM FLOTTE WHERE id = :id");
+        $stmtImmat->execute(['id' => $avion_id]);
+        $immat_vendue = $stmtImmat->fetchColumn();
+        $callsign_vendeur = isset($_SESSION['callsign']) ? $_SESSION['callsign'] : '';
+        $commentaire_finance = "Vente appareil $immat_vendue par $callsign_vendeur";
+        mettreAJourRecettes($recette_vente, null, $immat_vendue, $callsign_vendeur, 'vente', $commentaire_finance);
+        logMsg("Vente enregistrée dans finances_recettes pour immat=$immat_vendue, montant=$recette_vente, callsign=$callsign_vendeur", $logFile);
+
+        // Redirection pour éviter la répétition de la vente (PRG pattern)
+        logMsg("[VENTE] Vente terminée pour immat=$immat_vendue", $logFile);
+        header('Location: ' . basename(__FILE__) . '?vente=ok&immat=' . urlencode($immat_vendue));
+        exit;
+    } catch (PDOException $e) {
+        $errorMessage = "Erreur lors de la vente : " . htmlspecialchars($e->getMessage());
+        logMsg("[ERREUR] Vente échouée pour avion_id=$avion_id : " . $e->getMessage(), $logFile);
+    }
+}
+
+// Après le traitement POST, on peut inclure les fichiers d'affichage
+include __DIR__ . '/../includes/header.php';
+include __DIR__ . '/../includes/menu_logged.php';
 
 // Récupérer la liste des appareils actifs avec infos financières
 try {
@@ -39,70 +101,12 @@ try {
     $errorMessage = "Erreur lors de la récupération de la flotte : " . htmlspecialchars($e->getMessage());
     $flotte = [];
 }
-
-// Traitement de la vente
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['avion_id'])) {
-    $avion_id = intval($_POST['avion_id']);
-    try {
-        // Récupérer le reste à payer
-        $stmtFinance = $pdo->prepare("SELECT reste_a_payer FROM FINANCES WHERE avion_id = :avion_id");
-        $stmtFinance->execute(['avion_id' => $avion_id]);
-        $reste_a_payer = $stmtFinance->fetchColumn();
-
-        // Calculer la recette de vente
-        if ($reste_a_payer > 0) {
-            // Si reste à payer > 0, recette vente = reste à payer
-            $recette_vente = $reste_a_payer;
-        } else {
-            // Sinon, recette vente = prix neuf - 20% (usure)
-            $stmtPrix = $pdo->prepare("SELECT ft.cout_appareil FROM FLOTTE f JOIN FLEET_TYPE ft ON f.fleet_type = ft.id WHERE f.id = :avion_id");
-            $stmtPrix->execute(['avion_id' => $avion_id]);
-            $prix_neuf = $stmtPrix->fetchColumn();
-            $recette_vente = round($prix_neuf * 0.8, 2); // 20% d'usure
-        }
-
-        // Mettre à jour FLOTTE (actif = 0, status = 1, etat = 0)
-        $stmtUpdateF = $pdo->prepare("UPDATE FLOTTE SET actif = 0, status = 1, etat = 0 WHERE id = :id");
-        $stmtUpdateF->execute(['id' => $avion_id]);
-
-        // Mettre à jour FINANCES
-        $stmtUpdateFin = $pdo->prepare("UPDATE FINANCES SET date_vente = :date_vente, recette_vente = :recette_vente, reste_a_payer = 0 WHERE avion_id = :avion_id");
-        $stmtUpdateFin->execute([
-            'date_vente' => date('Y-m-d'),
-            'recette_vente' => $recette_vente,
-            'avion_id' => $avion_id
-        ]);
-
-        // Enregistrer la vente dans finances_recettes (nouveau système)
-        
-        // Récupérer l'immatriculation de l'appareil vendu
-        $stmtImmat = $pdo->prepare("SELECT immat FROM FLOTTE WHERE id = :id");
-        $stmtImmat->execute(['id' => $avion_id]);
-        $immat_vendue = $stmtImmat->fetchColumn();
-        // On peut utiliser le callsign de l'utilisateur connecté si besoin, sinon laisser vide
-        $callsign_vendeur = isset($_SESSION['callsign']) ? $_SESSION['callsign'] : '';
-        mettreAJourRecettes($recette_vente, null, $immat_vendue, $callsign_vendeur, 'vente', 'Vente appareil');
-
-        // Récupérer l'immatriculation pour le message
-        $stmtImmat = $pdo->prepare("SELECT immat FROM FLOTTE WHERE id = :id");
-        $stmtImmat->execute(['id' => $avion_id]);
-        $immat_vendue = $stmtImmat->fetchColumn();
-        $successMessage = "L'appareil $immat_vendue a été vendu avec succès. Le banquier va être content !";
-    } catch (PDOException $e) {
-        $errorMessage = "Erreur lors de la vente : " . htmlspecialchars($e->getMessage());
-    }
-}
 ?>
 
 <main>
     <h2>Vendre un appareil</h2>
-    <?php if ($successMessage): ?>
-        <p style="color: green; font-weight:bold;"><?= $successMessage ?></p>
-        <script>
-        setTimeout(function() {
-            window.location.reload();
-        }, 1200);
-        </script>
+    <?php if (isset($_GET['vente']) && $_GET['vente'] === 'ok' && isset($_GET['immat'])): ?>
+        <p style="color: green; font-weight:bold;">L'appareil <?= htmlspecialchars($_GET['immat']) ?> a été vendu avec succès. Le banquier va être content !</p>
     <?php elseif ($errorMessage): ?>
         <p style="color: red; font-weight:bold;"><?= $errorMessage ?></p>
     <?php endif; ?>
