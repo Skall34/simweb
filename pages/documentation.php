@@ -69,7 +69,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/menu_logged.php';
                 <li><strong>Paiement des mensualités des crédits :</strong> Certains appareils sont achetés à crédit. Le paiement des mensualité se fait une fois / mois.</li>
                 <li><strong>Maintenance des appareils :</strong> Script quotidien, qui en fonction de létat de chaque appareil, le fait passer en maintenance. Pour une usure normale, l'appareil passe en maintenance pour 24h lorsqu'il atteind 30% d'usure. Lors d'un crash (note de 1), l'appareil est immobilisé 3 jours</li>
                 <li><strong>Paiement des salaires :</strong> Script mensuel qui calcule le salaire de chaque pilote selon ses heures de vol, son grade et le fret transporté (2€/kg), met à jour les finances, envoie un mail au pilote et un récapitulatif à l'administrateur.</li>
-                <li><strong>Promotion des grades :</strong> Script nocturne qui promeut les pilotes selon leurs heures de vol, envoie un mail et logue chaque promotion.</li>
+                <li><strong>Promotion des grades :</strong> Script qui promeut les pilotes selon leurs heures de vol, envoie un mail et logue chaque promotion. Est executé tous les 1er du mois.</li>
                 <li><strong>Mise à jour du frêt :</strong> Une fois par semaine, le vendredi, une certaine quantité de frêt aléatoire (entre 1 et 100 Kg) est attribué aux aéroports.</li>
             </ul>
         </section>

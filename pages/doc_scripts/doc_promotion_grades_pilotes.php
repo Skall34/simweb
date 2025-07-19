@@ -16,6 +16,7 @@ $grades = $stmt->fetchAll(PDO::FETCH_ASSOC);
          <section>
             <h2>Automatisation</h2>
             <ul>
+                <li>Tourne tous les 1er du mois à 23h.</li>
                 <li>Calcul des heures de vol pour chaque pilote.</li>
                 <li>Détermination du grade éligible et mise à jour en base.</li>
                 <li>Envoi d'un mail de notification au pilote promu.</li>
