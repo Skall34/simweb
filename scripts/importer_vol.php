@@ -39,8 +39,7 @@ require_once __DIR__ . '/../includes/fonctions_importer_vol.php';
 require_once __DIR__ . '/../includes/calcul_cout.php';
 
 date_default_timezone_set('Europe/Paris');
-$logFile = __DIR__ . '/logs/importer_vol.log';
-
+$logFile = dirname(__DIR__) . '/scripts/logs/importer_vol.log';
 try {
     $stmt = $pdo->query("SELECT * FROM FROM_ACARS WHERE processed = 0 ORDER BY id ASC");
     $vols = $stmt->fetchAll();

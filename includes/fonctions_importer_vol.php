@@ -29,7 +29,7 @@
 -------------------------------------------------------------
 */
 require_once __DIR__ . '/../includes/log_func.php';
-$logFile = __DIR__ . '/logs/import_vol.log';
+$logFile = dirname(__DIR__) . '/scripts/logs/import_vol.log';
 
 /**
  * Déduit le fret disponible au départ d'un aéroport et le met à jour.

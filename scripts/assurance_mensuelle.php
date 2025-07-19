@@ -38,7 +38,8 @@ require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/log_func.php';
 require_once __DIR__ . '/../includes/mail_utils.php';
 require_once __DIR__ . '/../includes/fonctions_financieres.php';
-$logFile = __DIR__ . '/logs/assurance_mensuelle.log';
+$logFile = dirname(__DIR__) . '/scripts/logs/assurance_mensuelle.log';
+
 logMsg("--- Démarrage du script d'assurance mensuelle ---", $logFile);
 logMsg("--- Script assurance_mensuelle.php lancé ---", $logFile);
 echo "--- Script assurance_mensuelle.php lancé ---\n";

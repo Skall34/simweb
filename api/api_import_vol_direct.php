@@ -37,7 +37,7 @@ require_once __DIR__ . '/../includes/fonctions_importer_vol.php';
 require_once __DIR__ . '/../includes/calcul_cout.php';
 
 date_default_timezone_set('Europe/Paris');
-$logFile = __DIR__ . '/logs/importer_vol_direct.log';
+$logFile = dirname(__DIR__) . '/scripts/logs/importer_vol_direct.log';
 $mailSummaryEnabled = true; // Active l'envoi du mail récapitulatif (mettre à false pour désactiver)
 
 // Réponse en JSON
@@ -190,7 +190,7 @@ try {
     mettreAJourRecettes($cout_vol, $vol_id, $immat, $callsign, 'vol', $commentaire);
 
     // 7. Usure
-    logMsg("Usure avion $immat : note=$note", $logFile);
+    logMsg("Usure avion $immat, note=$note", $logFile);
     deduireUsure($immat, $note);
     
     // Envoi du mail récapitulatif enrichi

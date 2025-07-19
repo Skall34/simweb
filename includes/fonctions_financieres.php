@@ -10,7 +10,7 @@
 */
 
 require_once __DIR__ . '/../includes/log_func.php';
-$logFile = __DIR__ . '/logs/fonctions_financieres.log';
+$logFile = dirname(__DIR__) . '/scripts/logs/fonctions_financieres.log';
 
 /**
  * Insère une recette (vol, vente, etc.) dans la table finances_recettes.
