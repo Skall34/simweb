@@ -2,7 +2,6 @@
 
 session_start();
 
-
 require __DIR__ . '/../includes/db_connect.php';
 
 // Vérifie si l'utilisateur est connecté
@@ -10,7 +9,6 @@ if (!isset($_SESSION['user'])) {
     header('Location: ../login.php');
     exit;
 }
-
 
 // 1. Balance commerciale
 $sqlBalance = "SELECT balance_actuelle FROM BALANCE_COMMERCIALE";
@@ -50,47 +48,43 @@ function color_chiffre($valeur) {
     return '<span style="color:' . $color . ';">' . format_chiffre($valeur) . '</span>';
 }
 
-
-
-
 include __DIR__ . '/../includes/header.php';
 include __DIR__ . '/../includes/menu_logged.php';
 ?>
-
-
 <main>
     <h2>Synthèse financière de la compagnie</h2>
 
-    <div style="margin-bottom: 20px; font-size: 1.2em; color: #2c3e50;">
-        <strong>Balance commerciale :</strong> <?= color_chiffre($balance) ?> €
-    </div>
-
-    <div style="margin-bottom: 18px;">
-        <strong>Total recettes :</strong> <?= format_chiffre($recettes['total'] ?? 0) ?> €<br>
-        <span style="color:#555;">Nombre d'opérations : <?= $recettes['nb'] ?? 0 ?> | Dernière recette : <?= !empty($recettes['derniere']) ? date('d/m/Y H:i', strtotime($recettes['derniere'])) : 'N/A' ?></span>
-    </div>
-
-    <div style="margin-bottom: 18px;">
-        <strong>Total dépenses :</strong> <?= format_chiffre($depenses['total'] ?? 0) ?> €<br>
-        <span style="color:#555;">Nombre d'opérations : <?= $depenses['nb'] ?? 0 ?> | Dernière dépense : <?= !empty($depenses['derniere']) ? date('d/m/Y H:i', strtotime($depenses['derniere'])) : 'N/A' ?></span>
-    </div>
-
-
-    <div style="margin-bottom: 24px; font-size:1.1em; color:#0d47a1;">
-        <strong>Solde calculé (recettes - dépenses) :</strong> <?= color_chiffre($solde_calcule) ?> €
+    <div class="compte-section" style="display:flex;gap:32px;align-items:stretch;max-width:1100px;">
+        <div style="flex:1;min-width:180px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;">
+            <div style="font-size:2.1em;font-weight:bold;color:#2a4d7a;display:flex;align-items:center;gap:10px;">
+                <span style="font-size:1.2em;">💰</span> <?= color_chiffre($balance) ?> €
+            </div>
+            <div style="font-size:1em;color:#555;margin-top:6px;">Balance commerciale</div>
+        </div>
+        <div style="flex:1;min-width:180px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;">
+            <div style="font-size:1.3em;font-weight:bold;color:#1ca64c;display:flex;align-items:center;gap:10px;">
+                <span style="font-size:1.1em;">⬆️</span> <?= format_chiffre($recettes['total'] ?? 0) ?> €
+            </div>
+            <div style="font-size:1em;color:#555;margin-top:6px;">Recettes (<?= $recettes['nb'] ?? 0 ?> op.)<br><span style="font-size:0.97em;">Dernière : <?= !empty($recettes['derniere']) ? date('d/m/Y H:i', strtotime($recettes['derniere'])) : 'N/A' ?></span></div>
+        </div>
+        <div style="flex:1;min-width:180px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;">
+            <div style="font-size:1.3em;font-weight:bold;color:#d60000;display:flex;align-items:center;gap:10px;">
+                <span style="font-size:1.1em;">⬇️</span> <?= format_chiffre($depenses['total'] ?? 0) ?> €
+            </div>
+            <div style="font-size:1em;color:#555;margin-top:6px;">Dépenses (<?= $depenses['nb'] ?? 0 ?> op.)<br><span style="font-size:0.97em;">Dernière : <?= !empty($depenses['derniere']) ? date('d/m/Y H:i', strtotime($depenses['derniere'])) : 'N/A' ?></span></div>
+        </div>
     </div>
 
     <details style="margin-bottom:18px;">
         <summary style="font-weight:bold;cursor:pointer;">Voir les 10 dernières recettes</summary>
         <table class="table-skywings">
-            <thead><tr><th>Date</th><th>Montant (€)</th><th>Type</th><th>Immat</th><th>Commentaire</th></tr></thead>
+            <thead><tr><th>Date</th><th>Montant (€)</th><th>Type</th><th>Commentaire</th></tr></thead>
             <tbody>
                 <?php foreach ($dernieres_recettes as $r): ?>
                 <tr>
-                    <td><?= htmlspecialchars(date('d/m/Y H:i', strtotime($r['date_operation']))) ?></td>
+                    <td><?= htmlspecialchars(date('d/m/Y H:i', strtotime($r['date']))) ?></td>
                     <td><?= format_chiffre($r['montant']) ?></td>
-                    <td><?= htmlspecialchars($r['type_operation']) ?></td>
-                    <td><?= htmlspecialchars($r['immat'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($r['reference_type']) ?></td>
                     <td><?= htmlspecialchars($r['commentaire'] ?? '') ?></td>
                 </tr>
                 <?php endforeach; ?>
@@ -101,14 +95,13 @@ include __DIR__ . '/../includes/menu_logged.php';
     <details>
         <summary style="font-weight:bold;cursor:pointer;">Voir les 10 dernières dépenses</summary>
         <table class="table-skywings">
-            <thead><tr><th>Date</th><th>Montant (€)</th><th>Type</th><th>Immat</th><th>Commentaire</th></tr></thead>
+            <thead><tr><th>Date</th><th>Montant (€)</th><th>Type</th><th>Commentaire</th></tr></thead>
             <tbody>
                 <?php foreach ($dernieres_depenses as $d): ?>
                 <tr>
-                    <td><?= htmlspecialchars(date('d/m/Y H:i', strtotime($d['date_operation']))) ?></td>
+                    <td><?= htmlspecialchars(date('d/m/Y H:i', strtotime($d['date']))) ?></td>
                     <td><?= format_chiffre($d['montant']) ?></td>
-                    <td><?= htmlspecialchars($d['type_operation']) ?></td>
-                    <td><?= htmlspecialchars($d['immat'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($d['reference_type']) ?></td>
                     <td><?= htmlspecialchars($d['commentaire'] ?? '') ?></td>
                 </tr>
                 <?php endforeach; ?>

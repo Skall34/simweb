@@ -1,3 +1,101 @@
+/* Tableau grades aligné à gauche */
+.grades-table-gauche {
+    margin-left: 0 !important;
+    margin-right: auto !important;
+    max-width: 700px;
+}
+/* Styles Mon Compte */
+.compte-section {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 18px;
+    margin-bottom: 24px;
+    background: #f9f9f9;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    max-width: 600px;
+    margin-left: 0;
+    margin-right: 0;
+}
+.compte-section h3 {
+    margin-top: 0;
+    color: #2a4d7a;
+}
+.compte-infos {
+    margin: 0;
+    padding: 0;
+}
+.compte-infos p {
+    margin: 6px 0;
+    padding: 0;
+}
+.form-mdp {
+    max-width: 400px;
+    margin: 0;
+}
+.form-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+.form-row label {
+    flex: 0 0 180px;
+    font-weight: 500;
+}
+.form-row input[type="password"] {
+    flex: 1;
+    padding: 6px 8px;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+}
+.btn-bleu {
+    background: #2a4d7a;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 22px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.btn-bleu:hover {
+    background: #1a3552;
+}
+/* Styles pour la documentation technique (calcul de coût, etc.) */
+.container section h2, .container section h3 {
+  margin-top: 32px;
+  margin-bottom: 18px;
+  color: #2c3e50;
+}
+.container section p {
+  margin-bottom: 18px;
+  margin-top: 0;
+}
+.container section ul, .container section ol {
+  margin-bottom: 22px;
+  margin-top: 0;
+}
+.container section ul ul, .container section ol ul, .container section ol ol, .container section ul ol {
+  margin-top: 6px;
+  margin-bottom: 6px;
+  padding-left: 2.2em;
+}
+.container section li {
+  margin-bottom: 7px;
+}
+.container section code {
+  background: #f7f7fa;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.98em;
+}
+/* Décalage des puces blanches dans la documentation et autres pages */
+.container ul {
+    padding-left: 2.2em;
+}
+.container ul ul {
+    padding-left: 2em;
+}
 /* SECTION TABLEAUX MODERNES */
 .table-section {
     border: 1px solid #ccc;

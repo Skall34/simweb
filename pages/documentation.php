@@ -21,8 +21,8 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/menu_logged.php';
             <ul>
                 <li><strong>Nous opérons différents types de missions:</strong>
                     <ul>
-                        <li><strong>Missions ponctuelles :</strong> Un voyage défini à l'avance. Souvent une étape par semaine.</li>
-                        <li><strong>Missions permanentes :</strong> OP FRANCE (transport de frêt d'un aéroport français à un autre) / OP LINER (transport de frêt d'un aéroport hors France).</li>
+                        <li><strong>Missions ponctuelles :</strong> Un voyage défini à l'avance. Souvent une étape par semaine. (HYDRAVIONS, ESQUIMOS, etc.)</li>
+                        <li><strong>Missions permanentes :</strong> OP FRANCE (transport de frêt d'un aéroport français à un autre) / OP LINER (transport de frêt depuis ou vers un aéroport hors France).</li>
                         Les missions bénéficient d'un coeficient multiplicateur pour le calcul des recettes des vols associés
                         <li><strong>Vols libre :</strong> Aucunes restrictions. Pas de coéficient appliqué.</li>
                     </ul>
@@ -53,7 +53,11 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/menu_logged.php';
                     $maj = rtrim(rtrim(number_format($maj, 2, '.', ''), '0'), '.');
                 }
                 echo '<td style="padding:3px 8px;text-align:center;">' . htmlspecialchars($maj) . '</td>';
-                echo '<td style="padding:3px 8px;text-align:center;">' . ((isset($m['Active']) && (int)$m['Active'] === 1) ? 'Oui' : 'Non') . '</td>';
+                if (isset($m['Active']) && (int)$m['Active'] === 1) {
+                    echo '<td style="padding:3px 8px;text-align:center;">Oui</td>';
+                } else {
+                    echo '<td style="padding:3px 8px;text-align:center;color:#c0392b;font-weight:bold;">Non</td>';
+                }
                 echo '</tr>';
             }
             echo '</table>';
@@ -88,4 +92,5 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/menu_logged.php';
             </ul>
         </section>
     </div>
+<!-- Décalage des puces blanches déplacé dans css/styles.css -->
 <?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php'; ?>

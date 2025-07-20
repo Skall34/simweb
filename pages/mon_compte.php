@@ -136,61 +136,7 @@ include __DIR__ . '/../includes/menu_logged.php';
         </ol>
     </div>
 </main>
-<style>
-.compte-section {
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    padding: 18px;
-    margin-bottom: 24px;
-    background: #f9f9f9;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-}
-.compte-section h3 {
-    margin-top: 0;
-    color: #2a4d7a;
-}
-.compte-infos {
-    margin: 0;
-    padding: 0;
-}
-.compte-infos p {
-    margin: 6px 0;
-    padding: 0;
-}
-.form-mdp {
-    max-width: 400px;
-    margin: 0;
-}
-.form-row {
-    display: flex;
-    align-items: center;
-    margin-bottom: 12px;
-}
-.form-row label {
-    flex: 0 0 180px;
-    font-weight: 500;
-}
-.form-row input[type="password"] {
-    flex: 1;
-    padding: 6px 8px;
-    border: 1px solid #bbb;
-    border-radius: 4px;
-}
-.btn-bleu {
-    background: #2a4d7a;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    padding: 8px 22px;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-.btn-bleu:hover {
-    background: #1a3552;
-}
-</style>
+
 <?php
 include __DIR__ . '/../includes/footer.php';
 ?>

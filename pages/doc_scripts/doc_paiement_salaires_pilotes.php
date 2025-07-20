@@ -13,40 +13,68 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/menu_logged.php';
     </section>
     <section>
         <h2>Principe de calcul</h2>
-        <ul>
-            <li>Le salaire de chaque pilote est calculé selon&nbsp;:
+        <ol>
+            <li>
+                <h4 class="sous-chapitre">Heures de vol</h4>
                 <ul>
-                    <li>Le nombre d'heures de vol du mois précédent (taux horaire selon le grade du pilote).</li>
-                    <li>Un bonus fret&nbsp;: <strong>2&nbsp;€/kg</strong> de fret transporté (champ <code>payload</code>).</li>
+                    <li>Le nombre d'heures de vol du mois précédent est calculé pour chaque pilote.</li>
+                    <li>Le taux horaire dépend du grade du pilote (<code>GRADES.taux_horaire</code>).</li>
                 </ul>
             </li>
-            <li>Le montant total est versé au pilote et enregistré dans la table <code>SALAIRES</code>.</li>
-            <li>Le revenu cumulé du pilote (<code>PILOTES.revenus</code>) est mis à jour.</li>
-            <li>La dépense globale est enregistrée dans <code>finances_depenses</code> (une seule ligne pour l'ensemble des salaires du mois).</li>
-        </ul>
+            <li>
+                <h4 class="sous-chapitre">Bonus fret</h4>
+                <ul>
+                    <li>Un bonus de <strong>2&nbsp;€/kg</strong> de fret transporté (champ <code>payload</code> dans <code>CARNET_DE_VOL_GENERAL</code>).</li>
+                </ul>
+            </li>
+            <li>
+                <h4 class="sous-chapitre">3. Versement et enregistrement</h4>
+                <ul>
+                    <li>Le montant total (heures + bonus fret) est versé au pilote et enregistré dans <code>SALAIRES</code>.</li>
+                    <li>Le revenu cumulé du pilote (<code>PILOTES.revenus</code>) est mis à jour.</li>
+                    <li>La dépense globale est enregistrée dans <code>finances_depenses</code> (une seule ligne pour l'ensemble des salaires du mois).</li>
+                </ul>
+            </li>
+        </ol>
     </section>
     <section>
         <h2>Déroulement du script</h2>
         <ol>
-            <li>Sélectionne tous les pilotes actifs dans <code>PILOTES</code>.</li>
-            <li>Pour chaque pilote&nbsp;:
+            <li>
+                <h4 class="sous-chapitre">Sélection des pilotes</h4>
+                <ul>
+                    <li>Sélectionne tous les pilotes actifs dans <code>PILOTES</code>.</li>
+                </ul>
+            </li>
+            <li>
+                <h4 class="sous-chapitre">Calcul du salaire</h4>
                 <ul>
                     <li>Calcule les heures de vol du mois précédent.</li>
                     <li>Récupère le taux horaire selon le grade.</li>
                     <li>Calcule le bonus fret (2&nbsp;€/kg transporté).</li>
                     <li>Calcule le montant total du salaire.</li>
+                </ul>
+            </li>
+            <li>
+                <h4 class="sous-chapitre">Paiement et notifications</h4>
+                <ul>
                     <li>Insère le salaire dans <code>SALAIRES</code>.</li>
                     <li>Met à jour le revenu cumulé du pilote.</li>
                     <li>Envoie un mail individuel au pilote avec le détail du calcul.</li>
                 </ul>
             </li>
-            <li>À la fin, enregistre la dépense globale dans <code>finances_depenses</code> (type <code>salaire</code>, commentaire récapitulatif).</li>
-            <li>Envoie un mail récapitulatif à l'administrateur (<code>ADMIN_EMAIL</code>) avec le détail des salaires versés et la somme totale.</li>
-            <li>Logue chaque étape dans <code>scripts/logs/paiement_salaires.log</code> (démarrage, calculs, insertions, mails, anomalies éventuelles).</li>
+            <li>
+                <h4 class="sous-chapitre">Dépense globale et log</h4>
+                <ul>
+                    <li>Enregistre la dépense globale dans <code>finances_depenses</code> (type <code>salaire</code>, commentaire récapitulatif).</li>
+                    <li>Envoie un mail récapitulatif à l'administrateur (<code>ADMIN_EMAIL</code>) avec le détail des salaires versés et la somme totale.</li>
+                    <li>Logue chaque étape dans <code>scripts/logs/paiement_salaires.log</code> (démarrage, calculs, insertions, mails, anomalies éventuelles).</li>
+                </ul>
+            </li>
         </ol>
     </section>
     <section>
-        <h2>Automatisation & utilisation</h2>
+        <h2>Automatisation &amp; utilisation</h2>
         <ul>
             <li>Le script est prévu pour être lancé automatiquement chaque mois (ex&nbsp;: cron le 1er à 1h du matin), mais peut aussi être lancé manuellement.</li>
             <li>Le mode test permet d'envoyer tous les mails aux pilotes à l'administrateur uniquement (variable <code>$test_mode</code>).</li>
@@ -55,7 +83,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/menu_logged.php';
     </section>
     <section>
         <h2>Exemple de log</h2>
-        <pre style="background:#f7f7f7;padding:12px;border-radius:6px;font-size:0.98em;overflow-x:auto;">
+        <pre style="background:#f7f7fa;padding:12px;border-radius:6px;font-size:0.98em;overflow-x:auto;">
 2025-07-20 01:00:01 [SALAIRE] Début du script de paiement des salaires
 2025-07-20 01:00:01 [TRACE] Nombre de pilotes trouvés : 9 | Callsigns : SKY001, SKY002, ...
 2025-07-20 01:00:01 [TRACE] Pilote : SKY001

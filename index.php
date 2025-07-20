@@ -48,6 +48,11 @@ if (!isset($_SESSION['user'])) {
         </div>
         <?php
     } else {
+        // Message de bienvenue personnalisé
+        $callsign = isset($_SESSION['user']['callsign']) ? htmlspecialchars($_SESSION['user']['callsign']) : '';
+        if ($callsign) {
+            echo '<div style="font-size:1.25em;font-weight:bold;color:#2a4d7a;margin-bottom:22px;">Bonjour ' . $callsign . ' 👋</div>';
+        }
         try {
             $sql = "
                 SELECT 

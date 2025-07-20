@@ -14,9 +14,9 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/menu_logged.php';
     <section>
         <h2>Principe de calcul</h2>
         <ul>
-            <li>L'assurance mensuelle est calculée comme <strong>0,2% de la valeur absolue de la balance commerciale actuelle</strong> (champ <code>balance_actuelle</code> dans la table <code>BALANCE_COMMERCIALE</code>).</li>
-            <li>Ce mode de calcul garantit que l'assurance est toujours prélevée, même si la balance est négative (situation de déficit).</li>
-            <li>Le montant prélevé est enregistré comme une dépense dans la table <code>finances_depenses</code> avec un commentaire explicite.</li>
+            <li><b>Assiette :</b> <strong>0,2% de la valeur absolue de la balance commerciale actuelle</strong> (champ <code>balance_actuelle</code> dans la table <code>BALANCE_COMMERCIALE</code>).</li>
+            <li>Le calcul s'applique même si la balance est négative (déficit).</li>
+            <li>Le montant prélevé est enregistré comme dépense dans <code>finances_depenses</code> avec un commentaire explicite.</li>
         </ul>
     </section>
     <section>
@@ -31,7 +31,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/menu_logged.php';
         </ol>
     </section>
     <section>
-        <h2>Automatisation & utilisation</h2>
+        <h2>Automatisation &amp; utilisation</h2>
         <ul>
             <li>Le script est prévu pour être lancé automatiquement chaque mois (ex : cron le 1er à 3h du matin), mais peut aussi être lancé manuellement.</li>
             <li>Le pourcentage peut être adapté si besoin (variable <code>$pourcentage</code> dans le script).</li>
@@ -40,7 +40,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/menu_logged.php';
     </section>
     <section>
         <h2>Exemple de log</h2>
-        <pre style="background:#f7f7f7;padding:12px;border-radius:6px;font-size:0.98em;overflow-x:auto;">
+        <pre style="background:#f7f7fa;padding:12px;border-radius:6px;font-size:0.98em;overflow-x:auto;">
 2025-07-20 03:00:01 --- Démarrage du script d'assurance mensuelle ---
 2025-07-20 03:00:01 Balance actuelle (balance_actuelle): -4922283538.42
 2025-07-20 03:00:01 Assurance mensuelle enregistrée dans finances_depenses: 9844567.08 | Prélèvement assurance mensuelle (0.2% de la valeur absolue de la balance actuelle : 4922283538.42 €)
