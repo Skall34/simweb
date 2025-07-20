@@ -52,11 +52,19 @@ try {
     $stmtBalanceActuelle = $pdo->query($sqlBalanceActuelle);
     $balance_actuelle = $stmtBalanceActuelle->fetchColumn();
     logMsg("Balance actuelle (balance_actuelle): $balance_actuelle", $logFile);
-    $pourcentage = 0.002; // 0.2% par mois
+    // Récupérer dynamiquement le taux d'assurance depuis VARIABLES_CONFIG
+    $pourcentage = 0.002; // valeur par défaut si non trouvé
+    $stmtTaux = $pdo->prepare("SELECT valeur FROM VARIABLES_CONFIG WHERE nom = 'taux_assurance'");
+    if ($stmtTaux->execute()) {
+        $valeurTaux = $stmtTaux->fetchColumn();
+        if ($valeurTaux !== false && is_numeric($valeurTaux)) {
+            $pourcentage = floatval($valeurTaux);
+        }
+    }
     $assiette = abs($balance_actuelle);
     $assurance_mensuelle = round($assiette * $pourcentage, 2);
 
-    $commentaire_assurance = "Prélèvement assurance mensuelle (0.2% de la valeur absolue de la balance actuelle : $assiette €)";
+    $commentaire_assurance = "Prélèvement assurance mensuelle ($pourcentage de la valeur absolue de la balance actuelle : $assiette €)";
     mettreAJourDepenses($assurance_mensuelle, null, '', 'SYSTEM', 'assurance', $commentaire_assurance);
     logMsg("Assurance mensuelle enregistrée dans finances_depenses: $assurance_mensuelle | $commentaire_assurance", $logFile);
     logMsg("Traitement terminé.", $logFile);

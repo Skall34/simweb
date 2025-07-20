@@ -124,18 +124,37 @@ function getCoutHoraire($immat) {
  * @return float Revenu net du vol (arrondi à 2 décimales)
  */
 function calculerRevenuNetVol($payload, $temps_vol, $majoration_mission, $carburant, $note, $cout_horaire) {
+    global $pdo, $logFile;
     [$h, $m, $s] = sscanf($temps_vol, "%d:%d:%d");
     logMsg("[calculerRevenuNetVol] temps_vol=$temps_vol => h=$h, m=$m, s=$s", $logFile);
     $heures = $h + ($m / 60) + ($s / 3600);
     logMsg("[calculerRevenuNetVol] heures calculées = $heures", $logFile);
     $coef_note_val = coef_note($note);
     logMsg("[calculerRevenuNetVol] coef_note($note) = $coef_note_val", $logFile);
-    $revenu_brut = $payload * 5 * $heures * $majoration_mission;
-    logMsg("[calculerRevenuNetVol] revenu_brut = payload * 5 * heures * majoration_mission", $logFile);
-    logMsg("[calculerRevenuNetVol] revenu_brut = $payload * 5 * $heures * $majoration_mission", $logFile);
-    $cout_carburant = $carburant * 0.88;
-    logMsg("[calculerRevenuNetVol] cout_carburant = carburant * 0.88", $logFile);
-    logMsg("[calculerRevenuNetVol] cout_carburant = $carburant * 0.88", $logFile);
+    // Récupérer dynamiquement le prix du kg de fret
+    $prix_kg_fret = 5.0;
+    $stmtFret = $pdo->prepare("SELECT valeur FROM VARIABLES_CONFIG WHERE nom = 'prix_kg_fret'");
+    if ($stmtFret->execute()) {
+        $valeurFret = $stmtFret->fetchColumn();
+        if ($valeurFret !== false && is_numeric($valeurFret)) {
+            $prix_kg_fret = floatval($valeurFret);
+        }
+    }
+    $revenu_brut = $payload * $prix_kg_fret * $heures * $majoration_mission;
+    logMsg("[calculerRevenuNetVol] revenu_brut = payload * prix_kg_fret * heures * majoration_mission", $logFile);
+    logMsg("[calculerRevenuNetVol] revenu_brut = $payload * $prix_kg_fret * $heures * $majoration_mission", $logFile);
+    // Récupérer dynamiquement le prix du litre d'essence
+    $prix_litre_essence = 0.88;
+    $stmtEssence = $pdo->prepare("SELECT valeur FROM VARIABLES_CONFIG WHERE nom = 'prix_litre_essence'");
+    if ($stmtEssence->execute()) {
+        $valeurEssence = $stmtEssence->fetchColumn();
+        if ($valeurEssence !== false && is_numeric($valeurEssence)) {
+            $prix_litre_essence = floatval($valeurEssence);
+        }
+    }
+    $cout_carburant = $carburant * $prix_litre_essence;
+    logMsg("[calculerRevenuNetVol] cout_carburant = carburant * prix_litre_essence", $logFile);
+    logMsg("[calculerRevenuNetVol] cout_carburant = $carburant * $prix_litre_essence", $logFile);
     $cout_appareil = $cout_horaire * $heures * $coef_note_val;
     logMsg("[calculerRevenuNetVol] cout_appareil = cout_horaire * heures * coef_note_val", $logFile);
     logMsg("[calculerRevenuNetVol] cout_appareil = $cout_horaire * $heures * $coef_note_val", $logFile);
