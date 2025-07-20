@@ -26,8 +26,10 @@ try {
 }
 
 // Requête avec jointure sur FLEET_TYPE et PILOTES, filtre possible
-$sql = "SELECT f.id, ft.fleet_type AS type_libelle, f.type, f.immat, f.localisation, f.hub, f.status, f.etat, 
-               p.callsign AS pilote_callsign, f.fuel_restant, f.compteur_immo, f.en_vol, f.nb_maintenance
+
+$sql = "SELECT f.id, ft.fleet_type AS type_libelle, f.type, f.immat, f.localisation, f.hub, f.status, f.etat,
+               p.callsign AS pilote_callsign, f.fuel_restant, f.compteur_immo, f.en_vol, f.nb_maintenance,
+               f.date_achat, f.recettes, f.nb_annees_credit, f.taux_percent, f.remboursement, f.traite_payee_cumulee, f.reste_a_payer, f.recette_vente, f.date_vente
         FROM FLOTTE f
         LEFT JOIN FLEET_TYPE ft ON f.fleet_type = ft.id
         LEFT JOIN PILOTES p ON f.dernier_utilisateur = p.id
@@ -49,22 +51,7 @@ $sql .= " ORDER BY f.immat";
 
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
-$fleet = $stmt->fetchAll();
-
-// Récupérer les infos finances pour chaque avion (clé = id de FLOTTE)
-$financesByAvionId = [];
-if (!empty($fleet)) {
-    $avionIds = array_column($fleet, 'id');
-    if (!empty($avionIds)) {
-        $inQuery = implode(',', array_fill(0, count($avionIds), '?'));
-        $sqlFin = "SELECT * FROM FINANCES WHERE avion_id IN ($inQuery)";
-        $stmtFin = $pdo->prepare($sqlFin);
-        $stmtFin->execute($avionIds);
-        while ($row = $stmtFin->fetch(PDO::FETCH_ASSOC)) {
-            $financesByAvionId[$row['avion_id']][] = $row;
-        }
-    }
-}
+$fleet = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $sqlCount = "SELECT count(*) AS total FROM FLOTTE WHERE actif = 1";
 $stmtCount = $pdo->prepare($sqlCount);
@@ -158,57 +145,30 @@ include __DIR__ . '/../includes/menu_logged.php';
                             'En vol' => $avion['en_vol'],
                             'Nombre maintenance' => $avion['nb_maintenance'],
                         ];
-                        // Ajouter les infos FINANCES (plusieurs lignes possibles)
-                        $finances = $financesByAvionId[$avionId] ?? [];
-                        if (!empty($finances)) {
-                            foreach ($finances as $idx => $fin) {
-                                // Ajoute un titre pour le bloc finances (une seule fois si plusieurs lignes)
-                                $details['__FINANCES_TITRE__'.($idx+1)] = 'Données financiaires :';
-                                foreach ($fin as $k => $v) {
-                                    if ($k === 'id' || $k === 'avion_id') continue; // On masque ces champs
-                                    // Personnalisation des libellés et affichages
-                                    if ($k === 'taux_percent') {
-                                        $libelle = 'Taux crédit';
-                                        $affichage = $v . ' %';
-                                    } elseif (in_array(strtolower($k), ['remboursement', 'traite_payee_cumulee', 'reste_a_payer'])) {
-                                        // Ajoute € à la fin
-                                        $libelle = ucfirst(str_replace('_', ' ', $k));
-                                        $affichage = $v . ' €';
-                                    } elseif (strtolower($k) === 'recettes') {
-                                        $libelle = 'Recettes';
-                                        $affichage = $v . ' €';
-                                    } elseif (strtolower($k) === 'recette_vente') {
-                                        // Gère le cas spécial avec date_vente
-                                        $libelle = 'Recette vente';
-                                        $dateVente = $fin['date_vente'] ?? '';
-                                        if (empty($dateVente)) {
-                                            $affichage = 'N/A';
-                                        } else {
-                                            $affichage = $v . ' €';
-                                        }
-                                    } elseif (strtolower($k) === 'date_achat') {
-                                        $libelle = 'Date achat';
-                                        if (!empty($v) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $v)) {
-                                            $parts = explode('-', $v);
-                                            $affichage = $parts[2] . '-' . $parts[1] . '-' . $parts[0];
-                                        } else {
-                                            $affichage = $v;
-                                        }
-                                    } elseif (strtolower($k) === 'date_vente') {
-                                        $libelle = 'Date vente';
-                                        if (empty($v)) {
-                                            $affichage = 'N/A';
-                                        } else {
-                                            $affichage = $v;
-                                        }
-                                    } else {
-                                        $libelle = ucfirst(str_replace('_', ' ', $k));
-                                        $affichage = $v;
-                                    }
-                                    $details['__FINANCES__'.($idx+1).'_'.$k] = $libelle.' : '.$affichage;
-                                }
-                            }
-                        }
+                        // Préparer les détails FLOTTE (inclut les champs financiers)
+                        $details = [
+                            'Immatriculation' => $avion['immat'],
+                            'Fleet_type' => $avion['type_libelle'],
+                            'Catégorie' => $avion['type'],
+                            'Localisation' => $avion['localisation'],
+                            'Hub de rattachement' => $avion['hub'],
+                            'Statut' => $avion['status'],
+                            'État' => $avion['etat'],
+                            'Dernier utilisateur' => $avion['pilote_callsign'] ?? 'N/A',
+                            'Carburant restant' => $avion['fuel_restant'],
+                            'Compteur Immo' => $avion['compteur_immo'],
+                            'En vol' => $avion['en_vol'],
+                            'Nombre maintenance' => $avion['nb_maintenance'],
+                            'Date achat' => (!empty($avion['date_achat'] ?? '') && preg_match('/^\d{4}-\d{2}-\d{2}$/', $avion['date_achat'] ?? '')) ? (implode('-', array_reverse(explode('-', $avion['date_achat']))) ) : ($avion['date_achat'] ?? ''),
+                            'Recettes' => ($avion['recettes'] ?? '') . ' €',
+                            'Années crédit' => $avion['nb_annees_credit'] ?? '',
+                            'Taux crédit' => ($avion['taux_percent'] ?? '') . ' %',
+                            'Remboursement' => ($avion['remboursement'] ?? '') . ' €',
+                            'Traite payée cumulée' => ($avion['traite_payee_cumulee'] ?? '') . ' €',
+                            'Reste à payer' => ($avion['reste_a_payer'] ?? '') . ' €',
+                            'Recette vente' => empty($avion['date_vente'] ?? '') ? 'N/A' : (($avion['recette_vente'] ?? '') . ' €'),
+                            'Date vente' => empty($avion['date_vente'] ?? '') ? 'N/A' : ($avion['date_vente'] ?? ''),
+                        ];
                         $details_json = htmlspecialchars(json_encode($details), ENT_QUOTES, 'UTF-8');
                     ?>
                         <tr class="fleet-row" data-details="<?= $details_json ?>">
@@ -356,13 +316,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                 for (const key in Object.keys(details)) {
                     const k = Object.keys(details)[key];
                     const v = details[k];
-                    if (k.startsWith('__FINANCES_TITRE__')) {
-                        html += '<tr><td colspan="2" style="font-weight:bold;padding:8px 8px 4px 8px;color:#0d47a1;font-size:1.1em;text-align:left;">'+v+'</td></tr>';
-                    } else if (k.startsWith('__FINANCES__')) {
-                        html += '<tr><td colspan="2" style="padding:4px 8px 4px 32px;">'+v+'</td></tr>';
-                    } else {
-                        html += '<tr><td style="font-weight:bold;padding:4px 8px;color:#0d47a1;">' + k + '</td><td style="padding:4px 8px;">' + (v ?? '') + '</td></tr>';
-                    }
+                    html += '<tr><td style="font-weight:bold;padding:4px 8px;color:#0d47a1;">' + k + '</td><td style="padding:4px 8px;">' + (v ?? '') + '</td></tr>';
                 }
                 html += '</table>';
                 document.getElementById('fleet-modal-body').innerHTML = html;

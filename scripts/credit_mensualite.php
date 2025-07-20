@@ -4,9 +4,10 @@
  Script : credit_mensualite.php
  Emplacement : scripts/
 
+
  Description :
  Ce script calcule et applique chaque mois les mensualités des appareils achetés à crédit par la compagnie aérienne virtuelle.
- Il met à jour les champs financiers de chaque appareil concerné dans la table FINANCES.
+ Il met à jour les champs financiers de chaque appareil concerné dans la table FLOTTE.
 
  Log :
  Toutes les opérations et vérifications sont enregistrées dans scripts/logs/credit_mensualite.log.
@@ -43,8 +44,8 @@ logMsg("--- Script credit_mensualite.php lancé ---", $logFile);
 echo "--- Script credit_mensualite.php lancé ---\n";
 
 try {
-    // Sélectionner tous les avions à crédit
-    $sql = "SELECT * FROM FINANCES WHERE nb_annees_credit > 0 AND reste_a_payer > 0";
+    // Sélectionner tous les avions à crédit dans FLOTTE
+    $sql = "SELECT * FROM FLOTTE WHERE nb_annees_credit > 0 AND reste_a_payer > 0";
     $stmt = $pdo->query($sql);
     $finances = $stmt->fetchAll(PDO::FETCH_ASSOC);
     $count = 0;
@@ -56,11 +57,8 @@ try {
         echo "Aucun appareil à crédit à traiter.\n";
     }
     foreach ($finances as $row) {
-        $avion_id = $row['avion_id'];
-        // Récupérer l'immatriculation
-        $stmtImmat = $pdo->prepare("SELECT immat FROM FLOTTE WHERE id = :id");
-        $stmtImmat->execute(['id' => $avion_id]);
-        $immat = $stmtImmat->fetchColumn();
+        $avion_id = $row['id'];
+        $immat = $row['immat'];
         $nb_annees_credit = $row['nb_annees_credit'];
         // Si le crédit est terminé, on ne fait rien
         if ($nb_annees_credit <= 0) {
@@ -71,7 +69,7 @@ try {
         if ($mois_courant == 1) {
             $nouvelle_annee = $nb_annees_credit - 1;
             if ($nouvelle_annee < 0) $nouvelle_annee = 0;
-            $sqlAnnee = "UPDATE FINANCES SET nb_annees_credit = :annee WHERE avion_id = :avion_id";
+            $sqlAnnee = "UPDATE FLOTTE SET nb_annees_credit = :annee WHERE id = :avion_id";
             $stmtAnnee = $pdo->prepare($sqlAnnee);
             $stmtAnnee->execute([
                 'annee' => $nouvelle_annee,
@@ -96,7 +94,7 @@ try {
             if ($nouveau_reste < 0) $nouveau_reste = 0;
             $nouveau_remboursement = $nouveau_traite + $nouveau_reste;
             // Mise à jour en base
-            $sqlUpdate = "UPDATE FINANCES SET traite_payee_cumulee = :traite, reste_a_payer = :reste, remboursement = :remboursement WHERE avion_id = :avion_id";
+            $sqlUpdate = "UPDATE FLOTTE SET traite_payee_cumulee = :traite, reste_a_payer = :reste, remboursement = :remboursement WHERE id = :avion_id";
             $stmtUpdate = $pdo->prepare($sqlUpdate);
             $stmtUpdate->execute([
                 'traite' => $nouveau_traite,

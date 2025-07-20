@@ -19,6 +19,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ];
         // Ajout : instanciation explicite du callsign pour la session
         $_SESSION['callsign'] = $user['callsign'];
+        // Mise à jour de la date de dernière connexion
+        $update = $pdo->prepare("UPDATE PILOTES SET derniere_connexion = NOW() WHERE id = :id");
+        $update->execute(['id' => $user['id']]);
         header('Location: index.php');
         exit;
     } else {

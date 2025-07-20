@@ -6,7 +6,7 @@
 
  Description :
  Ce fichier regroupe les fonctions utilitaires pour l'import et le traitement des vols dans la compagnie aérienne virtuelle.
- Il gère la mise à jour du fret, des finances, du carnet de vol, de la flotte, l'usure des appareils, et le rejet des vols.
+ Il gère la mise à jour du fret, du carnet de vol, de la flotte, de l'usure des appareils, et le rejet des vols.
 
  Log :
  Les étapes et anomalies sont tracées via logMsg() et error_log().
@@ -231,7 +231,7 @@ function remplirCarnetVolGeneral(
 }
 
 /**
- * Met à jour les recettes de l'appareil dans la table FINANCES.
+ * Met à jour les recettes de l'appareil dans la table FLOTTE.
  * @param string $immat Immatriculation de l'appareil
  * @param float $cout_vol Revenu net du vol à ajouter
  * @return void
@@ -251,7 +251,7 @@ function mettreAJourFinances($immat, $cout_vol, $logFile = null) {
         return;
     }
 
-    $stmt = $pdo->prepare("SELECT id FROM FLOTTE WHERE immat = :immat");
+    $stmt = $pdo->prepare("SELECT id, recettes FROM FLOTTE WHERE immat = :immat");
     $stmt->execute(['immat' => $immat]);
     $avion = $stmt->fetch();
 
@@ -261,18 +261,14 @@ function mettreAJourFinances($immat, $cout_vol, $logFile = null) {
     }
 
     $avion_id = $avion['id'];
-
-    $stmt = $pdo->prepare("SELECT recettes FROM FINANCES WHERE avion_id = :avion_id");
-    $stmt->execute(['avion_id' => $avion_id]);
-    $row = $stmt->fetch();
-    $recette_old = $row ? floatval($row['recettes']) : 0.0;
+    $recette_old = isset($avion['recettes']) ? floatval($avion['recettes']) : 0.0;
     $recette_new = $recette_old + floatval($cout_vol);
     logMsg("Recette ancienne: $recette_old €, nouvelle recette: $recette_new €", $logFile);
 
     try {
-        $update = $pdo->prepare("UPDATE FINANCES SET recettes = :recette_new WHERE avion_id = :id_avion");
+        $update = $pdo->prepare("UPDATE FLOTTE SET recettes = :recette_new WHERE id = :id_avion");
         $update->execute(['recette_new' => $recette_new, 'id_avion' => $avion_id]);
-        logMsg("Finances mises à jour pour avion_id=$avion_id", $logFile);
+        logMsg("Recettes mises à jour pour avion_id=$avion_id", $logFile);
     } catch (PDOException $e) {
         error_log("❌ ERREUR SQL dans mettreAJourFinances: " . $e->getMessage());
         throw $e;

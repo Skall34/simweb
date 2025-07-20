@@ -15,10 +15,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['avion_id'])) {
     $avion_id = intval($_POST['avion_id']);
     logMsg('[VENTE] Début traitement vente appareil, avion_id=' . $avion_id, $logFile);
     try {
-        // Récupérer le reste à payer
-        $stmtFinance = $pdo->prepare("SELECT reste_a_payer FROM FINANCES WHERE avion_id = :avion_id");
+        // Récupérer le reste à payer et infos financières dans FLOTTE
+        $stmtFinance = $pdo->prepare("SELECT reste_a_payer, nb_annees_credit FROM FLOTTE WHERE id = :avion_id");
         $stmtFinance->execute(['avion_id' => $avion_id]);
-        $reste_a_payer = $stmtFinance->fetchColumn();
+        $rowFinance = $stmtFinance->fetch(PDO::FETCH_ASSOC);
+        $reste_a_payer = $rowFinance['reste_a_payer'];
+        $nb_annees_credit = $rowFinance['nb_annees_credit'];
         logMsg("Reste à payer récupéré pour avion_id=$avion_id : $reste_a_payer", $logFile);
 
         // Calculer la recette de vente
@@ -33,21 +35,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['avion_id'])) {
             logMsg("Mode comptant : prix neuf = $prix_neuf, recette_vente (80%) = $recette_vente", $logFile);
         }
 
-        // Mettre à jour FLOTTE (actif = 0, status = 1, etat = 0)
-        $stmtUpdateF = $pdo->prepare("UPDATE FLOTTE SET actif = 0, status = 1, etat = 0 WHERE id = :id");
-        $stmtUpdateF->execute(['id' => $avion_id]);
-        logMsg("FLOTTE mis à jour (actif=0, status=1, etat=0) pour avion_id=$avion_id", $logFile);
-
-        // Mettre à jour FINANCES
-        $stmtUpdateFin = $pdo->prepare("UPDATE FINANCES SET date_vente = :date_vente, recette_vente = :recette_vente, reste_a_payer = 0 WHERE avion_id = :avion_id");
-        $stmtUpdateFin->execute([
+        // Mettre à jour FLOTTE (actif = 0, status = 1, etat = 0, date_vente, recette_vente, reste_a_payer=0, remboursement=recette_vente, nb_annees_credit=0)
+        $stmtUpdateF = $pdo->prepare("UPDATE FLOTTE SET actif = 0, status = 1, etat = 0, date_vente = :date_vente, recette_vente = :recette_vente, reste_a_payer = 0, remboursement = :remboursement, nb_annees_credit = 0 WHERE id = :id");
+        $stmtUpdateF->execute([
             'date_vente' => date('Y-m-d'),
             'recette_vente' => $recette_vente,
-            'avion_id' => $avion_id
+            'remboursement' => $recette_vente,
+            'id' => $avion_id
         ]);
-        logMsg("FINANCES mis à jour pour avion_id=$avion_id, recette_vente=$recette_vente", $logFile);
+        logMsg("FLOTTE mis à jour (actif=0, status=1, etat=0, date_vente, recette_vente, reste_a_payer=0, remboursement=recette_vente, nb_annees_credit=0) pour avion_id=$avion_id", $logFile);
 
-        // Enregistrer la vente dans finances_recettes (nouveau système)
+        // Enregistrer la vente dans finances_recettes
         $stmtImmat = $pdo->prepare("SELECT immat FROM FLOTTE WHERE id = :id");
         $stmtImmat->execute(['id' => $avion_id]);
         $immat_vendue = $stmtImmat->fetchColumn();
@@ -72,7 +70,7 @@ include __DIR__ . '/../includes/menu_logged.php';
 
 // Récupérer la liste des appareils actifs avec infos financières
 try {
-    $stmt = $pdo->query("SELECT f.id, f.immat, f.type, f.localisation, f.hub, f.fleet_type, fi.reste_a_payer, fi.date_achat, fi.date_vente, fi.recette_vente, fi.recettes FROM FLOTTE f LEFT JOIN FINANCES fi ON f.id = fi.avion_id WHERE f.actif = 1 ORDER BY f.immat");
+    $stmt = $pdo->query("SELECT id, immat, type, localisation, hub, fleet_type, reste_a_payer, date_achat, date_vente, recette_vente, recettes, nb_annees_credit FROM FLOTTE WHERE actif = 1 ORDER BY immat");
     $flotte_raw = $stmt->fetchAll(PDO::FETCH_ASSOC);
     $flotte = [];
     foreach ($flotte_raw as $avion) {

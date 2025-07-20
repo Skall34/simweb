@@ -61,69 +61,65 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 logMsg("Insertion nouvel appareil : immat=$immat, type=$type, fleet_type_id=$fleet_type_id, localisation=$localisation, hub=$hub", $logFile);
                 $errorMessage = "Un avion avec cette immatriculation existe déjà.";
             } else {
-                // Construction de la requête
-                $sql = "
-                    INSERT INTO FLOTTE (
-                        fleet_type, type, immat, localisation, hub, 
-                        status, etat, dernier_utilisateur, fuel_restant, 
-                        compteur_immo, en_vol, nb_maintenance, Actif
-                    ) VALUES (
-                        :fleet_type, :type, :immat, :localisation, :hub,
-                        0, 100, NULL, NULL,
-                        0, 0, 0, 1
-                    )
-                ";
-
-                $stmt = $pdo->prepare($sql);
-                $stmt->execute([
-                    'fleet_type' => $fleet_type_id,
-                    'type' => $type,
-                    'immat' => $immat,
-                    'localisation' => $localisation ?: null,
-                    'hub' => $hub ?: null
-                ]);
-                
-                // Récupérer l'id du nouvel avion
-                $avion_id = $pdo->lastInsertId();
-                logMsg("Appareil inséré en base, id=$avion_id", $logFile);
+                // Construction de la requête avec champs financiers dans FLOTTE
                 // Récupérer le prix d'achat dans FLEET_TYPE
                 $stmtPrix = $pdo->prepare("SELECT cout_appareil FROM FLEET_TYPE WHERE id = :fleet_type_id");
                 $stmtPrix->execute(['fleet_type_id' => $fleet_type_id]);
                 $prix_achat = $stmtPrix->fetchColumn();
                 logMsg("Prix d'achat récupéré pour fleet_type_id=$fleet_type_id : $prix_achat €", $logFile);
 
-                // Insérer la ligne dans FINANCES selon le mode d'achat
+                // Préparer les valeurs financières selon le mode d'achat
                 if ($achat_mode === 'comptant') {
                     logMsg("Mode d'achat : comptant", $logFile);
-                    $sqlFinances = "INSERT INTO FINANCES (
-                        avion_id, date_achat, recettes, nb_annees_credit, taux_percent, remboursement, traite_payee_cumulee, reste_a_payer
-                    ) VALUES (
-                        :avion_id, :date_achat, 0, 0, 0, 0, 0, 0
-                    )";
-                    $paramsFinances = [
-                        'avion_id' => $avion_id,
-                        'date_achat' => date('Y-m-d')
-                    ];
+                    $date_achat = date('Y-m-d');
+                    $recettes = 0;
+                    $nb_annees_credit = 0;
+                    $taux_percent = 0;
+                    $remboursement = 0;
+                    $traite_payee_cumulee = 0;
+                    $reste_a_payer = 0;
                 } else {
                     logMsg("Mode d'achat : crédit ($nb_annees_credit ans, taux $taux_percent%)", $logFile);
-                    $sqlFinances = "INSERT INTO FINANCES (
-                        avion_id, date_achat, recettes, nb_annees_credit, taux_percent, remboursement, traite_payee_cumulee, reste_a_payer
-                    ) VALUES (
-                        :avion_id, :date_achat, 0, :nb_annees_credit, :taux_percent, 0, 0, :reste_a_payer
-                    )";
-                    $paramsFinances = [
-                        'avion_id' => $avion_id,
-                        'date_achat' => date('Y-m-d'),
-                        'nb_annees_credit' => $nb_annees_credit,
-                        'taux_percent' => $taux_percent,
-                        'reste_a_payer' => $prix_achat
-                    ];
+                    $date_achat = date('Y-m-d');
+                    $recettes = 0;
+                    // $nb_annees_credit et $taux_percent déjà définis
+                    $remboursement = 0;
+                    $traite_payee_cumulee = 0;
+                    $reste_a_payer = $prix_achat;
                 }
-                $stmtFinances = $pdo->prepare($sqlFinances);
-                $stmtFinances->execute($paramsFinances);
-                logMsg("Ligne FINANCES insérée pour avion_id=$avion_id", $logFile);
 
-                
+                $sql = "
+                    INSERT INTO FLOTTE (
+                        fleet_type, type, immat, localisation, hub,
+                        status, etat, dernier_utilisateur, fuel_restant,
+                        compteur_immo, en_vol, nb_maintenance, Actif,
+                        date_achat, recettes, nb_annees_credit, taux_percent, remboursement, traite_payee_cumulee, reste_a_payer
+                    ) VALUES (
+                        :fleet_type, :type, :immat, :localisation, :hub,
+                        0, 100, NULL, NULL,
+                        0, 0, 0, 1,
+                        :date_achat, :recettes, :nb_annees_credit, :taux_percent, :remboursement, :traite_payee_cumulee, :reste_a_payer
+                    )
+                ";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([
+                    'fleet_type' => $fleet_type_id,
+                    'type' => $type,
+                    'immat' => $immat,
+                    'localisation' => $localisation ?: null,
+                    'hub' => $hub ?: null,
+                    'date_achat' => $date_achat,
+                    'recettes' => $recettes,
+                    'nb_annees_credit' => $nb_annees_credit,
+                    'taux_percent' => $taux_percent,
+                    'remboursement' => $remboursement,
+                    'traite_payee_cumulee' => $traite_payee_cumulee,
+                    'reste_a_payer' => $reste_a_payer
+                ]);
+                // Récupérer l'id du nouvel avion
+                $avion_id = $pdo->lastInsertId();
+                logMsg("Appareil inséré en base, id=$avion_id", $logFile);
+
                 // Enregistrer l'achat dans finances_depenses (nouveau système)
                 $callsign_acheteur = isset($_SESSION['callsign']) ? $_SESSION['callsign'] : '';
                 $commentaire_finance = "Achat appareil $immat par $callsign_acheteur";
