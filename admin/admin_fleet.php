@@ -88,17 +88,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $reste_a_payer = $prix_achat;
                 }
 
+                $mode_achat_db = ($achat_mode === 'credit') ? 'credit' : 'comptant';
                 $sql = "
                     INSERT INTO FLOTTE (
                         fleet_type, type, immat, localisation, hub,
                         status, etat, dernier_utilisateur, fuel_restant,
                         compteur_immo, en_vol, nb_maintenance, Actif,
-                        date_achat, recettes, nb_annees_credit, taux_percent, remboursement, traite_payee_cumulee, reste_a_payer
+                        date_achat, recettes, nb_annees_credit, taux_percent, remboursement, traite_payee_cumulee, reste_a_payer, mode_achat
                     ) VALUES (
                         :fleet_type, :type, :immat, :localisation, :hub,
                         0, 100, NULL, NULL,
                         0, 0, 0, 1,
-                        :date_achat, :recettes, :nb_annees_credit, :taux_percent, :remboursement, :traite_payee_cumulee, :reste_a_payer
+                        :date_achat, :recettes, :nb_annees_credit, :taux_percent, :remboursement, :traite_payee_cumulee, :reste_a_payer, :mode_achat
                     )
                 ";
                 $stmt = $pdo->prepare($sql);
@@ -114,7 +115,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'taux_percent' => $taux_percent,
                     'remboursement' => $remboursement,
                     'traite_payee_cumulee' => $traite_payee_cumulee,
-                    'reste_a_payer' => $reste_a_payer
+                    'reste_a_payer' => $reste_a_payer,
+                    'mode_achat' => $mode_achat_db
                 ]);
                 // Récupérer l'id du nouvel avion
                 $avion_id = $pdo->lastInsertId();

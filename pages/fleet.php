@@ -1,7 +1,4 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
 session_start();
 
 require __DIR__ . '/../includes/db_connect.php';
@@ -160,6 +157,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                             'En vol' => $avion['en_vol'],
                             'Nombre maintenance' => $avion['nb_maintenance'],
                             'Date achat' => (!empty($avion['date_achat'] ?? '') && preg_match('/^\d{4}-\d{2}-\d{2}$/', $avion['date_achat'] ?? '')) ? (implode('-', array_reverse(explode('-', $avion['date_achat']))) ) : ($avion['date_achat'] ?? ''),
+                            'Mode d\'achat' => (isset($avion['mode_achat']) && $avion['mode_achat'] === 'credit') ? 'Crédit' : ((isset($avion['mode_achat']) && $avion['mode_achat'] === 'comptant') ? 'Comptant' : ((isset($avion['nb_annees_credit']) && intval($avion['nb_annees_credit']) > 0) ? 'Crédit' : 'Comptant')),
                             'Recettes' => ($avion['recettes'] ?? '') . ' €',
                             'Années crédit' => $avion['nb_annees_credit'] ?? '',
                             'Taux crédit' => ($avion['taux_percent'] ?? '') . ' %',
@@ -313,9 +311,15 @@ include __DIR__ . '/../includes/menu_logged.php';
             row.addEventListener('click', function() {
                 const details = JSON.parse(this.getAttribute('data-details'));
                 let html = '<table style="width:100%;border-collapse:collapse;">';
+                // Affichage du mode d'achat
+                let modeAchat = details['Mode d\'achat'] || '';
                 for (const key in Object.keys(details)) {
                     const k = Object.keys(details)[key];
                     const v = details[k];
+                    // Si achat comptant, on masque les champs crédit
+                    if (modeAchat === 'Comptant' && (k === 'Années crédit' || k === 'Taux crédit' || k === 'Remboursement' || k === 'Traite payée cumulée' || k === 'Reste à payer')) {
+                        continue;
+                    }
                     html += '<tr><td style="font-weight:bold;padding:4px 8px;color:#0d47a1;">' + k + '</td><td style="padding:4px 8px;">' + (v ?? '') + '</td></tr>';
                 }
                 html += '</table>';
