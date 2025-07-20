@@ -29,7 +29,11 @@
 -------------------------------------------------------------
 */
 require_once __DIR__ . '/../includes/log_func.php';
-$logFile = dirname(__DIR__) . '/scripts/logs/import_vol.log';
+
+// Permet de passer dynamiquement le chemin du fichier log depuis le script appelant
+if (!isset($logFile)) {
+    $logFile = dirname(__DIR__) . '/scripts/logs/import_vol.log';
+}
 
 /**
  * Déduit le fret disponible au départ d'un aéroport et le met à jour.
@@ -37,8 +41,11 @@ $logFile = dirname(__DIR__) . '/scripts/logs/import_vol.log';
  * @param float $fret_demande Quantité de fret demandée
  * @return float Quantité de fret effectivement déduite
  */
-function deduireFretDepart($icao, $fret_demande) {
+function deduireFretDepart($icao, $fret_demande, $logFile = null) {
     global $pdo;
+    if ($logFile === null) {
+        $logFile = dirname(__DIR__) . '/scripts/logs/import_vol.log';
+    }
     logMsg("Déduction fret départ : ICAO=$icao, Demande=$fret_demande", $logFile);
 
     $stmt = $pdo->prepare("SELECT fret FROM AEROPORTS WHERE ident = :icao");
@@ -119,8 +126,11 @@ function detecterDoublonVol($pdo, $callsign, $depart, $dest, $fuelDep, $fuelArr,
  * @param float $fret Quantité de fret à ajouter
  * @return void
  */
-function ajouterFretDestination($icao, $fret) {
+function ajouterFretDestination($icao, $fret, $logFile = null) {
     global $pdo;
+    if ($logFile === null) {
+        $logFile = dirname(__DIR__) . '/scripts/logs/import_vol.log';
+    }
     logMsg("Ajout fret destination : ICAO=$icao, Fret à ajouter=$fret", $logFile);
 
     // Vérifie si l'aéroport existe
@@ -171,9 +181,13 @@ function ajouterFretDestination($icao, $fret) {
 function remplirCarnetVolGeneral(
     $date_vol, $callsign, $immat, $depart, $arrivee,
     $fuel_dep, $fuel_arr, $fret, $heure_dep, $heure_arr,
-    $mission, $commentaire, $note, $cout_vol, $temps_vol
+    $mission, $commentaire, $note, $cout_vol, $temps_vol,
+    $logFile = null
     ) {
     global $pdo;
+    if ($logFile === null) {
+        $logFile = dirname(__DIR__) . '/scripts/logs/import_vol.log';
+    }
     logMsg("Remplissage carnet vol : callsign=$callsign, immat=$immat, depart=$depart, arrivee=$arrivee, fuel_dep=$fuel_dep, fuel_arr=$fuel_arr, fret=$fret, heure_dep=$heure_dep, heure_arr=$heure_arr, mission=$mission, note=$note, cout_vol=$cout_vol, temps_vol=$temps_vol", $logFile);
 
     $stmtAppareil = $pdo->prepare("SELECT id FROM FLOTTE WHERE immat = :immat");
@@ -222,8 +236,11 @@ function remplirCarnetVolGeneral(
  * @param float $cout_vol Revenu net du vol à ajouter
  * @return void
  */
-function mettreAJourFinances($immat, $cout_vol) {
+function mettreAJourFinances($immat, $cout_vol, $logFile = null) {
     global $pdo;
+    if ($logFile === null) {
+        $logFile = dirname(__DIR__) . '/scripts/logs/import_vol.log';
+    }
     logMsg("Mise à jour finances : immat=$immat, cout_vol=$cout_vol", $logFile);
     // Log avant et après modification
     if (!$immat || $cout_vol === null) {
@@ -270,8 +287,11 @@ function mettreAJourFinances($immat, $cout_vol) {
  * @param string $arrivee Code ICAO d'arrivée
  * @return void
  */
-function mettreAJourFlotte($immat, $fuel_arr, $callsign, $arrivee) {
+function mettreAJourFlotte($immat, $fuel_arr, $callsign, $arrivee, $logFile = null) {
     global $pdo;
+    if ($logFile === null) {
+        $logFile = dirname(__DIR__) . '/scripts/logs/import_vol.log';
+    }
     logMsg("Mise à jour flotte : immat=$immat, fuel=$fuel_arr, callsign=$callsign, localisation=$arrivee", $logFile);
 
     if (!$immat || !$fuel_arr || !$callsign || !$arrivee) {
@@ -321,7 +341,10 @@ function mettreAJourFlotte($immat, $fuel_arr, $callsign, $arrivee) {
  * @param int $note Note du vol (1 à 10)
  * @return void
  */
-function deduireUsure(string $immat, int $note): void {
+function deduireUsure(string $immat, int $note, $logFile = null): void {
+    if ($logFile === null) {
+        $logFile = dirname(__DIR__) . '/scripts/logs/import_vol.log';
+    }
     logMsg("Usure avion $immat : note=$note", $logFile);
     global $pdo;
 
@@ -367,7 +390,10 @@ function deduireUsure(string $immat, int $note): void {
  * @param string $motif Motif du rejet
  * @return void
  */
-function rejeterVol($pdo, $vol, $motif) {
+function rejeterVol($pdo, $vol, $motif, $logFile = null) {
+    if ($logFile === null) {
+        $logFile = dirname(__DIR__) . '/scripts/logs/import_vol.log';
+    }
     logMsg("🔴 Rejet du vol ACARS ID=" . $vol['id'] . " | Motif : $motif", $logFile);
 
     $stmt = $pdo->prepare("

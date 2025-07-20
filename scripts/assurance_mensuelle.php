@@ -4,9 +4,10 @@
  Script : assurance_mensuelle.php
  Emplacement : scripts/
 
+
  Description :
  Ce script calcule et déduit chaque mois le coût d'assurance de la compagnie aérienne virtuelle.
- L'assurance est calculée comme un petit pourcentage (par défaut 0.2%) du coût total des avions détenus (champ cout_avions dans BALANCE_COMMERCIALE).
+ L'assurance est calculée comme un petit pourcentage (par défaut 0.2%) de la valeur absolue de la balance commerciale actuelle (champ balance_actuelle dans BALANCE_COMMERCIALE).
  La balance commerciale est ensuite mise à jour en conséquence.
 
  Log :
@@ -15,11 +16,12 @@
  Notification :
  Un mail récapitulatif automatique est envoyé à l'administrateur à la fin du script pour indiquer le succès du traitement.
 
+
  Fonctionnement :
- 1. Récupère le coût total des avions détenus (champ cout_avions).
- 2. Calcule l'assurance mensuelle : cout_avions * pourcentage.
- 3. Vérifie la cohérence de la balance avec la formule métier.
- 4. Si la balance est cohérente, déduit l'assurance mensuelle de la balance_actuelle et met à jour le cumul d'assurance.
+ 1. Récupère la balance commerciale actuelle (champ balance_actuelle).
+ 2. Calcule l'assurance mensuelle : valeur absolue de balance_actuelle * pourcentage.
+ 3. Insère la dépense dans finances_depenses avec un commentaire explicite.
+ 4. Met à jour la balance commerciale.
  5. Logue la balance avant/après et toute anomalie détectée.
  6. Envoie un mail récapitulatif automatique à la fin du script.
 
@@ -45,25 +47,25 @@ logMsg("--- Script assurance_mensuelle.php lancé ---", $logFile);
 echo "--- Script assurance_mensuelle.php lancé ---\n";
 
 try {
-    // Calculer l'assurance mensuelle comme un petit pourcentage du coût total des avions
-    $sqlCoutAvions = "SELECT cout_avions FROM BALANCE_COMMERCIALE";
-    $stmtCoutAvions = $pdo->query($sqlCoutAvions);
-    $cout_avions = $stmtCoutAvions->fetchColumn();
-    logMsg("Cout total des avions (cout_avions): $cout_avions", $logFile);
+    // Calculer l'assurance mensuelle comme un petit pourcentage de la valeur absolue de la balance actuelle
+    $sqlBalanceActuelle = "SELECT balance_actuelle FROM BALANCE_COMMERCIALE";
+    $stmtBalanceActuelle = $pdo->query($sqlBalanceActuelle);
+    $balance_actuelle = $stmtBalanceActuelle->fetchColumn();
+    logMsg("Balance actuelle (balance_actuelle): $balance_actuelle", $logFile);
     $pourcentage = 0.002; // 0.2% par mois
-    $assurance_mensuelle = round($cout_avions * $pourcentage, 2);
-    
-    mettreAJourDepenses($assurance_mensuelle, null, '', '', 'assurance', 'Prélèvement assurance mensuelle');
-    logMsg("Assurance mensuelle enregistrée dans finances_depenses: $assurance_mensuelle", $logFile);
+    $assiette = abs($balance_actuelle);
+    $assurance_mensuelle = round($assiette * $pourcentage, 2);
+
+    $commentaire_assurance = "Prélèvement assurance mensuelle (0.2% de la valeur absolue de la balance actuelle : $assiette €)";
+    mettreAJourDepenses($assurance_mensuelle, null, '', 'SYSTEM', 'assurance', $commentaire_assurance);
+    logMsg("Assurance mensuelle enregistrée dans finances_depenses: $assurance_mensuelle | $commentaire_assurance", $logFile);
     logMsg("Traitement terminé.", $logFile);
     // Affichage récapitulatif pour l'admin
     $message = "Traitement d'assurance mensuelle terminé.\n";
     $message .= "Montant prélevé : $assurance_mensuelle €\n";
-    $message .= "Balance avant : $balance €\n";
-    if ($balance_apres !== null) {
-        $message .= "Balance après : $balance_apres €\n";
-    }
-   
+    $message .= "Base de calcul (valeur absolue de la balance) : $assiette €\n";
+    $message .= "Balance avant : $balance_actuelle €\n";
+
     echo $message;
     // Envoi du mail récapitulatif enrichi
     if ($mailSummaryEnabled && function_exists('sendSummaryMail')) {
@@ -71,12 +73,6 @@ try {
         $body = "Bonjour,\n\nLe traitement d'assurance mensuelle s'est terminé.";
         $body .= "\nMontant prélevé : $assurance_mensuelle €";
         $body .= "\nBalance avant : $balance €";
-        if ($balance_apres !== null) {
-            $body .= "\nBalance après : $balance_apres €";
-        }
-        if ($alerte_balance) {
-            $body .= "\n\n[ALERTE] Balance incohérente : aucune opération effectuée.";
-        }
         $body .= "\n\nCeci est un message automatique.";
         $to = ADMIN_EMAIL;
         $mailResult = sendSummaryMail($subject, $body, $to);

@@ -40,9 +40,13 @@ require_once __DIR__ . '/../includes/calcul_cout.php';
 
 date_default_timezone_set('Europe/Paris');
 $logFile = dirname(__DIR__) . '/scripts/logs/importer_vol.log';
+
 try {
+    logMsg("[TRACE] Début du script importer_vol.php", $logFile);
     $stmt = $pdo->query("SELECT * FROM FROM_ACARS WHERE processed = 0 ORDER BY id ASC");
+    logMsg("[TRACE] Requête SELECT FROM_ACARS exécutée", $logFile);
     $vols = $stmt->fetchAll();
+    logMsg("[TRACE] Nombre de vols récupérés : " . count($vols), $logFile);
 
     if (empty($vols)) {
         logMsg("Aucun nouveau vol à traiter.", $logFile);
@@ -55,6 +59,7 @@ try {
     $vols_details = [];
     foreach ($vols as $vol) {
         $id = $vol['id'];
+        logMsg("[TRACE] Début traitement vol #$id", $logFile);
         $erreurs = [];
 
         // 1. Formater et vérifier les données
@@ -72,6 +77,8 @@ try {
         $note = (int) $vol['note_du_vol'];
         $mission = $vol['mission'] ?: 'VOLLIBRE';
 
+        logMsg("[TRACE] Vol #$id - callsign=$callsign, immat=$immat, depart=$depart, dest=$dest, payload=$payload, note=$note, mission=$mission", $logFile);
+
         // 2. Contrôles basiques
         if (!$callsign || !$immat || !$depart || !$dest) {
             $erreurs[] = "Vol #$id invalide : données manquantes (callsign, immat, depart ou destination)";
@@ -82,6 +89,7 @@ try {
         }
 
         // Vérification du pilote
+        logMsg("[TRACE] Vérification existence pilote $callsign", $logFile);
         $stmtPilote = $pdo->prepare("SELECT id FROM PILOTES WHERE callsign = :callsign");
         $stmtPilote->execute(['callsign' => $callsign]);
         $pilote = $stmtPilote->fetch();
@@ -90,6 +98,7 @@ try {
         }
 
         // Vérification de l'avion actif
+        logMsg("[TRACE] Vérification existence avion $immat", $logFile);
         $stmtAvion = $pdo->prepare("SELECT id FROM FLOTTE WHERE immat = :immat AND actif = 1");
         $stmtAvion->execute(['immat' => $immat]);
         $avion = $stmtAvion->fetch();
@@ -102,28 +111,33 @@ try {
             foreach ($erreurs as $err) {
                 logMsg("❌ $err", $logFile);
             }
-            rejeterVol($pdo, $vol, implode(' | ', $erreurs));
+            logMsg("[TRACE] Rejet du vol #$id pour erreurs", $logFile);
+            rejeterVol($pdo, $vol, implode(' | ', $erreurs), $logFile);
             continue;
         }
 
         // 3. Vérification des doublons
         if (empty($erreurs)) {
-            require_once __DIR__ . '/fonctions_importer_vol.php';
+            logMsg("[TRACE] Vérification doublon pour vol #$id", $logFile);
             if (detecterDoublonVol($pdo, $callsign, $depart, $dest, $fuelDep, $fuelArr, $payload, $note, $mission)) {
                 $msgDoublon = "Vol #$id doublon détecté pour le pilote '$callsign' (depart=$depart, dest=$dest, payload=$payload, fuelDep=$fuelDep, fuelArr=$fuelArr, note=$note, mission=$mission)";
                 logMsg("❌ $msgDoublon", $logFile);
-                rejeterVol($pdo, $vol, $msgDoublon);
+                logMsg("[TRACE] Rejet du vol #$id pour doublon", $logFile);
+                rejeterVol($pdo, $vol, $msgDoublon, $logFile);
                 continue;
             }
         }
 
         // 3. Traitement du fret
         if ($payload > 0) {
-            $fret_transporte = deduireFretDepart($depart, $payload);
-            ajouterFretDestination($dest, $fret_transporte);
+            logMsg("[TRACE] Début traitement fret pour vol #$id", $logFile);
+            $fret_transporte = deduireFretDepart($depart, $payload, $logFile);
+            ajouterFretDestination($dest, $fret_transporte, $logFile);
+            logMsg("[TRACE] Fin traitement fret pour vol #$id", $logFile);
         }
 
-       // 4. Calcul du coût du vol
+        // 4. Calcul du coût du vol
+        logMsg("[TRACE] Calcul du coût du vol #$id", $logFile);
         $majoration_mission = getMajorationMission($mission);
         $cout_horaire = getCoutHoraire($immat);
         $carburant = $fuelDep - $fuelArr;
@@ -138,15 +152,16 @@ try {
 
         // 5. Ajout au carnet de vol avec le coût et temps_vol
         logMsg("Ajout au carnet de vol : callsign=$callsign, immat=$immat, depart=$depart, dest=$dest, payload=$payload, cout_vol=$cout_vol, temps_vol=$temps_vol", $logFile);
-        $vol_id = remplirCarnetVolGeneral($horodateur, $callsign, $immat, $departure_icao, $arrival_icao, $departure_fuel, $arrival_fuel, $payload, $departure_time, $arrival_time, $mission, $commentaire, $note, $cout_vol, $temps_vol);
+        
+        $vol_id = remplirCarnetVolGeneral($horodateur, $callsign, $immat, $depart, $dest, $fuelDep, $fuelArr, $payload, $timeDep, $timeArr, $mission, $commentaire, $note, $cout_vol, $temps_vol, $logFile);
 
         // 6. Mise à jour de la flotte
         logMsg("Mise à jour flotte : immat=$immat, fuel=$fuelArr, callsign=$callsign, localisation=$dest", $logFile);
-        mettreAJourFlotte($immat, $fuelArr, $callsign, $dest);
+        mettreAJourFlotte($immat, $fuelArr, $callsign, $dest, $logFile);
 
         // 7. Mettre à jour finances
         logMsg("Mise à jour finances : immat=$immat, cout_vol=$cout_vol", $logFile);
-        mettreAJourFinances($immat, $cout_vol);
+        mettreAJourFinances($immat, $cout_vol, $logFile);
 
         // 8. Mise à jour de la balance commerciale via fonction dédiée
         logMsg("Ajout recette dans finances_recettes : cout_vol=$cout_vol, vol_id=$vol_id", $logFile);
@@ -154,9 +169,10 @@ try {
 
         // 9. Usure
         logMsg("Usure avion $immat : note=$note", $logFile);
-        deduireUsure($immat, $note);
+        deduireUsure($immat, $note, $logFile);
 
         // 10. Marquer comme traité
+        logMsg("[TRACE] Marquage du vol #$id comme traité", $logFile);
         $updateStmt = $pdo->prepare("UPDATE FROM_ACARS SET processed = 1 WHERE id = :id");
         $updateStmt->execute(['id' => $id]);
 

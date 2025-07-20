@@ -124,7 +124,7 @@ try {
         foreach ($erreurs as $err) {
             logMsg("❌ $err", $logFile);
         }
-        rejeterVol($pdo, $_POST, implode(' | ', $erreurs));
+        rejeterVol($pdo, $_POST, implode(' | ', $erreurs), $logFile);
         echo json_encode(['status' => 'error', 'message' => implode(' | ', $erreurs)]);
         return;
     }
@@ -156,8 +156,8 @@ try {
 
     // 3. Traitement du fret
     if ($payload > 0) {
-        $fret_transporte = deduireFretDepart($departure_icao, $payload);
-        ajouterFretDestination($arrival_icao, $fret_transporte);
+        $fret_transporte = deduireFretDepart($departure_icao, $payload, $logFile);
+        ajouterFretDestination($arrival_icao, $fret_transporte, $logFile);
     }
 
     // 4. Calcul du coût du vol
@@ -175,23 +175,24 @@ try {
 
     // 5. Ajout au carnet de vol avec le coût
     logMsg("Ajout au carnet de vol : callsign=$callsign, immat=$immat, depart=$departure_icao, dest=$arrival_icao, payload=$payload, cout_vol=$cout_vol", $logFile);
-    $vol_id = remplirCarnetVolGeneral($horodateur, $callsign, $immat, $departure_icao, $arrival_icao, $departure_fuel, $arrival_fuel, $payload, $departure_time, $arrival_time, $mission, $commentaire, $note, $cout_vol, $temps_vol);
+    $vol_id = remplirCarnetVolGeneral($horodateur, $callsign, $immat, $departure_icao, $arrival_icao, $departure_fuel, $arrival_fuel, $payload, $departure_time, $arrival_time, $mission, $commentaire, $note, $cout_vol, $temps_vol, $logFile);
 
     // 6. Mise à jour de la flotte
     logMsg("Mise à jour flotte : immat=$immat, fuel=$arrival_fuel, callsign=$callsign, localisation=$arrival_icao", $logFile);
-    mettreAJourFlotte($immat, $arrival_fuel, $callsign, $arrival_icao);
+    mettreAJourFlotte($immat, $arrival_fuel, $callsign, $arrival_icao, $logFile);
 
     // Mettre à jour finances
     logMsg("Mise à jour finances : immat=$immat, cout_vol=$cout_vol", $logFile);
-    mettreAJourFinances($immat, $cout_vol);
+    mettreAJourFinances($immat, $cout_vol, $logFile);
 
     // Mise à jour de la balance commerciale via fonction dédiée
     logMsg("Ajout recette dans finances_recettes : cout_vol=$cout_vol, vol_id=$vol_id", $logFile);
+    $commentaire = "Vol importé depuis ACARS : $departure_icao -> $arrival_icao, pilote: $callsign, immat: $immat";
     mettreAJourRecettes($cout_vol, $vol_id, $immat, $callsign, 'vol', $commentaire);
 
     // 7. Usure
     logMsg("Usure avion $immat, note=$note", $logFile);
-    deduireUsure($immat, $note);
+    deduireUsure($immat, $note, $logFile);
     
     // Envoi du mail récapitulatif enrichi
     if ($mailSummaryEnabled && function_exists('sendSummaryMail')) {

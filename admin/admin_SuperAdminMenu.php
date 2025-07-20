@@ -30,7 +30,6 @@ $scripts = [
 
 // Scripts nécessitant un CSV
 $csvScripts = [
-    'import_finances.php' => 'Import finances (CSV)',
     'import_from_acars.php' => 'Import dans la base FROM_ACARS depuis un CSV'
 ];
 
