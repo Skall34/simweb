@@ -77,7 +77,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/menu_logged.php';
         </ul>
         <h3>4. Fonctions principales du script</h3>
         <ul>
-            <li><code>coef_note($note)</code> : retourne le coefficient selon la note du vol.</li>
+            <li><code>coef_note($note)</code>.</li>
             <li><code>getMajorationMission($mission_libelle)</code> : récupère la majoration de la mission.</li>
             <li><code>getCoutHoraire($immat)</code> : récupère le coût horaire de l’appareil.</li>
             <li><code>calculerRevenuNetVol($payload, $temps_vol, $majoration_mission, $carburant, $note, $cout_horaire)</code> : effectue tous les calculs ci-dessus.</li>

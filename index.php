@@ -77,14 +77,19 @@ if (!isset($_SESSION['user'])) {
         }
     ?>
 
-        <div style="max-width: 600px; display: flex; flex-direction: column; gap: 1.5rem;">
-            
-            <section style="margin: 0; max-width: 100%;">
-                <h2 style="margin-top: 0;">Vols en cours</h2>
-                <div id="live-flights-container">
-                    <p>Chargement des vols en cours...</p>
-                </div>
-            </section>
+
+        <div style="display: flex; flex-direction: row; gap: 2rem; align-items: flex-start; margin-bottom: 2rem;">
+            <div style="flex: 1; min-width: 320px;">
+                <section style="margin: 0; max-width: 100%;">
+                    <h2 style="margin-top: 0;">Vols en cours</h2>
+                    <div id="live-flights-container">
+                        <p>Chargement des vols en cours...</p>
+                    </div>
+                </section>
+            </div>
+            <div style="flex: 0 0 320px; max-width: 380px;">
+                <img src="assets/images/PDF.jpg" alt="SkyWings" style="width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+            </div>
         </div>
 
     <!-- Espace vertical avant le tableau -->

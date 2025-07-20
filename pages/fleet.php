@@ -134,7 +134,12 @@ include __DIR__ . '/../includes/menu_logged.php';
                             'Catégorie' => $avion['type'],
                             'Localisation' => $avion['localisation'],
                             'Hub de rattachement' => $avion['hub'],
-                            'Statut' => $avion['status'],
+                            'Statut' => match((int)($avion['status'] ?? 0)) {
+                                0 => 'OK',
+                                1 => 'En maintenance',
+                                2 => 'Crash',
+                                default => $avion['status']
+                            },
                             'État' => $avion['etat'],
                             'Dernier utilisateur' => $avion['pilote_callsign'] ?? 'N/A',
                             'Carburant restant' => $avion['fuel_restant'],
@@ -175,7 +180,15 @@ include __DIR__ . '/../includes/menu_logged.php';
                             <td class="categorie"><?= htmlspecialchars($avion['type'] ?? '') ?></td>
                             <td class="localisation"><?= htmlspecialchars($avion['localisation'] ?? '') ?></td>
                             <td class="hub"><?= htmlspecialchars($avion['hub'] ?? '') ?></td>
-                            <td class="status"><?= htmlspecialchars($avion['status'] ?? '') ?></td>
+                            <td class="status"><?php
+                                $statusVal = (int)($avion['status'] ?? 0);
+                                echo match($statusVal) {
+                                    0 => 'OK',
+                                    1 => 'En maintenance',
+                                    2 => 'Crash',
+                                    default => htmlspecialchars($avion['status'] ?? '')
+                                };
+                            ?></td>
                             <td class="etat"><?= htmlspecialchars($avion['etat'] ?? '') ?></td>
                             <td class="pilote"><?= htmlspecialchars(($avion['pilote_callsign'] ?? 'N/A') ?: '') ?></td>
                             <td class="fuel"><?= htmlspecialchars($avion['fuel_restant'] ?? '') ?></td>

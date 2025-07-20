@@ -88,9 +88,9 @@ $grades = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <tr style="background:#fff;">
                         <form method="post" style="display:contents;">
                             <input type="hidden" name="id" value="<?= $grade['id'] ?>">
-                            <td style="padding:8px 8px;"><input type="text" name="nom" value="<?= htmlspecialchars($grade['nom']) ?>" style="width:100px;padding:4px 6px;border-radius:3px;border:1px solid #bbb;"></td>
+                            <td style="padding:8px 8px;"><input type="text" name="nom" value="<?= htmlspecialchars($grade['nom']) ?>" style="width:220px;padding:4px 6px;border-radius:3px;border:1px solid #bbb;"></td>
                             <td style="padding:8px 8px;"><input type="number" step="0.01" name="taux_horaire" value="<?= htmlspecialchars($grade['taux_horaire']) ?>" style="width:80px;padding:4px 6px;border-radius:3px;border:1px solid #bbb;"></td>
-                            <td style="padding:8px 8px;"><input type="text" name="description" value="<?= htmlspecialchars($grade['description']) ?>" style="width:180px;padding:4px 6px;border-radius:3px;border:1px solid #bbb;"></td>
+                            <td style="padding:8px 8px;"><input type="text" name="description" value="<?= htmlspecialchars($grade['description']) ?>" style="width:320px;padding:4px 6px;border-radius:3px;border:1px solid #bbb;"></td>
                             <td style="padding:8px 8px;display:flex;gap:6px;">
                                 <button type="submit" name="action" value="edit" style="background:#1a3552;color:#fff;border:none;padding:4px 10px;border-radius:3px;">Enregistrer</button>
                                 <button type="submit" name="action" value="delete" style="background:#b00;color:#fff;border:none;padding:4px 10px;border-radius:3px;" onclick="return confirm('Supprimer ce grade ?');">Supprimer</button>

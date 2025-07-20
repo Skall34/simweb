@@ -143,7 +143,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                 <thead><tr><th>Callsign</th><th>Heures</th></tr></thead>
                 <tbody>
                 <?php
-                $topPilotes = $pdo->query("SELECT p.callsign, ROUND(SUM(TIME_TO_SEC(TIMEDIFF(c.heure_arrivee, c.heure_depart))/3600),1) AS heures FROM CARNET_DE_VOL_GENERAL c JOIN PILOTES p ON c.pilote_id = p.id GROUP BY p.callsign ORDER BY heures DESC LIMIT 10")->fetchAll();
+                $topPilotes = $pdo->query("SELECT p.callsign, ROUND(SUM(TIME_TO_SEC(temps_vol)/3600),1) AS heures FROM CARNET_DE_VOL_GENERAL c JOIN PILOTES p ON c.pilote_id = p.id GROUP BY p.callsign ORDER BY heures DESC LIMIT 10")->fetchAll();
                 foreach ($topPilotes as $p): ?>
                     <tr><td><?= htmlspecialchars($p['callsign']) ?></td><td><?= $p['heures'] ?></td></tr>
                 <?php endforeach; ?>
@@ -315,7 +315,7 @@ include __DIR__ . '/../includes/menu_logged.php';
         datasets: [{
             label: 'Visites',
             data: <?= json_encode(array_column($topAeroports, 'nb_visites')) ?>,
-            backgroundColor: '#43a047',
+            backgroundColor: '#1976d2',
         }]
     };
     new Chart(ctxAero, {
