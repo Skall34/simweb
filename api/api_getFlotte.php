@@ -6,12 +6,14 @@ require_once __DIR__ . '/../includes/db_connect.php';
 try {
     $stmt = $pdo->prepare("SELECT 
     F.immat, 
-    F.type, 
+    FT.type AS categorie, 
     F.en_vol, 
     P.callsign, 
     F.etat
 FROM 
     FLOTTE F
+LEFT JOIN 
+    FLEET_TYPE FT ON F.fleet_type = FT.id
 LEFT JOIN 
     PILOTES P ON F.dernier_utilisateur = P.id
 WHERE 

@@ -94,7 +94,34 @@ if (!isset($_SESSION['user'])) {
 
     <!-- Espace vertical avant le tableau -->
     <div style="height: 2.5rem;"></div>
+    <?php
+    // Affichage de la balance commerciale sous le tableau
+    // Fonction de formatage (copiée de finances.php)
+    function format_chiffre($valeur) {
+        if ($valeur === null) return '0';
+        if (floor($valeur) == $valeur) {
+            return number_format($valeur, 0, ',', ' ');
+        } else {
+            return number_format($valeur, 2, ',', ' ');
+        }
+    }
+    // Récupère la balance financière depuis la table BALANCE_COMMERCIALE
+    try {
+        $sqlBalance = "SELECT balance_actuelle FROM BALANCE_COMMERCIALE";
+        $stmtBalance = $pdo->query($sqlBalance);
+        $balance = $stmtBalance->fetchColumn();
+    } catch (PDOException $e) {
+        $balance = null;
+    }
+    ?>
 
+    <?php
+    $balanceColor = ($balance >= 0) ? '#1abc9c' : '#e74c3c';
+    ?>
+    <div style="margin: 32px 0 0 0; font-size: 1.2em; font-weight: bold;">
+        <span style="color: #2c3e50;">Balance commerciale de la compagnie :</span>
+        <span style="color: <?= $balanceColor ?>; font-size: 1em; margin-left: 10px;"><?= format_chiffre($balance) ?> €</span>
+    </div>
     <!-- Titre du tableau -->
     <h2>Les 10 derniers vols</h2>
 
@@ -130,30 +157,7 @@ if (!isset($_SESSION['user'])) {
     </table>
 
 
-    <?php
-    // Affichage de la balance commerciale sous le tableau
-    // Fonction de formatage (copiée de finances.php)
-    function format_chiffre($valeur) {
-        if ($valeur === null) return '0';
-        if (floor($valeur) == $valeur) {
-            return number_format($valeur, 0, ',', ' ');
-        } else {
-            return number_format($valeur, 2, ',', ' ');
-        }
-    }
-    // Récupère la balance financière depuis la table BALANCE_COMMERCIALE
-    try {
-        $sqlBalance = "SELECT balance_actuelle FROM BALANCE_COMMERCIALE";
-        $stmtBalance = $pdo->query($sqlBalance);
-        $balance = $stmtBalance->fetchColumn();
-    } catch (PDOException $e) {
-        $balance = null;
-    }
-    ?>
-
-    <div style="margin: 32px 0 0 0; font-size: 1.2em; color: #2c3e50;">
-        <strong>Balance commerciale de la compagnie :</strong> <?= format_chiffre($balance) ?> €
-    </div>
+    
 
     <?php } ?>
 

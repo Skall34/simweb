@@ -15,6 +15,7 @@ try {
       cdvg.date_vol,
       p.callsign,
       f.immat,
+      ft.fleet_type AS fleet_type_libelle,
       cdvg.depart,
       cdvg.destination,
       cdvg.fuel_depart,
@@ -31,6 +32,7 @@ try {
     FROM CARNET_DE_VOL_GENERAL cdvg
     LEFT JOIN PILOTES p ON cdvg.pilote_id = p.id
     LEFT JOIN FLOTTE f ON cdvg.appareil_id = f.id
+    LEFT JOIN FLEET_TYPE ft ON f.fleet_type = ft.id
     LEFT JOIN MISSIONS m ON cdvg.mission_id = m.id
     ";
 
@@ -87,6 +89,7 @@ try {
                     <th style="width:95px;">Date vol</th>
                     <th style="width:95px;">Callsign</th>
                     <th style="width:98px;">Immat</th>
+                    <th style="width:110px;">Fleet type</th>
                     <th style="width:90px;">Départ</th>
                     <th style="width:90px;">Destination</th>
                     <th style="width:95px;">Fuel départ</th>
@@ -136,6 +139,7 @@ try {
                         <td><?= $date_formatee ?></td>
                         <td><?php echo htmlspecialchars($vol['callsign']); ?></td>
                         <td><?php echo htmlspecialchars($vol['immat']); ?></td>
+                        <td><?php echo htmlspecialchars($vol['fleet_type_libelle']); ?></td>
                         <td><?php echo htmlspecialchars($vol['depart']); ?></td>
                         <td><?php echo htmlspecialchars($vol['destination']); ?></td>
                         <td><?php echo htmlspecialchars($vol['fuel_depart']); ?></td>

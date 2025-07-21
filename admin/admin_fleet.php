@@ -11,14 +11,16 @@ require_once __DIR__ . '/../includes/log_func.php';
 $successMessage = '';
 $errorMessage = '';
 
-// Récupérer les fleet types pour la liste déroulante et leurs prix
+// Récupérer les fleet types pour la liste déroulante, leurs prix et leur catégorie
 $fleetTypes = [];
 $fleetTypePrices = [];
+$fleetTypeCategories = [];
 try {
-    $stmt = $pdo->query("SELECT id, fleet_type, cout_appareil FROM FLEET_TYPE ORDER BY fleet_type");
+    $stmt = $pdo->query("SELECT id, fleet_type, type, cout_appareil FROM FLEET_TYPE ORDER BY fleet_type");
     $fleetTypes = $stmt->fetchAll(PDO::FETCH_ASSOC);
     foreach ($fleetTypes as $ft) {
         $fleetTypePrices[$ft['id']] = $ft['cout_appareil'];
+        $fleetTypeCategories[$ft['id']] = $ft['type'];
     }
 } catch (PDOException $e) {
     $errorMessage = "Erreur lors de la récupération des types de flotte : " . htmlspecialchars($e->getMessage());
@@ -32,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     logMsg('[FLEET] Début traitement achat appareil', $logFile);
 
     $fleet_type_id = intval($_POST['fleet_type'] ?? 0);
-    $type = trim($_POST['type'] ?? '');
+    $categorie = isset($fleetTypeCategories[$fleet_type_id]) ? $fleetTypeCategories[$fleet_type_id] : '';
     $immat = strtoupper(trim($_POST['immat'] ?? ''));
     $localisation = strtoupper(trim($_POST['localisation'] ?? ''));
     $hub = strtoupper(trim($_POST['hub'] ?? ''));
@@ -44,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Validation des champs
     if (
-        $fleet_type_id === 0 || $type === '' || $immat === '' ||
+        $fleet_type_id === 0 || $categorie === '' || $immat === '' ||
         strlen($immat) > 10 ||
         strlen($localisation) > 4 || !preg_match('/^[A-Z0-9]{0,4}$/', $localisation) ||
         strlen($hub) > 4 || !preg_match('/^[A-Z0-9]{0,4}$/', $hub) ||
@@ -58,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute(['immat' => $immat]);
             if ($stmt->fetchColumn() > 0) {
                 logMsg("[ERREUR] Immatriculation déjà existante : $immat", $logFile);
-                logMsg("Insertion nouvel appareil : immat=$immat, type=$type, fleet_type_id=$fleet_type_id, localisation=$localisation, hub=$hub", $logFile);
+                logMsg("Insertion nouvel appareil : immat=$immat, categorie=$categorie, fleet_type_id=$fleet_type_id, localisation=$localisation, hub=$hub", $logFile);
                 $errorMessage = "Un avion avec cette immatriculation existe déjà.";
             } else {
                 // Construction de la requête avec champs financiers dans FLOTTE
@@ -91,12 +93,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $mode_achat_db = ($achat_mode === 'credit') ? 'credit' : 'comptant';
                 $sql = "
                     INSERT INTO FLOTTE (
-                        fleet_type, type, immat, localisation, hub,
+                        fleet_type, immat, localisation, hub,
                         status, etat, dernier_utilisateur, fuel_restant,
                         compteur_immo, en_vol, nb_maintenance, Actif,
                         date_achat, recettes, nb_annees_credit, taux_percent, remboursement, traite_payee_cumulee, reste_a_payer, mode_achat
                     ) VALUES (
-                        :fleet_type, :type, :immat, :localisation, :hub,
+                        :fleet_type, :immat, :localisation, :hub,
                         0, 100, NULL, NULL,
                         0, 0, 0, 1,
                         :date_achat, :recettes, :nb_annees_credit, :taux_percent, :remboursement, :traite_payee_cumulee, :reste_a_payer, :mode_achat
@@ -105,7 +107,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt = $pdo->prepare($sql);
                 $stmt->execute([
                     'fleet_type' => $fleet_type_id,
-                    'type' => $type,
                     'immat' => $immat,
                     'localisation' => $localisation ?: null,
                     'hub' => $hub ?: null,
@@ -135,7 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $mailBody = '<h3>Nouvel achat d\'appareil</h3>' .
                     '<ul>' .
                     '<li><strong>Immatriculation :</strong> ' . htmlspecialchars($immat) . '</li>' .
-                    '<li><strong>Type :</strong> ' . htmlspecialchars($type) . '</li>' .
+                    '<li><strong>Catégorie :</strong> ' . htmlspecialchars($categorie) . '</li>' .
                     '<li><strong>Fleet type :</strong> ' . htmlspecialchars($fleetTypes[array_search($fleet_type_id, array_column($fleetTypes, 'id'))]['fleet_type'] ?? $fleet_type_id) . '</li>' .
                     '<li><strong>Localisation :</strong> ' . htmlspecialchars($localisation) . '</li>' .
                     '<li><strong>Hub :</strong> ' . htmlspecialchars($hub) . '</li>' .
@@ -196,17 +197,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </select>
         </label>
         <div id="prixAchatFleetType" style="margin:8px 0 0 0; font-weight:bold; color:#0066cc;"></div>
-
-        <label>Type * :
-            <select name="type" required>
-                <option value="">-- Choisissez un type --</option>
-                <?php 
-                $types = ['Helico', 'Liner', 'Bimoteur', 'Monomoteur'];
-                foreach ($types as $t): ?>
-                    <option value="<?= $t ?>" <?= (isset($_POST['type']) && $_POST['type'] === $t) ? 'selected' : '' ?>><?= $t ?></option>
-                <?php endforeach; ?>
-            </select>
-        </label>
+        <div id="typeFleetType" style="margin:8px 0 0 0; font-weight:bold; color:#444;"></div>
 
         <label>Immatriculation * :
             <input type="text" name="immat" maxlength="10" value="<?= htmlspecialchars($_POST['immat'] ?? '') ?>" required>
@@ -241,19 +232,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 document.addEventListener('DOMContentLoaded', function() {
     // Prix d'achat des fleet types
     var fleetTypePrices = <?php echo json_encode($fleetTypePrices); ?>;
+    var fleetTypeCategories = <?php echo json_encode($fleetTypeCategories); ?>;
     var selectFleetType = document.getElementById('fleetTypeSelect');
     var prixAchatDiv = document.getElementById('prixAchatFleetType');
+    var typeDiv = document.getElementById('typeFleetType');
 
-    function updatePrixAchat() {
+    function updatePrixAchatAndType() {
         var val = selectFleetType.value;
         if (val && fleetTypePrices[val]) {
             prixAchatDiv.textContent = 'Prix d\'achat : ' + fleetTypePrices[val] + ' €';
         } else {
             prixAchatDiv.textContent = '';
         }
+        if (val && fleetTypeCategories[val]) {
+            typeDiv.textContent = 'Catégorie : ' + fleetTypeCategories[val];
+        } else {
+            typeDiv.textContent = '';
+        }
     }
-    selectFleetType.addEventListener('change', updatePrixAchat);
-    updatePrixAchat();
+    selectFleetType.addEventListener('change', updatePrixAchatAndType);
+    updatePrixAchatAndType();
 
     // Affichage des champs crédit
     function toggleCreditFields() {
@@ -264,6 +262,15 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('achat_comptant').addEventListener('change', toggleCreditFields);
     document.getElementById('achat_credit').addEventListener('change', toggleCreditFields);
     toggleCreditFields();
+
+    // Réinitialisation des champs affichés
+    document.querySelector('button[type="reset"][form="form-avion"]').addEventListener('click', function() {
+        prixAchatDiv.textContent = '';
+        typeDiv.textContent = '';
+        // Remettre le bouton radio sur 'comptant' et masquer les champs crédit
+        document.getElementById('achat_comptant').checked = true;
+        toggleCreditFields();
+    });
 });
 </script>
 

@@ -10,11 +10,12 @@ $errorMessage = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $fleet_type = trim($_POST['fleet_type'] ?? '');
+    $type = trim($_POST['type'] ?? '');
     $cout_horaire = floatval($_POST['cout_horaire'] ?? 0);
     $cout_appareil = floatval($_POST['cout_appareil'] ?? 0);
 
-    if ($fleet_type === '') {
-        $errorMessage = "Le champ 'fleet_type' est obligatoire.";
+    if ($fleet_type === '' || $type === '') {
+        $errorMessage = "Les champs 'fleet_type' et 'type' sont obligatoires.";
     } else {
         try {
             // Vérifier si le fleet_type existe déjà
@@ -26,9 +27,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $errorMessage = "Ce type de flotte existe déjà.";
             } else {
                 // Insérer
-                $stmt = $pdo->prepare("INSERT INTO FLEET_TYPE (fleet_type, cout_horaire, cout_appareil) VALUES (:fleet_type, :cout_horaire, :cout_appareil)");
+                $stmt = $pdo->prepare("INSERT INTO FLEET_TYPE (fleet_type, type, cout_horaire, cout_appareil) VALUES (:fleet_type, :type, :cout_horaire, :cout_appareil)");
                 $stmt->execute([
                     'fleet_type' => $fleet_type,
+                    'type' => $type,
                     'cout_horaire' => $cout_horaire,
                     'cout_appareil' => $cout_appareil
                 ]);
@@ -39,10 +41,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-// Récupérer la liste des fleet types existants
+// Récupérer toute la table FLEET_TYPE pour affichage en deux colonnes
 $fleetTypes = [];
 try {
-    $stmt = $pdo->query("SELECT fleet_type, cout_horaire, cout_appareil FROM FLEET_TYPE ORDER BY fleet_type ASC");
+    $stmt = $pdo->query("SELECT fleet_type, type, cout_horaire, cout_appareil FROM FLEET_TYPE ORDER BY fleet_type ASC");
     $fleetTypes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     // Ignore erreur
@@ -64,6 +66,15 @@ try {
             <label>Nom du fleet type *</label>
             <input type="text" id="fleet_type" name="fleet_type" required>
 
+            <label>Catégorie *</label>
+            <select id="type" name="type" required style="width: 370px;">
+                <option value="">-- Sélectionner --</option>
+                <option value="Monomoteur">Monomoteur</option>
+                <option value="Bimoteur">Bimoteur</option>
+                <option value="Liner">Liner</option>
+                <option value="Hélicoptère">Hélicoptère</option>
+            </select>
+
             <label>Coût horaire (€) *</label>
             <input type="number" id="cout_horaire" name="cout_horaire" step="10"  style="width: 370px;" required>
 
@@ -74,26 +85,60 @@ try {
         </form>
     </div>
 
-    <aside style="min-width:260px;max-width:800px;margin-left:40px;margin-right:auto;background:#f7fbff;border-radius:16px;box-shadow:0 2px 8px rgba(0,0,0,0.04);padding:18px 16px 12px 16px;align-self:center;">
+    <aside style="min-width:700px;max-width:1500px;margin-left:40px;margin-right:auto;background:#f7fbff;border-radius:16px;box-shadow:0 2px 8px rgba(0,0,0,0.04);padding:18px 16px 12px 16px;align-self:center;">
         <h3 style="margin-top:0;margin-bottom:12px;font-size:1.1em;color:#0066cc;">Fleet types existants</h3>
-        <table style="font-size:0.97em;width:100%;border-collapse:separate;border-spacing:0;border-radius:12px;overflow:hidden;">
-            <thead>
-                <tr style="background:#e3f2fd;">
-                    <th style="padding:6px 8px;border:none;border-top-left-radius:12px;">Type</th>
-                    <th style="padding:6px 8px;border:none;">Coût horaire</th>
-                    <th style="padding:6px 18px;border:none;border-top-right-radius:12px;width:200px;">Prix (€)</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($fleetTypes as $ft): ?>
-                <tr style="background:#fff;">
-                    <td style="padding:6px 8px;border:none;"><?= htmlspecialchars($ft['fleet_type']) ?></td>
-                    <td style="padding:6px 8px;border:none;text-align:right;"><?= number_format($ft['cout_horaire'], 2, ',', ' ') ?></td>
-                    <td style="padding:6px 18px;border:none;text-align:right;font-weight:bold;"><?= number_format($ft['cout_appareil'], 0, '', ' ') ?></td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+        <?php
+        $total = count($fleetTypes);
+        $mid = (int)ceil($total / 2);
+        $col1 = array_slice($fleetTypes, 0, $mid);
+        $col2 = array_slice($fleetTypes, $mid);
+        ?>
+        <div style="display: flex; gap: 32px; align-items: flex-start;">
+            <div class="table-section">
+                <table class="table-skywings">
+                    <thead>
+                        <tr>
+                            <th class="fleet_type">Nom</th>
+                            <th class="type">Catégorie</th>
+                            <th class="cout_horaire">Coût horaire (€)</th>
+                            <th class="prix">Prix (€)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($col1 as $ft): ?>
+                        <tr>
+                            <td class="fleet_type"><?= htmlspecialchars($ft['fleet_type']) ?></td>
+                            <td class="type" style="color:#444; font-style:italic;"><?= htmlspecialchars($ft['type']) ?></td>
+                            <td class="cout_horaire" style="text-align:right;"><?= number_format($ft['cout_horaire'], 2, ',', ' ') ?></td>
+                            <td class="prix" style="text-align:right;font-weight:bold;"><?= number_format($ft['cout_appareil'], 0, '', ' ') ?></td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+            <div class="table-section">
+                <table class="table-skywings">
+                    <thead>
+                        <tr>
+                            <th class="fleet_type">Nom</th>
+                            <th class="type">Catégorie</th>
+                            <th class="cout_horaire">Coût horaire (€)</th>
+                            <th class="prix">Prix (€)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($col2 as $ft): ?>
+                        <tr>
+                            <td class="fleet_type"><?= htmlspecialchars($ft['fleet_type']) ?></td>
+                            <td class="type" style="color:#444; font-style:italic;"><?= htmlspecialchars($ft['type']) ?></td>
+                            <td class="cout_horaire" style="text-align:right;"><?= number_format($ft['cout_horaire'], 2, ',', ' ') ?></td>
+                            <td class="prix" style="text-align:right;font-weight:bold;"><?= number_format($ft['cout_appareil'], 0, '', ' ') ?></td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </aside>
 </main>
 

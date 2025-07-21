@@ -24,7 +24,7 @@ try {
 
 // Requête avec jointure sur FLEET_TYPE et PILOTES, filtre possible
 
-$sql = "SELECT f.id, ft.fleet_type AS type_libelle, f.type, f.immat, f.localisation, f.hub, f.status, f.etat,
+$sql = "SELECT f.id, ft.fleet_type AS type_libelle, ft.type AS categorie, f.immat, f.localisation, f.hub, f.status, f.etat,
                p.callsign AS pilote_callsign, f.fuel_restant, f.compteur_immo, f.en_vol, f.nb_maintenance,
                f.date_achat, f.recettes, f.nb_annees_credit, f.taux_percent, f.remboursement, f.traite_payee_cumulee, f.reste_a_payer, f.recette_vente, f.date_vente
         FROM FLOTTE f
@@ -131,7 +131,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                         $details = [
                             'Immatriculation' => $avion['immat'],
                             'Fleet_type' => $avion['type_libelle'],
-                            'Catégorie' => $avion['type'],
+                            'Catégorie' => $avion['categorie'],
                             'Localisation' => $avion['localisation'],
                             'Hub de rattachement' => $avion['hub'],
                             'Statut' => match((int)($avion['status'] ?? 0)) {
@@ -151,7 +151,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                         $details = [
                             'Immatriculation' => $avion['immat'],
                             'Fleet_type' => $avion['type_libelle'],
-                            'Catégorie' => $avion['type'],
+                            'Catégorie' => $avion['categorie'],
                             'Localisation' => $avion['localisation'],
                             'Hub de rattachement' => $avion['hub'],
                             'Statut' => $avion['status'],
@@ -177,7 +177,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                         <tr class="fleet-row" data-details="<?= $details_json ?>">
                             <td class="immat"><?= htmlspecialchars($avion['immat'] ?? '') ?></td>
                             <td class="fleet_type"><?= htmlspecialchars($avion['type_libelle'] ?? '') ?></td>
-                            <td class="categorie"><?= htmlspecialchars($avion['type'] ?? '') ?></td>
+                            <td class="categorie"><?= htmlspecialchars($avion['categorie'] ?? '') ?></td>
                             <td class="localisation"><?= htmlspecialchars($avion['localisation'] ?? '') ?></td>
                             <td class="hub"><?= htmlspecialchars($avion['hub'] ?? '') ?></td>
                             <td class="status"><?php
@@ -324,16 +324,30 @@ include __DIR__ . '/../includes/menu_logged.php';
             row.addEventListener('click', function() {
                 const details = JSON.parse(this.getAttribute('data-details'));
                 let html = '<table style="width:100%;border-collapse:collapse;">';
-                // Affichage du mode d'achat
                 let modeAchat = details['Mode d\'achat'] || '';
-                for (const key in Object.keys(details)) {
-                    const k = Object.keys(details)[key];
-                    const v = details[k];
+                // Liste des clés financières
+                const financeKeys = [
+                    'Date achat', 'Mode d\'achat', 'Recettes', 'Années crédit', 'Taux crédit', 'Remboursement', 'Traite payée cumulée', 'Reste à payer', 'Recette vente', 'Date vente'
+                ];
+                let financeRows = '';
+                let normalRows = '';
+                for (const key of Object.keys(details)) {
+                    const v = details[key];
                     // Si achat comptant, on masque les champs crédit
-                    if (modeAchat === 'Comptant' && (k === 'Années crédit' || k === 'Taux crédit' || k === 'Remboursement' || k === 'Traite payée cumulée' || k === 'Reste à payer')) {
+                    if (modeAchat === 'Comptant' && (key === 'Années crédit' || key === 'Taux crédit' || key === 'Remboursement' || key === 'Traite payée cumulée' || key === 'Reste à payer')) {
                         continue;
                     }
-                    html += '<tr><td style="font-weight:bold;padding:4px 8px;color:#0d47a1;">' + k + '</td><td style="padding:4px 8px;">' + (v ?? '') + '</td></tr>';
+                    if (financeKeys.includes(key)) {
+                        financeRows += '<tr><td style="font-weight:bold;padding:4px 8px;color:#0d47a1;">' + key + '</td><td style="padding:4px 8px;">' + (v ?? '') + '</td></tr>';
+                    } else {
+                        normalRows += '<tr><td style="font-weight:bold;padding:4px 8px;color:#0d47a1;">' + key + '</td><td style="padding:4px 8px;">' + (v ?? '') + '</td></tr>';
+                    }
+                }
+                html += normalRows;
+                if (financeRows) {
+                    html += '<tr><td colspan="2" style="padding:8px 0 2px 0;"><hr style="border:0;border-top:1.5px solid #1abc9c;margin:10px 0 6px 0;"></td></tr>';
+                    html += '<tr><td colspan="2" style="font-weight:bold;color:#1abc9c;font-size:1.08em;padding-bottom:6px;">Informations financières</td></tr>';
+                    html += financeRows;
                 }
                 html += '</table>';
                 document.getElementById('fleet-modal-body').innerHTML = html;

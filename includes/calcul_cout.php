@@ -10,6 +10,7 @@
  Toutes les opérations et erreurs sont loguées dans scripts/logs/calcul_cout.log via logMsg().
 
  Fonctionnement :
+ - getCategorieAppareil($immat) : Récupère la catégorie de l'appareil (hélico, liner, etc.) via la jointure FLOTTE/FLEET_TYPE.
  - coef_note($note) : Retourne le coefficient selon la note du vol.
  - getMajorationMission($mission_libelle) : Récupère la majoration de la mission.
  - getCoutHoraire($immat) : Récupère le coût horaire de l'appareil.
@@ -26,6 +27,29 @@
 require_once __DIR__ . '/../includes/db_connect.php'; // Assure la connexion PDO
 require_once __DIR__ . '/../includes/log_func.php';
 $logFile = __DIR__ . '/logs/calcul_cout.log';
+
+
+/**
+ * Récupère la catégorie d'un appareil à partir de son immatriculation.
+ *
+ * @param string $immat Immatriculation de l'appareil
+ * @return string Catégorie (hélico, liner, etc.) ou chaîne vide si non trouvée
+ */
+function getCategorieAppareil($immat) {
+    global $pdo;
+    $stmt = $pdo->prepare("
+        SELECT ft.type 
+        FROM FLOTTE f 
+        JOIN FLEET_TYPE ft ON f.fleet_type = ft.id 
+        WHERE f.immat = :immat
+    ");
+    $stmt->execute(['immat' => $immat]);
+    $result = $stmt->fetch();
+    $val = $result ? $result['type'] : '';
+    logMsg("getCategorieAppareil('$immat') = $val", $logFile);
+    return $val;
+}
+
 
 /**
  * Retourne le coefficient multiplicateur appliqué au coût d'utilisation de l'appareil selon la note du vol.

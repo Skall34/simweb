@@ -121,7 +121,7 @@ try {
                     <option value="">-- Sélectionner --</option>
                     <?php foreach ($flotte as $avion): ?>
                         <option value="<?= $avion['id'] ?>"
-                            data-type="<?= htmlspecialchars($avion['type']) ?>"
+                            data-type="<?= htmlspecialchars($avion['categorie']) ?>"
                             data-localisation="<?= htmlspecialchars($avion['localisation']) ?>"
                             data-hub="<?= htmlspecialchars($avion['hub']) ?>"
                             data-reste="<?= is_null($avion['reste_a_payer']) ? '' : htmlspecialchars($avion['reste_a_payer']) ?>"
