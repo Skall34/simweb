@@ -130,7 +130,7 @@ try {
                         'Block time' => $vol['block_time'],
                         'Note du vol' => $vol['note_du_vol'],
                         'Mission' => $vol['mission_libelle'],
-                        'Coût du vol' => number_format($vol['cout_vol'] !== null ? (float)$vol['cout_vol'] : 0, 2) . ' €',
+                        'Recette du vol' => number_format($vol['cout_vol'] !== null ? (float)$vol['cout_vol'] : 0, 2) . ' €',
                         'Pirep' => $pirep_complet
                     ];
                     $details_json = htmlspecialchars(json_encode($details), ENT_QUOTES, 'UTF-8');

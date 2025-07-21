@@ -1,3 +1,9 @@
 includes/db_connect.php
+scripts/
+*.csv
 scripts/logs/
 *.log
+sauvegarde_migration/
+*.php
+*.txt
+*.sql

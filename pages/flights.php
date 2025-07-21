@@ -141,7 +141,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                             'Block time' => $flight['block_time'],
                             'Note du vol' => $flight['note_du_vol'],
                             'Mission' => $flight['mission_libelle'],
-                            'Coût du vol' => number_format($flight['cout_vol'], 2) . ' €',
+                            'Recette du vol' => number_format($flight['cout_vol'], 2) . ' €',
                             'Pirep' => $pirep_complet
                         ];
                         $details_json = htmlspecialchars(json_encode($details), ENT_QUOTES, 'UTF-8');
