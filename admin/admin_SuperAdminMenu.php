@@ -14,7 +14,7 @@ require_once __DIR__ . '/../includes/log_func.php';
 session_start();
 
 // Vérification de l'utilisateur
-if (!isset($_SESSION['user']['callsign']) || $_SESSION['user']['callsign'] !== 'SKY0707') {
+if (!isset($_SESSION['user']['callsign']) || !in_array($_SESSION['user']['callsign'], ['SKY0707', 'SKY3434'])) {
     header('Location: /index.php');
     exit;
 }
