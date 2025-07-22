@@ -19,12 +19,14 @@ if (session_status() === PHP_SESSION_NONE) {
             require_once __DIR__ . '/db_connect.php';
             $missions = [];
             try {
-                $stmtMissions = $pdo->query("SELECT libelle FROM MISSIONS ORDER BY libelle ASC");
-                $missions = $stmtMissions->fetchAll(PDO::FETCH_COLUMN);
+                $stmtMissions = $pdo->query("SELECT libelle, Active FROM MISSIONS ORDER BY libelle ASC");
+                $missions = $stmtMissions->fetchAll(PDO::FETCH_ASSOC);
             } catch (PDOException $e) {
                 echo '<span style="color:red;">Erreur chargement missions</span>';
             }
-            foreach ($missions as $mission) {
+            foreach ($missions as $missionRow) {
+                $mission = $missionRow['libelle'];
+                $isInactive = (isset($missionRow['Active']) && !$missionRow['Active']);
                 // Tableau de correspondance pour les noms jolis
                 $missionLabels = [
                     'NORMANDIE 80' => 'Normandie 80',
@@ -38,11 +40,21 @@ if (session_status() === PHP_SESSION_NONE) {
                     'OPLINER' => 'OP Liner',
                     'OPPNG' => 'OP Papouasie',
                     'VOLLIBRE' => 'Vol libre',
+                    'Long/moyen courrier' => 'Long/moyen courrier',
                     // Ajouter d'autres exceptions ici si besoin
                 ];
-                $url = '/pages/missions/' . urlencode($mission) . '.php';
+                // Correction du nom de fichier pour Long/moyen courrier
+                if ($mission === 'Long/moyen courrier') {
+                    $url = '/pages/missions/LONGSMOYENSCOURIERS.php';
+                } else {
+                    $url = '/pages/missions/' . urlencode($mission) . '.php';
+                }
                 $label = isset($missionLabels[$mission]) ? $missionLabels[$mission] : htmlspecialchars($mission);
-                echo '<a href="' . $url . '">' . $label . '</a>';
+                if ($isInactive) {
+                    echo '<a href="#" style="color:#b0b0b0;pointer-events:none;cursor:default;background:#f6f6f6;">' . $label . '</a>';
+                } else {
+                    echo '<a href="' . $url . '">' . $label . '</a>';
+                }
             }
             ?>
         </div>

@@ -189,8 +189,8 @@ try {
     if ($vols_importes > 0) {
         // Envoi du mail récapitulatif enrichi
         if ($mailSummaryEnabled && function_exists('sendSummaryMail')) {
-            $subject = "[SimWeb] Rapport import vols ACARS - " . date('d/m/Y H:i');
-            $body = "Bonjour,\n\nImport des vols ACARS terminé.";
+            $subject = "[SimWeb] Rapport import vols manuels ACARS - " . date('d/m/Y H:i');
+            $body = "Salut,\n\nImport des vols manuels ACARS terminé.";
             $body .= "\nNombre de vols importés : $vols_importes";
             if ($vols_importes > 0) {
                 $body .= "\nDétail des vols :";

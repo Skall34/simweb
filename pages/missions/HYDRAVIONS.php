@@ -5,14 +5,14 @@ include '../../includes/menu_logged.php';
 <main>
     <h1 style="text-align:center;color:#1a3552;margin-top:24px;margin-bottom:18px;">Hydravions</h1>
     <div style="display:flex;justify-content:center;margin-bottom:24px;">
-        <img src="https://lh5.googleusercontent.com/vEKs1baNeQFwmIxDEOSeMvjcsIXDChhuB2YV4vuuz5Jpw8HOZvHBF8qzq1UjknDvPWV_uzuTCxv3MDjO4OOmPuqjzYWnitOK8hFQ7nPvPuGm2I6Zq3tC4Cvm2XMV7JM8wo8ee8Bj0zB-VqwJt84gqgThKtDai7VYwOBu0eIFxiDHwNPOQErdWw=w1280" alt="Hydravions Canada" style="max-width:600px;width:100%;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+        <img src="/assets/images/hydravions_1.JPG" alt="Hydravions Canada" style="max-width:600px;width:100%;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
     </div>
     <section style="max-width:700px;margin:0 auto 32px auto;font-size:1.15em;line-height:1.6;background:#f7fbff;padding:24px;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
         <h2 style="color:#1a3552;">Une balade en hydravions !</h2>
         <p>Traversons le Canada dans toute sa largeur à bord d'hydravions, plus ou moins gros, plus ou moins vieux !<br><br>
         Nous allons profiter de toute la richesse hydrographique de ce grand pays !</p>
         <div style="text-align:center;margin:18px 0;">
-            <img src="https://lh5.googleusercontent.com/KXUiJdIL1oKBD3eTpAiuoj8QUavZlpjbORFFyZAtBG5Tn0tujPZG_3l9b_bNak7wN1PJS4ws9Czi3mNuJK25pMG0foYuFLBWTvbvB6ZOcPdCR_ByXA-435fRmO2yhaC7VtRkAM0ALsQn9URTmA5_s-rjh9sML_n2bND-MVgb48NDtyAEhF0hTA=w1280" alt="Hydrographie Canada" style="max-width:500px;width:100%;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+            <iframe src="https://www.google.com/maps/d/embed?mid=1ZEXVuAhNKBcZhTkN2gUL6l9u3_MH_YM&ehbc=2E312F" width="640" height="480"></iframe>
         </div>
     </section>
     <section style="max-width:700px;margin:0 auto 32px auto;background:#fff;padding:24px;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,0.04);">

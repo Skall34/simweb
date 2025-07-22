@@ -22,18 +22,17 @@ try {
     // Ignore erreur
 }
 
-// Requête avec jointure sur FLEET_TYPE et PILOTES, filtre possible
 
+// Nouvelle requête : on récupère tous les appareils (actifs et inactifs)
 $sql = "SELECT f.id, ft.fleet_type AS type_libelle, ft.type AS categorie, f.immat, f.localisation, f.hub, f.status, f.etat,
                p.callsign AS pilote_callsign, f.fuel_restant, f.compteur_immo, f.en_vol, f.nb_maintenance,
-               f.date_achat, f.recettes, f.nb_annees_credit, f.taux_percent, f.remboursement, f.traite_payee_cumulee, f.reste_a_payer, f.recette_vente, f.date_vente
+               f.date_achat, f.recettes, f.nb_annees_credit, f.taux_percent, f.remboursement, f.traite_payee_cumulee, f.reste_a_payer, f.recette_vente, f.date_vente, f.actif
         FROM FLOTTE f
         LEFT JOIN FLEET_TYPE ft ON f.fleet_type = ft.id
         LEFT JOIN PILOTES p ON f.dernier_utilisateur = p.id
-        WHERE f.actif = 1";
+        WHERE 1=1";
 
 $params = [];
-
 if ($immatFilter !== '') {
     $sql .= " AND f.immat LIKE :immat";
     $params['immat'] = '%' . $immatFilter . '%';
@@ -42,9 +41,7 @@ if ($fleetTypeFilter !== '') {
     $sql .= " AND ft.fleet_type = :fleet_type";
     $params['fleet_type'] = $fleetTypeFilter;
 }
-
 $sql .= " ORDER BY f.immat";
-
 
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
@@ -127,26 +124,6 @@ include __DIR__ . '/../includes/menu_logged.php';
                 <tbody>
                     <?php foreach ($fleet as $avion):
                         $avionId = $avion['id'];
-                        // Préparer les détails FLOTTE
-                        $details = [
-                            'Immatriculation' => $avion['immat'],
-                            'Fleet_type' => $avion['type_libelle'],
-                            'Catégorie' => $avion['categorie'],
-                            'Localisation' => $avion['localisation'],
-                            'Hub de rattachement' => $avion['hub'],
-                            'Statut' => match((int)($avion['status'] ?? 0)) {
-                                0 => 'OK',
-                                1 => 'En maintenance',
-                                2 => 'Crash',
-                                default => $avion['status']
-                            },
-                            'État' => $avion['etat'],
-                            'Dernier utilisateur' => $avion['pilote_callsign'] ?? 'N/A',
-                            'Carburant restant' => $avion['fuel_restant'],
-                            'Compteur Immo' => $avion['compteur_immo'],
-                            'En vol' => $avion['en_vol'],
-                            'Nombre maintenance' => $avion['nb_maintenance'],
-                        ];
                         // Préparer les détails FLOTTE (inclut les champs financiers)
                         $details = [
                             'Immatriculation' => $avion['immat'],
@@ -173,22 +150,32 @@ include __DIR__ . '/../includes/menu_logged.php';
                             'Date vente' => empty($avion['date_vente'] ?? '') ? 'N/A' : ($avion['date_vente'] ?? ''),
                         ];
                         $details_json = htmlspecialchars(json_encode($details), ENT_QUOTES, 'UTF-8');
+                        $rowClass = 'fleet-row';
+                        if (isset($avion['actif']) && !$avion['actif']) {
+                            $rowClass .= ' fleet-row-inactive';
+                        }
                     ?>
-                        <tr class="fleet-row" data-details="<?= $details_json ?>">
+                        <tr class="<?= $rowClass ?>" data-details="<?= $details_json ?>">
                             <td class="immat"><?= htmlspecialchars($avion['immat'] ?? '') ?></td>
                             <td class="fleet_type"><?= htmlspecialchars($avion['type_libelle'] ?? '') ?></td>
                             <td class="categorie"><?= htmlspecialchars($avion['categorie'] ?? '') ?></td>
                             <td class="localisation"><?= htmlspecialchars($avion['localisation'] ?? '') ?></td>
                             <td class="hub"><?= htmlspecialchars($avion['hub'] ?? '') ?></td>
-                            <td class="status"><?php
-                                $statusVal = (int)($avion['status'] ?? 0);
-                                echo match($statusVal) {
-                                    0 => 'OK',
-                                    1 => 'En maintenance',
-                                    2 => 'Crash',
-                                    default => htmlspecialchars($avion['status'] ?? '')
-                                };
-                            ?></td>
+                            <td class="status">
+                                <?php
+                                if (isset($avion['actif']) && !$avion['actif']) {
+                                    echo 'Vendu';
+                                } else {
+                                    $statusVal = (int)($avion['status'] ?? 0);
+                                    echo match($statusVal) {
+                                        0 => 'OK',
+                                        1 => 'En maintenance',
+                                        2 => 'Crash',
+                                        default => htmlspecialchars($avion['status'] ?? '')
+                                    };
+                                }
+                                ?>
+                            </td>
                             <td class="etat"><?= htmlspecialchars($avion['etat'] ?? '') ?></td>
                             <td class="pilote"><?= htmlspecialchars(($avion['pilote_callsign'] ?? 'N/A') ?: '') ?></td>
                             <td class="fuel"><?= htmlspecialchars($avion['fuel_restant'] ?? '') ?></td>
@@ -211,6 +198,10 @@ include __DIR__ . '/../includes/menu_logged.php';
             </div>
         </div>
         <style>
+        .fleet-row-inactive td {
+            color: #b0b0b0 !important;
+            background: #f6f6f6 !important;
+        }
             .table-skywings th, .table-skywings td {
                 padding: 4px 6px;
                 font-size: 14px;
