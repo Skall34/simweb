@@ -98,6 +98,12 @@ try {
         $erreurs[] = "Note du vol invalide ($note) pour le vol";
     }
 
+    // Contrôle carburant nul (fuel_dep, fuel_arr, conso à 0)
+    $conso = $departure_fuel - $arrival_fuel;
+    if ($departure_fuel == 0 || $arrival_fuel == 0 || $conso == 0) {
+        $erreurs[] = "Vol rejeté automatiquement : carburant départ, arrivée et consommation à 0";
+    }
+
     // Vérification du pilote
     $stmtPilote = $pdo->prepare("SELECT id FROM PILOTES WHERE callsign = :callsign");
     $stmtPilote->execute(['callsign' => $callsign]);
@@ -188,7 +194,7 @@ try {
     // Mise à jour de la balance commerciale via fonction dédiée
     logMsg("Ajout recette dans finances_recettes : cout_vol=$cout_vol, vol_id=$vol_id", $logFile);
     $commentaire = "Vol importé depuis ACARS : $departure_icao -> $arrival_icao, pilote: $callsign, immat: $immat";
-    mettreAJourRecettes($cout_vol, $vol_id, $immat, $callsign, 'vol', $commentaire);
+    mettreAJourRecettes($cout_vol, $vol_id, $immat, $callsign, 'vol', 'Recette vol ACARS');
 
     // 7. Usure
     logMsg("Usure avion $immat, note=$note", $logFile);

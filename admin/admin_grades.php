@@ -60,7 +60,7 @@ $stmt = $pdo->query('SELECT id, nom, description, taux_horaire FROM GRADES ORDER
 $grades = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <main>
-    <div class="container" style="max-width:800px;margin:40px 0 40px 0;background:#fff;padding:32px;border-radius:12px;box-shadow:0 2px 16px rgba(0,0,0,0.08);">
+    <div class="container" style="max-width:1100px;margin:40px 0 40px 0;background:#fff;padding:32px;border-radius:12px;box-shadow:0 2px 16px rgba(0,0,0,0.08);">
         <h2 style="text-align:left;color:#1a3552;margin-bottom:28px;">Administration des grades</h2>
         <?php if ($message): ?>
             <div style="margin-bottom:18px;color:#1a3552;background:#eaf2fb;padding:10px 16px;border-radius:6px;">
@@ -74,7 +74,7 @@ $grades = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <input type="number" step="0.01" name="taux_horaire" placeholder="Taux horaire (€)" required style="padding:8px 10px;border-radius:4px;border:1px solid #bbb;width:120px;">
             <button type="submit" style="padding:8px 18px;background:#1a3552;color:#fff;border:none;border-radius:4px;">Ajouter</button>
         </form>
-        <table class="grades-table-gauche" style="width:100%;border-collapse:collapse;font-size:1.08em;margin-left:0;">
+        <table class="grades-table-gauche" style="min-width:1000px;width:100%;border-collapse:collapse;font-size:1.08em;margin-left:0;table-layout:auto;">
             <thead>
                 <tr style="background:#eaf2fb;">
                     <th style="padding:10px 8px;text-align:left;">Grade</th>

@@ -103,18 +103,18 @@ include __DIR__ . '/../includes/menu_logged.php';
         <table class="table-skywings table-header-fixed-fleet">
             <thead>
                 <tr>
-                    <th class="immat">Immatriculation</th>
-                    <th class="fleet_type">Fleet_type</th>
-                    <th class="categorie">Catégorie</th>
-                    <th class="localisation">Localisation</th>
-                    <th class="hub">Hub de rattachement</th>
-                    <th class="status">Statut</th>
-                    <th class="etat">État</th>
-                    <th class="pilote">Dernier utilisateur</th>
-                    <th class="fuel">Carburant restant</th>
-                    <th class="compteur">Compteur Immo</th>
-                    <th class="envol">En vol</th>
-                    <th class="maintenance">Nombre maintenance</th>
+                    <th class="immat" style="width:98px;">Immatriculation</th>
+                    <th class="fleet_type" style="width:98px;">Fleet_type</th>
+                    <th class="categorie" style="width:80px;">Catégorie</th>
+                    <th class="localisation" style="width:80px;">Localisation</th>
+                    <th class="hub" style="width:80px;">Hub de rattachement</th>
+                    <th class="status" style="width:70px;">Statut</th>
+                    <th class="etat" style="width:70px;">État</th>
+                    <th class="pilote" style="width:90px;">Dernier utilisateur</th>
+                    <th class="fuel" style="width:70px;">Carburant restant</th>
+                    <th class="compteur" style="width:70px;">Compteur Immo</th>
+                    <th class="envol" style="width:60px;">En vol</th>
+                    <th class="maintenance" style="width:105px;">Nombre maintenance</th>
                 </tr>
             </thead>
         </table>
@@ -156,12 +156,12 @@ include __DIR__ . '/../includes/menu_logged.php';
                         }
                     ?>
                         <tr class="<?= $rowClass ?>" data-details="<?= $details_json ?>">
-                            <td class="immat"><?= htmlspecialchars($avion['immat'] ?? '') ?></td>
-                            <td class="fleet_type"><?= htmlspecialchars($avion['type_libelle'] ?? '') ?></td>
-                            <td class="categorie"><?= htmlspecialchars($avion['categorie'] ?? '') ?></td>
-                            <td class="localisation"><?= htmlspecialchars($avion['localisation'] ?? '') ?></td>
-                            <td class="hub"><?= htmlspecialchars($avion['hub'] ?? '') ?></td>
-                            <td class="status">
+                            <td class="immat"  style="width:98px;"><?= htmlspecialchars($avion['immat'] ?? '') ?></td>
+                            <td class="fleet_type" style="width:98px;"><?= htmlspecialchars($avion['type_libelle'] ?? '') ?></td>
+                            <td class="categorie" style="width:80px;"><?= htmlspecialchars($avion['categorie'] ?? '') ?></td>
+                            <td class="localisation" style="width:80px;"><?= htmlspecialchars($avion['localisation'] ?? '') ?></td>
+                            <td class="hub" style="width:80px;"><?= htmlspecialchars($avion['hub'] ?? '') ?></td>
+                            <td class="status" style="width:98px;">
                                 <?php
                                 if (isset($avion['actif']) && !$avion['actif']) {
                                     echo 'Vendu';
@@ -176,12 +176,12 @@ include __DIR__ . '/../includes/menu_logged.php';
                                 }
                                 ?>
                             </td>
-                            <td class="etat"><?= htmlspecialchars($avion['etat'] ?? '') ?></td>
-                            <td class="pilote"><?= htmlspecialchars(($avion['pilote_callsign'] ?? 'N/A') ?: '') ?></td>
-                            <td class="fuel"><?= htmlspecialchars($avion['fuel_restant'] ?? '') ?></td>
-                            <td class="compteur"><?= htmlspecialchars($avion['compteur_immo'] ?? '') ?></td>
-                            <td class="envol"><?= htmlspecialchars($avion['en_vol'] ?? '') ?></td>
-                            <td class="maintenance"><?= htmlspecialchars($avion['nb_maintenance'] ?? '') ?></td>
+                            <td class="etat" style="width:98px;"><?= htmlspecialchars($avion['etat'] ?? '') ?></td>
+                            <td class="pilote" style="width:98px;"><?= htmlspecialchars(($avion['pilote_callsign'] ?? 'N/A') ?: '') ?></td>
+                            <td class="fuel" style="width:98px;"><?= htmlspecialchars($avion['fuel_restant'] ?? '') ?></td>
+                            <td class="compteur" style="width:98px;"><?= htmlspecialchars($avion['compteur_immo'] ?? '') ?></td>
+                            <td class="envol" style="width:98px;"><?= htmlspecialchars($avion['en_vol'] ?? '') ?></td>
+                            <td class="maintenance" style="width:98px;"><?= htmlspecialchars($avion['nb_maintenance'] ?? '') ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>

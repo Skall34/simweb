@@ -70,7 +70,7 @@ include __DIR__ . '/../includes/menu_logged.php';
 
 // Récupérer la liste des appareils actifs avec infos financières
 try {
-    $stmt = $pdo->query("SELECT id, immat, type, localisation, hub, fleet_type, reste_a_payer, date_achat, date_vente, recette_vente, recettes, nb_annees_credit FROM FLOTTE WHERE actif = 1 ORDER BY immat");
+    $stmt = $pdo->query("SELECT id, immat, localisation, hub, fleet_type, reste_a_payer, date_achat, date_vente, recette_vente, recettes, nb_annees_credit FROM FLOTTE WHERE actif = 1 ORDER BY immat");
     $flotte_raw = $stmt->fetchAll(PDO::FETCH_ASSOC);
     $flotte = [];
     foreach ($flotte_raw as $avion) {
