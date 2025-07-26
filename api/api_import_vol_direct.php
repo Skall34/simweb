@@ -84,6 +84,8 @@ $note = intval($data['note_du_vol']);
 $commentaire = isset($data['commentaire']) ? trim($data['commentaire']) : '';
 $mission = trim($data['mission']);
 $horodateur = date("Y-m-d H:i:s");
+$tracegps = isset($data['tracegps']) ? trim($data['tracegps']) : '';
+
 
 // Harmonisation avec importer_vol.php :
 try {
@@ -183,6 +185,14 @@ try {
     logMsg("Ajout au carnet de vol : callsign=$callsign, immat=$immat, depart=$departure_icao, dest=$arrival_icao, payload=$payload, cout_vol=$cout_vol", $logFile);
     $vol_id = remplirCarnetVolGeneral($horodateur, $callsign, $immat, $departure_icao, $arrival_icao, $departure_fuel, $arrival_fuel, $payload, $departure_time, $arrival_time, $mission, $commentaire, $note, $cout_vol, $temps_vol, $logFile);
 
+    // 5.1 Ajout de la trace GPS si fournie
+    if (empty($tracegps)) {
+        $tracegps = "Aucune trace GPS fournie pour le vol $vol_id";
+    }else{    
+        logMsg("Ajout de la trace GPS ajoutée pour le vol ID $vol_id", $logFile);
+        ajouterTraceGPS($vol_id, $tracegps, $logFile);
+    }
+    
     // 6. Mise à jour de la flotte
     logMsg("Mise à jour flotte : immat=$immat, fuel=$arrival_fuel, callsign=$callsign, localisation=$arrival_icao", $logFile);
     mettreAJourFlotte($immat, $arrival_fuel, $callsign, $arrival_icao, $logFile);

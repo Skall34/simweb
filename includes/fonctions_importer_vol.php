@@ -231,6 +231,33 @@ function remplirCarnetVolGeneral(
 }
 
 /**
+ * Ajoute une trace GPS dans la table TRACE_GPS.
+ * @param int $vol_id ID du vol dans CARNET_DE_VOL_GENERAL
+ * @param string $tracegps Trace GPS au format JSON
+ * @return void
+ */
+function ajouterTraceGPS($vol_id, $tracegps, $logFile = null) {
+    global $pdo;
+    if ($logFile === null) {
+        $logFile = dirname(__DIR__) . '/scripts/logs/import_vol.log';
+    }
+    logMsg("Ajout trace GPS pour vol_id=$vol_id", $logFile);
+
+    if (!$vol_id || !$tracegps) {
+        error_log("⚠ Paramètres manquants dans ajouterTraceGPS: vol_id=$vol_id, tracegps=$tracegps");
+        return; 
+    }
+    $stmt = $pdo->prepare("INSERT INTO TRACE_GPS (id, path) VALUES (:vol_id, :tracegps)");
+    try {
+        $stmt->execute(['vol_id' => $vol_id, 'tracegps' => $tracegps]);
+        logMsg("Trace GPS ajoutée pour vol_id=$vol_id", $logFile);
+    } catch (PDOException $e) {
+        error_log("❌ ERREUR SQL dans ajouterTraceGPS: " . $e->getMessage());
+        throw $e;
+    }
+}
+
+/**
  * Met à jour les recettes de l'appareil dans la table FLOTTE.
  * @param string $immat Immatriculation de l'appareil
  * @param float $cout_vol Revenu net du vol à ajouter
