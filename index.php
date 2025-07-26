@@ -177,6 +177,7 @@ if (!isset($_SESSION['user'])) {
 
                 // Stockage des marqueurs pour pouvoir les supprimer lors du rafraîchissement
                 var flightMarkers = [];
+                var flightSegments = [];
 
                 // Fonction pour ajouter un marqueur
                 function addMarker(lat, lon, callsign) {
@@ -193,12 +194,26 @@ if (!isset($_SESSION['user'])) {
                     flightMarkers = [];
                 }
 
+                function addSegment(latlngs, color = 'blue') {
+                    var segment = L.polyline(latlngs, { color: color }).addTo(map);
+                    flightSegments.push(segment);
+
+                }
+
+                function clearSegments() {
+                    flightSegments.forEach(function(segment) {
+                        map.removeLayer(segment);
+                    });
+                    flightSegments = [];
+                }
+
                 // Fonction pour charger et afficher les vols en cours sur la carte
                 function updateLiveFlightsMap() {
                     fetch('api/api_live_flights.php')
                         .then(response => response.json())
                         .then(data => {
                             clearMarkers();
+                            clearSegments(); // Supprimer les segments précédents
                             data.forEach(flight => {
                                 addMarker(flight.latitude, flight.longitude, flight.callsign);
                                 // Si les aéroports de départ et d'arrivée sont disponibles, trace une ligne entre eux
@@ -208,7 +223,7 @@ if (!isset($_SESSION['user'])) {
                                         [flight.lat_dep, flight.long_dep],
                                         [flight.lat_arr, flight.long_arr]
                                     ];
-                                    L.polyline(latlngs, { color: 'blue' }).addTo(map);
+                                    addSegment(latlngs, 'red'); // Ligne rouge pour le segment de vol
                                 }else {
                                     console.log(`Aéroports non disponibles pour le vol ${flight.callsign}`);
                                 }
