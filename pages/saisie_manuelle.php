@@ -10,7 +10,7 @@ $stmt = $pdo->query("SELECT callsign FROM PILOTES ORDER BY callsign");
 $callsigns = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
 $stmt = $pdo->query("SELECT libelle FROM MISSIONS ORDER BY libelle");
-$missions = $stmt->fetchAll(PDO::FETCH_COLUMN);
+$missionslist = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
 // Récupérer les immatriculations actives
 $stmt = $pdo->query("SELECT immat FROM FLOTTE WHERE actif = 1 ORDER BY immat");
@@ -185,7 +185,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                 <label for="mission">Mission</label>
                 <select name="mission" id="mission" required>
                     <option value="">-- Sélectionner --</option>
-                    <?php foreach ($missions as $m): ?>
+                    <?php foreach ($missionslist as $m): ?>
                         <option value="<?= htmlspecialchars($m) ?>" <?= ($form['mission'] === $m) ? 'selected' : '' ?>>
                             <?= htmlspecialchars($m) ?>
                         </option>
