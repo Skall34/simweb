@@ -4,6 +4,4 @@ scripts/
 scripts/logs/
 *.log
 sauvegarde_migration/
-*.php
 *.txt
-*.sql

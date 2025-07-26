@@ -143,6 +143,8 @@ if (!isset($_SESSION['user'])) {
                 $end = strtotime($vol['heure_arrivee']);
                 $duration = $end && $start ? gmdate("H:i", $end - $start) : "N/A";
                 $date_formatee = date("d-m-Y", strtotime($vol['date_vol']));
+                $latitude = isset($vol['latitude']) ? $vol['latitude'] : 'N/A';
+                $longitude = isset($vol['longitude']) ? $vol['longitude'] : 'N/A';               
             ?>
                 <tr>
                     <td><?= $date_formatee ?></td>
@@ -154,11 +156,62 @@ if (!isset($_SESSION['user'])) {
                 </tr>
             <?php endforeach; ?>
         </tbody>
+       
     </table>
 
+            <!--affiche une carte openstreetmap avec les vols en cours-->
+            <h2>Carte des vols en cours</h2>
+            <div id="map" style="width: 100%; height: 400px;"></div>
+            <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+            <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
-    
+            <script>
+                // Initialisation de la carte
+                var map = L.map('map').setView([48.8566, 2.3522], 5); // Vue centrée sur Paris
 
+                // Ajout de la couche OpenStreetMap
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(map);
+
+                // Stockage des marqueurs pour pouvoir les supprimer lors du rafraîchissement
+                var flightMarkers = [];
+
+                // Fonction pour ajouter un marqueur
+                function addMarker(lat, lon, callsign) {
+                    var marker = L.marker([lat, lon]).addTo(map)
+                        .bindPopup(callsign);
+                    flightMarkers.push(marker);
+                }
+
+                // Fonction pour supprimer tous les marqueurs existants
+                function clearMarkers() {
+                    flightMarkers.forEach(function(marker) {
+                        map.removeLayer(marker);
+                    });
+                    flightMarkers = [];
+                }
+
+                // Fonction pour charger et afficher les vols en cours sur la carte
+                function updateLiveFlightsMap() {
+                    fetch('api/api_live_flights.php')
+                        .then(response => response.json())
+                        .then(data => {
+                            clearMarkers();
+                            data.forEach(flight => {
+                                addMarker(flight.latitude, flight.longitude, flight.callsign);
+                            });
+                        })
+                        .catch(error => console.error('Erreur lors du chargement des vols :', error));
+                }
+
+                // Chargement initial
+                updateLiveFlightsMap();
+
+                // Rafraîchissement toutes les 30 secondes
+                setInterval(updateLiveFlightsMap, 30000);
+            </script>          
     <?php } ?>
 
     <script>
@@ -177,8 +230,8 @@ if (!isset($_SESSION['user'])) {
     // Chargement initial
     chargerVolsEnCours();
 
-    // Rafraîchissement toutes les 20 secondes
-    setInterval(chargerVolsEnCours, 20000);
+    // Rafraîchissement toutes les 30 secondes
+    setInterval(chargerVolsEnCours, 30000);
     </script>
 
 </main>
