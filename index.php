@@ -201,6 +201,17 @@ if (!isset($_SESSION['user'])) {
                             clearMarkers();
                             data.forEach(flight => {
                                 addMarker(flight.latitude, flight.longitude, flight.callsign);
+                                // Si les aéroports de départ et d'arrivée sont disponibles, trace une ligne entre eux
+                                if (flight.lat_dep && flight.long_dep && flight.lat_arr && flight.long_arr) {
+                                    // Tracer une ligne entre les aéroports de départ et d'arrivée
+                                    var latlngs = [
+                                        [flight.lat_dep, flight.long_dep],
+                                        [flight.lat_arr, flight.long_arr]
+                                    ];
+                                    L.polyline(latlngs, { color: 'blue' }).addTo(map);
+                                }else {
+                                    console.log(`Aéroports non disponibles pour le vol ${flight.callsign}`);
+                                }
                             });
                         })
                         .catch(error => console.error('Erreur lors du chargement des vols :', error));
