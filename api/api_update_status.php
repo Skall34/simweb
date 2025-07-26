@@ -23,7 +23,7 @@ $data = $_POST;
 
 // Champs obligatoires
 $required = [
-    'callsign', 'plane', 'departure_icao', 'flying'
+    'callsign', 'plane', 'departure_icao', 'flying', 'latitude','longitude'
 ];
 
 // Vérification des champs requis
@@ -41,25 +41,31 @@ $immat = trim($data['plane']);
 $departure_icao = strtoupper(trim($data['departure_icao']));
 $arrival_icao = strtoupper(trim($data['arrival_icao']));
 $flying = intval($data['flying']);
+$latitude = doubleval($data['latitude']);
+$longitude = doubleval($data['longitude']);
 
 // Insertion en base
 try {
     if ($flying == 1) {
         $stmt = $pdo->prepare("INSERT INTO Live_FLIGHTS (
-            Callsign, ICAO_Dep, ICAO_Arr, Avion
+            Callsign, ICAO_Dep, ICAO_Arr, Avion, Latitude, Longitude
         ) VALUES (
-            :Callsign, :ICAO_Dep, :ICAO_Arr, :Avion
+            :Callsign, :ICAO_Dep, :ICAO_Arr, :Avion, :Latitude, :Longitude
         )
         ON DUPLICATE KEY UPDATE
             ICAO_Dep = VALUES(ICAO_Dep),
             ICAO_Arr = VALUES(ICAO_Arr),
-            Avion = VALUES(Avion)");
+            Avion = VALUES(Avion),
+            Latitude = VALUES(Latitude),
+            Longitude = VALUES(Longitude)");
 
         $stmt->execute([
             'Callsign'  => $callsign,
             'ICAO_Dep'  => $departure_icao,
             'ICAO_Arr'  => $arrival_icao,
             'Avion'     => $immat,
+            'Latitude'  => $latitude,
+            'Longitude' => $longitude
         ]);
     } else {
         $stmt = $pdo->prepare("DELETE FROM Live_FLIGHTS WHERE Callsign = :cs");
@@ -68,7 +74,7 @@ try {
         ]);
     }
 
-    echo json_encode(['status' => 'success', 'message' => '✅ status mis à jour avec succès']);
+    echo json_encode(['status' => 'success', 'message' => '✅ status mis à jour avec succès Latitude: ' . $latitude . ', Longitude: ' . $longitude]);
 } catch (PDOException $e) {
     http_response_code(500); // Erreur serveur
     echo json_encode(['status' => 'error', 'message' => '❌ Erreur SQL : ' . $e->getMessage()]);
