@@ -274,53 +274,21 @@ document.addEventListener('DOMContentLoaded', function() {
     // Gestion du popup détails vol (modèle tableau_vols.php)
     document.querySelectorAll('.vol-row').forEach(function(row) {
         row.addEventListener('click', function() {
-            const details = JSON.parse(this.getAttribute('data-details'));
-            let html = '<table style="width:100%;border=1;border-collapse:collapse;">';
-            //for (const key in details) {
-            //    html += '<tr><td style="font-weight:bold;padding:4px 8px;color:#0d47a1;">' + key + '</td><td style="padding:4px 8px;">' + (details[key] ?? '') + '</td></tr>';
-            //}
-            //table de 2 lignes : la premiere ligne contient a gauche les infos du vol et a droite une map (placeholder)
-            //la seconde ligne contient le Pirep
-
-            html+='<tr><td>';
-            html+=  '<table>';
-            html+=    '<tr><td style="font-weight:bold;padding:4px 8px;color:#0d47a1;">' + 'Date vol' + '</td><td style="padding:4px 8px;">' + (details["Date vol"] ?? '') + '</td></tr>';
-            html+=    '<tr><td style="font-weight:bold;padding:4px 8px;color:#0d47a1;">' + 'Immat'    + '</td><td style="padding:4px 8px;">' + (details["Immat"] ?? '') + '</td></tr>';
-           
-            html+=    '<tr><td style="font-weight:bold;padding:4px 8px;color:#0d47a1;">' + 'Aéroport' + '</td><td style="padding:4px 8px;">';
-            html+=       '<table>';
-            html+=          '<tr><td style="font-weight:bold;padding:4px 8px;color:#0d47a1;">Départ</td><td>'+ (details["Départ"] ?? '') + '</td></tr>';
-            html+=          '<tr><td style="font-weight:bold;padding:4px 8px;color:#0d47a1;">Destination</td><td>' + (details["Destination"] ?? '')+ '</td></tr>' ;
-            html+=        '</table>';
-            html+=    '</td></tr>';
-            
-            html+=    '<tr><td style="font-weight:bold;padding:4px 8px;color:#0d47a1;">' + 'Fuel' + '</td><td style="padding:4px 8px;">';
-            html+=         '<table>';
-            html+=           '<tr><td style="font-weight:bold;padding:4px 8px;color:#0d47a1;">Départ</td><td>' + (details["Fuel départ"] ?? '') + '</td></tr>';
-            html+=           '<tr><td style="font-weight:bold;padding:4px 8px;color:#0d47a1;">Arrivée</td><td>' + (details["Fuel arrivée"] ?? '') + '</td></tr>';
-            html+=         '</table>';
-            html+=     '</td></tr>';
-
-            html+=    '<tr><td style="font-weight:bold;padding:4px 8px;color:#0d47a1;">' + 'Heures' + '</td><td style="padding:4px 8px;">';
-            html+=         '<table>';
-            html+=           '<tr><td style="font-weight:bold;padding:4px 8px;color:#0d47a1;">Départ</td><td>' + (details["Heure départ"] ?? '') + '</td></tr>';
-            html+=           '<tr><td style="font-weight:bold;padding:4px 8px;color:#0d47a1;">Arrivée</td><td>' + (details["Heure arrivée"] ?? '') + '</td></tr>';
-            html+=         '</table>';
-            html+=     '</td></tr>';
-
-            html+=     '<tr><td style="font-weight:bold;padding:4px 8px;color:#0d47a1;">' + 'Conso' + '</td><td style="padding:4px 8px;">' + (details["Conso"] ?? '') + '</td></tr>';
-            html+=     '<tr><td style="font-weight:bold;padding:4px 8px;color:#0d47a1;">' + 'Payload' + '</td><td style="padding:4px 8px;">' + (details["Payload"] ?? '') + '</td></tr>';
-            html+=     '<tr><td style="font-weight:bold;padding:4px 8px;color:#0d47a1;">' + 'Recette du vol' + '</td><td style="padding:4px 8px;">' + (details["Recette du vol"] ?? '') + '</td></tr>';
-            html+=     '<tr><td style="font-weight:bold;padding:4px 8px;color:#0d47a1;">' + 'Mission' + '</td><td style="padding:4px 8px;">' + (details["Mission"] ?? '') + '</td></tr>';
-            html+=   '</table>';
-            html+= '</td>';
-            html+='<td><div style="width: 100%; height: 400px;">map placeholder</div></td>';
-            html+='</tr>';
-
-            html+='<tr><td style="font-weight:bold;padding:4px 8px;color:#0d47a1;">' + 'Pirep' + '</td><td style="padding:4px 8px;">' + (details["Pirep"] ?? '') + '</td></tr>';           
-            html+= '</table>';
-            document.getElementById('vol-modal-body').innerHTML = html;
-            document.getElementById('vol-modal').style.display = 'flex';
+            const details = this.getAttribute('data-details');
+            fetch('../includes/flight_details_table.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: 'details=' + encodeURIComponent(details)
+            })
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('vol-modal-body').innerHTML = html;
+                document.getElementById('vol-modal').style.display = 'flex';
+            })
+            .catch(() => {
+                document.getElementById('vol-modal-body').innerHTML = "<p>Erreur lors du chargement des détails du vol.</p>";
+                document.getElementById('vol-modal').style.display = 'flex';
+            });
         });
     });
     document.getElementById('vol-modal-close').onclick = function() {
