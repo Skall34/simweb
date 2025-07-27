@@ -72,6 +72,8 @@ include __DIR__ . '/../includes/menu_logged.php';
 ?>
 
 <main>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <h2>Mes vols</h2>
     <form method="get" action="flights.php" style="margin-bottom:12px;">
         <label for="immat">Filtrer par immatriculation:</label>
@@ -172,12 +174,21 @@ include __DIR__ . '/../includes/menu_logged.php';
         </div>
         <!-- Popup modale pour détails du vol -->
         <div id="vol-modal" class="vol-modal" style="display:none;">
-            <div class="vol-modal-content">
+            <div class="vol-modal-content" >
                 <span class="vol-modal-close" id="vol-modal-close">&times;</span>
                 <h3>Détails du vol</h3>
-                <div id="vol-modal-body">
-                    <!-- Les détails du vol seront injectés ici -->
-                </div>
+                <table style="width:100%;border-collapse:collapse;">
+                    <tr>
+                        <td style="width: 30%; padding: 0; margin: 0; border: 0; vertical-align: top;">
+                            <div id="vol-modal-body" >
+                            <!-- Les détails du vol seront injectés ici -->
+                            </div>
+                        </td>
+                        <td style="width: 70%; padding: 0; margin: 0; border: 0; vertical-align: middle;">
+                            <div id="map" style="width: 100%; height: 400px;"></div>
+                        </td>
+                    </tr>
+                </table>
             </div>
         </div>
     <?php endif; ?>
@@ -261,6 +272,8 @@ include __DIR__ . '/../includes/menu_logged.php';
 </style>
 
 <script>
+var map;
+
 // Synchronisation du scroll horizontal de l'en-tête (modèle tableau_vols.php)
 document.addEventListener('DOMContentLoaded', function() {
     var scrollWrapper = document.querySelector('.table-scroll-wrapper');
@@ -275,6 +288,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.vol-row').forEach(function(row) {
         row.addEventListener('click', function() {
             const details = this.getAttribute('data-details');
+            const detailsObj = JSON.parse(details);
             fetch('../includes/flight_details_table.php', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'},
@@ -284,8 +298,63 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(html => {
                 document.getElementById('vol-modal-body').innerHTML = html;
                 document.getElementById('vol-modal').style.display = 'flex';
+                // Initialize the map with OpenStreetMap
+                if (window.map) {
+                    window.map.remove();
+                }
+                // Utilise un id unique pour la div de la carte
+                var mapDiv = document.getElementById('map');
+                if (!mapDiv) return;
+
+                // Centrage par défaut
+                var lat = 48.8566, lng = 2.3522, zoom = 8;
+                // Si tu as stocké la position du vol dans detailsObj, utilise-les
+                if (detailsObj.Latitude && detailsObj.Longitude) {
+                    lat = detailsObj.Latitude;
+                    lng = detailsObj.Longitude;
+                }
+                window.map = L.map(mapDiv).setView([lat, lng], zoom);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(window.map);
+
+                // Ajout du marker de position (optionnel)
+                L.marker([lat, lng]).addTo(window.map)
+                    .bindPopup('Position du vol')
+                    .openPopup();
+
+                // Récupération et affichage du tracé GPS
+                if (detailsObj['ID vol']) {
+                    fetch('../api/api_getGPSTrace.php?vol_id=' + encodeURIComponent(detailsObj['ID vol']))
+                        .then(resp => resp.json())
+                        .then(data => {
+                            if (data.path) {
+                                let trace = [];
+                                try {
+                                    trace = JSON.parse(data.path);
+                                } catch (e) {
+                                    console.error('Erreur de parsing du tracé GPS:', e);
+                                    return;
+                                }
+                                if (Array.isArray(trace) && trace.length > 0) {
+                                    // Conversion en tableau de [lat, lng]
+                                    const latlngs = trace.map(pt => [parseFloat(pt.Lat), parseFloat(pt.Long)]);
+                                    // Affiche le tracé sur la carte
+                                    L.polyline(latlngs, {color: 'red', weight: 3}).addTo(window.map);
+                                    // Ajuste la vue sur le tracé
+                                    window.map.fitBounds(latlngs);
+                                }
+                            }
+                        })
+                        .catch(e => {
+                            console.error('Erreur lors du chargement du tracé GPS:', e);
+                        });
+                }
             })
-            .catch(() => {
+            .catch((e) => {
+                // Handle error if details cannot be loaded
+                console.error('Erreur lors du chargement des détails du vol.'+ e);
+
                 document.getElementById('vol-modal-body').innerHTML = "<p>Erreur lors du chargement des détails du vol.</p>";
                 document.getElementById('vol-modal').style.display = 'flex';
             });

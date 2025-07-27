@@ -12,6 +12,7 @@ $immatFilter = isset($_GET['immat']) ? trim($_GET['immat']) : '';
 try {
     $sql = "
     SELECT 
+      cdvg.id AS id_vol,
       cdvg.date_vol,
       p.callsign,
       f.immat,
@@ -67,6 +68,8 @@ try {
 
 
 <main>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <h2>Liste des vols</h2>
 
     <!-- Formulaire de filtre -->
@@ -118,6 +121,7 @@ try {
                 $date_formatee = date("d-m-Y", strtotime($vol['date_vol']));
                 // Préparer les données pour le popup (JSON encodé, puis échappé)
                 $details = [
+                    'ID vol' => $vol['id_vol'],
                     'Date vol' => $date_formatee,
                     'Callsign' => $vol['callsign'],
                     'Immat' => $vol['immat'],
@@ -160,20 +164,30 @@ try {
                 </tr>
                 <?php endforeach; ?>
                 </div>
-                <!-- Popup modale pour détails du vol -->
-                <div id="vol-modal" class="vol-modal" style="display:none;">
-                    <div class="vol-modal-content">
-                        <span class="vol-modal-close" id="vol-modal-close">&times;</span>
-                        <h3>Détails du vol</h3>
-                        <div id="vol-modal-body">
-                            <!-- Les détails du vol seront injectés ici -->
-                        </div>
-                    </div>
-                </div>
             </tbody>
         </table>
         </div>
     </div>
+    <!-- Popup modale pour détails du vol -->
+    <div id="vol-modal" class="vol-modal" style="display:none;">
+        <div class="vol-modal-content" >
+            <span class="vol-modal-close" id="vol-modal-close">&times;</span>
+            <h3>Détails du vol</h3>
+            <table style="width:100%;border-collapse:collapse;">
+                <tr>
+                    <td style="width: 30%; padding: 0; margin: 0; border: 0; vertical-align: top;">
+                        <div id="vol-modal-body" >
+                        <!-- Les détails du vol seront injectés ici -->
+                        </div>
+                    </td>
+                    <td style="width: 70%; padding: 0; margin: 0; border: 0; vertical-align: middle;">
+                        <div id="map" style="width: 100%; height: 400px;"></div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
 </main>
 
 <style>
@@ -264,6 +278,7 @@ try {
 </style>
 
 <script>
+var map;
 
 // Synchronisation du scroll horizontal de l'en-tête
 document.querySelector('.table-scroll-wrapper').addEventListener('scroll', function() {
@@ -274,6 +289,7 @@ document.querySelector('.table-scroll-wrapper').addEventListener('scroll', funct
 document.querySelectorAll('.vol-row').forEach(function(row) {
     row.addEventListener('click', function() {
         const details = this.getAttribute('data-details');
+        const detailsObj = JSON.parse(details);
         fetch('../includes/flight_details_table.php', {
             method: 'POST',
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
@@ -283,8 +299,57 @@ document.querySelectorAll('.vol-row').forEach(function(row) {
         .then(html => {
             document.getElementById('vol-modal-body').innerHTML = html;
             document.getElementById('vol-modal').style.display = 'flex';
+
+            // Initialisation de la carte
+            if (window.map) {
+                window.map.remove();
+            }
+            var mapDiv = document.getElementById('map');
+            if (!mapDiv) return;
+
+            // Centrage par défaut
+            var lat = 48.8566, lng = 2.3522, zoom = 8;
+            if (detailsObj.Latitude && detailsObj.Longitude) {
+                lat = detailsObj.Latitude;
+                lng = detailsObj.Longitude;
+            }
+            window.map = L.map(mapDiv).setView([lat, lng], zoom);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(window.map);
+
+            // Ajout du marker de position (optionnel)
+            L.marker([lat, lng]).addTo(window.map)
+                .bindPopup('Position du vol')
+                .openPopup();
+
+            // Récupération et affichage du tracé GPS
+            if (detailsObj['ID vol']) {
+                fetch('../api/api_getGPSTrace.php?vol_id=' + encodeURIComponent(detailsObj['ID vol']))
+                    .then(resp => resp.json())
+                    .then(data => {
+                        if (data.path) {
+                            let trace = [];
+                            try {
+                                trace = JSON.parse(data.path);
+                            } catch (e) {
+                                console.error('Erreur de parsing du tracé GPS:', e);
+                                return;
+                            }
+                            if (Array.isArray(trace) && trace.length > 0) {
+                                const latlngs = trace.map(pt => [parseFloat(pt.Lat), parseFloat(pt.Long)]);
+                                L.polyline(latlngs, {color: 'red', weight: 3}).addTo(window.map);
+                                window.map.fitBounds(latlngs);
+                            }
+                        }
+                    })
+                    .catch(e => {
+                        console.error('Erreur lors du chargement du tracé GPS:', e);
+                    });
+            }
         })
-        .catch(() => {
+        .catch((e) => {
+            console.error('Erreur lors du chargement des détails du vol.' + e);
             document.getElementById('vol-modal-body').innerHTML = "<p>Erreur lors du chargement des détails du vol.</p>";
             document.getElementById('vol-modal').style.display = 'flex';
         });
