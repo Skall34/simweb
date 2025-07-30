@@ -119,26 +119,44 @@ table.table-skywings {
     box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 
-table.table-skywings thead tr {
-    background-color: #2a4d7a;
+thead.table-skywings {
+    background-color: #0066CC;
     color: #fff;
     font-weight: 700;
     text-align: left;
+    display:block;
+    top:0; 
+}
+
+tbody.table-skywings {
+    width: 100%;
+    display: block;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+table.table-skywings tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
 }
 
 table.table-skywings th,
 table.table-skywings td {
-    border: 1px solid #e0e0e0;
-    padding: 10px 16px;
+    /*border: 1px solid #e0e0e0;*/
+    border:none;
+    /*border: 1px solid #e0e0e0;*/
+    /*padding: 10px 16px;*/
     font-size: 1rem;
     vertical-align: middle;
+    text-align: center;
 }
 
-table.table-skywings tbody tr:nth-child(even) {
+table.table-skywings  tr:nth-child(even) {
     background-color: #f4f6f8;
 }
 
-table.table-skywings tbody tr:hover {
+table.table-skywings tr:hover {
     background-color: #e6f0ff;
     transition: background 0.2s;
 }
@@ -382,39 +400,6 @@ h2 {
   background-color: #003366;
 }
 
-/* TABLEAU */
-table.table-skywings {
-  width: 100%;
-  max-width: 100%;
-  margin: 20px auto;
-  border-collapse: collapse;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  table-layout: fixed;
-  word-wrap: break-word;
-}
-
-table.table-skywings thead tr {
-  background-color: #004080;
-  color: white;
-  font-weight: 700;
-  text-align: left;
-}
-
-table.table-skywings th,
-table.table-skywings td {
-  border: 1px solid #ddd;
-  padding: 8px 10px;
-  font-size: 0.9rem;
-  vertical-align: middle;
-}
-
-table.table-skywings tbody tr:nth-child(even) {
-  background-color: #f9f9f9;
-}
-
-table.table-skywings tbody tr:hover {
-  background-color: #e6f0ff;
-}
 
 /* FOOTER */
 footer {

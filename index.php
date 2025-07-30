@@ -127,7 +127,7 @@ if (!isset($_SESSION['user'])) {
 
     <!-- Tableau des vols -->
     <table class="table-skywings">
-        <thead>
+        <thead class="table-skywings" >
             <tr>
                 <th>Date</th>
                 <th>Callsign</th>

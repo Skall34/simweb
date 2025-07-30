@@ -81,112 +81,91 @@ include __DIR__ . '/../includes/menu_logged.php';
     <?php if (empty($fleet)): ?>
         <p style="font-size:1.25em;color:#0066cc;font-weight:600;background:#f7fbff;padding:18px 0;border-radius:8px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.04);margin:28px 0;">Aucun appareil trouvé.</p>
     <?php else: ?>
-        <style>
-            .table-skywings th, .table-skywings td {
-                padding: 4px 6px;
-                font-size: 14px;
-            }
-            .table-skywings th.immat, .table-skywings td.immat { width: 90px; }
-            .table-skywings th.fleet_type, .table-skywings td.fleet_type { width: 90px; }
-            .table-skywings th.categorie, .table-skywings td.categorie { width: 80px; }
-            .table-skywings th.localisation, .table-skywings td.localisation { width: 80px; }
-            .table-skywings th.hub, .table-skywings td.hub { width: 80px; }
-            .table-skywings th.status, .table-skywings td.status { width: 70px; }
-            .table-skywings th.etat, .table-skywings td.etat { width: 70px; }
-            .table-skywings th.pilote, .table-skywings td.pilote { width: 90px; }
-            .table-skywings th.fuel, .table-skywings td.fuel { width: 70px; }
-            .table-skywings th.compteur, .table-skywings td.compteur { width: 70px; }
-            .table-skywings th.envol, .table-skywings td.envol { width: 50px; }
-            .table-skywings th.maintenance, .table-skywings td.maintenance { width: 70px; }
-        </style>
+
+        <div style="height: 18px;"></div>
         <!-- Tableau d'en-tête fixe -->
-        <table class="table-skywings table-header-fixed-fleet">
-            <thead>
-                <tr>
-                    <th class="immat" style="width:98px;">Immatriculation</th>
-                    <th class="fleet_type" style="width:98px;">Fleet_type</th>
-                    <th class="categorie" style="width:80px;">Catégorie</th>
-                    <th class="localisation" style="width:80px;">Localisation</th>
-                    <th class="hub" style="width:80px;">Hub de rattachement</th>
-                    <th class="status" style="width:70px;">Statut</th>
-                    <th class="etat" style="width:70px;">État</th>
-                    <th class="pilote" style="width:90px;">Dernier utilisateur</th>
-                    <th class="fuel" style="width:70px;">Carburant restant</th>
-                    <th class="compteur" style="width:70px;">Compteur Immo</th>
-                    <th class="envol" style="width:60px;">En vol</th>
-                    <th class="maintenance" style="width:105px;">Nombre maintenance</th>
+        <table class="table-skywings">
+            <thead class="table-skywings">
+                <tr class="table-skywings">
+                    <th style="width:8%;">Immatriculation</th>
+                    <th style="width:8%;">Fleet_type</th>
+                    <th style="width:8%;">Catégorie</th>
+                    <th style="width:8%;">Localisation</th>
+                    <th style="width:8%;">Hub de rattachement</th>
+                    <th style="width:8%;">Statut</th>
+                    <th style="width:8%;">État</th>
+                    <th style="width:8%;">Dernier utilisateur</th>
+                    <th style="width:8%;">Carburant restant</th>
+                    <th style="width:8%;">Compteur Immo</th>
+                    <th style="width:8%;">En vol</th>
+                    <th style="width:8%;">Nombre maintenance</th>
                 </tr>
             </thead>
+            <tbody class="table-skywings">
+                <?php foreach ($fleet as $avion):
+                    $avionId = $avion['id'];
+                    // Préparer les détails FLOTTE (inclut les champs financiers)
+                    $details = [
+                        'Immatriculation' => $avion['immat'],
+                        'Fleet_type' => $avion['type_libelle'],
+                        'Catégorie' => $avion['categorie'],
+                        'Localisation' => $avion['localisation'],
+                        'Hub de rattachement' => $avion['hub'],
+                        'Statut' => $avion['status'],
+                        'État' => $avion['etat'],
+                        'Dernier utilisateur' => $avion['pilote_callsign'] ?? 'N/A',
+                        'Carburant restant' => $avion['fuel_restant'],
+                        'Compteur Immo' => $avion['compteur_immo'],
+                        'En vol' => $avion['en_vol'],
+                        'Nombre maintenance' => $avion['nb_maintenance'],
+                        'Date achat' => (!empty($avion['date_achat'] ?? '') && preg_match('/^\d{4}-\d{2}-\d{2}$/', $avion['date_achat'] ?? '')) ? (implode('-', array_reverse(explode('-', $avion['date_achat']))) ) : ($avion['date_achat'] ?? ''),
+                        'Mode d\'achat' => (isset($avion['mode_achat']) && $avion['mode_achat'] === 'credit') ? 'Crédit' : ((isset($avion['mode_achat']) && $avion['mode_achat'] === 'comptant') ? 'Comptant' : ((isset($avion['nb_annees_credit']) && intval($avion['nb_annees_credit']) > 0) ? 'Crédit' : 'Comptant')),
+                        'Recettes' => ($avion['recettes'] ?? '') . ' €',
+                        'Années crédit' => $avion['nb_annees_credit'] ?? '',
+                        'Taux crédit' => ($avion['taux_percent'] ?? '') . ' %',
+                        'Remboursement' => ($avion['remboursement'] ?? '') . ' €',
+                        'Traite payée cumulée' => ($avion['traite_payee_cumulee'] ?? '') . ' €',
+                        'Reste à payer' => ($avion['reste_a_payer'] ?? '') . ' €',
+                        'Recette vente' => empty($avion['date_vente'] ?? '') ? 'N/A' : (($avion['recette_vente'] ?? '') . ' €'),
+                        'Date vente' => empty($avion['date_vente'] ?? '') ? 'N/A' : ($avion['date_vente'] ?? ''),
+                    ];
+                    $details_json = htmlspecialchars(json_encode($details), ENT_QUOTES, 'UTF-8');
+                    $rowClass = 'fleet-row';
+                    if (isset($avion['actif']) && !$avion['actif']) {
+                        $rowClass .= ' fleet-row-inactive';
+                    }
+                ?>
+                    <tr class="<?= $rowClass ?>" data-details="<?= $details_json ?>">
+                        <td style="width:8%;"><?= htmlspecialchars($avion['immat'] ?? '') ?></td>
+                        <td style="width:8%;"><?= htmlspecialchars($avion['type_libelle'] ?? '') ?></td>
+                        <td style="width:8%;"><?= htmlspecialchars($avion['categorie'] ?? '') ?></td>
+                        <td style="width:8%;"><?= htmlspecialchars($avion['localisation'] ?? '') ?></td>
+                        <td style="width:8%;"><?= htmlspecialchars($avion['hub'] ?? '') ?></td>
+                        <td style="width:8%;">
+                            <?php
+                            if (isset($avion['actif']) && !$avion['actif']) {
+                                echo 'Vendu';
+                            } else {
+                                $statusVal = (int)($avion['status'] ?? 0);
+                                echo match($statusVal) {
+                                    0 => 'OK',
+                                    1 => 'En maintenance',
+                                    2 => 'Crash',
+                                    default => htmlspecialchars($avion['status'] ?? '')
+                                };
+                            }
+                            ?>
+                        </td>
+                        <td style="width:8%;"><?= htmlspecialchars($avion['etat'] ?? '') ?></td>
+                        <td style="width:8%;"><?= htmlspecialchars(($avion['pilote_callsign'] ?? 'N/A') ?: '') ?></td>
+                        <td style="width:8%;"><?= htmlspecialchars($avion['fuel_restant'] ?? '') ?></td>
+                        <td style="width:8%;"><?= htmlspecialchars($avion['compteur_immo'] ?? '') ?></td>
+                        <td style="width:8%;"><?= htmlspecialchars($avion['en_vol'] ?? '') ?></td>
+                        <td style="width:8%;"><?= htmlspecialchars($avion['nb_maintenance'] ?? '') ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
         </table>
-        <!-- Tableau scrollable des données -->
-        <div class="table-scroll-wrapper-fleet">
-            <table class="table-skywings">
-                <tbody>
-                    <?php foreach ($fleet as $avion):
-                        $avionId = $avion['id'];
-                        // Préparer les détails FLOTTE (inclut les champs financiers)
-                        $details = [
-                            'Immatriculation' => $avion['immat'],
-                            'Fleet_type' => $avion['type_libelle'],
-                            'Catégorie' => $avion['categorie'],
-                            'Localisation' => $avion['localisation'],
-                            'Hub de rattachement' => $avion['hub'],
-                            'Statut' => $avion['status'],
-                            'État' => $avion['etat'],
-                            'Dernier utilisateur' => $avion['pilote_callsign'] ?? 'N/A',
-                            'Carburant restant' => $avion['fuel_restant'],
-                            'Compteur Immo' => $avion['compteur_immo'],
-                            'En vol' => $avion['en_vol'],
-                            'Nombre maintenance' => $avion['nb_maintenance'],
-                            'Date achat' => (!empty($avion['date_achat'] ?? '') && preg_match('/^\d{4}-\d{2}-\d{2}$/', $avion['date_achat'] ?? '')) ? (implode('-', array_reverse(explode('-', $avion['date_achat']))) ) : ($avion['date_achat'] ?? ''),
-                            'Mode d\'achat' => (isset($avion['mode_achat']) && $avion['mode_achat'] === 'credit') ? 'Crédit' : ((isset($avion['mode_achat']) && $avion['mode_achat'] === 'comptant') ? 'Comptant' : ((isset($avion['nb_annees_credit']) && intval($avion['nb_annees_credit']) > 0) ? 'Crédit' : 'Comptant')),
-                            'Recettes' => ($avion['recettes'] ?? '') . ' €',
-                            'Années crédit' => $avion['nb_annees_credit'] ?? '',
-                            'Taux crédit' => ($avion['taux_percent'] ?? '') . ' %',
-                            'Remboursement' => ($avion['remboursement'] ?? '') . ' €',
-                            'Traite payée cumulée' => ($avion['traite_payee_cumulee'] ?? '') . ' €',
-                            'Reste à payer' => ($avion['reste_a_payer'] ?? '') . ' €',
-                            'Recette vente' => empty($avion['date_vente'] ?? '') ? 'N/A' : (($avion['recette_vente'] ?? '') . ' €'),
-                            'Date vente' => empty($avion['date_vente'] ?? '') ? 'N/A' : ($avion['date_vente'] ?? ''),
-                        ];
-                        $details_json = htmlspecialchars(json_encode($details), ENT_QUOTES, 'UTF-8');
-                        $rowClass = 'fleet-row';
-                        if (isset($avion['actif']) && !$avion['actif']) {
-                            $rowClass .= ' fleet-row-inactive';
-                        }
-                    ?>
-                        <tr class="<?= $rowClass ?>" data-details="<?= $details_json ?>">
-                            <td class="immat"  style="width:98px;"><?= htmlspecialchars($avion['immat'] ?? '') ?></td>
-                            <td class="fleet_type" style="width:98px;"><?= htmlspecialchars($avion['type_libelle'] ?? '') ?></td>
-                            <td class="categorie" style="width:80px;"><?= htmlspecialchars($avion['categorie'] ?? '') ?></td>
-                            <td class="localisation" style="width:80px;"><?= htmlspecialchars($avion['localisation'] ?? '') ?></td>
-                            <td class="hub" style="width:80px;"><?= htmlspecialchars($avion['hub'] ?? '') ?></td>
-                            <td class="status" style="width:98px;">
-                                <?php
-                                if (isset($avion['actif']) && !$avion['actif']) {
-                                    echo 'Vendu';
-                                } else {
-                                    $statusVal = (int)($avion['status'] ?? 0);
-                                    echo match($statusVal) {
-                                        0 => 'OK',
-                                        1 => 'En maintenance',
-                                        2 => 'Crash',
-                                        default => htmlspecialchars($avion['status'] ?? '')
-                                    };
-                                }
-                                ?>
-                            </td>
-                            <td class="etat" style="width:98px;"><?= htmlspecialchars($avion['etat'] ?? '') ?></td>
-                            <td class="pilote" style="width:98px;"><?= htmlspecialchars(($avion['pilote_callsign'] ?? 'N/A') ?: '') ?></td>
-                            <td class="fuel" style="width:98px;"><?= htmlspecialchars($avion['fuel_restant'] ?? '') ?></td>
-                            <td class="compteur" style="width:98px;"><?= htmlspecialchars($avion['compteur_immo'] ?? '') ?></td>
-                            <td class="envol" style="width:98px;"><?= htmlspecialchars($avion['en_vol'] ?? '') ?></td>
-                            <td class="maintenance" style="width:98px;"><?= htmlspecialchars($avion['nb_maintenance'] ?? '') ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
         <!-- Popup modale pour détails avion -->
         <div id="fleet-modal" class="fleet-modal" style="display:none;">
             <div class="fleet-modal-content">
@@ -197,57 +176,6 @@ include __DIR__ . '/../includes/menu_logged.php';
                 </div>
             </div>
         </div>
-        <style>
-        .fleet-row-inactive td {
-            color: #b0b0b0 !important;
-            background: #f6f6f6 !important;
-        }
-            .table-skywings th, .table-skywings td {
-                padding: 4px 6px;
-                font-size: 14px;
-                box-sizing: border-box;
-            }
-            .table-skywings th {
-                white-space: normal;
-                word-break: break-word;
-            }
-            .table-skywings th.immat, .table-skywings td.immat { width: 90px; }
-            .table-skywings th.fleet_type, .table-skywings td.fleet_type { width: 90px; }
-            .table-skywings th.categorie, .table-skywings td.categorie { width: 80px; }
-            .table-skywings th.localisation, .table-skywings td.localisation { width: 80px; }
-            .table-skywings th.hub, .table-skywings td.hub { width: 80px; }
-            .table-skywings th.status, .table-skywings td.status { width: 70px; }
-            .table-skywings th.etat, .table-skywings td.etat { width: 70px; }
-            .table-skywings th.pilote, .table-skywings td.pilote { width: 90px; }
-            .table-skywings th.fuel, .table-skywings td.fuel { width: 70px; }
-            .table-skywings th.compteur, .table-skywings td.compteur { width: 70px; }
-            .table-skywings th.envol, .table-skywings td.envol { width: 50px; }
-            .table-skywings th.maintenance, .table-skywings td.maintenance { width: 70px; }
-            .table-header-fixed-fleet th {
-                background: #0d47a1;
-                color: #fff;
-                border-bottom: 2px solid #08306b;
-                z-index: 10;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.03);
-                text-align: center;
-                font-weight: bold;
-                letter-spacing: 0.5px;
-            }
-            .table-header-fixed-fleet {
-                width: 100%;
-                border-collapse: separate;
-                border-spacing: 0;
-                table-layout: auto;
-                margin-bottom: 0;
-            }
-            .table-scroll-wrapper-fleet {
-                width: 100%;
-                max-height: 60vh;
-                overflow-y: auto;
-                overflow-x: auto;
-                border-top: none;
-            }
-        </style>
         <style>
         .fleet-modal {
             position: fixed;

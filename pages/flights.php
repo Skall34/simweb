@@ -101,76 +101,65 @@ include __DIR__ . '/../includes/menu_logged.php';
     <?php else: ?>
         <div class="table-main-padding">
             <!-- Tableau d'en-tête fixe -->
-            <table class="table-skywings table-header-fixed" style="table-layout:fixed;">
-                <thead>
-                    <tr>
-                        <th style="width:90px;">Date vol</th>
-                        <th style="width:90px;">Immat</th>
-                        <th style="width:90px;">Départ</th>
-                        <th style="width:90px;">Destination</th>
-                        <th style="width:90px;">Fuel départ</th>
-                        <th style="width:90px;">Fuel arrivée</th>
-                        <th style="width:90px;">Conso</th>
-                        <th style="width:90px;">Payload</th>
-                        <th style="width:90px;">Heure départ</th>
-                        <th style="width:90px;">Heure arrivée</th>
-                        <th style="width:90px;">Block time</th>
-                        <th style="width:110px;">Note du vol</th>
-                        <th style="width:90px;">Mission</th>
-                        <th style="width:110px;">Recette du vol</th>
-                        <th style="width:120px;">Pirep maintenance</th>
+            <table class="table-skywings">
+                <thead class="table-skywings">
+                    <tr class="table-skywings">
+                        <th style="width:10%;">Date vol</th>
+                        <th style="width:8%;">Immat</th>
+                        <th style="width:5%;">Départ</th>
+                        <th style="width:5%;">Dest.</th>
+                        <th style="width:5%;">Fuel arrivée</th>
+                        <th style="width:5%;">Conso</th>
+                        <th style="width:5%;">Payload</th>
+                        <th style="width:10%;">Heure arrivée</th>
+                        <th style="width:10%;">Block time</th>
+                        <th style="width:5%;">Note du vol</th>
+                        <th style="width:8%;">Recette du vol</th>
+                        <th style="width:8%;">Mission</th>
                     </tr>
                 </thead>
+                <tbody class="table-skywings">
+                <?php foreach ($flights as $flight):
+                    $pirep_complet = $flight['pirep_maintenance'];
+                    $pirep_court = mb_strimwidth($pirep_complet, 0, 13, '...');
+                    $date_formatee = date("d-m-Y", strtotime($flight['date_vol']));
+                    $details = [
+                        'ID vol' => $flight['vol_id'],
+                        'Date vol' => $date_formatee,
+                        'Immat' => $flight['immat'],
+                        'Départ' => $flight['depart'],
+                        'Destination' => $flight['destination'],
+                        'Fuel départ' => $flight['fuel_depart'],
+                        'Fuel arrivée' => $flight['fuel_arrivee'],
+                        'Conso' => $flight['conso'],
+                        'Payload' => $flight['payload'],
+                        'Heure départ' => $flight['heure_depart'],
+                        'Heure arrivée' => $flight['heure_arrivee'],
+                        'Block time' => $flight['block_time'],
+                        'Note du vol' => $flight['note_du_vol'],
+                        'Mission' => $flight['mission_libelle'],
+                        'Recette du vol' => number_format($flight['cout_vol'], 2) . ' €',
+                        'Pirep' => $pirep_complet
+                    ];
+                    $details_json = htmlspecialchars(json_encode($details), ENT_QUOTES, 'UTF-8');
+                ?>
+                    <tr class="vol-row"  title="<?= htmlspecialchars($pirep_complet) ?>" data-details="<?= $details_json ?>">
+                        <td style="width:10%;"><?= $date_formatee ?></td>
+                        <td style="width:8%;"><?php echo htmlspecialchars($flight['immat']); ?></td>
+                        <td style="width:5%;"><?php echo htmlspecialchars($flight['depart']); ?></td>
+                        <td style="width:5%;"><?php echo htmlspecialchars($flight['destination']); ?></td>
+                        <td style="width:5%;"><?php echo htmlspecialchars($flight['fuel_arrivee']); ?></td>
+                        <td style="width:5%;"><?php echo htmlspecialchars($flight['conso']); ?></td>
+                        <td style="width:5%;"><?php echo htmlspecialchars($flight['payload']); ?></td>
+                        <td style="width:10%;"><?php echo htmlspecialchars($flight['heure_arrivee']); ?></td>
+                        <td style="width:10%;"><?php echo htmlspecialchars($flight['block_time']); ?></td>
+                        <td style="width:5%"><?php echo htmlspecialchars($flight['note_du_vol']); ?></td>
+                        <td style="width:8%;"><?php echo number_format($flight['cout_vol'], 2) . ' €'; ?></td>
+                        <td style="width:8%;"><?php echo htmlspecialchars($flight['mission_libelle']); ?></td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
             </table>
-            <!-- Tableau scrollable des données -->
-            <div class="table-scroll-wrapper">
-                <table class="table-skywings" style="table-layout:fixed;">
-                    <tbody>
-                    <?php foreach ($flights as $flight):
-                        $pirep_complet = $flight['pirep_maintenance'];
-                        $pirep_court = mb_strimwidth($pirep_complet, 0, 13, '...');
-                        $date_formatee = date("d-m-Y", strtotime($flight['date_vol']));
-                        $details = [
-                            'ID vol' => $flight['vol_id'],
-                            'Date vol' => $date_formatee,
-                            'Immat' => $flight['immat'],
-                            'Départ' => $flight['depart'],
-                            'Destination' => $flight['destination'],
-                            'Fuel départ' => $flight['fuel_depart'],
-                            'Fuel arrivée' => $flight['fuel_arrivee'],
-                            'Conso' => $flight['conso'],
-                            'Payload' => $flight['payload'],
-                            'Heure départ' => $flight['heure_depart'],
-                            'Heure arrivée' => $flight['heure_arrivee'],
-                            'Block time' => $flight['block_time'],
-                            'Note du vol' => $flight['note_du_vol'],
-                            'Mission' => $flight['mission_libelle'],
-                            'Recette du vol' => number_format($flight['cout_vol'], 2) . ' €',
-                            'Pirep' => $pirep_complet
-                        ];
-                        $details_json = htmlspecialchars(json_encode($details), ENT_QUOTES, 'UTF-8');
-                    ?>
-                        <tr class="vol-row" data-details="<?= $details_json ?>">
-                            <td><?= $date_formatee ?></td>
-                            <td><?php echo htmlspecialchars($flight['immat']); ?></td>
-                            <td><?php echo htmlspecialchars($flight['depart']); ?></td>
-                            <td><?php echo htmlspecialchars($flight['destination']); ?></td>
-                            <td><?php echo htmlspecialchars($flight['fuel_depart']); ?></td>
-                            <td><?php echo htmlspecialchars($flight['fuel_arrivee']); ?></td>
-                            <td><?php echo htmlspecialchars($flight['conso']); ?></td>
-                            <td><?php echo htmlspecialchars($flight['payload']); ?></td>
-                            <td><?php echo htmlspecialchars($flight['heure_depart']); ?></td>
-                            <td><?php echo htmlspecialchars($flight['heure_arrivee']); ?></td>
-                            <td><?php echo htmlspecialchars($flight['block_time']); ?></td>
-                            <td style="max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;\"><?php echo htmlspecialchars($flight['note_du_vol']); ?></td>
-                            <td><?php echo htmlspecialchars($flight['mission_libelle']); ?></td>
-                            <td><?php echo number_format($flight['cout_vol'], 2) . ' €'; ?></td>
-                            <td title="<?= htmlspecialchars($pirep_complet) ?>"><?= htmlspecialchars($pirep_court) ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
         </div>
         <!-- Popup modale pour détails du vol -->
         <div id="vol-modal" class="vol-modal" style="display:none;">
@@ -195,49 +184,6 @@ include __DIR__ . '/../includes/menu_logged.php';
 </main>
 
 <style>
-/* Sticky header flights (modèle tableau_vols.php) */
-.table-header-fixed {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    table-layout: fixed;
-    margin-bottom: 0;
-}
-.table-header-fixed th {
-    background: #0d47a1;
-    color: #fff;
-    border-bottom: 2px solid #08306b;
-    z-index: 10;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.03);
-    padding: 8px 10px;
-    text-align: center;
-    font-weight: bold;
-    letter-spacing: 0.5px;
-    white-space: nowrap;
-}
-.table-scroll-wrapper {
-    width: 100%;
-    max-height: 60vh;
-    overflow-y: auto;
-    overflow-x: auto;
-    border-top: none;
-}
-.table-skywings {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    table-layout: fixed;
-}
-.table-skywings td, .table-skywings th {
-    padding: 8px 10px;
-    text-align: center;
-    min-width: 90px;
-    box-sizing: border-box;
-    white-space: nowrap;
-}
-.table-main-padding {
-    padding-left: 32px;
-}
 .vol-modal {
     position: fixed;
     z-index: 1000;
@@ -278,11 +224,11 @@ var map;
 document.addEventListener('DOMContentLoaded', function() {
     var scrollWrapper = document.querySelector('.table-scroll-wrapper');
     var headerTable = document.querySelector('.table-header-fixed');
-    if (scrollWrapper && headerTable) {
-        scrollWrapper.addEventListener('scroll', function() {
-            headerTable.scrollLeft = this.scrollLeft;
-        });
-    }
+    //if (scrollWrapper && headerTable) {
+    //    scrollWrapper.addEventListener('scroll', function() {
+    //        headerTable.scrollLeft = this.scrollLeft;
+    //    });
+    //}
 
     // Gestion du popup détails vol (modèle tableau_vols.php)
     document.querySelectorAll('.vol-row').forEach(function(row) {
@@ -371,3 +317,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+<?php include '../includes/footer.php'; ?>
+</body>
+</html>
