@@ -61,7 +61,7 @@ if ($missionFilter !== '') {
     $sql .= " AND m.libelle = :mission";
     $params['mission'] = $missionFilter;
 }
-$sql .= " ORDER BY c.date_vol DESC";
+$sql .= " ORDER BY c.date_vol DESC, c.heure_depart DESC";
 
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);

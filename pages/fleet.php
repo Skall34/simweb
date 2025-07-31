@@ -210,33 +210,6 @@ include __DIR__ . '/../includes/menu_logged.php';
         }
         </style>
         <script>
-        // Synchronise dynamiquement la largeur des colonnes du header avec celles du tableau de données
-        function syncHeaderWidthsFleet() {
-            const headerTable = document.querySelector('.table-header-fixed-fleet');
-            const dataTable = document.querySelector('.table-scroll-wrapper-fleet .table-skywings');
-            if (!headerTable || !dataTable) return;
-            const headerCells = headerTable.querySelectorAll('th');
-            const dataRow = dataTable.querySelector('tr');
-            if (!dataRow) return;
-            const dataCells = dataRow.querySelectorAll('td');
-            if (headerCells.length !== dataCells.length) return;
-            // Reset widths
-            headerCells.forEach(th => th.style.width = '');
-            dataCells.forEach(td => td.style.width = '');
-            // Get computed widths from data cells
-            for (let i = 0; i < headerCells.length; i++) {
-                const width = dataCells[i].getBoundingClientRect().width + 'px';
-                headerCells[i].style.width = width;
-                dataCells[i].style.width = width;
-            }
-            // Ajuste la largeur du headerTable pour ne pas dépasser le dataTable (évite le débordement dû au scrollbar)
-            headerTable.style.width = dataTable.getBoundingClientRect().width + 'px';
-        }
-        window.addEventListener('load', syncHeaderWidthsFleet);
-        window.addEventListener('resize', syncHeaderWidthsFleet);
-        document.querySelector('.table-scroll-wrapper-fleet').addEventListener('scroll', function() {
-            document.querySelector('.table-header-fixed-fleet').scrollLeft = this.scrollLeft;
-        });
 
         // Gestion du popup détails avion
         document.querySelectorAll('.fleet-row').forEach(function(row) {
