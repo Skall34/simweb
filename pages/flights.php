@@ -45,7 +45,10 @@ SELECT
   m.libelle AS mission_libelle,
   c.cout_vol,
   c.pirep_maintenance,
-  TIMEDIFF(c.heure_arrivee, c.heure_depart) AS block_time,
+  SEC_TO_TIME(
+    (UNIX_TIMESTAMP(CONCAT(c.date_vol, ' ', c.heure_arrivee)) - UNIX_TIMESTAMP(CONCAT(c.date_vol, ' ', c.heure_depart)) + 
+     IF(c.heure_arrivee < c.heure_depart, 86400, 0))
+  ) AS block_time,
   (c.fuel_depart - c.fuel_arrivee) AS conso
 FROM CARNET_DE_VOL_GENERAL c
 LEFT JOIN FLOTTE f ON c.appareil_id = f.id

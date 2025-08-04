@@ -28,7 +28,10 @@ try {
       m.libelle AS mission_libelle,
       cdvg.cout_vol,
       cdvg.pirep_maintenance,
-      TIMEDIFF(cdvg.heure_arrivee, cdvg.heure_depart) AS block_time,
+      SEC_TO_TIME(
+        (UNIX_TIMESTAMP(CONCAT(cdvg.date_vol, ' ', cdvg.heure_arrivee)) - UNIX_TIMESTAMP(CONCAT(cdvg.date_vol, ' ', cdvg.heure_depart)) + 
+         IF(cdvg.heure_arrivee < cdvg.heure_depart, 86400, 0))
+      ) AS block_time,
       (cdvg.fuel_depart - cdvg.fuel_arrivee) AS conso
     FROM CARNET_DE_VOL_GENERAL cdvg
     LEFT JOIN PILOTES p ON cdvg.pilote_id = p.id
