@@ -73,12 +73,16 @@ foreach ($pilotes as $index => $pilote) {
     }
 
     try {
-        $stmtFret = $pdo->prepare("SELECT SUM(payload) FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = ? AND DATE(date_vol) >= ? AND DATE(date_vol) < ?");
-        $stmtFret->execute([$pilote['id'], $debut_mois, $fin_mois]);
-        $total_fret_kg = (float)$stmtFret->fetchColumn();
-        $bonus_fret = round($total_fret_kg * 2, 2); // 2€ par kg
-        logMsg('[TRACE] Total fret (kg) : ' . $total_fret_kg . ' | Bonus fret : ' . $bonus_fret, __DIR__ . '/logs/paiement_salaires.log');
-        echo "Total fret (kg) : $total_fret_kg | Bonus fret : $bonus_fret\n";
+    // Récupère le bonus fret par kg depuis VARIABLES_CONFIG
+    $stmtBonus = $pdo->prepare("SELECT valeur FROM VARIABLES_CONFIG WHERE nom = 'bonus_fret_kg'");
+    $stmtBonus->execute();
+    $bonus_fret_kg = (float)$stmtBonus->fetchColumn();
+    $stmtFret = $pdo->prepare("SELECT SUM(payload) FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = ? AND DATE(date_vol) >= ? AND DATE(date_vol) < ?");
+    $stmtFret->execute([$pilote['id'], $debut_mois, $fin_mois]);
+    $total_fret_kg = (float)$stmtFret->fetchColumn();
+    $bonus_fret = round($total_fret_kg * $bonus_fret_kg, 2); // bonus administrable
+    logMsg('[TRACE] Total fret (kg) : ' . $total_fret_kg . ' | Bonus fret : ' . $bonus_fret, __DIR__ . '/logs/paiement_salaires.log');
+    echo "Total fret (kg) : $total_fret_kg | Bonus fret : $bonus_fret\n";
     } catch (Exception $e) {
         logMsg('[ERREUR] Calcul fret : ' . $e->getMessage(), __DIR__ . '/logs/paiement_salaires.log');
         echo "ERREUR Calcul fret : " . htmlspecialchars($e->getMessage()) . "\n";

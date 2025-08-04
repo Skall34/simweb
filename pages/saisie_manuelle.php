@@ -9,7 +9,7 @@ $success = false;
 $stmt = $pdo->query("SELECT callsign FROM PILOTES ORDER BY callsign");
 $callsigns = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
-$stmt = $pdo->query("SELECT libelle FROM MISSIONS ORDER BY libelle");
+$stmt = $pdo->query("SELECT libelle FROM MISSIONS WHERE active = 1 ORDER BY libelle");
 $missionslist = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
 // Récupérer les immatriculations actives

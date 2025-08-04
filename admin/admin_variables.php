@@ -34,6 +34,12 @@ $variables = [
         'step' => '0.1',
         'default' => '5.00'
     ],
+    'bonus_fret_kg' => [
+        'label' => 'Bonus fret par Kg transporté (salaire)',
+        'type' => 'number',
+        'step' => '0.1',
+        'default' => '2.00'
+    ],
     'prix_litre_essence' => [
         'label' => 'Prix du litre d\'essence',
         'type' => 'number',
