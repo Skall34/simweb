@@ -148,7 +148,7 @@ try {
                 <td style="width:5%"><?php echo rtrim(rtrim(htmlspecialchars($vol['conso']), '0'), '.') ?: '0'; ?></td>
                 <td style="width:5%"><?php echo htmlspecialchars($vol['payload']); ?></td>
                 <td style="width:10%"><?php echo htmlspecialchars($vol['heure_arrivee']); ?></td>
-                <td style="width:10%"><?php echo htmlspecialchars($vol['block_time']); ?></td>
+                <td style="width:10%"><?php echo htmlspecialchars(substr($vol['block_time'], 0, 8)); ?></td>
                 <td style="width=5%"><?php echo htmlspecialchars($vol['note_du_vol']); ?></td>
                 <td style="width:10%"><?php echo number_format($vol['cout_vol'] !== null ? (float)$vol['cout_vol'] : 0, 2) . ' €'; ?></td>
                 <td style="width=5%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="<?php echo htmlspecialchars($vol['mission_libelle']); ?>">

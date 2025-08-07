@@ -487,3 +487,36 @@ function rejeterVol($pdo, $vol, $motif, $logFile = null) {
     logMsg("🗑️ Vol supprimé de FROM_ACARS pour ACARS ID=" . $vol['id'], $logFile);
 }
 
+/**
+ * Calcule la distance (en miles nautiques) entre deux aéroports à partir de leurs codes ICAO.
+ * @param string $icao1 Code ICAO du premier aéroport
+ * @param string $icao2 Code ICAO du second aéroport
+ * @return float|null Distance en NM, ou null si un des aéroports est inconnu
+ */
+function ComputeFlightDistance($icao1, $icao2) {
+    global $pdo;
+    // Récupère les coordonnées des deux aéroports
+    $stmt = $pdo->prepare("SELECT ident, latitude_deg, longitude_deg FROM AEROPORTS WHERE ident IN (:icao1, :icao2)");
+    $stmt->execute(['icao1' => $icao1, 'icao2' => $icao2]);
+    $coords = [];
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $coords[$row['ident']] = [$row['latitude_deg'], $row['longitude_deg']];
+    }
+    if (!isset($coords[$icao1]) || !isset($coords[$icao2])) {
+        return null; // Un des aéroports n'existe pas
+    }
+    list($lat1, $lon1) = $coords[$icao1];
+    list($lat2, $lon2) = $coords[$icao2];
+
+    // Formule de Haversine en miles nautiques
+    $R = 3440.065; // Rayon de la Terre en miles nautiques
+    $dLat = deg2rad($lat2 - $lat1);
+    $dLon = deg2rad($lon2 - $lon1);
+    $a = sin($dLat/2) * sin($dLat/2) +
+         cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+         sin($dLon/2) * sin($dLon/2);
+    $c = 2 * atan2(sqrt($a), sqrt(1-$a));
+    $distance = $R * $c;
+    return $distance;
+}
+

@@ -169,6 +169,8 @@ try {
     }
 
     // 4. Calcul du coût du vol
+    $distance = ComputeFlightDistance($departure_icao, $arrival_icao);
+    logMsg("Distance calculée : $distance NM", $logFile);
     $majoration_mission = getMajorationMission($mission);
     $cout_horaire = getCoutHoraire($immat);
     $carburant = $departure_fuel - $arrival_fuel;
@@ -176,10 +178,14 @@ try {
     if ($departure_time && $arrival_time) {
         $t1 = new DateTime($departure_time);
         $t2 = new DateTime($arrival_time);
+        // Si l'heure d'arrivée est inférieure ou égale à l'heure de départ, on ajoute 1 jour à l'arrivée
+        if ($t2 <= $t1) {
+            $t2->modify('+1 day');
+        }
         $interval = $t1->diff($t2);
         $temps_vol = $interval->format('%H:%I:%S');
     }
-    $cout_vol = calculerRevenuNetVol($payload, $temps_vol, $majoration_mission, $carburant, $note, $cout_horaire);
+    $cout_vol = calculerRevenuNetVol($payload, $temps_vol,$distance, $majoration_mission, $carburant, $note, $cout_horaire);
 
     // 5. Ajout au carnet de vol avec le coût
     logMsg("Ajout au carnet de vol : callsign=$callsign, immat=$immat, depart=$departure_icao, dest=$arrival_icao, payload=$payload, cout_vol=$cout_vol", $logFile);

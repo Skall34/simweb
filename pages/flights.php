@@ -155,7 +155,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                         <td style="width:5%;"><?php echo htmlspecialchars($flight['conso']); ?></td>
                         <td style="width:5%;"><?php echo htmlspecialchars($flight['payload']); ?></td>
                         <td style="width:10%;"><?php echo htmlspecialchars($flight['heure_arrivee']); ?></td>
-                        <td style="width:10%;"><?php echo htmlspecialchars($flight['block_time']); ?></td>
+                        <td style="width:10%;"><?php echo htmlspecialchars(substr($flight['block_time'], 0, 8)); ?></td>
                         <td style="width:5%"><?php echo htmlspecialchars($flight['note_du_vol']); ?></td>
                         <td style="width:8%;"><?php echo number_format($flight['cout_vol'], 2) . ' €'; ?></td>
                         <td style="width:8%;"><?php echo htmlspecialchars($flight['mission_libelle']); ?></td>

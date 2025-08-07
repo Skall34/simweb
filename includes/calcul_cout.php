@@ -147,7 +147,8 @@ function getCoutHoraire($immat) {
  * @param float $cout_horaire Coût horaire de l'appareil
  * @return float Revenu net du vol (arrondi à 2 décimales)
  */
-function calculerRevenuNetVol($payload, $temps_vol, $majoration_mission, $carburant, $note, $cout_horaire) {
+function calculerRevenuNetVol($payload, $temps_vol, $distance, $majoration_mission, $carburant, $note, $cout_horaire) {
+
     global $pdo, $logFile;
     [$h, $m, $s] = sscanf($temps_vol, "%d:%d:%d");
     logMsg("[calculerRevenuNetVol] temps_vol=$temps_vol => h=$h, m=$m, s=$s", $logFile);
@@ -164,9 +165,20 @@ function calculerRevenuNetVol($payload, $temps_vol, $majoration_mission, $carbur
             $prix_kg_fret = floatval($valeurFret);
         }
     }
-    $revenu_brut = $payload * $prix_kg_fret * $heures * $majoration_mission;
-    logMsg("[calculerRevenuNetVol] revenu_brut = payload * prix_kg_fret * heures * majoration_mission", $logFile);
-    logMsg("[calculerRevenuNetVol] revenu_brut = $payload * $prix_kg_fret * $heures * $majoration_mission", $logFile);
+    // Calcul du revenu brut
+    if ($distance>0 && $distance < 100) {
+        //si distance courte, on prends le temps de vol en heures, et une majoration de 20%
+        $prix_kg_fret = $prix_kg_fret * 1.2; // Majoration pour les vols courts
+        logMsg("[calculerRevenuNetVol] Majoration de 20% appliquée pour distance < 100 NM", $logFile);       
+        $revenu_brut = $payload * $prix_kg_fret * $heures * $majoration_mission;
+    }else{
+        // Pour les distances plus longues, on utilise la distance en miles nautiques
+        logMsg("[calculerRevenuNetVol] Pas de majoration pour distance >= 100 NM", $logFile);
+        //et on utilise une vitesse moyenne de 140 noeuds comme base
+        //pour calculer le revenu brut
+        $revenu_brut = $payload * $prix_kg_fret * $distance * $majoration_mission / 140;
+        logMsg("[calculerRevenuNetVol] revenu_brut = $payload * $prix_kg_fret * $distance * $majoration_mission /140", $logFile);
+    }
     // Récupérer dynamiquement le prix du litre d'essence
     $prix_litre_essence = 0.88;
     $stmtEssence = $pdo->prepare("SELECT valeur FROM VARIABLES_CONFIG WHERE nom = 'prix_litre_essence'");
