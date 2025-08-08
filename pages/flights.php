@@ -186,40 +186,6 @@ include __DIR__ . '/../includes/menu_logged.php';
     <?php endif; ?>
 </main>
 
-<style>
-.vol-modal {
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0,0,0,0.35);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.vol-modal-content {
-    background: #fff;
-    padding: 24px 32px;
-    border-radius: 10px;
-    min-width: 320px;
-    max-width: 90vw;
-    max-height: 80vh;
-    overflow-y: auto;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
-    position: relative;
-}
-.vol-modal-close {
-    position: absolute;
-    top: 12px;
-    right: 18px;
-    font-size: 2em;
-    color: #0d47a1;
-    cursor: pointer;
-}
-</style>
-
 <script>
 var map;
 

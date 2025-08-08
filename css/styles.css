@@ -18,7 +18,7 @@
 }
 .compte-section h3 {
     margin-top: 0;
-    color: #2a4d7a;
+    color: #004080;
 }
 .compte-infos {
     margin: 0;
@@ -48,7 +48,7 @@
     border-radius: 4px;
 }
 .btn-bleu {
-    background: #2a4d7a;
+    background: #004080;
     color: #fff;
     border: none;
     border-radius: 4px;
@@ -59,13 +59,13 @@
     transition: background 0.2s;
 }
 .btn-bleu:hover {
-    background: #1a3552;
+    background: #004080;
 }
 /* Styles pour la documentation technique (calcul de coût, etc.) */
 .container section h2, .container section h3 {
   margin-top: 32px;
   margin-bottom: 18px;
-  color: #2c3e50;
+  color: #004080;
 }
 .container section p {
   margin-bottom: 18px;
@@ -120,7 +120,7 @@ table.table-skywings {
 }
 
 thead.table-skywings {
-    background-color: #0066CC;
+    background-color: #004080;
     color: #fff;
     font-weight: 700;
     text-align: left;
@@ -141,7 +141,6 @@ table.table-skywings tr {
     table-layout: fixed;
 }
 
-table.table-skywings th,
 table.table-skywings td {
     /*border: 1px solid #e0e0e0;*/
     border:none;
@@ -152,6 +151,19 @@ table.table-skywings td {
     text-align: center;
 }
 
+table.table-skywings th {
+    background: #004080;
+    color: #fff;
+    font-weight: 600;
+    /*border: 1px solid #e0e0e0;*/
+    border:none;
+    /*border: 1px solid #e0e0e0;*/
+    /*padding: 10px 16px;*/
+    font-size: 1rem;
+    vertical-align: middle;
+    text-align: center;
+  }
+
 table.table-skywings  tr:nth-child(even) {
     background-color: #f4f6f8;
 }
@@ -160,6 +172,22 @@ table.table-skywings tr:hover {
     background-color: #e6f0ff;
     transition: background 0.2s;
 }
+
+/* styles dans stats.php
+        .table-skywings th, .table-skywings td {
+            padding: 4px 8px;
+            font-size: 14px;
+        }
+        .table-skywings th {
+            background: #0d47a1;
+            color: #fff;
+            font-weight: 600;
+        }
+        .table-skywings tr:nth-child(even) td {
+            background: #f7fbff;
+        }
+*/
+
 /* Style moderne pour la liste de sélection Skywings */
 .select-skywings {
     position: relative;
@@ -174,7 +202,7 @@ table.table-skywings tr:hover {
     border: 1px solid #b3c6e0;
     background: #f7fbff;
     font-size: 0.98em;
-    color: #0066cc;
+    color: #478ED4;
     font-weight: bold;
     appearance: none;
     -webkit-appearance: none;
@@ -183,7 +211,7 @@ table.table-skywings tr:hover {
     transition: border-color 0.2s;
 }
 .select-skywings-select:focus {
-    border-color: #0066cc;
+    border-color: #478ED4;
     outline: none;
 }
 .select-skywings-arrow {
@@ -193,7 +221,7 @@ table.table-skywings tr:hover {
     transform: translateY(-50%);
     pointer-events: none;
     font-size: 1em;
-    color: #0066cc;
+    color: #478ED4;
 }
 /* RESET DE BASE */
 * {
@@ -205,7 +233,7 @@ table.table-skywings tr:hover {
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #f4f6f8;
-  color: #333;
+  color: #004080;
   line-height: 1.5;
   min-height: 100vh;
 }
@@ -239,7 +267,7 @@ header {
 }
 
 .btn {
-  background-color: #0066cc;
+  background-color: #478ED4;
   color: white;
   border: none;
   border-radius: 4px;
@@ -250,7 +278,7 @@ header {
 }
 
 .btn:hover {
-  background-color: #005bb5;
+  background-color: #478ED4;
 }
 
 .nom-compagnie {
@@ -274,7 +302,7 @@ header {
 }
 
 .formulaire-login button {
-  background-color: #0066cc;
+  background-color: #478ED4;
   color: white;
   border: none;
   border-radius: 4px;
@@ -285,7 +313,7 @@ header {
 }
 
 .formulaire-login button:hover {
-  background-color: #005bb5;
+  background-color: #478ED4;
 }
 
 .formulaire-login p {
@@ -330,7 +358,7 @@ nav.menu-logged a {
 
 nav.menu-guest a:hover,
 nav.menu-logged a:hover {
-  background-color: #003366;
+  background-color: #004080;
   color: #cce0ff;
 }
 
@@ -397,9 +425,70 @@ h2 {
 }
 
 .form-inscription button:hover {
-  background-color: #003366;
+  background-color: #004080;
 }
 
+/* INFORMATIONS SUR UN VOL */
+.vol-modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.vol-modal-content {
+    background: #fff;
+    padding: 24px 32px;
+    border-radius: 10px;
+    min-width: 320px;
+    max-width: 90vw;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+    position: relative;
+}
+.vol-modal-close {
+    position: absolute;
+    top: 12px;
+    right: 18px;
+    font-size: 2em;
+    color: #004080;
+    cursor: pointer;
+}
+
+/* stastistiques*/
+.stat-card {
+    background: #f7fbff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    padding: 18px 28px;
+    min-width: 180px;
+    flex: 1 1 180px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.stat-label {
+    color: #004080;
+    font-size: 1.1em;
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+.stat-value {
+    font-size: 2.1em;
+    font-weight: bold;
+    color: #222;
+}
+.stat-sub {
+    font-size: 0.95em;
+    color: #555;
+}
 
 /* FOOTER */
 footer {
@@ -441,4 +530,154 @@ footer {
   max-width: 100%;
   margin-top: 0.5em;
   align-self: flex-start;
+}
+
+/* Sous-menu Plus */
+.menu-plus {
+    position: relative;
+    margin-left: 10px;
+    color: white;
+    display: flex;
+    align-items: center;
+}
+.menu-plus span {
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+    color: white;
+    display: inline-block;
+}
+.submenu-plus {
+    display: none;
+    position: absolute;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    z-index: 100;
+    padding: 5px;
+    min-width: 180px;
+    color: #478ED4 !important;
+    font-size: 0.85rem;
+    top: 100%;
+    left: 0;
+}
+.menu-plus:hover .submenu-plus {
+    display: block;
+}
+.submenu-plus a {
+    display: block;
+    padding: 5px;
+    text-decoration: none;
+    color: #478ED4 !important;
+}
+.submenu-plus a:hover {
+    background-color: #478ED4;
+    color: white !important;
+}
+
+.menu-logged {
+    /* Pour que les liens soient bien alignés avec flexbox */
+    display: flex;
+    align-items: center;
+    gap: 10px; /* espace entre les items */
+}
+
+.menu-admin {
+    position: relative;
+    margin-left: 10px;
+    color: white;
+    display: flex;          /* flex container */
+    align-items: center;    /* centrage vertical */
+}
+
+.menu-admin span {
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+    color: white;
+    display: inline-block;
+}
+
+/* Sous-menu */
+.submenu-admin {
+    display: none;
+    position: absolute;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    z-index: 100;
+    padding: 5px;
+    min-width: 180px;
+    color: #478ED4 !important;
+    font-size: 0.85rem; /* police plus petite dans le sous-menu */
+    top: 100%; /* positionne le sous-menu juste en dessous de son parent */
+    left: 0;
+}
+
+/* Affiche le sous-menu au survol */
+.menu-admin:hover .submenu-admin {
+    display: block;
+}
+
+/* liens du sous-menu */
+.submenu-admin a {
+    display: block;
+    padding: 5px;
+    text-decoration: none;
+    color: #478ED4 !important; /* forcer la couleur */
+}
+
+/* hover lien sous-menu */
+.submenu-admin a:hover {
+    background-color: blue;
+    color: white !important; /* texte blanc au hover */
+}
+/* Sous-menu Missions */
+.menu-missions {
+    position: relative;
+    margin-left: 10px;
+    color: white;
+    display: flex;
+    align-items: center;
+}
+.missions-label {
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+    color: white;
+    display: inline-block;
+    background: transparent;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+    transition: color 0.2s;
+}
+.menu-missions:hover .missions-label,
+.menu-missions:focus-within .missions-label,
+.missions-label:hover {
+    color: #cce0ff;
+}
+.submenu-missions {
+    display: none;
+    position: absolute;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    z-index: 100;
+    padding: 5px;
+    min-width: 180px;
+    color: #478ED4 !important;
+    font-size: 0.85rem;
+    top: 100%;
+    left: 0;
+}
+.menu-missions:hover .submenu-missions {
+    display: block;
+}
+.submenu-missions a {
+    display: block;
+    padding: 5px;
+    text-decoration: none;
+    color: #478ED4 !important;
+}
+.submenu-missions a:hover {
+    background-color: #478ED4;
+    color: white !important;
 }

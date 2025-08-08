@@ -202,48 +202,6 @@ include __DIR__ . '/../includes/menu_logged.php';
         </ul>
     </div>
 
-    <!-- Styles pour stats -->
-    <style>
-        .stat-card {
-            background: #f7fbff;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-            padding: 18px 28px;
-            min-width: 180px;
-            flex: 1 1 180px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        .stat-label {
-            color: #0d47a1;
-            font-size: 1.1em;
-            margin-bottom: 6px;
-            font-weight: 600;
-        }
-        .stat-value {
-            font-size: 2.1em;
-            font-weight: bold;
-            color: #222;
-        }
-        .stat-sub {
-            font-size: 0.95em;
-            color: #555;
-        }
-        .table-skywings th, .table-skywings td {
-            padding: 4px 8px;
-            font-size: 14px;
-        }
-        .table-skywings th {
-            background: #0d47a1;
-            color: #fff;
-            font-weight: 600;
-        }
-        .table-skywings tr:nth-child(even) td {
-            background: #f7fbff;
-        }
-    </style>
 
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
