@@ -11,6 +11,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/menu_logged.php';
         <h3>1. Paramètres pris en compte</h3>
         <ul>
             <li><b>Fret transporté (payload)</b> : quantité de fret en kg.</li>
+            <li><b>Distance du vol</b> : en miles entre les aéroports de départ et d'arrivée.</li>
             <li><b>Durée du vol</b> : au format HH:MM:SS, convertie en heures décimales.</li>
             <li><b>Mission</b> : chaque mission peut avoir un coefficient de majoration (bonus/malus sur les recettes).</li>
             <li><b>Consommation de carburant</b> : en litres.</li>
@@ -43,9 +44,17 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/menu_logged.php';
                 </ul>
             </li>
             <li>
-                <h4 class="sous-chapitre">Calculs intermédiaires</h4>
-                <ul>
-                    <li><b>Revenu brut</b> = fret (kg) × 5 € × heures × majoration mission</li>
+                <h4 class="sous-chapitre">Calculs intermédiaires (vol court < 100nm)</h4>
+                <ul>                   
+                    <li><b>Revenu brut</b> = fret (kg) × 5 € × heures × majoration mission x 1.2 (bonus vol court)</li>
+                    <li><b>Coût carburant</b> = carburant (L) × 0,88 €</li>
+                    <li><b>Coût appareil</b> = coût horaire × heures × coefficient de note</li>
+                </ul>
+            </li>
+            <li>
+                <h4 class="sous-chapitre">Calculs intermédiaires (vol long > 100nm)</h4>
+                <ul>                   
+                    <li><b>Revenu brut</b> = fret (kg) × 5 € × distance × majoration mission / 120</li>
                     <li><b>Coût carburant</b> = carburant (L) × 0,88 €</li>
                     <li><b>Coût appareil</b> = coût horaire × heures × coefficient de note</li>
                 </ul>
@@ -64,13 +73,14 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/menu_logged.php';
         <ul>
             <li>Fret : 1200 kg</li>
             <li>Durée : 2h30 (2,5h)</li>
+            <li>Distance : 300 nm</li>
             <li>Mission : “OP FRANCE” (majoration 1,2)</li>
             <li>Carburant : 600 L</li>
             <li>Note : 8 (coef note : 0,8)</li>
             <li>Coût horaire appareil : 350 €</li>
         </ul>
         <ul style="font-size:0.97em;">
-            <li>Revenu brut = 1200 × 5 × 2,5 × 1,2 = 18 000 €</li>
+            <li>Revenu brut = 1200 × 5 × 300 × 1,2 / 120 = 18000 €</li>
             <li>Coût carburant = 600 × 0,88 = 528 €</li>
             <li>Coût appareil = 350 × 2,5 × 0,8 = 700 €</li>
             <li>Revenu net = 18 000 – (528 + 700) = 16 772 €</li>

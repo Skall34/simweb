@@ -174,10 +174,10 @@ function calculerRevenuNetVol($payload, $temps_vol, $distance, $majoration_missi
     }else{
         // Pour les distances plus longues, on utilise la distance en miles nautiques
         logMsg("[calculerRevenuNetVol] Pas de majoration pour distance >= 100 NM", $logFile);
-        //et on utilise une vitesse moyenne de 140 noeuds comme base
+        //et on utilise une vitesse moyenne de 120 noeuds comme base
         //pour calculer le revenu brut
-        $revenu_brut = $payload * $prix_kg_fret * $distance * $majoration_mission / 140;
-        logMsg("[calculerRevenuNetVol] revenu_brut = $payload * $prix_kg_fret * $distance * $majoration_mission /140", $logFile);
+        $revenu_brut = $payload * $prix_kg_fret * $distance * $majoration_mission / 120;
+        logMsg("[calculerRevenuNetVol] revenu_brut = $payload * $prix_kg_fret * $distance * $majoration_mission /120", $logFile);
     }
     // Récupérer dynamiquement le prix du litre d'essence
     $prix_litre_essence = 0.88;
