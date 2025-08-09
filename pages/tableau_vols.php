@@ -57,7 +57,7 @@ try {
         $sql .= " WHERE " . implode(' AND ', $conditions);
     }
 
-    $sql .= " ORDER BY cdvg.date_vol DESC, cdvg.heure_depart DESC";
+    $sql .= " ORDER BY cdvg.date_vol DESC, cdvg.heure_arrivee DESC";
 
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);

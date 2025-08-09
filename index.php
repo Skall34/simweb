@@ -66,7 +66,7 @@ if (!isset($_SESSION['user'])) {
                 FROM CARNET_DE_VOL_GENERAL cdvg
                 LEFT JOIN PILOTES p ON cdvg.pilote_id = p.id
                 LEFT JOIN FLOTTE f ON cdvg.appareil_id = f.id
-                ORDER BY cdvg.date_vol DESC, cdvg.heure_depart DESC
+                ORDER BY cdvg.date_vol DESC, cdvg.heure_arrivee DESC
                 LIMIT 10
             ";
             $stmt = $pdo->query($sql);
