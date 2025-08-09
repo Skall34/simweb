@@ -38,4 +38,4 @@ include __DIR__ . '/../includes/menu_guest.php';
     </section>
 </main>
 
-<?php include("includes/footer.php"); ?>
+<?php include __DIR__ . '/../includes/footer.php'; ?>
