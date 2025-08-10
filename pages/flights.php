@@ -203,7 +203,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                 <h3>Détails du vol</h3>
                 <table style="width:100%;border-collapse:collapse;">
                     <tr>
-                        <td style="width: 30%; padding: 0; margin: 0; border: 0; vertical-align: top;">
+                        <td style="width: 365px; padding: 0; margin: 0; border: 0; vertical-align: top;">
                             <div id="vol-modal-body" >
                             <!-- Les détails du vol seront injectés ici -->
                             </div>
