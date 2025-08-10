@@ -203,7 +203,7 @@ try {
                         </div>
                     </td>
                     <td style="width: 70%; padding: 0; margin: 0; border: 0; vertical-align: middle;">
-                        <div id="map" style="width: 100%; height: 400px;"></div>
+                        <div id="map" style="width: 600px; height: 400px;"></div>
                     </td>
                 </tr>
             </table>
