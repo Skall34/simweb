@@ -29,6 +29,8 @@ try {
     // Ignore erreur
 }
 
+// Requête principale des vols
+
 $sql = "
 SELECT 
   c.id AS vol_id,
@@ -69,6 +71,29 @@ $sql .= " ORDER BY c.date_vol DESC, c.heure_arrivee DESC";
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $flights = $stmt->fetchAll();
+
+// --- Ajout : récupération des positions des aéroports de départ et d'arrivée ---
+$aeroports = [];
+$icaos = [];
+foreach ($flights as $vol) {
+    if (!empty($vol['depart'])) $icaos[] = $vol['depart'];
+    if (!empty($vol['destination'])) $icaos[] = $vol['destination'];
+}
+$icaos = array_values(array_unique($icaos));
+
+if (count($icaos) > 0) {
+    $placeholders = implode(',', array_fill(0, count($icaos), '?'));
+    $stmtAero = $pdo->prepare("SELECT ident, latitude_deg, longitude_deg FROM AEROPORTS WHERE ident IN ($placeholders)");
+    $stmtAero->execute($icaos);
+    while ($row = $stmtAero->fetch(PDO::FETCH_ASSOC)) {
+        $aeroports[$row['ident']] = [
+            'latitude_deg' => $row['latitude_deg'],
+            'longitude_deg' => $row['longitude_deg']
+        ];
+    }
+}
+// --- Fin ajout ---
+
 
 include __DIR__ . '/../includes/header.php';
 include __DIR__ . '/../includes/menu_logged.php';
@@ -142,7 +167,11 @@ include __DIR__ . '/../includes/menu_logged.php';
                         'Note du vol' => $flight['note_du_vol'],
                         'Mission' => $flight['mission_libelle'],
                         'Recette du vol' => number_format($flight['cout_vol'], 2) . ' €',
-                        'Pirep' => $pirep_complet
+                        'Pirep' => $pirep_complet,
+                        'lat_depart' => isset($aeroports[$flight['depart']]) ? $aeroports[$flight['depart']]['latitude_deg'] : null,
+                        'long_depart' => isset($aeroports[$flight['depart']]) ? $aeroports[$flight['depart']]['longitude_deg'] : null,
+                        'lat_destination' => isset($aeroports[$flight['destination']]) ? $aeroports[$flight['destination']]['latitude_deg'] : null,
+                        'long_destination' => isset($aeroports[$flight['destination']]) ? $aeroports[$flight['destination']]['longitude_deg'] : null
                     ];
                     $details_json = htmlspecialchars(json_encode($details), ENT_QUOTES, 'UTF-8');
                 ?>
@@ -223,20 +252,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Centrage par défaut
                 var lat = 48.8566, lng = 2.3522, zoom = 8;
-                // Si tu as stocké la position du vol dans detailsObj, utilise-les
-                if (detailsObj.Latitude && detailsObj.Longitude) {
-                    lat = detailsObj.Latitude;
-                    lng = detailsObj.Longitude;
-                }
+
                 window.map = L.map(mapDiv).setView([lat, lng], zoom);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 }).addTo(window.map);
 
-                // Ajout du marker de position (optionnel)
-                L.marker([lat, lng]).addTo(window.map)
-                    .bindPopup('Position du vol')
-                    .openPopup();
 
                 // Récupération et affichage du tracé GPS
                 if (detailsObj['ID vol']) {
@@ -255,8 +276,18 @@ document.addEventListener('DOMContentLoaded', function() {
                                     // Conversion en tableau de [lat, lng]
                                     const latlngs = trace.map(pt => [parseFloat(pt.Lat), parseFloat(pt.Long)]);
                                     // Affiche le tracé sur la carte
-                                    L.polyline(latlngs, {color: 'red', weight: 3}).addTo(window.map);
+                                    L.polyline(latlngs, {color: 'blue', weight: 3}).addTo(window.map);
                                     // Ajuste la vue sur le tracé
+                                    window.map.fitBounds(latlngs);
+                                }
+                            }else{
+                                console.error('Aucun tracé GPS trouvé pour ce vol.');
+                                if (detailsObj.lat_depart && detailsObj.long_depart && detailsObj.lat_destination && detailsObj.long_destination) {
+                                    const latlngs = [
+                                        [detailsObj.lat_depart, detailsObj.long_depart],
+                                        [detailsObj.lat_destination, detailsObj.long_destination]
+                                    ];
+                                    L.polyline(latlngs, {color: 'red', weight: 3, dashArray: '8, 8'}).addTo(window.map);
                                     window.map.fitBounds(latlngs);
                                 }
                             }
@@ -264,6 +295,15 @@ document.addEventListener('DOMContentLoaded', function() {
                         .catch(e => {
                             console.error('Erreur lors du chargement du tracé GPS:', e);
                         });
+                }
+                //ajoute un marker pour les aéroports de départ et d'arrivée
+                if (detailsObj.lat_depart && detailsObj.long_depart) {
+                    L.marker([detailsObj.lat_depart, detailsObj.long_depart]).addTo(window.map)
+                        .bindPopup('Départ: ' + detailsObj['Départ']);
+                }
+                if (detailsObj.lat_destination && detailsObj.long_destination) {
+                    L.marker([detailsObj.lat_destination, detailsObj.long_destination]).addTo(window.map)
+                        .bindPopup('Destination: ' + detailsObj['Destination']);
                 }
             })
             .catch((e) => {
