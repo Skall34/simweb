@@ -83,12 +83,13 @@ $icaos = array_values(array_unique($icaos));
 
 if (count($icaos) > 0) {
     $placeholders = implode(',', array_fill(0, count($icaos), '?'));
-    $stmtAero = $pdo->prepare("SELECT ident, latitude_deg, longitude_deg FROM AEROPORTS WHERE ident IN ($placeholders)");
+    $stmtAero = $pdo->prepare("SELECT ident, latitude_deg, longitude_deg, municipality FROM AEROPORTS WHERE ident IN ($placeholders)");
     $stmtAero->execute($icaos);
     while ($row = $stmtAero->fetch(PDO::FETCH_ASSOC)) {
         $aeroports[$row['ident']] = [
             'latitude_deg' => $row['latitude_deg'],
-            'longitude_deg' => $row['longitude_deg']
+            'longitude_deg' => $row['longitude_deg'],
+            'municipality' => $row['municipality'] ?: ''
         ];
     }
 }
@@ -171,7 +172,9 @@ include __DIR__ . '/../includes/menu_logged.php';
                         'lat_depart' => isset($aeroports[$flight['depart']]) ? $aeroports[$flight['depart']]['latitude_deg'] : null,
                         'long_depart' => isset($aeroports[$flight['depart']]) ? $aeroports[$flight['depart']]['longitude_deg'] : null,
                         'lat_destination' => isset($aeroports[$flight['destination']]) ? $aeroports[$flight['destination']]['latitude_deg'] : null,
-                        'long_destination' => isset($aeroports[$flight['destination']]) ? $aeroports[$flight['destination']]['longitude_deg'] : null
+                        'long_destination' => isset($aeroports[$flight['destination']]) ? $aeroports[$flight['destination']]['longitude_deg'] : null,
+                        'name_depart' => isset($aeroports[$flight['depart']]) ? $aeroports[$flight['depart']]['municipality'] : '',
+                        'name_dest' => isset($aeroports[$flight['destination']]) ? $aeroports[$flight['destination']]['municipality'] : ''
                     ];
                     $details_json = htmlspecialchars(json_encode($details), ENT_QUOTES, 'UTF-8');
                 ?>
@@ -299,11 +302,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 //ajoute un marker pour les aéroports de départ et d'arrivée
                 if (detailsObj.lat_depart && detailsObj.long_depart) {
                     L.marker([detailsObj.lat_depart, detailsObj.long_depart]).addTo(window.map)
-                        .bindPopup('Départ: ' + detailsObj['Départ']);
+                        .bindPopup('Départ: ' + detailsObj['name_depart'] + ' (' + detailsObj['Départ'] + ')');
                 }
                 if (detailsObj.lat_destination && detailsObj.long_destination) {
                     L.marker([detailsObj.lat_destination, detailsObj.long_destination]).addTo(window.map)
-                        .bindPopup('Destination: ' + detailsObj['Destination']);
+                        .bindPopup('Destination: ' + detailsObj['name_dest'] + ' (' + detailsObj['Destination'] + ')' );
                 }
             })
             .catch((e) => {

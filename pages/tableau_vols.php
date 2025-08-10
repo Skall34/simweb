@@ -75,12 +75,13 @@ try {
 
     if (count($icaos) > 0) {
         $placeholders = implode(',', array_fill(0, count($icaos), '?'));
-        $stmtAero = $pdo->prepare("SELECT ident, latitude_deg, longitude_deg FROM AEROPORTS WHERE ident IN ($placeholders)");
+        $stmtAero = $pdo->prepare("SELECT ident, latitude_deg, longitude_deg, municipality FROM AEROPORTS WHERE ident IN ($placeholders)");
         $stmtAero->execute($icaos);
         while ($row = $stmtAero->fetch(PDO::FETCH_ASSOC)) {
             $aeroports[$row['ident']] = [
                 'latitude_deg' => $row['latitude_deg'],
-                'longitude_deg' => $row['longitude_deg']
+                'longitude_deg' => $row['longitude_deg'],
+                'municipality' => $row['municipality'] ?: ''
             ];
         }
     }
@@ -160,7 +161,9 @@ try {
                 'lat_depart' => isset($aeroports[$vol['depart']]) ? $aeroports[$vol['depart']]['latitude_deg'] : null,
                 'long_depart' => isset($aeroports[$vol['depart']]) ? $aeroports[$vol['depart']]['longitude_deg'] : null,
                 'lat_destination' => isset($aeroports[$vol['destination']]) ? $aeroports[$vol['destination']]['latitude_deg'] : null,
-                'long_destination' => isset($aeroports[$vol['destination']]) ? $aeroports[$vol['destination']]['longitude_deg'] : null
+                'long_destination' => isset($aeroports[$vol['destination']]) ? $aeroports[$vol['destination']]['longitude_deg'] : null,
+                'name_départ' => isset($aeroports[$vol['depart']]) ? $aeroports[$vol['depart']]['municipality'] : '',
+                'name_dest' => isset($aeroports[$vol['destination']]) ? $aeroports[$vol['destination']]['municipality'] : ''
             ];
             $details_json = htmlspecialchars(json_encode($details), ENT_QUOTES, 'UTF-8');
         ?>
@@ -326,11 +329,11 @@ document.querySelectorAll('.vol-row').forEach(function(row) {
             //ajoute un marker pour les aéroports de départ et d'arrivée
             if (detailsObj.lat_depart && detailsObj.long_depart) {
                 L.marker([detailsObj.lat_depart, detailsObj.long_depart]).addTo(window.map)
-                    .bindPopup('Départ: ' + detailsObj['Départ']);
+                    .bindPopup('Départ: ' + detailsObj['name_départ'] + ' (' + detailsObj['Départ'] + ')');
             }
             if (detailsObj.lat_destination && detailsObj.long_destination) {
                 L.marker([detailsObj.lat_destination, detailsObj.long_destination]).addTo(window.map)
-                    .bindPopup('Destination: ' + detailsObj['Destination']);
+                    .bindPopup('Destination: ' + detailsObj['name_dest'] + ' (' + detailsObj['Destination'] + ')' );
             }
 
             
