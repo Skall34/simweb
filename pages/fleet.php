@@ -241,7 +241,25 @@ include __DIR__ . '/../includes/menu_logged.php';
                     html += '<tr><td colspan="2" style="font-weight:bold;color:#1abc9c;font-size:1.08em;padding-bottom:6px;">Informations financières</td></tr>';
                     html += financeRows;
                 }
+                //s'il y a un fichier image associé, on l'affiche
+                const imagePath = '/assets/images/fleet/' + details['Immatriculation'] + '.jpg';
+
+                //verifie avec une requête AJAX si l'image existe                             
+                html += '<tr><td colspan="2" style="padding:8px 0 2px 0;"><hr style="border:0;border-top:1.5px solid #1abc9c;margin:10px 0 6px 0;"></td></tr>';
+                html += '<tr><td colspan="2" style="font-weight:bold;color:#1abc9c;font-size:1.08em;padding-bottom:6px;">Image de l\'appareil</td></tr>';   
+                html += '<tr><td colspan="2" style="text-align:center;"><img src="' + imagePath + '" alt="Image de l\'appareil" style="max-width:100%;height:auto;border-radius:8px;"></td></tr>';
+                                       
                 html += '</table>';
+                //si l'utilisateur est admin, on ajoute le bouton pour uploader une image
+                if (details['Immatriculation'] && <?php echo (int)($_SESSION['user']['isAdmin'] ?? 0); ?> === 1) {
+                    html += '<hr style="border:0;border-top:1.5px solid #1abc9c;margin:10px 0 6px 0;">';
+                    html += '<p style="font-weight:bold;color:#1abc9c;font-size:1.08em;padding-bottom:6px;">Actions</p>';
+                    html += '<form id="uploadForm" enctype="multipart/form-data" method="post" action="/scripts/admin_fleet_image.php" style="margin-bottom:0;">';
+                    html += '<input type="hidden" name="immat" value="' + details['Immatriculation'] + '">';
+                    html += '<input type="file" name="image" accept="image/*" required style="margin-bottom:8px;">';
+                    html += '<button class="btn" type="submit" style="margin-top:8px;">Uploader l\'image</button>';
+                    html += '</form>';
+                }
                 document.getElementById('fleet-modal-body').innerHTML = html;
                 document.getElementById('fleet-modal').style.display = 'flex';
             });

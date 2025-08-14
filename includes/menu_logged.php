@@ -80,6 +80,9 @@ if (session_status() === PHP_SESSION_NONE) {
         $stmt = $pdo->prepare("SELECT admin FROM PILOTES WHERE callsign = :callsign");
         $stmt->execute(['callsign' => $_SESSION['user']['callsign']]);
         $isAdmin = $stmt->fetchColumn();
+        // Assure que $isAdmin est un entier, et mémorise-le dans la session
+        $_SESSION['user']['isAdmin'] = $isAdmin;
+
         if ($isAdmin == 1) {
             ?>
             <div class="menu-admin">
