@@ -8,6 +8,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['image']) && isset($_
     $uploadDir = __DIR__ . '/../assets/images/fleet/';
     if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
     $file = $_FILES['image'];
+    if ($file['size'] > 250 * 1024) {
+        die("Le fichier est trop volumineux (max 250 Ko).");
+    }
     $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
     $allowed = ['jpg','jpeg','png','gif','webp'];
     if (!in_array($ext, $allowed)) {
@@ -16,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['image']) && isset($_
     $dest = $uploadDir . $immat . '.' . $ext;
     if (move_uploaded_file($file['tmp_name'], $dest)) {
         echo "Image uploadée avec succès.";
-        // Optionnel : rediriger vers la page de l'appareil ou afficher un message de succès
+        // redirect to fleet page
         header('Location: ../pages/fleet.php?immat=' . urlencode($immat));
         exit;
     } else {

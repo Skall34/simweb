@@ -257,7 +257,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                     html += '<form id="uploadForm" enctype="multipart/form-data" method="post" action="/scripts/admin_fleet_image.php" style="margin-bottom:0;">';
                     html += '<input type="hidden" name="immat" value="' + details['Immatriculation'] + '">';
                     html += '<input type="file" name="image" accept="image/*" required style="margin-bottom:8px;">';
-                    html += '<button class="btn" type="submit" style="margin-top:8px;">Uploader l\'image</button>';
+                    html += '<button class="btn" type="submit" style="margin-top:8px;">Uploader l\'image (Max 250Ko)</button>';
                     html += '</form>';
                 }
                 document.getElementById('fleet-modal-body').innerHTML = html;
