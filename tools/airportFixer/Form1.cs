@@ -158,31 +158,40 @@ namespace airportFixer
                                     {
                                         if (aeroportType == "heliport")
                                         {
-                                            string l = longueurs[0];
-                                            if (l.Length / 2 == nbPistesFromTypes)
+                                            if (nbPistesFromLongueurs == 1 && pistes.Length == 1)
                                             {
-                                                longueurs = new string[nbPistesFromTypes];
-                                                for (int i = 0; i < l.Length / 2; i++)
-                                                {
-                                                    longueurs[i] = l.Substring(i * 2, 2);
-                                                }
-                                                logWriter.WriteLine("Fixed lengths for heliport in line " + (lineCount));
-                                                cleanedFields[longueurDePisteIndex] = string.Join("/", longueurs);
+                                                // Si on a un heliport avec une seule piste, on peut supposer que la longueur est correcte
+                                                cleanedFields[typeDePisteIndex] = cleanedFields[typeDePisteIndex].Replace("/", " ");
+                                                logWriter.WriteLine("Fixed heliport with single runway in line " + (lineCount));
                                             }
                                             else
                                             {
-                                                if (cancelled || !askForUpdate(airportIdent, ref cleanedFields[pisteIndex],
-                                                    ref cleanedFields[longueurDePisteIndex],
-                                                    ref cleanedFields[typeDePisteIndex],
-                                                    ref cleanedFields[urlIndex]))
+                                                string l = longueurs[0];
+                                                if (l.Length / 2 == nbPistesFromTypes)
                                                 {
-                                                    // Si l'utilisateur annule la saisie, on ne fait rien
-                                                    logWriter.WriteLine("User cancelled update for line " + (lineCount));
-
+                                                    longueurs = new string[nbPistesFromTypes];
+                                                    for (int i = 0; i < l.Length / 2; i++)
+                                                    {
+                                                        longueurs[i] = l.Substring(i * 2, 2);
+                                                    }
+                                                    logWriter.WriteLine("Fixed lengths for heliport in line " + (lineCount));
+                                                    cleanedFields[longueurDePisteIndex] = string.Join("/", longueurs);
                                                 }
                                                 else
                                                 {
-                                                    logWriter.WriteLine("User updated fields for line " + (lineCount));
+                                                    if (cancelled || !askForUpdate(airportIdent, ref cleanedFields[pisteIndex],
+                                                        ref cleanedFields[longueurDePisteIndex],
+                                                        ref cleanedFields[typeDePisteIndex],
+                                                        ref cleanedFields[urlIndex]))
+                                                    {
+                                                        // Si l'utilisateur annule la saisie, on ne fait rien
+                                                        logWriter.WriteLine("User cancelled update for line " + (lineCount));
+
+                                                    }
+                                                    else
+                                                    {
+                                                        logWriter.WriteLine("User updated fields for line " + (lineCount));
+                                                    }
                                                 }
                                             }
                                         }
