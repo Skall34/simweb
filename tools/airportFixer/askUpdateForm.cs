@@ -36,17 +36,17 @@ namespace airportFixer
             if (string.IsNullOrEmpty(WIKIURL))
             {
                 linkLabel1.Visible = false;
+                WIKIURL = "http://www.google.com/search?q=" + name + " + wiki";
             }
-            else
-            {
+            else { 
                 linkLabel1.Visible = true;
-                //open the link in the default browser
-                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-                {
-                    FileName = WIKIURL,
-                    UseShellExecute = true
-                });
             }
+            //open the link in the default browser
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = WIKIURL,
+                UseShellExecute = true
+            });
         }
 
         private void button1_Click(object sender, EventArgs e)
