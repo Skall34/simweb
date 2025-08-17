@@ -2,6 +2,7 @@ includes/db_connect.php
 scripts/uploads/*.csv
 scripts/logs/
 *.log
+*.bkp
 sauvegarde_migration/
 *.txt
 tools/airportfixer/.vs
