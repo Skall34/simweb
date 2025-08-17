@@ -1,5 +1,5 @@
 includes/db_connect.php
-*.csv
+scripts/uploads/*.csv
 scripts/logs/
 *.log
 sauvegarde_migration/
