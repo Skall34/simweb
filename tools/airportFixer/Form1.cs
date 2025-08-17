@@ -72,7 +72,7 @@ namespace airportFixer
             int urlIndex = -1;
 
             //crée un backup du fichier original
-            string backupFilePath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(filePath), "backup_" + System.IO.Path.GetFileName(filePath));
+            string backupFilePath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(filePath), System.IO.Path.GetFileName(filePath)+".bkp");
             if (File.Exists(backupFilePath))
             {
                 File.Delete(backupFilePath); // Supprime le fichier de sauvegarde s'il existe déjà
@@ -85,7 +85,7 @@ namespace airportFixer
             //crée un fichier pour ecrire les données corrigées
             //string outputFilePath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(filePath), "corrected_" + System.IO.Path.GetFileName(filePath));
             //crée un fichier pour ecrire les logs
-            string logFilePath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(filePath), "log_" + System.IO.Path.GetFileName(filePath));
+            string logFilePath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(filePath), System.IO.Path.GetFileName(filePath)+".log");
             // Ouvre le fichier de sortie en écriture
             if (File.Exists(filePath))
             {
