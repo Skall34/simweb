@@ -4,3 +4,6 @@ scripts/logs/
 *.log
 sauvegarde_migration/
 *.txt
+tools/airportfixer/.vs
+tools/airportfixer/bin
+tools/airportfixer/obj
