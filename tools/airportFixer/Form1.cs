@@ -63,8 +63,6 @@ namespace airportFixer
         {           
             listBox1.Items.Clear(); // Efface le contenu de la liste
 
-            // Lit le contenu du fichier CSV
-            string[] lines = System.IO.File.ReadAllLines(filePath);
             // Traite chaque ligne du fichier CSV
             int lineCount = 1;
             int typeDePisteIndex = -1;
@@ -73,14 +71,25 @@ namespace airportFixer
             int pisteIndex = -1;
             int urlIndex = -1;
 
+            //crée un backup du fichier original
+            string backupFilePath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(filePath), "backup_" + System.IO.Path.GetFileName(filePath));
+            if (File.Exists(backupFilePath))
+            {
+                File.Delete(backupFilePath); // Supprime le fichier de sauvegarde s'il existe déjà
+            }
+            File.Copy(filePath, backupFilePath); // Crée une copie de sauvegarde du fichier original
+
+            // Lit le contenu du fichier CSV
+            string[] lines = System.IO.File.ReadAllLines(backupFilePath);
+
             //crée un fichier pour ecrire les données corrigées
-            string outputFilePath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(filePath), "corrected_" + System.IO.Path.GetFileName(filePath));
+            //string outputFilePath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(filePath), "corrected_" + System.IO.Path.GetFileName(filePath));
             //crée un fichier pour ecrire les logs
             string logFilePath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(filePath), "log_" + System.IO.Path.GetFileName(filePath));
             // Ouvre le fichier de sortie en écriture
-            if (File.Exists(outputFilePath))
+            if (File.Exists(filePath))
             {
-                File.Delete(outputFilePath); // Supprime le fichier s'il existe déjà
+                File.Delete(filePath); // Supprime le fichier s'il existe déjà
             }
             if (File.Exists(logFilePath))
             {
@@ -90,8 +99,8 @@ namespace airportFixer
             {
                 logWriter.WriteLine("Log file for airport fixer");
                 logWriter.WriteLine("File processed: " + filePath);
-                logWriter.WriteLine("Output file: " + outputFilePath);
-                using (StreamWriter writer = new StreamWriter(outputFilePath))
+                logWriter.WriteLine("Output file: " + filePath);
+                using (StreamWriter writer = new StreamWriter(filePath))
                 {
                     // Écrit l'en-tête dans le fichier de sortie
                     writer.WriteLine(lines[0]);
