@@ -1,4 +1,9 @@
 <?php
+// Affichage des erreurs pour debug
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 /*
 -------------------------------------------------------------
  Script : importer_vol.php
@@ -138,6 +143,12 @@ try {
 
         // 4. Calcul du coût du vol
         logMsg("[TRACE] Calcul du coût du vol #$id", $logFile);
+        // Calcul de la distance comme dans l'API
+        $distance = 0;
+        if (function_exists('ComputeFlightDistance')) {
+            $distance = ComputeFlightDistance($depart, $dest);
+            logMsg("Distance calculée : $distance NM", $logFile);
+        }
         $majoration_mission = getMajorationMission($mission);
         $cout_horaire = getCoutHoraire($immat);
         $carburant = $fuelDep - $fuelArr;
@@ -145,10 +156,14 @@ try {
         if ($timeDep && $timeArr) {
             $t1 = new DateTime($timeDep);
             $t2 = new DateTime($timeArr);
+            // Si l'heure d'arrivée est inférieure ou égale à l'heure de départ, on ajoute 1 jour à l'arrivée
+            if ($t2 <= $t1) {
+                $t2->modify('+1 day');
+            }
             $interval = $t1->diff($t2);
             $temps_vol = $interval->format('%H:%I:%S');
         }
-        $cout_vol = calculerRevenuNetVol($payload, $temps_vol, $majoration_mission, $carburant, $note, $cout_horaire);
+        $cout_vol = calculerRevenuNetVol($payload, $temps_vol, $distance, $majoration_mission, $carburant, $note, $cout_horaire);
 
         // 5. Ajout au carnet de vol avec le coût et temps_vol
         logMsg("Ajout au carnet de vol : callsign=$callsign, immat=$immat, depart=$depart, dest=$dest, payload=$payload, cout_vol=$cout_vol, temps_vol=$temps_vol", $logFile);
@@ -210,8 +225,8 @@ try {
         }
     }
 
-    logMsg("Import terminé.", $logFile);
-    echo "✅ Import terminé.\n";
+    logMsg("Import terminé. Nombre de vols insérés : $vols_importes", $logFile);
+    echo "✅ Import terminé. Nombre de vols insérés : $vols_importes\n";
 } catch (PDOException $e) {
     logMsg("❌ Erreur DB : " . $e->getMessage(), $logFile);
     echo "Erreur : " . $e->getMessage();
