@@ -3,6 +3,7 @@ scripts/uploads/*.csv
 scripts/*.csv
 scripts/logs/
 *.log
+*.zip
 *.bkp
 sauvegarde_migration/
 *.txt
