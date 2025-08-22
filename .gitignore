@@ -1,5 +1,6 @@
 includes/db_connect.php
 scripts/uploads/*.csv
+scripts/*.csv
 scripts/logs/
 *.log
 *.bkp
