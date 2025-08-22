@@ -107,7 +107,7 @@ include __DIR__ . '/../includes/menu_logged.php';
     <?php if ($etat === 'recherche'): ?>
         <form method="post" class="form-inscription">
             <label>Ident (code ICAO) * :
-                <input name="ident" style="width: 400px;" required>
+                <input name="ident" style="width: 250px;" required>
             </label>
             <button type="submit" name="action" value="rechercher">Rechercher</button>
         </form>

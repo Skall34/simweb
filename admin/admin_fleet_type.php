@@ -64,10 +64,10 @@ try {
 
         <form method="post" action="" class="form-inscription">
             <label>Nom du fleet type *</label>
-            <input type="text" id="fleet_type" name="fleet_type" required>
+            <input type="text" id="fleet_type" name="fleet_type" style="width: 250px;" required>
 
             <label>Catégorie *</label>
-            <select id="type" name="type" required style="width: 370px;">
+            <select id="type" name="type" required style="width: 250px;">
                 <option value="">-- Sélectionner --</option>
                 <option value="Monomoteur">Monomoteur</option>
                 <option value="Bimoteur">Bimoteur</option>
@@ -76,10 +76,10 @@ try {
             </select>
 
             <label>Coût horaire (€) *</label>
-            <input type="number" id="cout_horaire" name="cout_horaire" step="10"  style="width: 370px;" required>
+            <input type="number" id="cout_horaire" name="cout_horaire" step="10"  style="width: 250px;" required>
 
             <label>Coût de l'appareil (€) *</label>
-            <input type="number" id="cout_appareil" name="cout_appareil" step="10"  style="width: 370px;" required>
+            <input type="number" id="cout_appareil" name="cout_appareil" step="10"  style="width: 250px;" required>
 
             <button type="submit" class="btn">Ajouter</button>
         </form>

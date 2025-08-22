@@ -116,28 +116,25 @@ try {
             <label for="avionSelect" style="font-weight:bold;display:block;margin-bottom:7px;">
                 <span style="color:#0066cc;font-size:1.15em;vertical-align:middle;">✈️</span> Choisir un appareil à vendre :
             </label>
-            <div class="select-wrapper">
-                <select id="avionSelect" name="avion_id">
-                    <option value="">-- Sélectionner --</option>
-                    <?php foreach ($flotte as $avion): ?>
-                        <option value="<?= $avion['id'] ?>"
-                            data-type="<?= htmlspecialchars($avion['categorie']) ?>"
-                            data-localisation="<?= htmlspecialchars($avion['localisation']) ?>"
-                            data-hub="<?= htmlspecialchars($avion['hub']) ?>"
-                            data-reste="<?= is_null($avion['reste_a_payer']) ? '' : htmlspecialchars($avion['reste_a_payer']) ?>"
-                            data-dateachat="<?= is_null($avion['date_achat']) ? '' : htmlspecialchars($avion['date_achat']) ?>"
-                            data-datevente="<?= is_null($avion['date_vente']) ? '' : htmlspecialchars($avion['date_vente']) ?>"
-                            data-recettevente="<?= is_null($avion['recette_vente']) ? '' : htmlspecialchars($avion['recette_vente']) ?>"
-                            data-recettes="<?= is_null($avion['recettes']) ? '' : htmlspecialchars($avion['recettes']) ?>"
-                            data-prixvente="<?= $avion['prix_vente_prevu'] !== '' ? htmlspecialchars($avion['prix_vente_prevu']) : '' ?>"
-                            data-modeachat="<?= htmlspecialchars($avion['mode_achat']) ?>"
-                        >
-                            <?= htmlspecialchars($avion['immat']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-                <span class="select-arrow">▼</span>
-            </div>
+            <select id="avionSelect" name="avion_id" style="width: 250px; border-radius: 4px;">
+                <option value="">-- Sélectionner --</option>
+                <?php foreach ($flotte as $avion): ?>
+                    <option value="<?= $avion['id'] ?>"
+                        data-type="<?= htmlspecialchars($avion['categorie']) ?>"
+                        data-localisation="<?= htmlspecialchars($avion['localisation']) ?>"
+                        data-hub="<?= htmlspecialchars($avion['hub']) ?>"
+                        data-reste="<?= is_null($avion['reste_a_payer']) ? '' : htmlspecialchars($avion['reste_a_payer']) ?>"
+                        data-dateachat="<?= is_null($avion['date_achat']) ? '' : htmlspecialchars($avion['date_achat']) ?>"
+                        data-datevente="<?= is_null($avion['date_vente']) ? '' : htmlspecialchars($avion['date_vente']) ?>"
+                        data-recettevente="<?= is_null($avion['recette_vente']) ? '' : htmlspecialchars($avion['recette_vente']) ?>"
+                        data-recettes="<?= is_null($avion['recettes']) ? '' : htmlspecialchars($avion['recettes']) ?>"
+                        data-prixvente="<?= $avion['prix_vente_prevu'] !== '' ? htmlspecialchars($avion['prix_vente_prevu']) : '' ?>"
+                        data-modeachat="<?= htmlspecialchars($avion['mode_achat']) ?>"
+                    >
+                        <?= htmlspecialchars($avion['immat']) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
             <div id="detailsAvion" style="display:none; margin-bottom:15px;">
                 <p><strong>Type :</strong> <span id="detailType"></span></p>
                 <p><strong>Localisation :</strong> <span id="detailLocalisation"></span></p>
@@ -214,41 +211,6 @@ try {
 }
 .btn:hover {
     background-color: #005bb5;
-}
-/* Style moderne pour la liste de sélection */
-.select-wrapper {
-    position: relative;
-    display: inline-block;
-    width: 270px;
-    margin-bottom: 15px;
-}
-#avionSelect {
-    width: 100%;
-    padding: 9px 38px 9px 12px;
-    border-radius: 12px;
-    border: 1px solid #b3c6e0;
-    background: #f7fbff;
-    font-size: 1.08em;
-    color: #0066cc;
-    font-weight: bold;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    transition: border-color 0.2s;
-}
-#avionSelect:focus {
-    border-color: #0066cc;
-    outline: none;
-}
-.select-arrow {
-    position: absolute;
-    right: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    pointer-events: none;
-    font-size: 1.1em;
-    color: #0066cc;
 }
 </style>
 
