@@ -57,6 +57,14 @@ namespace airportFixer
             tbPistes.AutoCompleteCustomSource = autoComplete;
             tbPistes.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
             tbPistes.AutoCompleteSource = AutoCompleteSource.CustomSource;
+
+            //autocomplete for surfaces
+            var autoCompleteSurfaces = new AutoCompleteStringCollection();
+            autoCompleteSurfaces.AddRange(new string[] { "ASP", "CONC","GRAVEL", "GRASS", "TURF", "WATER", "ICE", "SNOW", "DIRT", "EARTH","UNK" });
+            tbSurfaces.AutoCompleteCustomSource = autoCompleteSurfaces;
+            tbSurfaces.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            tbSurfaces.AutoCompleteSource = AutoCompleteSource.CustomSource;
+
         }
 
         private void askUpdateForm_Load(object sender, EventArgs e)

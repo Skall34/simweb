@@ -181,119 +181,39 @@ namespace airportFixer
 
                                     int nbPistesFromTypes = types.Length;
                                     int nbPistesFromLongueurs = longueurs.Length;
-                                    if (nbPistesFromLongueurs != nbPistesFromTypes)
+
+                                    if (!string.IsNullOrEmpty(cleanedFields[pisteIndex]) &&
+                                        !string.IsNullOrEmpty(cleanedFields[longueurDePisteIndex]) &&
+                                        !string.IsNullOrEmpty(cleanedFields[typeDePisteIndex]))
                                     {
-                                        logWriter.WriteLine("The number of surfaces and lengths does not match in line " + (lineCount));
-                                        listBox1.Items.Add("The number of surfaces and lengths does not match in line " + (lineCount));
-                                        addItemToListView("The number of surfaces and lengths does not match", lineCount);
 
-                                        if (nbPistesFromTypes > nbPistesFromLongueurs)
+                                        if (nbPistesFromLongueurs != nbPistesFromTypes)
                                         {
-                                            if (nbPistesFromLongueurs == 1)
-                                            {
-                                                if (aeroportType == "heliport")
-                                                {
-                                                    if (nbPistesFromLongueurs == 1 && pistes.Length == 1)
-                                                    {
-                                                        // Si on a un heliport avec une seule piste, on peut supposer que la longueur est correcte
-                                                        cleanedFields[typeDePisteIndex] = cleanedFields[typeDePisteIndex].Replace("/", " ");
-                                                        logWriter.WriteLine("Fixed heliport with single runway in line " + (lineCount));
-                                                        addItemToListView("Fixed heliport with single runway", lineCount);
-                                                    }
-                                                    else
-                                                    {
-                                                        if (cancelled || !askForUpdate(ICAO,airportName, ref cleanedFields[pisteIndex],
-                                                            ref cleanedFields[longueurDePisteIndex],
-                                                            ref cleanedFields[typeDePisteIndex],
-                                                            ref cleanedFields[urlIndex],
-                                                            cleanedFields[latitudeIndex], cleanedFields[longitudeIndex], aeroportType
-                                                            ))
-                                                        {
-                                                            // Si l'utilisateur annule la saisie, on ne fait rien
-                                                            logWriter.WriteLine("User cancelled update for line " + (lineCount));
-                                                            addItemToListView("User cancelled update", lineCount);
+                                            logWriter.WriteLine("The number of surfaces and lengths does not match in line " + (lineCount));
+                                            listBox1.Items.Add("The number of surfaces and lengths does not match in line " + (lineCount));
+                                            addItemToListView("The number of surfaces and lengths does not match", lineCount);
 
+                                            if (nbPistesFromTypes > nbPistesFromLongueurs)
+                                            {
+                                                if (nbPistesFromLongueurs == 1)
+                                                {
+                                                    if (aeroportType == "heliport")
+                                                    {
+                                                        if (nbPistesFromLongueurs == 1 && pistes.Length == 1)
+                                                        {
+                                                            // Si on a un heliport avec une seule piste, on peut supposer que la longueur est correcte
+                                                            cleanedFields[typeDePisteIndex] = cleanedFields[typeDePisteIndex].Replace("/", " ");
+                                                            logWriter.WriteLine("Fixed heliport with single runway in line " + (lineCount));
+                                                            addItemToListView("Fixed heliport with single runway", lineCount);
                                                         }
                                                         else
                                                         {
-                                                            logWriter.WriteLine("User updated fields for line " + (lineCount));
-                                                            addItemToListView("User updated fields", lineCount);
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                            else
-                                            {
-                                                if (pistes.Length == nbPistesFromLongueurs)
-                                                {
-                                                    // Si le nombre de pistes correspond au nombre de longueurs, on peut supposer que les longueurs sont correctes
-                                                    if (nbPistesFromLongueurs == 1)
-                                                    {
-                                                        cleanedFields[typeDePisteIndex] = cleanedFields[typeDePisteIndex].Replace("/", " ");
-                                                    }
-                                                    else
-                                                    {
-                                                        if (cancelled || !askForUpdate(ICAO, airportName, ref cleanedFields[pisteIndex],
-                                                            ref cleanedFields[longueurDePisteIndex],
-                                                            ref cleanedFields[typeDePisteIndex],
-                                                            ref cleanedFields[urlIndex],
-                                                            cleanedFields[latitudeIndex], cleanedFields[longitudeIndex], aeroportType
-                                                            ))
-                                                        {
-                                                            // Si l'utilisateur annule la saisie, on ne fait rien
-                                                            logWriter.WriteLine("User cancelled update for line " + (lineCount));
-                                                            addItemToListView("User cancelled update", lineCount);
-
-                                                        }
-                                                        else
-                                                        {
-                                                            logWriter.WriteLine("User updated fields for line " + (lineCount));
-                                                            addItemToListView("User updated fields", lineCount);
-                                                        }
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    string l = longueurs[0];
-                                                    if ((l.Length % 4 == 0) && (l.Length > 4))
-                                                    {
-                                                        longueurs = new string[l.Length / 4];
-                                                        for (int i = 0; i < l.Length / 4; i++)
-                                                        {
-                                                            longueurs[i] = l.Substring(i * 4, 4);
-                                                        }
-                                                        logWriter.WriteLine("Fixed lengths for airport in line " + (lineCount));
-                                                        addItemToListView("Fixed lengths for airport", lineCount);
-                                                        cleanedFields[longueurDePisteIndex] = string.Join("/", longueurs);
-                                                    }
-                                                    else
-                                                    {
-                                                        if (!cancelled)
-                                                        {
-                                                            int index = 0;
-                                                            while (index < l.Length)
-                                                            {
-                                                                if (l[index] == '1')
-                                                                {
-                                                                    index += 5;
-                                                                    if (index < l.Length)
-                                                                        l = l.Insert(index, "/");
-                                                                }
-                                                                else
-                                                                {
-                                                                    index += 4;
-                                                                    if (index < l.Length)
-                                                                        l = l.Insert(index, "/");
-                                                                }
-                                                                index++;
-                                                            }
-                                                            cleanedFields[longueurDePisteIndex] = l;
-
                                                             if (cancelled || !askForUpdate(ICAO, airportName, ref cleanedFields[pisteIndex],
                                                                 ref cleanedFields[longueurDePisteIndex],
                                                                 ref cleanedFields[typeDePisteIndex],
                                                                 ref cleanedFields[urlIndex],
-                                                            cleanedFields[latitudeIndex], cleanedFields[longitudeIndex], aeroportType))
+                                                                cleanedFields[latitudeIndex], cleanedFields[longitudeIndex], aeroportType
+                                                                ))
                                                             {
                                                                 // Si l'utilisateur annule la saisie, on ne fait rien
                                                                 logWriter.WriteLine("User cancelled update for line " + (lineCount));
@@ -306,97 +226,145 @@ namespace airportFixer
                                                                 addItemToListView("User updated fields", lineCount);
                                                             }
                                                         }
-                                                        else
-                                                        {
-                                                            logWriter.WriteLine("User cancelled update for line " + (lineCount));
-                                                            addItemToListView("User cancelled update", lineCount);
-                                                        }
-                                                    }
-                                                }
-                                            }
-
-                                        }
-                                        else
-                                        {
-                                            if (cancelled || !askForUpdate(ICAO, airportName, ref cleanedFields[pisteIndex],
-                                                ref cleanedFields[longueurDePisteIndex],
-                                                ref cleanedFields[typeDePisteIndex],
-                                                ref cleanedFields[urlIndex],
-                                                            cleanedFields[latitudeIndex], cleanedFields[longitudeIndex],
-                                                            aeroportType))
-                                            {
-                                                // Si l'utilisateur annule la saisie, on ne fait rien
-                                                logWriter.WriteLine("User cancelled update for line " + (lineCount));
-                                                addItemToListView("User cancelled update", lineCount);
-
-                                            }
-                                            else
-                                            {
-                                                logWriter.WriteLine("User updated fields for line " + (lineCount));
-                                                addItemToListView("User updated fields", lineCount);
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        //le nombre de pistes est correct
-                                        if (aeroportType != "heliport")
-                                        {
-                                            if (!cleanedFields[pisteIndex].Contains("-"))
-                                            {
-                                                //si on a des "/", on les remplace par des "-"
-                                                string oldPiste = cleanedFields[pisteIndex];
-                                                if (cleanedFields[pisteIndex].Contains("/"))
-                                                {
-                                                    cleanedFields[pisteIndex] = cleanedFields[pisteIndex].Replace("/", " - ");
-                                                    logWriter.WriteLine("Fixed runway names for airport in line " + (lineCount));
-                                                    //si on a plusieurs pistes, on doit avoir des "-" dans le nom des pistes
-                                                    if (cancelled || !askForUpdate(ICAO, airportName, ref cleanedFields[pisteIndex],
-                                                    ref cleanedFields[longueurDePisteIndex],
-                                                    ref cleanedFields[typeDePisteIndex],
-                                                    ref cleanedFields[urlIndex],
-                                                            cleanedFields[latitudeIndex], cleanedFields[longitudeIndex], aeroportType))
-                                                    {
-                                                        cleanedFields[pisteIndex] = oldPiste; //restore old value
-                                                        // Si l'utilisateur annule la saisie, on ne fait rien
-                                                        logWriter.WriteLine("User cancelled update for line " + (lineCount));
-                                                        addItemToListView("User cancelled update", lineCount);
-                                                    }
-                                                    else
-                                                    {
-                                                        logWriter.WriteLine("User updated fields for line " + (lineCount));
-                                                        addItemToListView("User updated fields", lineCount);
                                                     }
                                                 }
                                                 else
                                                 {
-                                                    if (aeroportType == "seaplane_base")
+                                                    if (pistes.Length == nbPistesFromLongueurs)
                                                     {
-                                                        if (string.IsNullOrEmpty(cleanedFields[pisteIndex]))
+                                                        // Si le nombre de pistes correspond au nombre de longueurs, on peut supposer que les longueurs sont correctes
+                                                        if (nbPistesFromLongueurs == 1)
                                                         {
-                                                            cleanedFields[pisteIndex] = "??-??";
-                                                            cleanedFields[typeDePisteIndex] = "WATER";
-                                                            cleanedFields[longueurDePisteIndex] = "????";
-
-                                                            logWriter.WriteLine("Fixed seaplane base with missing runway in line " + (lineCount));
-                                                            addItemToListView("Fixed seaplane base with missing runway", lineCount);
+                                                            cleanedFields[typeDePisteIndex] = cleanedFields[typeDePisteIndex].Replace("/", " ");
                                                         }
                                                         else
                                                         {
-                                                            //tout va bien, rien à faire
+                                                            if (cancelled || !askForUpdate(ICAO, airportName, ref cleanedFields[pisteIndex],
+                                                                ref cleanedFields[longueurDePisteIndex],
+                                                                ref cleanedFields[typeDePisteIndex],
+                                                                ref cleanedFields[urlIndex],
+                                                                cleanedFields[latitudeIndex], cleanedFields[longitudeIndex], aeroportType
+                                                                ))
+                                                            {
+                                                                // Si l'utilisateur annule la saisie, on ne fait rien
+                                                                logWriter.WriteLine("User cancelled update for line " + (lineCount));
+                                                                addItemToListView("User cancelled update", lineCount);
 
+                                                            }
+                                                            else
+                                                            {
+                                                                logWriter.WriteLine("User updated fields for line " + (lineCount));
+                                                                addItemToListView("User updated fields", lineCount);
+                                                            }
                                                         }
                                                     }
                                                     else
                                                     {
-                                                        //on demande la mise a jour
+                                                        string l = longueurs[0];
+                                                        if ((l.Length % 4 == 0) && (l.Length > 4))
+                                                        {
+                                                            longueurs = new string[l.Length / 4];
+                                                            for (int i = 0; i < l.Length / 4; i++)
+                                                            {
+                                                                longueurs[i] = l.Substring(i * 4, 4);
+                                                            }
+                                                            logWriter.WriteLine("Fixed lengths for airport in line " + (lineCount));
+                                                            addItemToListView("Fixed lengths for airport", lineCount);
+                                                            cleanedFields[longueurDePisteIndex] = string.Join("/", longueurs);
+                                                        }
+                                                        else
+                                                        {
+                                                            if (!cancelled)
+                                                            {
+                                                                int index = 0;
+                                                                while (index < l.Length)
+                                                                {
+                                                                    if (l[index] == '1')
+                                                                    {
+                                                                        index += 5;
+                                                                        if (index < l.Length)
+                                                                            l = l.Insert(index, "/");
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        index += 4;
+                                                                        if (index < l.Length)
+                                                                            l = l.Insert(index, "/");
+                                                                    }
+                                                                    index++;
+                                                                }
+                                                                cleanedFields[longueurDePisteIndex] = l;
+
+                                                                if (cancelled || !askForUpdate(ICAO, airportName, ref cleanedFields[pisteIndex],
+                                                                    ref cleanedFields[longueurDePisteIndex],
+                                                                    ref cleanedFields[typeDePisteIndex],
+                                                                    ref cleanedFields[urlIndex],
+                                                                cleanedFields[latitudeIndex], cleanedFields[longitudeIndex], aeroportType))
+                                                                {
+                                                                    // Si l'utilisateur annule la saisie, on ne fait rien
+                                                                    logWriter.WriteLine("User cancelled update for line " + (lineCount));
+                                                                    addItemToListView("User cancelled update", lineCount);
+
+                                                                }
+                                                                else
+                                                                {
+                                                                    logWriter.WriteLine("User updated fields for line " + (lineCount));
+                                                                    addItemToListView("User updated fields", lineCount);
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                logWriter.WriteLine("User cancelled update for line " + (lineCount));
+                                                                addItemToListView("User cancelled update", lineCount);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+
+                                            }
+                                            else
+                                            {
+                                                if (cancelled || !askForUpdate(ICAO, airportName, ref cleanedFields[pisteIndex],
+                                                    ref cleanedFields[longueurDePisteIndex],
+                                                    ref cleanedFields[typeDePisteIndex],
+                                                    ref cleanedFields[urlIndex],
+                                                                cleanedFields[latitudeIndex], cleanedFields[longitudeIndex],
+                                                                aeroportType))
+                                                {
+                                                    // Si l'utilisateur annule la saisie, on ne fait rien
+                                                    logWriter.WriteLine("User cancelled update for line " + (lineCount));
+                                                    addItemToListView("User cancelled update", lineCount);
+
+                                                }
+                                                else
+                                                {
+                                                    logWriter.WriteLine("User updated fields for line " + (lineCount));
+                                                    addItemToListView("User updated fields", lineCount);
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            //le nombre de pistes est correct
+                                            if (aeroportType != "heliport")
+                                            {
+                                                if (!cleanedFields[pisteIndex].Contains("-"))
+                                                {
+                                                    //si on a des "/", on les remplace par des "-"
+                                                    string oldPiste = cleanedFields[pisteIndex];
+                                                    if (cleanedFields[pisteIndex].Contains("/"))
+                                                    {
+                                                        cleanedFields[pisteIndex] = cleanedFields[pisteIndex].Replace("/", "-");
+                                                        logWriter.WriteLine("Fixed runway names for airport in line " + (lineCount));
+                                                        //si on a plusieurs pistes, on doit avoir des "-" dans le nom des pistes
                                                         if (cancelled || !askForUpdate(ICAO, airportName, ref cleanedFields[pisteIndex],
                                                         ref cleanedFields[longueurDePisteIndex],
                                                         ref cleanedFields[typeDePisteIndex],
                                                         ref cleanedFields[urlIndex],
                                                                 cleanedFields[latitudeIndex], cleanedFields[longitudeIndex], aeroportType))
                                                         {
-                                                            // Si l'utilisateur annule la saisie, on ne fait rien
+                                                            cleanedFields[pisteIndex] = oldPiste; //restore old value
+                                                                                                  // Si l'utilisateur annule la saisie, on ne fait rien
                                                             logWriter.WriteLine("User cancelled update for line " + (lineCount));
                                                             addItemToListView("User cancelled update", lineCount);
                                                         }
@@ -406,15 +374,54 @@ namespace airportFixer
                                                             addItemToListView("User updated fields", lineCount);
                                                         }
                                                     }
+                                                    else
+                                                    {
+                                                        if (aeroportType == "seaplane_base")
+                                                        {
+                                                            if (string.IsNullOrEmpty(cleanedFields[pisteIndex]))
+                                                            {
+                                                                cleanedFields[pisteIndex] = "??-??";
+                                                                cleanedFields[typeDePisteIndex] = "WATER";
+                                                                cleanedFields[longueurDePisteIndex] = "????";
+
+                                                                logWriter.WriteLine("Fixed seaplane base with missing runway in line " + (lineCount));
+                                                                addItemToListView("Fixed seaplane base with missing runway", lineCount);
+                                                            }
+                                                            else
+                                                            {
+                                                                //tout va bien, rien à faire
+
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            //on demande la mise a jour
+                                                            if (cancelled || !askForUpdate(ICAO, airportName, ref cleanedFields[pisteIndex],
+                                                            ref cleanedFields[longueurDePisteIndex],
+                                                            ref cleanedFields[typeDePisteIndex],
+                                                            ref cleanedFields[urlIndex],
+                                                                    cleanedFields[latitudeIndex], cleanedFields[longitudeIndex], aeroportType))
+                                                            {
+                                                                // Si l'utilisateur annule la saisie, on ne fait rien
+                                                                logWriter.WriteLine("User cancelled update for line " + (lineCount));
+                                                                addItemToListView("User cancelled update", lineCount);
+                                                            }
+                                                            else
+                                                            {
+                                                                logWriter.WriteLine("User updated fields for line " + (lineCount));
+                                                                addItemToListView("User updated fields", lineCount);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                else
+                                                {
+
                                                 }
                                             }
-                                            else
-                                            {
-                                                
-                                            }
-                                        }
 
-                                        ////ici, on manque d'informations sur le type de pistes.
+                                            ////ici, on manque d'informations sur le type de pistes.
+                                        }
                                     }
                                     //ecrit les champs nettoyés dans le fichier de sortie avec des " autour de chaque champ
                                     for (int i = 0; i < cleanedFields.Length; i++)
