@@ -40,6 +40,7 @@
             tbURLUpdate = new TextBox();
             button3 = new Button();
             googleLinkLabel = new LinkLabel();
+            button4 = new Button();
             SuspendLayout();
             // 
             // button1
@@ -151,6 +152,16 @@
             googleLinkLabel.Text = "linkLabel2";
             googleLinkLabel.LinkClicked += googleLinkLabel_LinkClicked;
             // 
+            // button4
+            // 
+            button4.Location = new Point(12, 274);
+            button4.Name = "button4";
+            button4.Size = new Size(202, 23);
+            button4.TabIndex = 13;
+            button4.Text = "web request https://airportdb.io/";
+            button4.UseVisualStyleBackColor = true;
+            button4.Click += button4_Click;
+            // 
             // askUpdateForm
             // 
             AcceptButton = button1;
@@ -158,6 +169,7 @@
             AutoScaleMode = AutoScaleMode.Font;
             CancelButton = button2;
             ClientSize = new Size(485, 309);
+            Controls.Add(button4);
             Controls.Add(googleLinkLabel);
             Controls.Add(button3);
             Controls.Add(tbURLUpdate);
@@ -193,5 +205,6 @@
         private TextBox tbURLUpdate;
         private Button button3;
         private LinkLabel googleLinkLabel;
+        private Button button4;
     }
 }

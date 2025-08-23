@@ -37,7 +37,7 @@ namespace airportFixer
 
         }
 
-        private bool askForUpdate(string name, ref string pistes, ref string longueurs, ref string surfaces, ref string url, string latitude, string longitude, string airportType)
+        private bool askForUpdate(string ICAO,string name, ref string pistes, ref string longueurs, ref string surfaces, ref string url, string latitude, string longitude, string airportType)
         {
             askUpdateForm askUpdateForm = new askUpdateForm();
             askUpdateForm.Pistes = pistes;
@@ -46,6 +46,7 @@ namespace airportFixer
             askUpdateForm.WIKIURL = url;
             askUpdateForm.name = name;
             askUpdateForm.airportType = airportType;
+            askUpdateForm.ICAO = ICAO;
 
             if (double.TryParse(latitude, NumberStyles.Float, CultureInfo.InvariantCulture, out double lat))
             {
@@ -175,7 +176,8 @@ namespace airportFixer
                                     string[] longueurs = cleanedFields[longueurDePisteIndex].TrimEnd('/').Split("/");
                                     string[] pistes = cleanedFields[pisteIndex].TrimEnd('/').Split(" ");
 
-                                    string airportIdent = cleanedFields[2].Trim() + "(" + cleanedFields[0] + ")";
+                                    string airportName = cleanedFields[2].Trim();
+                                    string ICAO = cleanedFields[0].Trim();
 
                                     int nbPistesFromTypes = types.Length;
                                     int nbPistesFromLongueurs = longueurs.Length;
@@ -200,7 +202,7 @@ namespace airportFixer
                                                     }
                                                     else
                                                     {
-                                                        if (cancelled || !askForUpdate(airportIdent, ref cleanedFields[pisteIndex],
+                                                        if (cancelled || !askForUpdate(ICAO,airportName, ref cleanedFields[pisteIndex],
                                                             ref cleanedFields[longueurDePisteIndex],
                                                             ref cleanedFields[typeDePisteIndex],
                                                             ref cleanedFields[urlIndex],
@@ -231,7 +233,7 @@ namespace airportFixer
                                                     }
                                                     else
                                                     {
-                                                        if (cancelled || !askForUpdate(airportIdent, ref cleanedFields[pisteIndex],
+                                                        if (cancelled || !askForUpdate(ICAO, airportName, ref cleanedFields[pisteIndex],
                                                             ref cleanedFields[longueurDePisteIndex],
                                                             ref cleanedFields[typeDePisteIndex],
                                                             ref cleanedFields[urlIndex],
@@ -287,7 +289,7 @@ namespace airportFixer
                                                             }
                                                             cleanedFields[longueurDePisteIndex] = l;
 
-                                                            if (cancelled || !askForUpdate(airportIdent, ref cleanedFields[pisteIndex],
+                                                            if (cancelled || !askForUpdate(ICAO, airportName, ref cleanedFields[pisteIndex],
                                                                 ref cleanedFields[longueurDePisteIndex],
                                                                 ref cleanedFields[typeDePisteIndex],
                                                                 ref cleanedFields[urlIndex],
@@ -316,7 +318,7 @@ namespace airportFixer
                                         }
                                         else
                                         {
-                                            if (cancelled || !askForUpdate(airportIdent, ref cleanedFields[pisteIndex],
+                                            if (cancelled || !askForUpdate(ICAO, airportName, ref cleanedFields[pisteIndex],
                                                 ref cleanedFields[longueurDePisteIndex],
                                                 ref cleanedFields[typeDePisteIndex],
                                                 ref cleanedFields[urlIndex],
@@ -349,7 +351,7 @@ namespace airportFixer
                                                     cleanedFields[pisteIndex] = cleanedFields[pisteIndex].Replace("/", " - ");
                                                     logWriter.WriteLine("Fixed runway names for airport in line " + (lineCount));
                                                     //si on a plusieurs pistes, on doit avoir des "-" dans le nom des pistes
-                                                    if (cancelled || !askForUpdate(airportIdent, ref cleanedFields[pisteIndex],
+                                                    if (cancelled || !askForUpdate(ICAO, airportName, ref cleanedFields[pisteIndex],
                                                     ref cleanedFields[longueurDePisteIndex],
                                                     ref cleanedFields[typeDePisteIndex],
                                                     ref cleanedFields[urlIndex],
@@ -368,23 +370,47 @@ namespace airportFixer
                                                 }
                                                 else
                                                 {
-                                                    //on demande la mise a jour
-                                                    if (cancelled || !askForUpdate(airportIdent, ref cleanedFields[pisteIndex],
-                                                    ref cleanedFields[longueurDePisteIndex],
-                                                    ref cleanedFields[typeDePisteIndex],
-                                                    ref cleanedFields[urlIndex],
-                                                            cleanedFields[latitudeIndex], cleanedFields[longitudeIndex], aeroportType))
+                                                    if (aeroportType == "seaplane_base")
                                                     {
-                                                        // Si l'utilisateur annule la saisie, on ne fait rien
-                                                        logWriter.WriteLine("User cancelled update for line " + (lineCount));
-                                                        addItemToListView("User cancelled update", lineCount);
+                                                        if (string.IsNullOrEmpty(cleanedFields[pisteIndex]))
+                                                        {
+                                                            cleanedFields[pisteIndex] = "??-??";
+                                                            cleanedFields[typeDePisteIndex] = "WATER";
+                                                            cleanedFields[longueurDePisteIndex] = "????";
+
+                                                            logWriter.WriteLine("Fixed seaplane base with missing runway in line " + (lineCount));
+                                                            addItemToListView("Fixed seaplane base with missing runway", lineCount);
+                                                        }
+                                                        else
+                                                        {
+                                                            //tout va bien, rien à faire
+
+                                                        }
                                                     }
                                                     else
                                                     {
-                                                        logWriter.WriteLine("User updated fields for line " + (lineCount));
-                                                        addItemToListView("User updated fields", lineCount);
+                                                        //on demande la mise a jour
+                                                        if (cancelled || !askForUpdate(ICAO, airportName, ref cleanedFields[pisteIndex],
+                                                        ref cleanedFields[longueurDePisteIndex],
+                                                        ref cleanedFields[typeDePisteIndex],
+                                                        ref cleanedFields[urlIndex],
+                                                                cleanedFields[latitudeIndex], cleanedFields[longitudeIndex], aeroportType))
+                                                        {
+                                                            // Si l'utilisateur annule la saisie, on ne fait rien
+                                                            logWriter.WriteLine("User cancelled update for line " + (lineCount));
+                                                            addItemToListView("User cancelled update", lineCount);
+                                                        }
+                                                        else
+                                                        {
+                                                            logWriter.WriteLine("User updated fields for line " + (lineCount));
+                                                            addItemToListView("User updated fields", lineCount);
+                                                        }
                                                     }
                                                 }
+                                            }
+                                            else
+                                            {
+                                                
                                             }
                                         }
 
