@@ -32,6 +32,10 @@
             label1 = new Label();
             btnFixIt = new Button();
             listBox1 = new ListBox();
+            btnCheck = new Button();
+            listView1 = new ListView();
+            Message = new ColumnHeader();
+            Line = new ColumnHeader();
             SuspendLayout();
             // 
             // btnOpenCSV
@@ -69,16 +73,50 @@
             listBox1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             listBox1.FormattingEnabled = true;
             listBox1.ItemHeight = 15;
-            listBox1.Location = new Point(12, 248);
+            listBox1.Location = new Point(12, 353);
             listBox1.Name = "listBox1";
-            listBox1.Size = new Size(776, 184);
+            listBox1.Size = new Size(776, 79);
             listBox1.TabIndex = 3;
+            // 
+            // btnCheck
+            // 
+            btnCheck.Enabled = false;
+            btnCheck.Location = new Point(12, 73);
+            btnCheck.Name = "btnCheck";
+            btnCheck.Size = new Size(152, 23);
+            btnCheck.TabIndex = 4;
+            btnCheck.Text = "Check it";
+            btnCheck.UseVisualStyleBackColor = true;
+            btnCheck.Click += btnCheck_Click;
+            // 
+            // listView1
+            // 
+            listView1.Columns.AddRange(new ColumnHeader[] { Message, Line });
+            listView1.FullRowSelect = true;
+            listView1.Location = new Point(12, 132);
+            listView1.Name = "listView1";
+            listView1.Size = new Size(776, 215);
+            listView1.TabIndex = 5;
+            listView1.UseCompatibleStateImageBehavior = false;
+            listView1.View = View.Details;
+            listView1.MouseDoubleClick += listView1_MouseDoubleClick;
+            // 
+            // Message
+            // 
+            Message.Text = "Message";
+            Message.Width = 400;
+            // 
+            // Line
+            // 
+            Line.Text = "Line";
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(listView1);
+            Controls.Add(btnCheck);
             Controls.Add(listBox1);
             Controls.Add(btnFixIt);
             Controls.Add(label1);
@@ -95,5 +133,9 @@
         private Label label1;
         private Button btnFixIt;
         private ListBox listBox1;
+        private Button btnCheck;
+        private ListView listView1;
+        private ColumnHeader Message;
+        private ColumnHeader Line;
     }
 }
