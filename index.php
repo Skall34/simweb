@@ -168,9 +168,89 @@ if (!isset($_SESSION['user'])) {
     </table>
 
 
+            <!--affiche une carte openstreetmap avec les vols en cours-->
+            <h2>Carte des vols en cours</h2>
+            <div id="map" style="width: 100%; height: 400px;"></div>
+            <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+            <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+            <script>
+                // Initialisation de la carte
+                var map = L.map('map').setView([48.8566, 2.3522], 5); // Vue centrée sur Paris
+
+                // Ajout de la couche OpenStreetMap
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(map);
+
+                // Stockage des marqueurs pour pouvoir les supprimer lors du rafraîchissement
+                var flightMarkers = [];
+                var flightSegments = [];
+
+                // Fonction pour ajouter un marqueur
+                function addMarker(lat, lon, callsign) {
+                    var marker = L.marker([lat, lon]).addTo(map)
+                        .bindPopup(callsign);
+                    flightMarkers.push(marker);
+                }
+
+                // Fonction pour supprimer tous les marqueurs existants
+                function clearMarkers() {
+                    flightMarkers.forEach(function(marker) {
+                        map.removeLayer(marker);
+                    });
+                    flightMarkers = [];
+                }
+
+                function addSegment(latlngs, color = 'blue') {
+                    var segment = L.polyline(latlngs, { color: color }).addTo(map);
+                    flightSegments.push(segment);
+
+                }
+
+                function clearSegments() {
+                    flightSegments.forEach(function(segment) {
+                        map.removeLayer(segment);
+                    });
+                    flightSegments = [];
+                }
+
+                // Fonction pour charger et afficher les vols en cours sur la carte
+                function updateLiveFlightsMap() {
+                    fetch('api/api_live_flights.php')
+                        .then(response => response.json())
+                        .then(data => {
+                            clearMarkers();
+                            clearSegments(); // Supprimer les segments précédents
+                            data.forEach(flight => {
+                                addMarker(flight.latitude, flight.longitude, flight.callsign);
+                                // Si les aéroports de départ et d'arrivée sont disponibles, trace une ligne entre eux
+                                if (flight.lat_dep && flight.long_dep && flight.lat_arr && flight.long_arr) {
+                                    // Tracer une ligne entre les aéroports de départ et d'arrivée
+                                    var latlngs = [
+                                        [flight.lat_dep, flight.long_dep],
+                                        [flight.lat_arr, flight.long_arr]
+                                    ];
+                                    addSegment(latlngs, 'red'); // Ligne rouge pour le segment de vol
+                                }else {
+                                    console.log(`Aéroports non disponibles pour le vol ${flight.callsign}`);
+                                }
+                            });
+                        })
+                        .catch(error => console.error('Erreur lors du chargement des vols :', error));
+                }
+
+                // Chargement initial
+                updateLiveFlightsMap();
     
 
+                // Rafraîchissement toutes les 30 secondes
+                setInterval(updateLiveFlightsMap, 30000);
+            </script>          
     <?php } ?>
+
+
 
     <script>
     function chargerVolsEnCours() {
