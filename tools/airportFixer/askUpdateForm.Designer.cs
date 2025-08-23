@@ -38,12 +38,13 @@
             tbSurfaces = new TextBox();
             linkLabel1 = new LinkLabel();
             tbURLUpdate = new TextBox();
+            button3 = new Button();
             SuspendLayout();
             // 
             // button1
             // 
             button1.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            button1.Location = new Point(347, 209);
+            button1.Location = new Point(398, 274);
             button1.Name = "button1";
             button1.Size = new Size(75, 23);
             button1.TabIndex = 0;
@@ -54,7 +55,7 @@
             // button2
             // 
             button2.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            button2.Location = new Point(266, 209);
+            button2.Location = new Point(317, 274);
             button2.Name = "button2";
             button2.Size = new Size(75, 23);
             button2.TabIndex = 1;
@@ -128,13 +129,24 @@
             tbURLUpdate.Size = new Size(382, 23);
             tbURLUpdate.TabIndex = 9;
             // 
+            // button3
+            // 
+            button3.Location = new Point(400, 6);
+            button3.Name = "button3";
+            button3.Size = new Size(75, 23);
+            button3.TabIndex = 10;
+            button3.Text = "Find";
+            button3.UseVisualStyleBackColor = true;
+            button3.Click += button3_Click;
+            // 
             // askUpdateForm
             // 
             AcceptButton = button1;
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             CancelButton = button2;
-            ClientSize = new Size(434, 244);
+            ClientSize = new Size(485, 309);
+            Controls.Add(button3);
             Controls.Add(tbURLUpdate);
             Controls.Add(linkLabel1);
             Controls.Add(tbSurfaces);
@@ -148,6 +160,8 @@
             Name = "askUpdateForm";
             Text = "askUpdateForm";
             Load += askUpdateForm_Load;
+            MouseDown += askUpdateForm_MouseDown;
+            MouseMove += askUpdateForm_MouseMove;
             ResumeLayout(false);
             PerformLayout();
         }
@@ -164,5 +178,6 @@
         private TextBox tbSurfaces;
         private LinkLabel linkLabel1;
         private TextBox tbURLUpdate;
+        private Button button3;
     }
 }

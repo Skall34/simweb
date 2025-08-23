@@ -18,9 +18,15 @@ namespace airportFixer
         public string Surfaces { get; set; }
         public string WIKIURL { get; set; }
 
+        private int mouseX;
+        private int mouseY;
+
+
+
         public askUpdateForm()
         {
             InitializeComponent();
+
         }
 
         private void askUpdateForm_Load(object sender, EventArgs e)
@@ -38,7 +44,8 @@ namespace airportFixer
                 linkLabel1.Visible = false;
                 WIKIURL = "http://www.google.com/search?q=" + name + " + wiki";
             }
-            else { 
+            else
+            {
                 linkLabel1.Visible = true;
             }
             //open the link in the default browser
@@ -72,6 +79,28 @@ namespace airportFixer
         private void button2_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void askUpdateForm_MouseDown(object sender, MouseEventArgs e)
+        {
+            //memorize the mouse position
+            mouseX = e.X;
+            mouseY = e.Y;
+        }
+
+        private void askUpdateForm_MouseMove(object sender, MouseEventArgs e)
+        {
+
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            RunwayFinder runwayFinder = new RunwayFinder();
+            runwayFinder.runways = tbPistes.Text;
+            if (runwayFinder.ShowDialog() == DialogResult.OK)
+            {
+                tbPistes.Text = runwayFinder.runways;
+            }
         }
     }
 }

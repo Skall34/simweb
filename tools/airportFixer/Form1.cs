@@ -315,22 +315,56 @@ namespace airportFixer
                                     }
                                     else
                                     {
-                                        ////ici, on manque d'informations sur le type de pistes.
-                                        //if (cancelled || !askForUpdate(airportIdent, ref cleanedFields[pisteIndex],
-                                        //    ref cleanedFields[longueurDePisteIndex],
-                                        //    ref cleanedFields[typeDePisteIndex],
-                                        //    ref cleanedFields[urlIndex]))
-                                        //{
-                                        //    // Si l'utilisateur annule la saisie, on ne fait rien
-                                        //    logWriter.WriteLine("User cancelled update for line " + (lineCount));
-                                        //    addItemToListView("User cancelled update", lineCount);
+                                        //le nombre de pistes est correct
+                                        if (aeroportType != "heliport")
+                                        {
+                                            if (!cleanedFields[pisteIndex].Contains("-"))
+                                            {
+                                                //si on a des "/", on les remplace par des "-"
+                                                string oldPiste = cleanedFields[pisteIndex];
+                                                if (cleanedFields[pisteIndex].Contains("/"))
+                                                {
+                                                    cleanedFields[pisteIndex] = cleanedFields[pisteIndex].Replace("/", " - ");
+                                                    logWriter.WriteLine("Fixed runway names for airport in line " + (lineCount));
+                                                    //si on a plusieurs pistes, on doit avoir des "-" dans le nom des pistes
+                                                    if (cancelled || !askForUpdate(airportIdent, ref cleanedFields[pisteIndex],
+                                                    ref cleanedFields[longueurDePisteIndex],
+                                                    ref cleanedFields[typeDePisteIndex],
+                                                    ref cleanedFields[urlIndex]))
+                                                    {
+                                                        cleanedFields[pisteIndex] = oldPiste; //restore old value
+                                                        // Si l'utilisateur annule la saisie, on ne fait rien
+                                                        logWriter.WriteLine("User cancelled update for line " + (lineCount));
+                                                        addItemToListView("User cancelled update", lineCount);
+                                                    }
+                                                    else
+                                                    {
+                                                        logWriter.WriteLine("User updated fields for line " + (lineCount));
+                                                        addItemToListView("User updated fields", lineCount);
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    //on demande la mise a jour
+                                                    if (cancelled || !askForUpdate(airportIdent, ref cleanedFields[pisteIndex],
+                                                    ref cleanedFields[longueurDePisteIndex],
+                                                    ref cleanedFields[typeDePisteIndex],
+                                                    ref cleanedFields[urlIndex]))
+                                                    {
+                                                        // Si l'utilisateur annule la saisie, on ne fait rien
+                                                        logWriter.WriteLine("User cancelled update for line " + (lineCount));
+                                                        addItemToListView("User cancelled update", lineCount);
+                                                    }
+                                                    else
+                                                    {
+                                                        logWriter.WriteLine("User updated fields for line " + (lineCount));
+                                                        addItemToListView("User updated fields", lineCount);
+                                                    }
+                                                }
+                                            }
+                                        }
 
-                                        //}
-                                        //else
-                                        //{
-                                        //    logWriter.WriteLine("User updated fields for line " + (lineCount));
-                                        //    addItemToListView("User updated fields", lineCount);
-                                        //}
+                                        ////ici, on manque d'informations sur le type de pistes.
                                     }
                                     //ecrit les champs nettoyés dans le fichier de sortie avec des " autour de chaque champ
                                     for (int i = 0; i < cleanedFields.Length; i++)
@@ -353,11 +387,6 @@ namespace airportFixer
                     }
                 }
             }
-
-        }
-
-        private void button1_Click_1(object sender, EventArgs e)
-        {
 
         }
 
@@ -411,6 +440,10 @@ namespace airportFixer
                     int lineNumber = (int)item.Tag;
                 }
             }
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
         }
     }
 }
