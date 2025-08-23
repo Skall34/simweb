@@ -39,6 +39,7 @@
             linkLabel1 = new LinkLabel();
             tbURLUpdate = new TextBox();
             button3 = new Button();
+            googleLinkLabel = new LinkLabel();
             SuspendLayout();
             // 
             // button1
@@ -139,6 +140,17 @@
             button3.UseVisualStyleBackColor = true;
             button3.Click += button3_Click;
             // 
+            // googleLinkLabel
+            // 
+            googleLinkLabel.AutoSize = true;
+            googleLinkLabel.Location = new Point(12, 198);
+            googleLinkLabel.Name = "googleLinkLabel";
+            googleLinkLabel.Size = new Size(60, 15);
+            googleLinkLabel.TabIndex = 12;
+            googleLinkLabel.TabStop = true;
+            googleLinkLabel.Text = "linkLabel2";
+            googleLinkLabel.LinkClicked += googleLinkLabel_LinkClicked;
+            // 
             // askUpdateForm
             // 
             AcceptButton = button1;
@@ -146,6 +158,7 @@
             AutoScaleMode = AutoScaleMode.Font;
             CancelButton = button2;
             ClientSize = new Size(485, 309);
+            Controls.Add(googleLinkLabel);
             Controls.Add(button3);
             Controls.Add(tbURLUpdate);
             Controls.Add(linkLabel1);
@@ -179,5 +192,6 @@
         private LinkLabel linkLabel1;
         private TextBox tbURLUpdate;
         private Button button3;
+        private LinkLabel googleLinkLabel;
     }
 }

@@ -1,4 +1,5 @@
 using Microsoft.VisualBasic.FileIO; // à placer en haut du fichier
+using System.Globalization; // à placer en haut du fichier
 
 namespace airportFixer
 {
@@ -36,7 +37,7 @@ namespace airportFixer
 
         }
 
-        private bool askForUpdate(string name, ref string pistes, ref string longueurs, ref string surfaces, ref string url)
+        private bool askForUpdate(string name, ref string pistes, ref string longueurs, ref string surfaces, ref string url, string latitude, string longitude, string airportType)
         {
             askUpdateForm askUpdateForm = new askUpdateForm();
             askUpdateForm.Pistes = pistes;
@@ -44,6 +45,16 @@ namespace airportFixer
             askUpdateForm.Surfaces = surfaces;
             askUpdateForm.WIKIURL = url;
             askUpdateForm.name = name;
+            askUpdateForm.airportType = airportType;
+
+            if (double.TryParse(latitude, NumberStyles.Float, CultureInfo.InvariantCulture, out double lat))
+            {
+                askUpdateForm.latitude = lat;
+            }
+            if (double.TryParse(longitude, NumberStyles.Float, CultureInfo.InvariantCulture, out double lon))
+            {
+                askUpdateForm.longitude = lon;
+            }
 
             if (askUpdateForm.ShowDialog() == DialogResult.OK)
             {
@@ -77,9 +88,11 @@ namespace airportFixer
             int lineCount = 1;
             int typeDePisteIndex = -1;
             int longueurDePisteIndex = -1;
-            int aerportTypeIndex = -1;
+            int aiportTypeIndex = -1;
             int pisteIndex = -1;
             int urlIndex = -1;
+            int latitudeIndex = -1;
+            int longitudeIndex = -1;
 
             //crée un backup du fichier original
             string backupFilePath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(filePath), System.IO.Path.GetFileName(filePath) + ".bkp");
@@ -123,9 +136,11 @@ namespace airportFixer
                             string[] headers = line.Split(',');
                             typeDePisteIndex = Array.IndexOf(headers, "\"Type_de_piste\"");
                             longueurDePisteIndex = Array.IndexOf(headers, "\"Longueur_de_piste\"");
-                            aerportTypeIndex = Array.IndexOf(headers, "\"type_aeroport\"");
+                            aiportTypeIndex = Array.IndexOf(headers, "\"type_aeroport\"");
                             pisteIndex = Array.IndexOf(headers, "\"Piste\"");
                             urlIndex = Array.IndexOf(headers, "\"wikipedia_link\"");
+                            latitudeIndex = Array.IndexOf(headers, "\"latitude_deg\"");
+                            longitudeIndex = Array.IndexOf(headers, "\"longitude_deg\"");
 
                             if (typeDePisteIndex == -1 || longueurDePisteIndex == -1)
                             {
@@ -149,7 +164,7 @@ namespace airportFixer
                                     // Nettoie chaque champ
                                     string[] cleanedFields = fields.Select(f => f.Trim('\"')).ToArray();
 
-                                    string aeroportType = cleanedFields[aerportTypeIndex].Trim();
+                                    string aeroportType = cleanedFields[aiportTypeIndex].Trim();
 
                                     string[] types = cleanedFields[typeDePisteIndex].TrimEnd('/').Split("/");
                                     if (cleanedFields[longueurDePisteIndex].EndsWith(" Ft"))
@@ -188,7 +203,9 @@ namespace airportFixer
                                                         if (cancelled || !askForUpdate(airportIdent, ref cleanedFields[pisteIndex],
                                                             ref cleanedFields[longueurDePisteIndex],
                                                             ref cleanedFields[typeDePisteIndex],
-                                                            ref cleanedFields[urlIndex]))
+                                                            ref cleanedFields[urlIndex],
+                                                            cleanedFields[latitudeIndex], cleanedFields[longitudeIndex], aeroportType
+                                                            ))
                                                         {
                                                             // Si l'utilisateur annule la saisie, on ne fait rien
                                                             logWriter.WriteLine("User cancelled update for line " + (lineCount));
@@ -217,7 +234,9 @@ namespace airportFixer
                                                         if (cancelled || !askForUpdate(airportIdent, ref cleanedFields[pisteIndex],
                                                             ref cleanedFields[longueurDePisteIndex],
                                                             ref cleanedFields[typeDePisteIndex],
-                                                            ref cleanedFields[urlIndex]))
+                                                            ref cleanedFields[urlIndex],
+                                                            cleanedFields[latitudeIndex], cleanedFields[longitudeIndex], aeroportType
+                                                            ))
                                                         {
                                                             // Si l'utilisateur annule la saisie, on ne fait rien
                                                             logWriter.WriteLine("User cancelled update for line " + (lineCount));
@@ -271,7 +290,8 @@ namespace airportFixer
                                                             if (cancelled || !askForUpdate(airportIdent, ref cleanedFields[pisteIndex],
                                                                 ref cleanedFields[longueurDePisteIndex],
                                                                 ref cleanedFields[typeDePisteIndex],
-                                                                ref cleanedFields[urlIndex]))
+                                                                ref cleanedFields[urlIndex],
+                                                            cleanedFields[latitudeIndex], cleanedFields[longitudeIndex], aeroportType))
                                                             {
                                                                 // Si l'utilisateur annule la saisie, on ne fait rien
                                                                 logWriter.WriteLine("User cancelled update for line " + (lineCount));
@@ -299,7 +319,9 @@ namespace airportFixer
                                             if (cancelled || !askForUpdate(airportIdent, ref cleanedFields[pisteIndex],
                                                 ref cleanedFields[longueurDePisteIndex],
                                                 ref cleanedFields[typeDePisteIndex],
-                                                ref cleanedFields[urlIndex]))
+                                                ref cleanedFields[urlIndex],
+                                                            cleanedFields[latitudeIndex], cleanedFields[longitudeIndex],
+                                                            aeroportType))
                                             {
                                                 // Si l'utilisateur annule la saisie, on ne fait rien
                                                 logWriter.WriteLine("User cancelled update for line " + (lineCount));
@@ -330,7 +352,8 @@ namespace airportFixer
                                                     if (cancelled || !askForUpdate(airportIdent, ref cleanedFields[pisteIndex],
                                                     ref cleanedFields[longueurDePisteIndex],
                                                     ref cleanedFields[typeDePisteIndex],
-                                                    ref cleanedFields[urlIndex]))
+                                                    ref cleanedFields[urlIndex],
+                                                            cleanedFields[latitudeIndex], cleanedFields[longitudeIndex], aeroportType))
                                                     {
                                                         cleanedFields[pisteIndex] = oldPiste; //restore old value
                                                         // Si l'utilisateur annule la saisie, on ne fait rien
@@ -349,7 +372,8 @@ namespace airportFixer
                                                     if (cancelled || !askForUpdate(airportIdent, ref cleanedFields[pisteIndex],
                                                     ref cleanedFields[longueurDePisteIndex],
                                                     ref cleanedFields[typeDePisteIndex],
-                                                    ref cleanedFields[urlIndex]))
+                                                    ref cleanedFields[urlIndex],
+                                                            cleanedFields[latitudeIndex], cleanedFields[longitudeIndex], aeroportType))
                                                     {
                                                         // Si l'utilisateur annule la saisie, on ne fait rien
                                                         logWriter.WriteLine("User cancelled update for line " + (lineCount));
