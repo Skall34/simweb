@@ -29,6 +29,8 @@ namespace airportFixer
                 filePath = openFileDialog.FileName;
                 btnFixIt.Enabled = true; // Active le bouton de traitement
                 btnCheck.Enabled = true; // Active le bouton de traitement
+                btnExport.Enabled = true;
+                label1.Text = "Selected file: " + filePath;
             }
             else
             {
@@ -37,7 +39,7 @@ namespace airportFixer
 
         }
 
-        private bool askForUpdate(string ICAO,string name, ref string pistes, ref string longueurs, ref string surfaces, ref string url, string latitude, string longitude, string airportType)
+        private bool askForUpdate(string ICAO, string name, ref string pistes, ref string longueurs, ref string surfaces, ref string url, string latitude, string longitude, string airportType)
         {
             askUpdateForm askUpdateForm = new askUpdateForm();
             askUpdateForm.Pistes = pistes;
@@ -443,8 +445,9 @@ namespace airportFixer
                         }
                     }
                 }
+                logWriter.WriteLine("Processing completed.");
             }
-
+            listBox1.Items.Add("Processing completed. Log file: " + logFilePath);         
         }
 
         private void btnCheck_Click(object sender, EventArgs e)
@@ -483,6 +486,7 @@ namespace airportFixer
                 }
                 lineCount++;
             }
+            listBox1.Items.Add("Check completed.");
 
         }
 
@@ -501,6 +505,35 @@ namespace airportFixer
 
         private void Form1_Load(object sender, EventArgs e)
         {
+        }
+
+        private void btnExport_Click(object sender, EventArgs e)
+        {
+            //create a new csv file with the same content as the selected one, but without the header line
+
+            if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
+            {
+                string exportFilePath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(filePath), "exported_" + System.IO.Path.GetFileName(filePath));
+                if (File.Exists(exportFilePath))
+                {
+                    File.Delete(exportFilePath); // Supprime le fichier s'il existe déjà
+                }
+                using (StreamWriter writer = new StreamWriter(exportFilePath))
+                {
+                    string[] lines = System.IO.File.ReadAllLines(filePath);
+                    //don't write the first line (header)
+                    for (int i = 1; i < lines.Length; i++)
+                    {
+                        writer.WriteLine(lines[i]);
+                    }
+                }
+                MessageBox.Show("File exported to: " + exportFilePath);
+            }
+            else
+            {
+                MessageBox.Show("No file selected or file does not exist.");
+
+            }
         }
     }
 }

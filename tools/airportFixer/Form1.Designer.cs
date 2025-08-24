@@ -36,6 +36,7 @@
             listView1 = new ListView();
             Message = new ColumnHeader();
             Line = new ColumnHeader();
+            btnExport = new Button();
             SuspendLayout();
             // 
             // btnOpenCSV
@@ -110,11 +111,23 @@
             // 
             Line.Text = "Line";
             // 
+            // btnExport
+            // 
+            btnExport.Enabled = false;
+            btnExport.Location = new Point(12, 102);
+            btnExport.Name = "btnExport";
+            btnExport.Size = new Size(152, 23);
+            btnExport.TabIndex = 6;
+            btnExport.Text = "Export for DB";
+            btnExport.UseVisualStyleBackColor = true;
+            btnExport.Click += btnExport_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(btnExport);
             Controls.Add(listView1);
             Controls.Add(btnCheck);
             Controls.Add(listBox1);
@@ -138,5 +151,6 @@
         private ListView listView1;
         private ColumnHeader Message;
         private ColumnHeader Line;
+        private Button btnExport;
     }
 }
