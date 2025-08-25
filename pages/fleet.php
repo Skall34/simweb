@@ -256,7 +256,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                     html += '<p style="font-weight:bold;color:#1abc9c;font-size:1.08em;padding-bottom:6px;">Actions</p>';
                     html += '<form id="uploadForm" enctype="multipart/form-data" method="post" action="/scripts/admin_fleet_image.php" style="margin-bottom:0;">';
                     html += '<input type="hidden" name="immat" value="' + details['Immatriculation'] + '">';
-                    html += '<input type="file" name="image" accept="image/*" required style="margin-bottom:8px;">';
+                    html += '<input type="file" name="image" accept=".jpg" required style="margin-bottom:8px;">';
                     html += '<button class="btn" type="submit" style="margin-top:8px;">Uploader l\'image (Max 250Ko)</button>';
                     html += '</form>';
                 }

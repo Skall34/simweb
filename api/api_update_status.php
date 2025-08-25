@@ -67,11 +67,21 @@ try {
             'Latitude'  => $latitude,
             'Longitude' => $longitude
         ]);
+
+        //met à jour le statut de l'avion dans la table FLOTTE
+        $stmt2 = $pdo->prepare("UPDATE FLOTTE SET en_vol = '1' WHERE immat = :immat");
+        $stmt2->execute(['immat' => $immat]);
+
     } else {
         $stmt = $pdo->prepare("DELETE FROM Live_FLIGHTS WHERE Callsign = :cs");
         $stmt->execute([
             'cs' => $callsign
         ]);
+
+        //met à jour le statut de l'avion dans la table FLOTTE
+        $stmt2 = $pdo->prepare("UPDATE FLOTTE SET en_vol = '0' WHERE immat = :immat");
+        $stmt2->execute(['immat' => $immat]);
+
     }
 
     echo json_encode(['status' => 'success', 'message' => '✅ status mis à jour avec succès Latitude: ' . $latitude . ', Longitude: ' . $longitude]);
