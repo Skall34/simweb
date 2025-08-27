@@ -36,8 +36,9 @@ if (isset($_POST['update']) && $info) {
     $nom = trim($_POST['nom'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $admin = isset($_POST['admin']) ? 1 : 0;
-    $stmt = $pdo->prepare('UPDATE PILOTES SET prenom = ?, nom = ?, email = ?, admin = ? WHERE id = ?');
-    if ($stmt->execute([$prenom, $nom, $email, $admin, $selected_id])) {
+    $actif = isset($_POST['actif']) ? 1 : 0;
+    $stmt = $pdo->prepare('UPDATE PILOTES SET prenom = ?, nom = ?, email = ?, admin = ?, actif = ? WHERE id = ?');
+    if ($stmt->execute([$prenom, $nom, $email, $admin, $actif, $selected_id])) {
         $message = "Modifications enregistrées.";
         // Réinitialise la sélection du pilote
         $selected_id = null;
@@ -87,8 +88,10 @@ include __DIR__ . '/../includes/menu_logged.php';
             <input type="email" name="email" value="<?= htmlspecialchars($info['email']) ?>">
         </div>
         <div class="form-row">
-            <label>Admin :</label>
-            <input type="checkbox" name="admin" value="1" <?= $info['admin']==1?'checked':'' ?>>
+            <label style="margin-right:6px;">Admin :</label>
+            <input type="checkbox" name="admin" value="1" <?= $info['admin']==1?'checked':'' ?> style="margin-left:0; margin-right:18px;">
+            <label style="margin-right:6px;">Actif :</label>
+            <input type="checkbox" name="actif" value="1" <?= (isset($info['actif']) && $info['actif']==1)?'checked':'' ?> style="margin-left:0;">
         </div>
         <div class="form-row">
             <button type="submit" name="update" class="btn-bleu">Enregistrer</button>

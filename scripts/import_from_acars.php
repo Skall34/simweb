@@ -70,13 +70,12 @@ while (($line = fgets($handle)) !== false) {
     // Payload : arrondi, conversion décimale
     $payload = round(floatval(str_replace(',', '.', $fields[9])));
 
-    // Commentaire : tout le texte qui commence par "Landing speed" et se termine par "V3.4.1)"
-    $commentaire = '';
-    if (preg_match('/(Landing speed.*?V3\.4\.1\))/i', $fields[10], $matches)) {
-        $commentaire = $matches[1];
-    } else {
-        $commentaire = trim($fields[10]);
-    }
+    // Commentaire : tout le texte du champ, nettoyage des caractères indésirables
+    $commentaire = trim($fields[10]);
+    // Supprimer les caractères de contrôle non imprimables (sauf tab, CR, LF)
+    $commentaire = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', $commentaire);
+    // Limiter la longueur à 1000 caractères
+    $commentaire = mb_substr($commentaire, 0, 1000);
 
     // Note du vol : conversion en entier si possible
     $note_du_vol = is_numeric($fields[11]) ? intval($fields[11]) : null;

@@ -10,7 +10,7 @@ if (!isset($_SESSION['user'])) {
 }
 
 // Récupère tous les pilotes
-$sql = "SELECT callsign, prenom, nom FROM PILOTES ORDER BY callsign";
+$sql = "SELECT callsign, prenom, nom FROM PILOTES WHERE actif = 1 ORDER BY callsign";
 $stmt = $pdo->query($sql);
 $pilotes = $stmt->fetchAll();
 
