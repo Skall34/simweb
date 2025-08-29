@@ -68,6 +68,7 @@ if (session_status() === PHP_SESSION_NONE) {
             <a href="/pages/pilotes.php">👨‍✈️ Pilotes</a>
             <a href="/pages/stats.php">📊 Stats</a>
             <a href="/pages/finances.php">💶 Finances</a>
+            <a href="/pages/simulation.php">🧮 Simulation</a>
             <a href="/pages/grades.php">🧑‍✈️ Grades</a>
             <a href="/pages/mon_compte.php">👤 Mon Compte</a>
             <a href="/pages/saisie_manuelle.php">📝 Saisie Manuelle</a>
