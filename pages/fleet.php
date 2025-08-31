@@ -12,6 +12,8 @@ if (!isset($_SESSION['user'])) {
 // Récupération des filtres
 $immatFilter = $_GET['immat'] ?? '';
 $fleetTypeFilter = $_GET['fleet_type'] ?? '';
+$showVendus = isset($_GET['show_vendus']) ? (bool)$_GET['show_vendus'] : false;
+$showMaintenance = isset($_GET['show_maintenance']) ? (bool)$_GET['show_maintenance'] : false;
 
 // Récupérer la liste des fleet_types pour le filtre
 $fleetTypesList = [];
@@ -40,6 +42,12 @@ if ($immatFilter !== '') {
 if ($fleetTypeFilter !== '') {
     $sql .= " AND ft.fleet_type = :fleet_type";
     $params['fleet_type'] = $fleetTypeFilter;
+}
+if (!$showVendus) {
+    $sql .= " AND (f.actif = 1 OR f.actif IS NULL)";
+}
+if ($showMaintenance) {
+    $sql .= " AND f.status = 1";
 }
 $sql .= " ORDER BY f.immat";
 
@@ -74,6 +82,15 @@ include __DIR__ . '/../includes/menu_logged.php';
             <?php endforeach; ?>
         </select>
 
+        <label style="margin-left:18px;">
+            <input type="checkbox" name="show_vendus" value="1" <?= $showVendus ? 'checked' : '' ?>>
+            Afficher les appareils vendus
+        </label>
+        <label style="margin-left:18px;">
+            <input type="checkbox" name="show_maintenance" value="1" <?= $showMaintenance ? 'checked' : '' ?>>
+            Afficher uniquement les appareils en maintenance
+        </label>
+
         <button class="btn" type="submit">Filtrer</button>
         <button type="button" class="btn" style="margin-left:10px;" onclick="window.location.href='fleet.php';">Réinitialiser</button>
     </form>
@@ -96,14 +113,31 @@ include __DIR__ . '/../includes/menu_logged.php';
                     <th style="width:8%;">État</th>
                     <th style="width:8%;">Dernier utilisateur</th>
                     <th style="width:8%;">Carburant restant</th>
-                    <th style="width:8%;">Compteur Immo</th>
+                    <th style="width:8%;">Compteur Immobilisation</th>
                     <th style="width:8%;">En vol</th>
                     <th style="width:8%;">Nombre maintenance</th>
+
                 </tr>
             </thead>
             <tbody class="table-skywings">
                 <?php foreach ($fleet as $avion):
                     $avionId = $avion['id'];
+                    // Récupérer la date du dernier vol pour cet avion
+                    $dernierVol = null;
+                    try {
+                        $stmtDernierVol = $pdo->prepare("SELECT MAX(date_vol) AS date_dernier_vol FROM CARNET_DE_VOL_GENERAL WHERE appareil_id = :appareil_id");
+                        $stmtDernierVol->execute(['appareil_id' => $avionId]);
+                        $rowDernierVol = $stmtDernierVol->fetch(PDO::FETCH_ASSOC);
+                        if (!empty($rowDernierVol['date_dernier_vol'])) {
+                            $date = $rowDernierVol['date_dernier_vol'];
+                            // Format FR
+                            $dernierVol = implode('-', array_reverse(explode('-', $date)));
+                        } else {
+                            $dernierVol = 'Aucun vol';
+                        }
+                    } catch (Exception $e) {
+                        $dernierVol = 'Erreur';
+                    }
                     // Préparer les détails FLOTTE (inclut les champs financiers)
                     $details = [
                         'Immatriculation' => $avion['immat'],
@@ -118,6 +152,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                         'Compteur Immo' => $avion['compteur_immo'],
                         'En vol' => $avion['en_vol'],
                         'Nombre maintenance' => $avion['nb_maintenance'],
+                        'Date du dernier vol' => $dernierVol,
                         'Date achat' => (!empty($avion['date_achat'] ?? '') && preg_match('/^\d{4}-\d{2}-\d{2}$/', $avion['date_achat'] ?? '')) ? (implode('-', array_reverse(explode('-', $avion['date_achat']))) ) : ($avion['date_achat'] ?? ''),
                         'Mode d\'achat' => (isset($avion['mode_achat']) && $avion['mode_achat'] === 'credit') ? 'Crédit' : ((isset($avion['mode_achat']) && $avion['mode_achat'] === 'comptant') ? 'Comptant' : ((isset($avion['nb_annees_credit']) && intval($avion['nb_annees_credit']) > 0) ? 'Crédit' : 'Comptant')),
                         'Recettes' => ($avion['recettes'] ?? '') . ' €',
@@ -223,8 +258,27 @@ include __DIR__ . '/../includes/menu_logged.php';
                 ];
                 let financeRows = '';
                 let normalRows = '';
+                // Fonction de formatage nombre avec espace tous les 3 chiffres
+                function formatNumberFr(val) {
+                    if (typeof val === 'number' || (!isNaN(val) && val !== null && val !== '')) {
+                        let n = Number(val);
+                        return n.toLocaleString('fr-FR');
+                    }
+                    // Si déjà formaté ou pas un nombre, retourne tel quel
+                    return val;
+                }
                 for (const key of Object.keys(details)) {
-                    const v = details[key];
+                    let v = details[key];
+                    // Si valeur numérique (hors pourcentage), on la formate
+                    if (typeof v === 'string' && v.match(/^[-+]?\d{1,3}(?:[\d\s.,]*)?(?:\s?€|\s?%|)$/)) {
+                        // On extrait la partie numérique
+                        let match = v.match(/([-+]?\d+[\d.,]*)/);
+                        if (match) {
+                            let num = match[1].replace(/\s/g, '').replace(',', '.');
+                            let formatted = formatNumberFr(num);
+                            v = v.replace(match[1], formatted);
+                        }
+                    }
                     // Si achat comptant, on masque les champs crédit
                     if (modeAchat === 'Comptant' && (key === 'Années crédit' || key === 'Taux crédit' || key === 'Remboursement' || key === 'Traite payée cumulée' || key === 'Reste à payer')) {
                         continue;
