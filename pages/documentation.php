@@ -11,7 +11,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/menu_logged.php';
             <p>Il fonctionne avec l'acars que vous pouvez télécharger ici :
                 <a href="../assets/acars/simaddon_setup_4.0.0.zip" download style="color:#1a3552;font-weight:bold;text-decoration:underline;">Télécharger ACARS</a>
             </p>
-            <p>ou directement depuis le <a href="https://github.com/Skall34/SimAddon/releases" download style="color:#1a3552;font-weight:bold;text-decoration:underline;">repo github</a></p>
+            <p>ou directement depuis le <a href="https://github.com/Skall34/SimAddon/releases" target="_blank" style="color:#1a3552;font-weight:bold;text-decoration:underline;">repo github</a></p>
             <p>Et son mode d'emploi que vous pouvez télécharger ici :
                 <a href="../assets/acars/DocumentationUtilisateurSimAddon.pdf" download style="color:#1a3552;font-weight:bold;text-decoration:underline;">Télécharger documentation acars</a>
             </p>
