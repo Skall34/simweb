@@ -268,7 +268,6 @@ function mettreAJourFinances($immat, $cout_vol, $logFile = null) {
     if ($logFile === null) {
         $logFile = dirname(__DIR__) . '/scripts/logs/import_vol.log';
     }
-    logMsg("Mise à jour finances : immat=$immat, cout_vol=$cout_vol", $logFile);
     // Log avant et après modification
     if (!$immat || $cout_vol === null) {
         error_log("⚠ Paramètres manquants dans mettreAJourFinances: " . print_r([
@@ -315,7 +314,6 @@ function mettreAJourFlotte($immat, $fuel_arr, $callsign, $arrivee, $logFile = nu
     if ($logFile === null) {
         $logFile = dirname(__DIR__) . '/scripts/logs/import_vol.log';
     }
-    logMsg("Mise à jour flotte : immat=$immat, fuel=$fuel_arr, callsign=$callsign, localisation=$arrivee", $logFile);
 
     if (!$immat || !$fuel_arr || !$callsign || !$arrivee) {
         error_log("⚠ Paramètres manquants dans mettreAJourFlotte: " . print_r([
@@ -368,7 +366,6 @@ function deduireUsure(string $immat, int $note, $logFile = null): void {
     if ($logFile === null) {
         $logFile = dirname(__DIR__) . '/scripts/logs/import_vol.log';
     }
-    logMsg("Usure avion $immat : note=$note", $logFile);
     global $pdo;
 
     $pourcentages = [

@@ -20,7 +20,7 @@ require_once __DIR__ . '/../includes/log_func.php';
 require_once __DIR__ . '/../includes/fonctions_financieres.php';
 
 // Mode test : si true, les mails aux pilotes sont envoyés à l'admin uniquement
-$test_mode = true; // Passe à true pour tester sans envoi aux pilotes
+$test_mode = false; // Passe à true pour tester sans envoi aux pilotes
 
 // Date du paiement (dernier jour du mois précédent)
 $date_paiement = date('Y-m-01', strtotime('first day of this month -1 day'));
