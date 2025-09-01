@@ -7,7 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
 
     // Prépare et execute requête
-    $stmt = $pdo->prepare('SELECT * FROM PILOTES WHERE callsign = ?');
+    $stmt = $pdo->prepare('SELECT * FROM PILOTES WHERE actif=1 AND callsign = ?');
     $stmt->execute([$callsign]);
     $user = $stmt->fetch();
 
