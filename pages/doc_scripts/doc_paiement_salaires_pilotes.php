@@ -24,7 +24,20 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/menu_logged.php';
             <li>
                 <h4 class="sous-chapitre">Bonus fret</h4>
                 <ul>
-                    <li>Un bonus de <strong>2&nbsp;€/kg</strong> de fret transporté (champ <code>payload</code> dans <code>CARNET_DE_VOL_GENERAL</code>).</li>
+                    <?php
+                    // Connexion DB pour récupérer le bonus fret
+                    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/db_connect.php';
+                    $bonusFret = 2;
+                    try {
+                        $stmt = $pdo->prepare("SELECT valeur FROM VARIABLES_CONFIG WHERE nom = 'bonus_fret_kg'");
+                        $stmt->execute();
+                        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                        if ($row && is_numeric($row['valeur'])) {
+                            $bonusFret = $row['valeur'];
+                        }
+                    } catch (Exception $e) {}
+                    ?>
+                    <li>Un bonus de <strong><?= htmlspecialchars($bonusFret) ?>&nbsp;€/kg</strong> de fret transporté (champ <code>payload</code> dans <code>CARNET_DE_VOL_GENERAL</code>).</li>
                 </ul>
             </li>
             <li>
@@ -51,7 +64,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/menu_logged.php';
                 <ul>
                     <li>Calcule les heures de vol du mois précédent.</li>
                     <li>Récupère le taux horaire selon le grade.</li>
-                    <li>Calcule le bonus fret (2&nbsp;€/kg transporté).</li>
+                    <li>Calcule le bonus fret.</li>
                     <li>Calcule le montant total du salaire.</li>
                 </ul>
             </li>
