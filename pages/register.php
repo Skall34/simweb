@@ -73,6 +73,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'prenom' => $prenom,
                 'nom' => $nom,
             ];
+            // Envoi d'un mail à l'admin
+            try {
+                require_once __DIR__ . '/../includes/mail_utils.php';
+                require_once __DIR__ . '/../includes/PHPMailer/PHPMailer.php';
+                require_once __DIR__ . '/../includes/PHPMailer/SMTP.php';
+                require_once __DIR__ . '/../includes/PHPMailer/Exception.php';
+                $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+                $mail->isSMTP();
+                $mail->Host = 'ssl0.ovh.net';
+                $mail->SMTPAuth = true;
+                $mail->Username = 'admin@skywings.ovh';
+                $mail->Password = 'La6mulationCestCool!';
+                $mail->SMTPSecure = 'tls';
+                $mail->Port = 587;
+                $mail->setFrom('admin@skywings.ovh', 'Skywings');
+                $mail->addAddress(ADMIN_EMAIL);
+                $mail->Subject = 'Nouvelle inscription pilote';
+                $mail->CharSet = 'UTF-8';
+                $mail->Body = "Un nouveau pilote vient de s'inscrire :\n" .
+                    "Callsign : $callsign\n" .
+                    "Nom : $prenom $nom\n" .
+                    "Email : $email\n";
+                $mail->send();
+            } catch (Exception $e) {
+                // Optionnel : log ou ignorer
+            }
         }
     }
 }
@@ -88,6 +114,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <li><?= htmlspecialchars($e) ?></li>
                 <?php endforeach; ?>
             </ul>
+        </div>
+    <?php endif; ?>
+    <?php if (empty($errors) && $_SERVER['REQUEST_METHOD'] === 'POST'): ?>
+        <div class="success" style="background:#e6f9e6;color:#1a7e1a;padding:12px 18px;border-radius:6px;margin-bottom:18px;font-weight:bold;text-align:center;box-shadow:0 2px 8px #0001;">
+            Inscription enregistrée avec succès !<br>Vous pouvez vous connecter dès maintenant avec votre callsign <strong><?= htmlspecialchars($callsign) ?></strong>.
         </div>
     <?php endif; ?>
 
