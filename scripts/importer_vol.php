@@ -59,7 +59,7 @@ try {
         return;
     }
 
-    logMsg("Début du traitement des vols ACARS non traités : " . count($vols) . " vols trouvés.", $logFile);
+    logMsg("✅ Début du traitement des vols ACARS non traités : " . count($vols) . " vols trouvés.", $logFile);
     $vols_importes = 0;
     $vols_details = [];
     foreach ($vols as $vol) {
@@ -163,7 +163,7 @@ try {
             $interval = $t1->diff($t2);
             $temps_vol = $interval->format('%H:%I:%S');
         }
-        $cout_vol = calculerRevenuNetVol($payload, $temps_vol, $distance, $majoration_mission, $carburant, $note, $cout_horaire);
+        $cout_vol = calculerRevenuNetVol($payload, $temps_vol, $distance, $majoration_mission, $carburant, $note, $cout_horaire,$immat);
 
         // 5. Ajout au carnet de vol avec le coût et temps_vol
         logMsg("Ajout au carnet de vol : callsign=$callsign, immat=$immat, depart=$depart, dest=$dest, payload=$payload, cout_vol=$cout_vol, temps_vol=$temps_vol", $logFile);

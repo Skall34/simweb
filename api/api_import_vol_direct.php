@@ -86,7 +86,7 @@ $mission = trim($data['mission']);
 $horodateur = date("Y-m-d H:i:s");
 $tracegps = isset($data['tracegps']) ? trim($data['tracegps']) : '';
 
-
+logMsg("✅ Début traitement vol (callsign: $callsign)", $logFile);
 // Harmonisation avec importer_vol.php :
 try {
     $erreurs = [];
@@ -185,7 +185,7 @@ try {
         $interval = $t1->diff($t2);
         $temps_vol = $interval->format('%H:%I:%S');
     }
-    $cout_vol = calculerRevenuNetVol($payload, $temps_vol,$distance, $majoration_mission, $carburant, $note, $cout_horaire);
+    $cout_vol = calculerRevenuNetVol($payload, $temps_vol,$distance, $majoration_mission, $carburant, $note, $cout_horaire,$immat);
 
     // 5. Ajout au carnet de vol avec le coût
     logMsg("Ajout au carnet de vol : callsign=$callsign, immat=$immat, depart=$departure_icao, dest=$arrival_icao, payload=$payload, cout_vol=$cout_vol", $logFile);

@@ -1,4 +1,4 @@
-    // Contrôle de validité des entrées pour éviter des résultats absurdes
+// Contrôle de validité des entrées pour éviter des résultats absurdes
     $inputs = [
         'payload' => $payload,
         'distance' => $distance,
@@ -148,23 +148,16 @@ function getCoutHoraire($immat) {
 /**
  * Calcule le revenu net généré par un vol en tenant compte de tous les paramètres métier.
  *
- * Métier :
- * - Prend en compte le fret transporté, la durée du vol, la majoration de mission, la consommation de carburant, la note du vol et le coût horaire de l'appareil.
- * - Le revenu brut est calculé selon la formule : fret * 5€ * heures de vol * majoration mission.
- * - Les coûts sont déduits : coût carburant (carburant * 0.88€/L) et coût appareil (coût horaire * heures * coef note).
- * - Permet d'obtenir le bénéfice réel du vol pour la compagnie.
- * - Toutes les étapes sont loguées pour audit et contrôle métier.
- *
  * @param int $payload Fret transporté (en kg)
  * @param string $temps_vol Durée du vol au format HH:MM:SS
  * @param float $majoration_mission Coefficient de majoration de la mission
  * @param float $carburant Consommation de carburant (en litres)
  * @param int|string|null $note Note du vol (1 à 10)
  * @param float $cout_horaire Coût horaire de l'appareil
+ * @param string $immat Immatriculation de l'appareil (NOUVEAU)
  * @return float Revenu net du vol (arrondi à 2 décimales)
  */
-function calculerRevenuNetVol($payload, $temps_vol, $distance, $majoration_mission, $carburant, $note, $cout_horaire) {
-
+function calculerRevenuNetVol($payload, $temps_vol, $distance, $majoration_mission, $carburant, $note, $cout_horaire, $immat = null) {
     global $pdo, $logFile;
     $distance = floatval($distance);
     $payload = floatval($payload);
@@ -177,24 +170,43 @@ function calculerRevenuNetVol($payload, $temps_vol, $distance, $majoration_missi
     logMsg("[calculerRevenuNetVol] heures calculées = $heures", $logFile);
     $coef_note_val = floatval(coef_note($note));
     logMsg("[calculerRevenuNetVol] coef_note($note) = $coef_note_val", $logFile);
-    // Récupérer dynamiquement le prix du kg de fret
-    $prix_kg_fret = 5.0;
-    $stmtFret = $pdo->prepare("SELECT valeur FROM VARIABLES_CONFIG WHERE nom = 'prix_kg_fret'");
-    if ($stmtFret->execute()) {
-        $valeurFret = $stmtFret->fetchColumn();
-        if ($valeurFret !== false && is_numeric($valeurFret)) {
-            $prix_kg_fret = floatval($valeurFret);
+
+    // Récupérer dynamiquement le prix du kg de fret selon la catégorie/type de l'appareil
+    $type_appareil = '';
+    if ($immat !== null) {
+        $type_appareil = getCategorieAppareil($immat);
+        logMsg("[calculerRevenuNetVol] type_appareil = $type_appareil", $logFile);
+    }
+    $prix_kg_fret = 5.0; // valeur par défaut
+    $variable_prix_type = $type_appareil ? ('prix_fret_kg_' . strtolower($type_appareil)) : '';
+    $stmtFret = null;
+    if ($variable_prix_type) {
+        $stmtFret = $pdo->prepare("SELECT valeur FROM VARIABLES_CONFIG WHERE nom = :nom");
+        if ($stmtFret->execute(['nom' => $variable_prix_type])) {
+            $valeurFret = $stmtFret->fetchColumn();
+            if ($valeurFret !== false && is_numeric($valeurFret)) {
+                $prix_kg_fret = floatval($valeurFret);
+                logMsg("[calculerRevenuNetVol] prix_kg_fret trouvé pour $type_appareil = $prix_kg_fret", $logFile);
+            }
         }
     }
-    $prix_kg_fret = floatval($prix_kg_fret);
+    // Si non trouvé, on prend la variable générique
+    if ($prix_kg_fret === 5.0) {
+        $stmtFretDef = $pdo->prepare("SELECT valeur FROM VARIABLES_CONFIG WHERE nom = 'prix_kg_fret'");
+        if ($stmtFretDef->execute()) {
+            $valeurFretDef = $stmtFretDef->fetchColumn();
+            if ($valeurFretDef !== false && is_numeric($valeurFretDef)) {
+                $prix_kg_fret = floatval($valeurFretDef);
+                logMsg("[calculerRevenuNetVol] prix_kg_fret générique utilisé = $prix_kg_fret", $logFile);
+            }
+        }
+    }
     // Calcul du revenu brut
     if ($distance>0 && $distance < 100) {
-        //si distance courte, on prends le temps de vol en heures, et une majoration de 20%
         $prix_kg_fret = floatval($prix_kg_fret) * 1.2; // Majoration pour les vols courts
         logMsg("[calculerRevenuNetVol] Majoration de 20% appliquée pour distance < 100 NM", $logFile);       
         $revenu_brut = floatval($payload) * floatval($prix_kg_fret) * floatval($heures) * floatval($majoration_mission);
     }else{
-        // Pour les distances plus longues, on utilise la distance en miles nautiques
         logMsg("[calculerRevenuNetVol] Pas de majoration pour distance >= 100 NM", $logFile);
         $revenu_brut = floatval($payload) * floatval($prix_kg_fret) * floatval($distance) * floatval($majoration_mission) / 1000;
         logMsg("[calculerRevenuNetVol] revenu_brut = $payload * $prix_kg_fret * $distance * $majoration_mission /1000", $logFile);
@@ -217,8 +229,7 @@ function calculerRevenuNetVol($payload, $temps_vol, $distance, $majoration_missi
     $revenu_net = floatval($revenu_brut) - (floatval($cout_carburant) + floatval($cout_appareil));
     logMsg("[calculerRevenuNetVol] revenu_net = revenu_brut - (cout_carburant + cout_appareil) = revenu_net", $logFile);
     logMsg("[calculerRevenuNetVol] revenu_net = $revenu_brut - ($cout_carburant + $cout_appareil) = $revenu_net", $logFile);
-    logMsg("calculerRevenuNetVol: payload=$payload, temps_vol=$temps_vol, majoration_mission=$majoration_mission, carburant=$carburant, note=$note, cout_horaire=$cout_horaire => revenu_net=$revenu_net", $logFile);
-    // Log détaillé de toutes les variables intermédiaires pour analyse
+    logMsg("calculerRevenuNetVol: payload=$payload, temps_vol=$temps_vol, majoration_mission=$majoration_mission, carburant=$carburant, note=$note, cout_horaire=$cout_horaire, immat=$immat => revenu_net=$revenu_net", $logFile);
     logMsg("[DEBUG calculerRevenuNetVol] Détail calcul: payload=$payload, distance=$distance, heures=$heures, majoration_mission=$majoration_mission, carburant=$carburant, cout_horaire=$cout_horaire, coef_note_val=$coef_note_val, prix_kg_fret=$prix_kg_fret, revenu_brut=$revenu_brut, cout_carburant=$cout_carburant, cout_appareil=$cout_appareil, revenu_net=$revenu_net", $logFile);
     return round($revenu_net, 2);
 }

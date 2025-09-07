@@ -19,19 +19,30 @@ if ($isAdmin != 1) {
     exit;
 }
 
-// Création de la table si elle n'existe pas
-$pdo->exec("CREATE TABLE IF NOT EXISTS VARIABLES_CONFIG (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nom VARCHAR(64) UNIQUE NOT NULL,
-    valeur VARCHAR(64) NOT NULL
-)");
-
 // Variables à gérer
 $variables = [
-    'prix_kg_fret' => [
-        'label' => 'Prix du Kg transporté',
+    'prix_fret_kg_helico' => [
+        'label' => 'Prix du Kg transporté par hélicoptère',
         'type' => 'number',
-        'step' => '0.1',
+        'step' => '1',
+        'default' => '5.00'
+    ],
+    'prix_fret_kg_monomoteur' => [
+        'label' => 'Prix du Kg transporté par monomoteur',
+        'type' => 'number',
+        'step' => '1',
+        'default' => '5.00'
+    ],
+    'prix_fret_kg_bimoteur' => [
+        'label' => 'Prix du Kg transporté par bimoteur',
+        'type' => 'number',
+        'step' => '1',
+        'default' => '5.00'
+    ],
+    'prix_fret_kg_liner' => [
+        'label' => 'Prix du Kg transporté par liner',
+        'type' => 'number',
+        'step' => '1',
         'default' => '5.00'
     ],
     'bonus_fret_kg' => [
