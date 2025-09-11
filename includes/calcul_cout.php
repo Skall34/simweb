@@ -1,18 +1,3 @@
-// Contrôle de validité des entrées pour éviter des résultats absurdes
-    $inputs = [
-        'payload' => $payload,
-        'distance' => $distance,
-        'majoration_mission' => $majoration_mission,
-        'carburant' => $carburant,
-        'cout_horaire' => $cout_horaire,
-        'heures' => isset($heures) ? $heures : 0,
-    ];
-    foreach ($inputs as $k => $v) {
-        if (!is_finite($v) || $v < 0) {
-            logMsg("[calculerRevenuNetVol] ERREUR: Entrée invalide $k=$v", $logFile);
-            return 0.0;
-        }
-    }
 <?php
 /*
 -------------------------------------------------------------
@@ -170,6 +155,22 @@ function calculerRevenuNetVol($payload, $temps_vol, $distance, $majoration_missi
     logMsg("[calculerRevenuNetVol] heures calculées = $heures", $logFile);
     $coef_note_val = floatval(coef_note($note));
     logMsg("[calculerRevenuNetVol] coef_note($note) = $coef_note_val", $logFile);
+
+    // Contrôle de validité des entrées pour éviter des résultats absurdes
+    $inputs = [
+        'payload' => $payload,
+        'distance' => $distance,
+        'majoration_mission' => $majoration_mission,
+        'carburant' => $carburant,
+        'cout_horaire' => $cout_horaire,
+        'heures' => isset($heures) ? $heures : 0,
+    ];
+    foreach ($inputs as $k => $v) {
+        if (!is_finite($v) || $v < 0) {
+            logMsg("[calculerRevenuNetVol] ERREUR: Entrée invalide $k=$v", $logFile);
+            return 0.0;
+        }
+    }
 
     // Récupérer dynamiquement le prix du kg de fret selon la catégorie/type de l'appareil
     $type_appareil = '';
