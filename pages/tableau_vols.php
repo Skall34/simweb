@@ -6,8 +6,19 @@ include '../includes/header.php';
 include __DIR__ . '/../includes/menu_logged.php';
 
 // Récupérer les filtres
+
 $callsignFilter = isset($_GET['callsign']) ? trim($_GET['callsign']) : '';
 $immatFilter = isset($_GET['immat']) ? trim($_GET['immat']) : '';
+$missionFilter = isset($_GET['mission']) ? trim($_GET['mission']) : '';
+
+// Récupérer la liste des missions pour le filtre
+$missionsList = [];
+try {
+    $stmtMissions = $pdo->query("SELECT DISTINCT libelle FROM MISSIONS WHERE libelle IS NOT NULL AND libelle <> '' ORDER BY libelle ASC");
+    $missionsList = $stmtMissions->fetchAll(PDO::FETCH_COLUMN);
+} catch (PDOException $e) {
+    // Ignore erreur
+}
 
 // Requête principale des vols
 try {
@@ -54,6 +65,10 @@ try {
         $params['immat'] = "%$immatFilter%";
     }
 
+    if ($missionFilter !== '') {
+        $conditions[] = "m.libelle = :mission";
+        $params['mission'] = $missionFilter;
+    }
     if (!empty($conditions)) {
         $sql .= " WHERE " . implode(' AND ', $conditions);
     }
@@ -106,6 +121,14 @@ try {
 
         <label for="immat">&nbsp;&nbsp;Filtrer par Immat :</label>
         <input type="text" id="immat" name="immat" value="<?php echo htmlspecialchars($immatFilter); ?>">
+
+        <label for="mission" style="margin-left:18px;">Filtrer par Mission:</label>
+        <select id="mission" name="mission">
+            <option value="">-- Toutes les missions --</option>
+            <?php foreach ($missionsList as $m): ?>
+                <option value="<?= htmlspecialchars($m) ?>" <?= ($missionFilter === $m) ? 'selected' : '' ?>><?= htmlspecialchars($m) ?></option>
+            <?php endforeach; ?>
+        </select>
 
         <button type="submit" class="btn">Filtrer</button>
         <button type="button" class="btn" onclick="window.location.href='<?= basename($_SERVER['PHP_SELF']) ?>';">Réinitialiser</button>
