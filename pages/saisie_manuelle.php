@@ -6,7 +6,7 @@ $erreurs = [];
 $success = false;
 
 // Récupérer les callsigns et missions pour les listes déroulantes
-$stmt = $pdo->query("SELECT callsign FROM PILOTES ORDER BY callsign");
+$stmt = $pdo->query("SELECT callsign FROM PILOTES WHERE actif=1 ORDER BY callsign");
 $callsigns = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
 $stmt = $pdo->query("SELECT libelle FROM MISSIONS WHERE active = 1 ORDER BY libelle");
@@ -83,8 +83,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($erreurs)) {
             $stmt = $pdo->prepare("INSERT INTO FROM_ACARS
                 (horodateur, callsign, immatriculation, departure_icao, departure_fuel, departure_time, arrival_icao, arrival_fuel, arrival_time, payload, commentaire, note_du_vol, mission, processed, created_at)
-                VALUES (NOW(), :callsign, :immat, :depart, :fuelDep, :timeDep, :dest, :fuelArr, :timeArr, :payload, :commentaire, :note, :mission, 0, NOW())");
+                VALUES (:horodateur, :callsign, :immat, :depart, :fuelDep, :timeDep, :dest, :fuelArr, :timeArr, :payload, :commentaire, :note, :mission, 0, NOW())");
             $stmt->execute([
+                'horodateur' => $form['departure_datetime'] ? str_replace('T', ' ', $form['departure_datetime']) . ':00' : null,
                 'callsign' => $form['callsign'],
                 'immat' => $form['immatriculation'],
                 'depart' => $form['departure_icao'],
