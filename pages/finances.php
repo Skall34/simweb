@@ -54,7 +54,7 @@ include __DIR__ . '/../includes/menu_logged.php';
 <main>
     <h2>Synthèse financière de la compagnie</h2>
 
-    <div class="compte-section" style="display:flex;gap:32px;align-items:stretch;max-width:1100px;">
+    <div class="compte-section" style="display:flex;gap:32px;align-items:stretch;max-width:1800px;">
         <div style="flex:1;min-width:180px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;">
             <div style="font-size:2.1em;font-weight:bold;color:#2a4d7a;display:flex;align-items:center;gap:10px;">
                 <span style="font-size:1.2em;">💰</span> <?= color_chiffre($balance) ?> €

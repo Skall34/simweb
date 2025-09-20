@@ -165,7 +165,7 @@ include __DIR__ . '/../includes/menu_logged.php';
         </div>
     </div>
 
-    <!-- Top 20 aéroports les plus visités + graphique -->
+    <!-- Top 20 aéroports les plus visités + records -->
     <div style="display:flex; flex-wrap:wrap; gap:40px; align-items:flex-start; margin-bottom:2.5em;">
         <div style="flex:1; min-width:320px;">
             <h3>Top 20 aéroports les plus visités</h3>
@@ -178,29 +178,21 @@ include __DIR__ . '/../includes/menu_logged.php';
                 </tbody>
             </table>
         </div>
-        <div style="flex:1; min-width:320px;">
-            <h3>Répartition des visites par aéroport</h3>
-            <canvas id="chartAeroports" height="220"></canvas>
+        <div style="flex:1; min-width:320px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+            <h3 style="text-align:center;margin-bottom:18px;">Records de la compagnie</h3>
+            <ul style="font-size:1.13em;line-height:1.8;list-style:none;padding:0;margin:0;max-width:420px;text-align:center;background:#f8faff;border-radius:12px;box-shadow:0 2px 12px #0001;padding:24px 18px;display:inline-block;">
+                <?php
+                $volLong = $pdo->query("SELECT c.id, p.callsign, f.immat, c.depart, c.destination, TIMEDIFF(c.heure_arrivee, c.heure_depart) AS duree FROM CARNET_DE_VOL_GENERAL c LEFT JOIN PILOTES p ON c.pilote_id=p.id LEFT JOIN FLOTTE f ON c.appareil_id=f.id ORDER BY TIMEDIFF(c.heure_arrivee, c.heure_depart) DESC LIMIT 1")->fetch();
+                $volCourt = $pdo->query("SELECT c.id, p.callsign, f.immat, c.depart, c.destination, TIMEDIFF(c.heure_arrivee, c.heure_depart) AS duree FROM CARNET_DE_VOL_GENERAL c LEFT JOIN PILOTES p ON c.pilote_id=p.id LEFT JOIN FLOTTE f ON c.appareil_id=f.id WHERE TIMEDIFF(c.heure_arrivee, c.heure_depart) > 0 ORDER BY TIMEDIFF(c.heure_arrivee, c.heure_depart) ASC LIMIT 1")->fetch();
+                $volsParMois = $pdo->query("SELECT COUNT(*)/COUNT(DISTINCT CONCAT(YEAR(date_vol),'-',MONTH(date_vol))) AS moy FROM CARNET_DE_VOL_GENERAL")->fetchColumn();
+                ?>
+                <li style="margin-bottom:12px;">🕑 <strong>Vol le plus long :</strong><br><span style="color:#1976d2;"> <?= htmlspecialchars($volLong['callsign']) ?>, <?= htmlspecialchars($volLong['immat']) ?>, <?= htmlspecialchars($volLong['depart']) ?> → <?= htmlspecialchars($volLong['destination']) ?> (<?= $volLong['duree'] ?>)</span></li>
+                <li style="margin-bottom:12px;">⚡ <strong>Vol le plus court :</strong><br><span style="color:#1976d2;"> <?= htmlspecialchars($volCourt['callsign']) ?>, <?= htmlspecialchars($volCourt['immat']) ?>, <?= htmlspecialchars($volCourt['depart']) ?> → <?= htmlspecialchars($volCourt['destination']) ?> (<?= $volCourt['duree'] ?>)</span></li>
+                <li>📈 <strong>Moyenne de vols par mois :</strong><br><span style="color:#1976d2;"> <?= number_format($volsParMois,1,',',' ') ?></span></li>
+            </ul>
         </div>
     </div>
-
-    <!-- Section records -->
-    <div style="margin-bottom:2.5em;">
-        <h3>Records de la compagnie</h3>
-        <ul>
-            <?php
-            // Vol le plus long (durée)
-            $volLong = $pdo->query("SELECT c.id, p.callsign, f.immat, c.depart, c.destination, TIMEDIFF(c.heure_arrivee, c.heure_depart) AS duree FROM CARNET_DE_VOL_GENERAL c LEFT JOIN PILOTES p ON c.pilote_id=p.id LEFT JOIN FLOTTE f ON c.appareil_id=f.id ORDER BY TIMEDIFF(c.heure_arrivee, c.heure_depart) DESC LIMIT 1")->fetch();
-            // Vol le plus court
-            $volCourt = $pdo->query("SELECT c.id, p.callsign, f.immat, c.depart, c.destination, TIMEDIFF(c.heure_arrivee, c.heure_depart) AS duree FROM CARNET_DE_VOL_GENERAL c LEFT JOIN PILOTES p ON c.pilote_id=p.id LEFT JOIN FLOTTE f ON c.appareil_id=f.id WHERE TIMEDIFF(c.heure_arrivee, c.heure_depart) > 0 ORDER BY TIMEDIFF(c.heure_arrivee, c.heure_depart) ASC LIMIT 1")->fetch();
-            // Moyenne vols par mois
-            $volsParMois = $pdo->query("SELECT COUNT(*)/COUNT(DISTINCT CONCAT(YEAR(date_vol),'-',MONTH(date_vol))) AS moy FROM CARNET_DE_VOL_GENERAL")->fetchColumn();
-            ?>
-            <li>Vol le plus long : <strong><?= htmlspecialchars($volLong['callsign']) ?>, <?= htmlspecialchars($volLong['immat']) ?>, <?= htmlspecialchars($volLong['depart']) ?> → <?= htmlspecialchars($volLong['destination']) ?> (<?= $volLong['duree'] ?>)</strong></li>
-            <li>Vol le plus court : <strong><?= htmlspecialchars($volCourt['callsign']) ?>, <?= htmlspecialchars($volCourt['immat']) ?>, <?= htmlspecialchars($volCourt['depart']) ?> → <?= htmlspecialchars($volCourt['destination']) ?> (<?= $volCourt['duree'] ?>)</strong></li>
-            <li>Moyenne de vols par mois : <strong><?= number_format($volsParMois,1,',',' ') ?></strong></li>
-        </ul>
-    </div>
+    <!-- Fin records -->
 
 
     <!-- Chart.js -->
@@ -263,27 +255,6 @@ include __DIR__ . '/../includes/menu_logged.php';
                 }
             },
             animation: false
-        }
-    });
-
-    // Graphique aéroports les plus visités
-    const ctxAero = document.getElementById('chartAeroports').getContext('2d');
-    const dataAero = {
-        labels: <?= json_encode(array_column($topAeroports, 'depart')) ?>,
-        datasets: [{
-            label: 'Visites',
-            data: <?= json_encode(array_column($topAeroports, 'nb_visites')) ?>,
-            backgroundColor: '#1976d2',
-        }]
-    };
-    new Chart(ctxAero, {
-        type: 'bar',
-        data: dataAero,
-        options: {
-            responsive: true,
-            plugins: { legend: { display: false } },
-            indexAxis: 'y',
-            scales: { x: { beginAtZero: true } }
         }
     });
     </script>

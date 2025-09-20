@@ -152,17 +152,17 @@ include __DIR__ . '/../includes/menu_logged.php';
 
     <div class="compte-section">
         <h3>Top 3 aéroports les plus fréquentés</h3>
-        <ol>
-            <?php foreach ($aeroports as $aero): ?>
-                <li>
-                    <?= htmlspecialchars($aero['destination']) ?>
-                    <?php if (!empty($aero['ident'])): ?>
-                        (<?= htmlspecialchars($aero['ident']) ?>)
-                    <?php endif; ?>
-                    - <?= $aero['freq'] ?> vols
-                </li>
-            <?php endforeach; ?>
-        </ol>
+            <ol style="margin-left: 2em;">
+                <?php foreach ($aeroports as $aero): ?>
+                    <li>
+                        <?= htmlspecialchars($aero['destination']) ?>
+                        <?php if (!empty($aero['ident'])): ?>
+                            (<?= htmlspecialchars($aero['ident']) ?>)
+                        <?php endif; ?>
+                        - <?= $aero['freq'] ?> vols
+                    </li>
+                <?php endforeach; ?>
+            </ol>
     </div>
 </main>
 

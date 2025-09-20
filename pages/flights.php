@@ -167,7 +167,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                         'Block time' => $flight['block_time'],
                         'Note du vol' => $flight['note_du_vol'],
                         'Mission' => $flight['mission_libelle'],
-                        'Recette du vol' => number_format($flight['cout_vol'], 2) . ' €',
+                        'Recette du vol' => number_format($flight['cout_vol'], 2, ',', ' ') . ' €',
                         'Pirep' => $pirep_complet,
                         'lat_depart' => isset($aeroports[$flight['depart']]) ? $aeroports[$flight['depart']]['latitude_deg'] : null,
                         'long_depart' => isset($aeroports[$flight['depart']]) ? $aeroports[$flight['depart']]['longitude_deg'] : null,
@@ -189,7 +189,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                         <td style="width:10%;"><?php echo htmlspecialchars($flight['heure_arrivee']); ?></td>
                         <td style="width:10%;"><?php echo htmlspecialchars(substr($flight['block_time'], 0, 8)); ?></td>
                         <td style="width:5%"><?php echo htmlspecialchars($flight['note_du_vol']); ?></td>
-                        <td style="width:8%;"><?php echo number_format($flight['cout_vol'], 2) . ' €'; ?></td>
+                        <td style="width:8%;"><?php echo number_format($flight['cout_vol'], 2, ',', ' ') . ' €'; ?></td>
                         <td style="width:8%;"><?php echo htmlspecialchars($flight['mission_libelle']); ?></td>
                     </tr>
                 <?php endforeach; ?>

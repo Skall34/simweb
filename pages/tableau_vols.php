@@ -163,6 +163,11 @@ try {
             $pirep_court = mb_strimwidth($pirep_complet, 0, 13, '...');
             $date_formatee = date("d-m-Y", strtotime($vol['date_vol']));
             // Préparer les données pour le popup (JSON encodé, puis échappé)
+            $fuel_depart_fmt = number_format($vol['fuel_depart'], 0, ',', ' ');
+            $fuel_arrivee_fmt = number_format($vol['fuel_arrivee'], 0, ',', ' ');
+            $conso_fmt = number_format($vol['conso'], 0, ',', ' ');
+            $recette_fmt = number_format($vol['cout_vol'] !== null ? (float)$vol['cout_vol'] : 0, 2, ',', ' ');
+            $pirep_fmt = $pirep_complet; // On ne modifie plus le texte PIREP
             $details = [
                 'ID vol' => $vol['id_vol'],
                 'Date vol' => $date_formatee,
@@ -170,17 +175,17 @@ try {
                 'Immat' => $vol['immat'],
                 'Départ' => $vol['depart'],
                 'Destination' => $vol['destination'],
-                'Fuel départ' => $vol['fuel_depart'],
-                'Fuel arrivée' => $vol['fuel_arrivee'],
-                'Conso' => $vol['conso'],
+                'Fuel départ' => $fuel_depart_fmt,
+                'Fuel arrivée' => $fuel_arrivee_fmt,
+                'Conso' => $conso_fmt,
                 'Payload' => $vol['payload'],
                 'Heure départ' => $vol['heure_depart'],
                 'Heure arrivée' => $vol['heure_arrivee'],
                 'Block time' => $vol['block_time'],
                 'Note du vol' => $vol['note_du_vol'],
                 'Mission' => $vol['mission_libelle'],
-                'Recette du vol' => number_format($vol['cout_vol'] !== null ? (float)$vol['cout_vol'] : 0, 2) . ' €',
-                'Pirep' => $pirep_complet,
+                'Recette du vol' => $recette_fmt . ' €',
+                'Pirep' => $pirep_fmt,
                 'lat_depart' => isset($aeroports[$vol['depart']]) ? $aeroports[$vol['depart']]['latitude_deg'] : null,
                 'long_depart' => isset($aeroports[$vol['depart']]) ? $aeroports[$vol['depart']]['longitude_deg'] : null,
                 'lat_destination' => isset($aeroports[$vol['destination']]) ? $aeroports[$vol['destination']]['latitude_deg'] : null,
@@ -206,10 +211,11 @@ try {
                 <td style="width:10%">
                     <?php
                     $recette = $vol['cout_vol'] !== null ? (float)$vol['cout_vol'] : 0;
+                    $recette_formatee = number_format($recette, 2, ',', ' ');
                     if ($recette < 0) {
-                        echo '<span style="color:#d60000;">' . number_format($recette, 2) . ' €</span>';
+                        echo '<span style="color:#d60000;">' . $recette_formatee . ' €</span>';
                     } else {
-                        echo number_format($recette, 2) . ' €';
+                        echo $recette_formatee . ' €';
                     }
                     ?>
                 </td>
