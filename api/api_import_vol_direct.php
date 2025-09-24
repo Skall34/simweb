@@ -86,12 +86,12 @@ $mission = trim($data['mission']);
 $horodateur = date("Y-m-d H:i:s");
 $tracegps = isset($data['tracegps']) ? trim($data['tracegps']) : '';
 
-logMsg("✅ Début traitement vol (callsign: $callsign)", $logFile);
+logMsg("[api_import_vol_direct] ✅ Début traitement vol (callsign: $callsign)", $logFile);
 // Harmonisation avec importer_vol.php :
 try {
     $erreurs = [];
 
-    // 2. Contrôles basiques
+    // 1. Contrôles basiques
     if (!$callsign || !$immat || !$departure_icao || !$arrival_icao) {
         $erreurs[] = "Vol invalide : données manquantes (callsign, immat, depart ou destination)";
     }
@@ -100,13 +100,13 @@ try {
         $erreurs[] = "Note du vol invalide ($note) pour le vol";
     }
 
-    // Contrôle carburant nul (fuel_dep, fuel_arr, conso à 0)
+    // 2. Contrôle carburant nul (fuel_dep, fuel_arr, conso à 0)
     $conso = $departure_fuel - $arrival_fuel;
     if ($departure_fuel == 0 || $arrival_fuel == 0 || $conso == 0) {
         $erreurs[] = "Vol rejeté automatiquement : carburant départ, arrivée et consommation à 0";
     }
 
-    // Vérification du pilote
+    // 3. Vérification du pilote
     $stmtPilote = $pdo->prepare("SELECT id FROM PILOTES WHERE callsign = :callsign");
     $stmtPilote->execute(['callsign' => $callsign]);
     $pilote = $stmtPilote->fetch();
@@ -114,7 +114,7 @@ try {
         $erreurs[] = "Pilote '$callsign' introuvable dans PILOTES.";
     }
 
-    // Vérification de l'avion actif
+    // 4. Vérification de l'avion actif
     $stmtAvion = $pdo->prepare("SELECT id FROM FLOTTE WHERE immat = :immat AND actif = 1");
     $stmtAvion->execute(['immat' => $immat]);
     $avion = $stmtAvion->fetch();
@@ -122,7 +122,7 @@ try {
         $erreurs[] = "Avion '$immat' introuvable ou inactif dans FLOTTE.";
     }
 
-    // Vérification des doublons
+    // 5. Vérification des doublons
     if (detecterDoublonVol($pdo, $callsign, $departure_icao, $arrival_icao, $departure_fuel, $arrival_fuel, $payload, $note, $mission)) {
         $erreurs[] = "Vol doublon détecté pour le pilote '$callsign' (depart=$departure_icao, dest=$arrival_icao, payload=$payload, fuelDep=$departure_fuel, fuelArr=$arrival_fuel, note=$note, mission=$mission)";        
     }
@@ -130,14 +130,14 @@ try {
     // Si erreurs, rejeter le vol avec tous les motifs
     if (!empty($erreurs)) {
         foreach ($erreurs as $err) {
-            logMsg("❌ $err", $logFile);
+            logMsg("[api_import_vol_direct] ❌ $err", $logFile);
         }
         rejeterVol($pdo, $_POST, implode(' | ', $erreurs), $logFile);
         echo json_encode(['status' => 'error', 'message' => implode(' | ', $erreurs)]);
         return;
     }
 
-    // Insertion en base (vol traité)
+    // 6. Insertion en base (vol traité)
     $stmt = $pdo->prepare("INSERT INTO FROM_ACARS (
         horodateur, callsign, immatriculation, departure_icao, departure_fuel, departure_time,
         arrival_icao, arrival_fuel, arrival_time, payload, commentaire, note_du_vol, mission, processed, created_at
@@ -162,15 +162,15 @@ try {
         'mission'      => $mission
     ]);
 
-    // 3. Traitement du fret
+    // 7. Traitement du fret
     if ($payload > 0) {
         $fret_transporte = deduireFretDepart($departure_icao, $payload, $logFile);
         ajouterFretDestination($arrival_icao, $fret_transporte, $logFile);
     }
 
-    // 4. Calcul du coût du vol
+    // 8. Calcul du coût du vol
     $distance = ComputeFlightDistance($departure_icao, $arrival_icao);
-    logMsg("Distance calculée : $distance NM", $logFile);
+    logMsg("[api_import_vol_direct] Distance calculée : $distance NM", $logFile);
     $majoration_mission = getMajorationMission($mission);
     $cout_horaire = getCoutHoraire($immat);
     $carburant = $departure_fuel - $arrival_fuel;
@@ -187,36 +187,36 @@ try {
     }
     $cout_vol = calculerRevenuNetVol($payload, $temps_vol,$distance, $majoration_mission, $carburant, $note, $cout_horaire,$immat);
 
-    // 5. Ajout au carnet de vol avec le coût
-    logMsg("Ajout au carnet de vol : callsign=$callsign, immat=$immat, depart=$departure_icao, dest=$arrival_icao, payload=$payload, cout_vol=$cout_vol", $logFile);
+    // 9. Ajout au carnet de vol avec le coût
     $vol_id = remplirCarnetVolGeneral($horodateur, $callsign, $immat, $departure_icao, $arrival_icao, $departure_fuel, $arrival_fuel, $payload, $departure_time, $arrival_time, $mission, $commentaire, $note, $cout_vol, $temps_vol, $logFile);
+    logMsg("[api_import_vol_direct] Ajout au carnet de vol : callsign=$callsign, immat=$immat, depart=$departure_icao, dest=$arrival_icao, payload=$payload, cout_vol=$cout_vol", $logFile);
 
-    // 5.1 Ajout de la trace GPS si fournie
+    // 10. Ajout de la trace GPS si fournie
     if (empty($tracegps)) {
         $tracegps = "Aucune trace GPS fournie pour le vol $vol_id";
-    }else{    
-        logMsg("Ajout de la trace GPS ajoutée pour le vol ID $vol_id", $logFile);
+    }else{
         ajouterTraceGPS($vol_id, $tracegps, $logFile);
+        logMsg("[api_import_vol_direct] Ajout de la trace GPS ajoutée pour le vol ID $vol_id", $logFile);
     }
     
-    // 6. Mise à jour de la flotte
-    logMsg("Mise à jour flotte : immat=$immat, fuel=$arrival_fuel, callsign=$callsign, localisation=$arrival_icao", $logFile);
+    // 11. Mise à jour de la flotte
     mettreAJourFlotte($immat, $arrival_fuel, $callsign, $arrival_icao, $logFile);
+    logMsg("[api_import_vol_direct] Mise à jour flotte : immat=$immat, fuel=$arrival_fuel, callsign=$callsign, localisation=$arrival_icao", $logFile);
 
-    // Mettre à jour finances
-    logMsg("Mise à jour finances : immat=$immat, cout_vol=$cout_vol", $logFile);
+    // 12. Mettre à jour finances
     mettreAJourFinances($immat, $cout_vol, $logFile);
+    logMsg("[api_import_vol_direct] Mise à jour finances : immat=$immat, cout_vol=$cout_vol", $logFile);
 
-    // Mise à jour de la balance commerciale via fonction dédiée
-    logMsg("Ajout recette dans finances_recettes : cout_vol=$cout_vol, vol_id=$vol_id", $logFile);
+    // 13. Mise à jour de la balance commerciale via fonction dédiée
     $commentaire = "Vol importé depuis ACARS : $departure_icao -> $arrival_icao, pilote: $callsign, immat: $immat";
     mettreAJourRecettes($cout_vol, $vol_id, $immat, $callsign, 'vol', 'Recette vol ACARS');
+    logMsg("[api_import_vol_direct] Ajout recette dans finances_recettes : cout_vol=$cout_vol, vol_id=$vol_id", $logFile);
 
-    // 7. Usure
-    logMsg("Usure avion $immat, note=$note", $logFile);
+    // 14. Usure
     deduireUsure($immat, $note, $logFile);
+    logMsg("[api_import_vol_direct] Usure avion $immat, note=$note", $logFile);
     
-    // Envoi du mail récapitulatif enrichi
+    // 15. Envoi du mail récapitulatif enrichi
     if ($mailSummaryEnabled && function_exists('sendSummaryMail')) {
         $subject = "[SimWeb] Rapport import vol direct ACARS - " . date('d/m/Y H:i');
         $body = "Salut ma poule,\n\nImport d'un vol ACARS direct terminé.";
@@ -232,16 +232,16 @@ try {
         $to = defined('ADMIN_EMAIL') ? ADMIN_EMAIL : 'zjfk7400@gmail.com';
         $mailResult = sendSummaryMail($subject, $body, $to);
         if ($mailResult === true || $mailResult === null) {
-            logMsg("Mail récapitulatif envoyé à $to", $logFile);
+            logMsg("[api_import_vol_direct] Mail récapitulatif envoyé à $to", $logFile);
         } else {
-            logMsg("Erreur lors de l'envoi du mail récapitulatif : $mailResult", $logFile);
+            logMsg("[api_import_vol_direct] Erreur lors de l'envoi du mail récapitulatif : $mailResult", $logFile);
         }
     }
 
-    logMsg("✅ Vol traité avec succès (callsign: $callsign)", $logFile);
+    logMsg("[api_import_vol_direct] ✅ Vol traité avec succès (callsign: $callsign)", $logFile);
     echo json_encode(['status' => 'success', 'message' => '✅ Vol inséré avec succès']);
 } catch (PDOException $e) {
-    logMsg("❌ Erreur DB : " . $e->getMessage(), $logFile);
+    logMsg("[api_import_vol_direct] ❌ Erreur DB : " . $e->getMessage(), $logFile);
     http_response_code(500); // Erreur serveur
     echo json_encode(['status' => 'error', 'message' => '❌ Erreur SQL : ' . $e->getMessage()]);
 }

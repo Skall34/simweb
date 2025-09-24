@@ -46,20 +46,20 @@ function deduireFretDepart($icao, $fret_demande, $logFile = null) {
     if ($logFile === null) {
         $logFile = dirname(__DIR__) . '/scripts/logs/import_vol.log';
     }
-    logMsg("Déduction fret départ : ICAO=$icao, Demande=$fret_demande", $logFile);
+    logMsg("[deduireFretDepart] Déduction fret départ : ICAO=$icao, Demande=$fret_demande", $logFile);
 
     $stmt = $pdo->prepare("SELECT fret FROM AEROPORTS WHERE ident = :icao");
     $stmt->execute(['icao' => $icao]);
     $result = $stmt->fetch();
 
     if (!$result) {
-        error_log("❌ Aéroport de départ inconnu : $icao. Impossible de déduire le fret.");
+        error_log("[deduireFretDepart] ❌ Aéroport de départ inconnu : $icao. Impossible de déduire le fret.");
         return 0;
     }
 
     $fret_dispo = $result['fret'];
     $fret_effectif = min($fret_dispo, $fret_demande);
-    logMsg("Fret disponible=$fret_dispo, Fret effectif déduit=$fret_effectif", $logFile);
+    logMsg("[deduireFretDepart] Fret disponible=$fret_dispo, Fret effectif déduit=$fret_effectif", $logFile);
 
     $update = $pdo->prepare("
         UPDATE AEROPORTS 
@@ -73,7 +73,7 @@ function deduireFretDepart($icao, $fret_demande, $logFile = null) {
     $stmtNew->execute(['icao' => $icao]);
     $newFret = $stmtNew->fetchColumn();
 
-    logMsg("Nouveau fret restant à $icao : $newFret", $logFile);
+    logMsg("[deduireFretDepart] Nouveau fret restant à $icao : $newFret", $logFile);
 
     return $fret_effectif;
 }
@@ -91,13 +91,14 @@ function deduireFretDepart($icao, $fret_demande, $logFile = null) {
  * @param string $mission
  * @return bool True si doublon trouvé, False sinon
  */
-function detecterDoublonVol($pdo, $callsign, $depart, $dest, $fuelDep, $fuelArr, $payload, $note, $mission) {
+function detecterDoublonVol($pdo, $callsign, $depart, $dest, $fuelDep, $fuelArr, $payload, $note, $mission, $logFile = null) {
     // Récupérer l'id du pilote à partir du callsign
     $stmtPilote = $pdo->prepare("SELECT id FROM PILOTES WHERE callsign = :callsign");
     $stmtPilote->execute(['callsign' => $callsign]);
     $pilote = $stmtPilote->fetch();
     if (!$pilote) {
         // Si le pilote n'existe pas, on ne peut pas détecter de doublon
+        logMsg("[detecterDoublonVol] : Pilote inconnu pour callsign=$callsign", $logFile);
         return false;
     }
     $pilote_id = $pilote['id'];
@@ -116,9 +117,9 @@ function detecterDoublonVol($pdo, $callsign, $depart, $dest, $fuelDep, $fuelArr,
         'note' => $note,
         'mission' => $mission
     ]);
+    logMsg("[detecterDoublonVol] : sql=$sql", $logFile);
     return $stmt->fetchColumn() > 0;
 }
-
 
 /**
  * Ajoute du fret à l'arrivée sur un aéroport donné.
@@ -131,7 +132,7 @@ function ajouterFretDestination($icao, $fret, $logFile = null) {
     if ($logFile === null) {
         $logFile = dirname(__DIR__) . '/scripts/logs/import_vol.log';
     }
-    logMsg("Ajout fret destination : ICAO=$icao, Fret à ajouter=$fret", $logFile);
+    logMsg("[ajouterFretDestination] Ajout fret destination : ICAO=$icao, Fret à ajouter=$fret", $logFile);
 
     // Vérifie si l'aéroport existe
     $stmt = $pdo->prepare("SELECT fret FROM AEROPORTS WHERE ident = :icao");
@@ -139,14 +140,14 @@ function ajouterFretDestination($icao, $fret, $logFile = null) {
     $result = $stmt->fetch();
 
     if (!$result) {
-        error_log("❌ Aéroport de destination inconnu : $icao. Impossible d'ajouter le fret.");
+        error_log("[ajouterFretDestination] ❌ Aéroport de destination inconnu : $icao. Impossible d'ajouter le fret.");
         return;
     }
 
     $fret_avant = $result['fret'];
     $fret_apres = $fret_avant + $fret;
 
-    logMsg("Fret actuel=$fret_avant, Fret après ajout=$fret_apres", $logFile);
+    logMsg("[ajouterFretDestination] Fret actuel=$fret_avant, Fret après ajout=$fret_apres", $logFile);
 
     // Mise à jour
     $update = $pdo->prepare("UPDATE AEROPORTS SET fret = fret + :fret WHERE ident = :icao");
@@ -157,7 +158,7 @@ function ajouterFretDestination($icao, $fret, $logFile = null) {
     $stmtNew->execute(['icao' => $icao]);
     $newFret = $stmtNew->fetchColumn();
 
-    logMsg("Nouveau fret total à $icao : $newFret", $logFile);
+    logMsg("[ajouterFretDestination] Nouveau fret total à $icao : $newFret", $logFile);
 }
 
 /**
@@ -188,13 +189,13 @@ function remplirCarnetVolGeneral(
     if ($logFile === null) {
         $logFile = dirname(__DIR__) . '/scripts/logs/import_vol.log';
     }
-    logMsg("Remplissage carnet vol : callsign=$callsign, immat=$immat, depart=$depart, arrivee=$arrivee, fuel_dep=$fuel_dep, fuel_arr=$fuel_arr, fret=$fret, heure_dep=$heure_dep, heure_arr=$heure_arr, mission=$mission, note=$note, cout_vol=$cout_vol, temps_vol=$temps_vol", $logFile);
+    logMsg("[remplirCarnetVolGeneral] Remplissage carnet vol : callsign=$callsign, immat=$immat, depart=$depart, arrivee=$arrivee, fuel_dep=$fuel_dep, fuel_arr=$fuel_arr, fret=$fret, heure_dep=$heure_dep, heure_arr=$heure_arr, mission=$mission, note=$note, cout_vol=$cout_vol, temps_vol=$temps_vol", $logFile);
 
     $stmtAppareil = $pdo->prepare("SELECT id FROM FLOTTE WHERE immat = :immat");
     $stmtAppareil->execute(['immat' => $immat]);
     $appareil = $stmtAppareil->fetch();
     if (!$appareil) {
-        error_log("❌ Immatriculation inconnue dans FLOTTE : $immat");
+        error_log("[remplirCarnetVolGeneral] ❌ Immatriculation inconnue dans FLOTTE : $immat");
         return false;
     }
     $appareil_id = $appareil['id'];
@@ -203,7 +204,7 @@ function remplirCarnetVolGeneral(
     $stmtPilote->execute(['callsign' => $callsign]);
     $pilote = $stmtPilote->fetch();
     if (!$pilote) {
-        error_log("❌ Callsign inconnu dans PILOTES : $callsign");
+        error_log("[remplirCarnetVolGeneral] ❌ Callsign inconnu dans PILOTES : $callsign");
         return false;
     }
     $pilote_id = $pilote['id'];
@@ -225,7 +226,7 @@ function remplirCarnetVolGeneral(
     ]);
 
     $vol_id = $pdo->lastInsertId();
-    logMsg("Vol enregistré avec succès pour $callsign ($immat), id=$vol_id", $logFile);
+    logMsg("[remplirCarnetVolGeneral] Vol enregistré avec succès pour $callsign ($immat), id=$vol_id", $logFile);
 
     return $vol_id;
 }
@@ -241,18 +242,18 @@ function ajouterTraceGPS($vol_id, $tracegps, $logFile = null) {
     if ($logFile === null) {
         $logFile = dirname(__DIR__) . '/scripts/logs/import_vol.log';
     }
-    logMsg("Ajout trace GPS pour vol_id=$vol_id", $logFile);
+    logMsg("[ajouterTraceGPS] Ajout trace GPS pour vol_id=$vol_id", $logFile);
 
     if (!$vol_id || !$tracegps) {
-        error_log("⚠ Paramètres manquants dans ajouterTraceGPS: vol_id=$vol_id, tracegps=$tracegps");
+        error_log("[ajouterTraceGPS] ⚠ Paramètres manquants: vol_id=$vol_id, tracegps=$tracegps");
         return; 
     }
     $stmt = $pdo->prepare("INSERT INTO TRACE_GPS (id, path) VALUES (:vol_id, :tracegps)");
     try {
         $stmt->execute(['vol_id' => $vol_id, 'tracegps' => $tracegps]);
-        logMsg("Trace GPS ajoutée pour vol_id=$vol_id", $logFile);
+        logMsg("[ajouterTraceGPS] Trace GPS ajoutée pour vol_id=$vol_id", $logFile);
     } catch (PDOException $e) {
-        error_log("❌ ERREUR SQL dans ajouterTraceGPS: " . $e->getMessage());
+        error_log("[ajouterTraceGPS] ❌ ERREUR SQL: " . $e->getMessage());
         throw $e;
     }
 }
@@ -270,7 +271,7 @@ function mettreAJourFinances($immat, $cout_vol, $logFile = null) {
     }
     // Log avant et après modification
     if (!$immat || $cout_vol === null) {
-        error_log("⚠ Paramètres manquants dans mettreAJourFinances: " . print_r([
+        error_log("[mettreAJourFinances] ⚠ Paramètres manquants: " . print_r([
             'immat' => $immat,
             'cout_vol' => $cout_vol
         ], true));
@@ -282,21 +283,21 @@ function mettreAJourFinances($immat, $cout_vol, $logFile = null) {
     $avion = $stmt->fetch();
 
     if (!$avion) {
-        error_log("❌ Avion inconnu : $immat. Impossible de mettre à jour les finances.");
+        error_log("[mettreAJourFinances] ❌ Avion inconnu : $immat. Impossible de mettre à jour les finances.");
         return;
     }
 
     $avion_id = $avion['id'];
     $recette_old = isset($avion['recettes']) ? floatval($avion['recettes']) : 0.0;
     $recette_new = $recette_old + floatval($cout_vol);
-    logMsg("Recette ancienne: $recette_old €, nouvelle recette: $recette_new €", $logFile);
+    logMsg("[mettreAJourFinances] Recette ancienne: $recette_old €, nouvelle recette: $recette_new €", $logFile);
 
     try {
         $update = $pdo->prepare("UPDATE FLOTTE SET recettes = :recette_new WHERE id = :id_avion");
         $update->execute(['recette_new' => $recette_new, 'id_avion' => $avion_id]);
-        logMsg("Recettes mises à jour pour avion_id=$avion_id", $logFile);
+        logMsg("[mettreAJourFinances] Recettes mises à jour pour avion_id=$avion_id", $logFile);
     } catch (PDOException $e) {
-        error_log("❌ ERREUR SQL dans mettreAJourFinances: " . $e->getMessage());
+        error_log("[mettreAJourFinances] ❌ ERREUR SQL: " . $e->getMessage());
         throw $e;
     }
 }
@@ -316,7 +317,7 @@ function mettreAJourFlotte($immat, $fuel_arr, $callsign, $arrivee, $logFile = nu
     }
 
     if (!$immat || !$fuel_arr || !$callsign || !$arrivee) {
-        error_log("⚠ Paramètres manquants dans mettreAJourFlotte: " . print_r([
+        error_log("[mettreAJourFlotte] ⚠ Paramètres manquants: " . print_r([
             'immat' => $immat,
             'fuel_arr' => $fuel_arr,
             'callsign' => $callsign,
@@ -330,7 +331,7 @@ function mettreAJourFlotte($immat, $fuel_arr, $callsign, $arrivee, $logFile = nu
     $pilote = $stmt->fetch();
 
     if (!$pilote) {
-        error_log("❌ Pilote inconnu : $callsign. Impossible de mettre à jour la flotte.");
+        error_log("[mettreAJourFlotte] ❌ Pilote inconnu : $callsign. Impossible de mettre à jour la flotte.");
         return;
     }
 
@@ -349,9 +350,9 @@ function mettreAJourFlotte($immat, $fuel_arr, $callsign, $arrivee, $logFile = nu
             'immat' => $immat
         ]);
 
-        logMsg("Flotte mise à jour pour $immat", $logFile);
+        logMsg("[mettreAJourFlotte] Flotte mise à jour pour $immat", $logFile);
     } catch (PDOException $e) {
-        error_log("❌ ERREUR SQL dans mettreAJourFlotte: " . $e->getMessage());
+        error_log("[mettreAJourFlotte] ❌ ERREUR SQL: " . $e->getMessage());
         throw $e;
     }
 }
@@ -374,7 +375,7 @@ function deduireUsure(string $immat, int $note, $logFile = null): void {
     ];
 
     if (!isset($pourcentages[$note])) {
-        error_log("deduireUsure: note invalide $note pour immat $immat");
+        error_log("[deduireUsure] ⚠ note invalide $note pour immat $immat");
         return;
     }
 
@@ -383,7 +384,7 @@ function deduireUsure(string $immat, int $note, $logFile = null): void {
     $avion = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$avion) {
-        error_log("deduireUsure: immatriculation non trouvée $immat");
+        error_log("[deduireUsure] ⚠ immatriculation non trouvée $immat");
         return;
     }
 
@@ -395,11 +396,11 @@ function deduireUsure(string $immat, int $note, $logFile = null): void {
     if ($note === 1) {
         $update = $pdo->prepare("UPDATE FLOTTE SET etat = 0, status = 2 WHERE id = :id");
         $update->execute(['id' => $id]);
-        error_log("deduireUsure: CRASH détecté pour $immat (note 1), état mis à 0, status=2");
+        error_log("[deduireUsure] ❌ CRASH détecté pour $immat (note 1), état mis à 0, status=2");
     } else {
         $update = $pdo->prepare("UPDATE FLOTTE SET etat = :etat WHERE id = :id");
         $update->execute(['etat' => $nouvelEtat, 'id' => $id]);
-        logMsg("Usure avion $immat : $etatActuel% → $nouvelEtat% (note $note)", $logFile);
+        logMsg("[deduireUsure] Usure avion $immat : $etatActuel% → $nouvelEtat% (note $note)", $logFile);
     }
 }
 
@@ -414,7 +415,7 @@ function rejeterVol($pdo, $vol, $motif, $logFile = null) {
     if ($logFile === null) {
         $logFile = dirname(__DIR__) . '/scripts/logs/import_vol.log';
     }
-    logMsg("🔴 Rejet du vol ACARS ID=" . $vol['id'] . " | Motif : $motif", $logFile);
+    logMsg("[rejeterVol] 🔴 Rejet du vol ACARS ID=" . $vol['id'] . " | Motif : $motif", $logFile);
 
     $stmt = $pdo->prepare("
         INSERT INTO VOLS_REJETES
@@ -444,7 +445,7 @@ function rejeterVol($pdo, $vol, $motif, $logFile = null) {
         'motif_rejet' => $motif
     ]);
 
-    logMsg("✅ Vol rejeté inséré dans VOLS_REJETES pour ACARS ID=" . $vol['id'], $logFile);
+    logMsg("[rejeterVol] Vol rejeté inséré dans VOLS_REJETES pour ACARS ID=" . $vol['id'], $logFile);
 
     // Envoi d'un mail après rejet
     try {
@@ -473,15 +474,15 @@ function rejeterVol($pdo, $vol, $motif, $logFile = null) {
             "Arrivée : " . $vol['arrival_icao'] . "\n" .
             "Motif du rejet : " . $motif . "\n";
         $mail->send();
-        logMsg("📧 Mail envoyé pour vol rejeté ACARS ID=" . $vol['id'], $logFile);
+        logMsg("[rejeterVol] 📧 Mail envoyé pour vol rejeté ACARS ID=" . $vol['id'], $logFile);
     } catch (Exception $e) {
-        error_log("Erreur lors de l'envoi du mail de vol rejeté : " . $e->getMessage());
+        error_log("[rejeterVol] Erreur lors de l'envoi du mail de vol rejeté : " . $e->getMessage());
     }
 
     $del = $pdo->prepare("DELETE FROM FROM_ACARS WHERE id = :id");
     $del->execute(['id' => $vol['id']]);
 
-    logMsg("🗑️ Vol supprimé de FROM_ACARS pour ACARS ID=" . $vol['id'], $logFile);
+    logMsg("[rejeterVol] 🗑️ Vol supprimé de FROM_ACARS pour ACARS ID=" . $vol['id'], $logFile);
 }
 
 /**
