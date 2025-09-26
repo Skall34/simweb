@@ -76,7 +76,7 @@ function coef_note($note) {
         7 => 1,
         8 => 0.8,
         9 => 0.7,
-        10 => 0.5,
+        10 => 0.6,
         default => 1,
     };
     logMsg("coef_note($note) = $val", $logFile);
