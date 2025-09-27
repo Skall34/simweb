@@ -15,6 +15,9 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/menu_logged.php';
             <p>Et son mode d'emploi que vous pouvez télécharger ici :
                 <a href="../assets/acars/DocumentationUtilisateurSimAddon.pdf" download style="color:#1a3552;font-weight:bold;text-decoration:underline;">Télécharger documentation acars</a>
             </p>
+            <p>Un très complet wiki ici
+                <a href="https://github.com/Skall34/SimAddon/wiki" target="_blank" style="color:#1a3552;font-weight:bold;text-decoration:underline;">Accéder au wiki</a>
+            </p>
         </section>
         <BR>
         <section>
