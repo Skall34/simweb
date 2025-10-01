@@ -224,9 +224,17 @@ function calculerRevenuNetVol($payload, $temps_vol, $distance, $majoration_missi
     $cout_carburant = floatval($carburant) * floatval($prix_litre_essence);
     logMsg("[calculerRevenuNetVol] cout_carburant = carburant * prix_litre_essence", $logFile);
     logMsg("[calculerRevenuNetVol] cout_carburant = $carburant * $prix_litre_essence", $logFile);
-    $cout_appareil = floatval($cout_horaire) * floatval($heures) * floatval($coef_note_val);
-    logMsg("[calculerRevenuNetVol] cout_appareil = cout_horaire * heures * coef_note_val", $logFile);
-    logMsg("[calculerRevenuNetVol] cout_appareil = $cout_horaire * $heures * $coef_note_val", $logFile);
+    if ($note === 1) {
+        // Si note = 1, l'assurance prend en charge 90% des coûts, donc coef_note_val réduit de 90%
+        $coef_note_val_reduit = floatval($coef_note_val) * 0.1;
+        $cout_appareil = floatval($cout_horaire) * floatval($heures) * $coef_note_val_reduit;
+        logMsg("[calculerRevenuNetVol] cout_appareil (assurance 90%) = cout_horaire * heures * coef_note_val_reduit", $logFile);
+        logMsg("[calculerRevenuNetVol] cout_appareil = $cout_horaire * $heures * $coef_note_val_reduit", $logFile);
+    } else {
+        $cout_appareil = floatval($cout_horaire) * floatval($heures) * floatval($coef_note_val);
+        logMsg("[calculerRevenuNetVol] cout_appareil = cout_horaire * heures * coef_note_val", $logFile);
+        logMsg("[calculerRevenuNetVol] cout_appareil = $cout_horaire * $heures * $coef_note_val", $logFile);
+    }
     $revenu_net = floatval($revenu_brut) - (floatval($cout_carburant) + floatval($cout_appareil));
     logMsg("[calculerRevenuNetVol] revenu_net = revenu_brut - (cout_carburant + cout_appareil) = revenu_net", $logFile);
     logMsg("[calculerRevenuNetVol] revenu_net = $revenu_brut - ($cout_carburant + $cout_appareil) = $revenu_net", $logFile);
