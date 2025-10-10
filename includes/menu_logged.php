@@ -11,7 +11,8 @@ if (session_status() === PHP_SESSION_NONE) {
     <a href="/pages/tableau_vols.php">📒 Carnet de vol</a>
     <a href="/pages/fleet.php">✈️ Flotte</a>
     <a href="/pages/flights.php">🛫 Mes vols</a>
-
+    <a href="/pages/stats.php">📊 Stats</a>
+    <a href="/pages/finances.php">💶 Finances</a>
     <div class="menu-missions">
         <span class="missions-label">🗺️ Missions</span>
         <div class="submenu-missions">
@@ -66,8 +67,6 @@ if (session_status() === PHP_SESSION_NONE) {
             <a href="/pages/documentation.php">📖 Documentation</a>
             <a href="/pages/fleet_type.php">🛩️ Fleet Type</a>
             <a href="/pages/pilotes.php">👨‍✈️ Pilotes</a>
-            <a href="/pages/stats.php">📊 Stats</a>
-            <a href="/pages/finances.php">💶 Finances</a>
             <a href="/pages/simulation.php">🧮 Simulation</a>
             <a href="/pages/grades.php">🧑‍✈️ Grades</a>
             <a href="/pages/mon_compte.php">👤 Mon Compte</a>
