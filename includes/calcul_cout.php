@@ -203,10 +203,10 @@ function calculerRevenuNetVol($payload, $temps_vol, $distance, $majoration_missi
         }
     }
     // Calcul du revenu brut
-    if ($distance>0 && $distance < 100) {
+    if ($distance>0 && $distance < 50) {
         $prix_kg_fret = floatval($prix_kg_fret) * 1.2; // Majoration pour les vols courts
         logMsg("[calculerRevenuNetVol] Majoration de 20% appliquée pour distance < 100 NM", $logFile);       
-        $revenu_brut = floatval($payload) * floatval($prix_kg_fret) * floatval($heures) * floatval($majoration_mission);
+        $revenu_brut = floatval($payload) * floatval($prix_kg_fret) * floatval($heures) * floatval($majoration_mission) / 10;
     }else{
         logMsg("[calculerRevenuNetVol] Pas de majoration pour distance >= 100 NM", $logFile);
         $revenu_brut = floatval($payload) * floatval($prix_kg_fret) * floatval($distance) * floatval($majoration_mission) / 1000;
@@ -226,7 +226,10 @@ function calculerRevenuNetVol($payload, $temps_vol, $distance, $majoration_missi
     logMsg("[calculerRevenuNetVol] cout_carburant = $carburant * $prix_litre_essence", $logFile);
     if ($note === 1) {
         // Si note = 1, l'assurance prend en charge 90% des coûts, donc coef_note_val réduit de 90%
-        $coef_note_val_reduit = floatval($coef_note_val) * 0.1;
+        $revenu_brut = 0; // Pas de revenu pour un vol catastrophique
+        logMsg("[calculerRevenuNetVol] Note=1 => revenu_brut = 0", $logFile);
+        // Coefficient réduit pour le coût appareil, on considere que l'assurance couvre 90% des coûts
+        $coef_note_val_reduit = 10; // 90% de réduction
         $cout_appareil = floatval($cout_horaire) * floatval($heures) * $coef_note_val_reduit;
         logMsg("[calculerRevenuNetVol] cout_appareil (assurance 90%) = cout_horaire * heures * coef_note_val_reduit", $logFile);
         logMsg("[calculerRevenuNetVol] cout_appareil = $cout_horaire * $heures * $coef_note_val_reduit", $logFile);
