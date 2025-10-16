@@ -34,10 +34,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $coef_note = 0.8; // pour note 8
 
         // Calcul du revenu brut
-        if ($distance < 50) {
+        if ($distance < 100) {
             $revenu_brut = $payload * 5 * $temps_vol * $majoration_mission * 1.2;
         } else {
-            $revenu_brut = $payload * 5 * $distance * $majoration_mission / 10;
+            $revenu_brut = $payload * 5 * $distance * $majoration_mission / 1000;
         }
         $cout_carburant = $carburant * 0.88;
         $cout_appareil = $cout_horaire * $temps_vol * $coef_note;
