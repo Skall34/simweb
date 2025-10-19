@@ -224,11 +224,15 @@ try {
         $body .= "\nTrajet : $departure_icao -> $arrival_icao";
         $body .= "\nImmatriculation : $immat";
         $body .= "\nMission : $mission";
-        $body .= "\nPayload : $payload";
+        // Formater payload avec une virgule comme séparateur décimal et ajouter l'unité Kg
+        $payload_fmt = number_format(floatval($payload), 2, ',', ' ');
+        $body .= "\nPayload : {$payload_fmt} Kg";
         $body .= "\nNote : $note";
-        $body .= "\nRecettes du vol : $cout_vol €";
+        // Formater le montant de la recette avec une virgule comme séparateur décimal
+        $cout_vol_fmt = number_format(floatval($cout_vol), 2, ',', ' ');
+        $body .= "\nRecettes du vol : {$cout_vol_fmt} €";
         
-        $body .= "\n\nCeci est un message automatique, donc n'y réponds pas cono !.";
+        $body .= "\n\nCeci est un message automatique, donc n'y réponds pas cono !";
         $to = defined('ADMIN_EMAIL') ? ADMIN_EMAIL : 'zjfk7400@gmail.com';
         $mailResult = sendSummaryMail($subject, $body, $to);
         if ($mailResult === true || $mailResult === null) {

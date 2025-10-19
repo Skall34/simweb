@@ -2,6 +2,26 @@
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/menu_logged.php';
+// Récupérer le taux d'assurance depuis la base (VARIABLES_CONFIG.nom = 'taux_assurance')
+$taux_assurance_pct = '0,20%'; // valeur par défaut affichée (formatée)
+try {
+    $stmtT = $pdo->prepare("SELECT valeur FROM VARIABLES_CONFIG WHERE nom = 'taux_assurance'");
+    if ($stmtT->execute()) {
+        $val = $stmtT->fetchColumn();
+        if ($val !== false && is_numeric($val)) {
+            // En base c'est stocké sous forme décimale (ex: 0.002 pour 0.2%)
+            $pct = floatval($val) * 100;
+            // Si entier, afficher sans décimales, sinon afficher avec 2 décimales et virgule
+            if (floor($pct) == $pct) {
+                $taux_assurance_pct = number_format($pct, 0, ',', ' ') . '%';
+            } else {
+                $taux_assurance_pct = number_format($pct, 2, ',', ' ') . '%';
+            }
+        }
+    }
+} catch (Exception $e) {
+    // Ne pas planter la page de documentation si problème BDD
+}
 ?>
 <div class="container" style="max-width:900px;margin:40px auto;background:#fff;padding:32px;border-radius:12px;box-shadow:0 2px 16px rgba(0,0,0,0.08);">
     <h1 style="text-align:center;color:#2c3e50;margin-bottom:32px;">Script : Paiement de l'assurance mensuelle</h1>
@@ -14,7 +34,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/menu_logged.php';
     <section>
         <h2>Principe de calcul</h2>
         <ul>
-            <li><b>Assiette :</b> <strong>0,2% de la valeur absolue de la balance commerciale actuelle</strong> (champ <code>balance_actuelle</code> dans la table <code>BALANCE_COMMERCIALE</code>).</li>
+            <li><b>Assiette :</b> <strong><?= htmlspecialchars($taux_assurance_pct) ?> de la valeur absolue de la balance commerciale actuelle</strong> (champ <code>balance_actuelle</code> dans la table <code>BALANCE_COMMERCIALE</code>).</li>
             <li>Le calcul s'applique même si la balance est négative (déficit).</li>
             <li>Le montant prélevé est enregistré comme dépense dans <code>finances_depenses</code> avec un commentaire explicite.</li>
         </ul>
@@ -23,7 +43,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/menu_logged.php';
         <h2>Déroulement du script</h2>
         <ol>
             <li>Récupère la valeur de <code>balance_actuelle</code> dans <code>BALANCE_COMMERCIALE</code>.</li>
-            <li>Calcule l'assurance mensuelle : <code>assurance = abs(balance_actuelle) × 0,002</code>.</li>
+            <li>Calcule l'assurance mensuelle : <code>assurance = abs(balance_actuelle) × <?= htmlspecialchars($taux_assurance_pct) ?></code>.</li>
             <li>Insère la dépense dans <code>finances_depenses</code> (type <code>assurance</code>, commentaire détaillé).</li>
             <li>Met à jour la balance commerciale via recalcul automatique.</li>
             <li>Logue toutes les opérations dans <code>scripts/logs/assurance_mensuelle.log</code> (démarrage, calcul, insertion, fin, anomalies éventuelles).</li>
