@@ -44,7 +44,8 @@ SELECT
   c.heure_depart,
   c.heure_arrivee,
   c.note_du_vol,
-  m.libelle AS mission_libelle,
+    m.libelle AS mission_libelle,
+    ft.fleet_type AS fleet_type_label,
   c.cout_vol,
   c.pirep_maintenance,
   SEC_TO_TIME(
@@ -55,6 +56,7 @@ SELECT
 FROM CARNET_DE_VOL_GENERAL c
 LEFT JOIN FLOTTE f ON c.appareil_id = f.id
 LEFT JOIN MISSIONS m ON c.mission_id = m.id
+LEFT JOIN FLEET_TYPE ft ON f.fleet_type = ft.id
 WHERE c.pilote_id = :id_pilote";
 
 $params = ['id_pilote' => $userId];
@@ -134,17 +136,18 @@ include __DIR__ . '/../includes/menu_logged.php';
                 <thead class="table-skywings">
                     <tr class="table-skywings">
                         <th style="width:10%;">Date vol</th>
-                        <th style="width:8%;">Immat</th>
-                        <th style="width:5%;">Départ</th>
-                        <th style="width:5%;">Dest.</th>
+                        <th style="width:8%">Immat</th>
+                        <th style="width:6%">Fleet Type</th>
+                        <th style="width:5%">Départ</th>
+                        <th style="width:5%">Dest.</th>
                         <th style="width:5%;">Fuel arrivée</th>
                         <th style="width:5%;">Conso</th>
                         <th style="width:5%;">Payload</th>
                         <th style="width:10%;">Heure arrivée</th>
-                        <th style="width:10%;">Block time</th>
-                        <th style="width:5%;">Note du vol</th>
-                        <th style="width:8%;">Recette du vol</th>
-                        <th style="width:8%;">Mission</th>
+                        <th style="width:10%">Block time</th>
+                        <th style="width:5%">Note du vol</th>
+                        <th style="width:8%">Recette du vol</th>
+                        <th style="width:8%">Mission</th>
                     </tr>
                 </thead>
                 <tbody class="table-skywings">
@@ -167,6 +170,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                         'Block time' => $flight['block_time'],
                         'Note du vol' => $flight['note_du_vol'],
                         'Mission' => $flight['mission_libelle'],
+                        'Type' => $flight['fleet_type_label'] ?? '',
                         'Recette du vol' => number_format($flight['cout_vol'], 2, ',', ' ') . ' €',
                         'Pirep' => $pirep_complet,
                         'lat_depart' => isset($aeroports[$flight['depart']]) ? $aeroports[$flight['depart']]['latitude_deg'] : null,
@@ -181,6 +185,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                     <tr class="vol-row"  title="<?= htmlspecialchars($pirep_complet) ?>" data-details="<?= $details_json ?>">
                         <td style="width:10%;"><?= $date_formatee ?></td>
                         <td style="width:8%;"><?php echo htmlspecialchars($flight['immat']); ?></td>
+                        <td style="width:6%;"><?php echo htmlspecialchars($flight['fleet_type_label'] ?? ''); ?></td>
                         <td style="width:5%;"><?php echo htmlspecialchars($flight['depart']); ?></td>
                         <td style="width:5%;"><?php echo htmlspecialchars($flight['destination']); ?></td>
                         <td style="width:5%;"><?php echo htmlspecialchars($flight['fuel_arrivee']); ?></td>
