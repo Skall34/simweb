@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../includes/log_func.php';
 
 if (!isset($_SESSION['user']['id'])) {
     header('Location: login.php');
@@ -63,6 +64,46 @@ if (isset($_POST['old_password'], $_POST['new_password'], $_POST['new_password_c
     }
 }
 
+// Annulation d'une réservation (POST)
+if (isset($_POST['cancel_reservation_id'])) {
+    $res_id = intval($_POST['cancel_reservation_id']);
+    try {
+        $pdo->beginTransaction();
+        // verrouille la réservation
+        $chk = $pdo->prepare('SELECT * FROM RESERVATIONS WHERE id = ? AND pilote_id = ? FOR UPDATE');
+        $chk->execute([$res_id, $id]);
+        $r = $chk->fetch(PDO::FETCH_ASSOC);
+        if (!$r) {
+            $pdo->rollBack();
+            $message = 'Réservation introuvable.';
+        } elseif ($r['statut'] !== 'reserved') {
+            $pdo->rollBack();
+            $message = 'La réservation ne peut pas être annulée (statut).';
+        } else {
+            // annule la réservation
+            $upd = $pdo->prepare("UPDATE RESERVATIONS SET statut = 'cancelled' WHERE id = ?");
+            $upd->execute([$res_id]);
+            // libère l'appareil si immat renseignée
+            if (!empty($r['immat'])) {
+                $free = $pdo->prepare('UPDATE FLOTTE SET reservee = 0 WHERE immat = ?');
+                $free->execute([$r['immat']]);
+            }
+            $pdo->commit();
+            $message = 'Réservation annulée.';
+            logMsg("Pilote {$id} a annulé la réservation id={$res_id} immat=" . ($r['immat'] ?? ''));
+        }
+    } catch (Exception $e) {
+        if ($pdo->inTransaction()) $pdo->rollBack();
+        $message = 'Erreur lors de l\'annulation : ' . $e->getMessage();
+        logMsg('Erreur annulation reservation: ' . $e->getMessage());
+    }
+}
+
+// Récupérer les réservations actives du pilote
+$stmt = $pdo->prepare("SELECT r.*, lr.icao_dep, lr.icao_arr FROM RESERVATIONS r LEFT JOIN LIGNES_REGULIERES lr ON r.ligne_id = lr.id WHERE r.pilote_id = ? AND r.statut = 'reserved' ORDER BY r.date_reservation DESC");
+$stmt->execute([$id]);
+$reservations = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 include __DIR__ . '/../includes/header.php';
 include __DIR__ . '/../includes/menu_logged.php';
 ?>
@@ -75,6 +116,39 @@ include __DIR__ . '/../includes/menu_logged.php';
         echo "<div style='font-weight:bold;color:$color;margin-bottom:16px;'>$message</div>";
     }
     ?>
+
+     <div class="compte-section">
+        <h3>Lignes régulières réservées</h3>
+        <?php if (count($reservations) === 0): ?>
+            <p>Aucune réservation active.</p>
+        <?php else: ?>
+            <table class="table-skywings" style="margin-top:8px;">
+                <thead>
+                    <tr>
+                        <th>Ligne</th>
+                        <th>Immat.</th>
+                        <th>Date réservation</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($reservations as $res): ?>
+                        <tr>
+                            <td><?= htmlspecialchars(($res['icao_dep'] ?? '---') . ' → ' . ($res['icao_arr'] ?? '---')) ?></td>
+                            <td><?= htmlspecialchars($res['immat'] ?? '') ?></td>
+                            <td><?= htmlspecialchars($res['date_reservation']) ?></td>
+                            <td>
+                                <form method="post" style="display:inline;" class="form-cancel-reservation">
+                                    <input type="hidden" name="cancel_reservation_id" value="<?= intval($res['id']) ?>">
+                                    <button type="submit" class="btn">Annuler</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php endif; ?>
+    </div>
 
     <div style="display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start; margin-bottom: 32px;">
         <div class="compte-section" style="flex:1 1 320px; min-width:280px;">
@@ -91,9 +165,11 @@ include __DIR__ . '/../includes/menu_logged.php';
                 <?php endif; ?>
             </div>
         </div>
+       
+
         <div class="compte-section" style="flex:1 1 320px; min-width:280px; max-width:420px;">
             <h3>Détail du dernier salaire versé</h3>
-            <?php if ($dernier_salaire):
+        <?php if ($dernier_salaire):
                 $date_paiement = $dernier_salaire['date_de_paiement'];
                 $stmt = $pdo->prepare('SELECT temps_vol, payload FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = ? AND date_vol <= ?');
                 $stmt->execute([$id, $date_paiement]);
@@ -117,6 +193,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                 <p>Aucun salaire versé pour l'instant.</p>
             </div>
             <?php endif; ?>
+
         </div>
     </div>
 
@@ -140,7 +217,8 @@ include __DIR__ . '/../includes/menu_logged.php';
             </div>
         </form>
     </div>
-
+    
+   
     <div class="compte-section">
         <h3>Statistiques de vol</h3>
         <div class="compte-infos">
@@ -164,8 +242,23 @@ include __DIR__ . '/../includes/menu_logged.php';
                 <?php endforeach; ?>
             </ol>
     </div>
+
+    
 </main>
 
 <?php
 include __DIR__ . '/../includes/footer.php';
 ?>
+<script>
+// confirmation avant annulation d'une réservation
+document.addEventListener('DOMContentLoaded', function(){
+    var forms = document.querySelectorAll('.form-cancel-reservation');
+    forms.forEach(function(f){
+        f.addEventListener('submit', function(e){
+            if (!confirm('Confirmer l\'annulation de la réservation ?')) {
+                e.preventDefault();
+            }
+        });
+    });
+});
+</script>

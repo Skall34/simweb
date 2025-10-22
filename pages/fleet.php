@@ -27,7 +27,7 @@ try {
 
 // Nouvelle requête : on récupère tous les appareils (actifs et inactifs)
 $sql = "SELECT f.id, ft.fleet_type AS type_libelle, ft.type AS categorie, f.immat, f.localisation, f.hub, f.status, f.etat,
-               p.callsign AS pilote_callsign, f.fuel_restant, f.compteur_immo, f.en_vol, f.nb_maintenance,
+               p.callsign AS pilote_callsign, f.fuel_restant, f.compteur_immo, f.en_vol, f.nb_maintenance, f.reservee,
                f.date_achat, f.recettes, f.nb_annees_credit, f.taux_percent, f.remboursement, f.traite_payee_cumulee, f.reste_a_payer, f.recette_vente, f.date_vente, f.actif
         FROM FLOTTE f
         LEFT JOIN FLEET_TYPE ft ON f.fleet_type = ft.id
@@ -115,7 +115,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                     <th style="width:8%;">Carburant restant</th>
                     <th style="width:8%;">Compteur Immobilisation</th>
                     <th style="width:8%;">En vol</th>
-                    <th style="width:8%;">Nombre maintenance</th>
+                    <th style="width:8%;">Réservé</th>
 
                 </tr>
             </thead>
@@ -151,7 +151,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                         'Carburant restant' => $avion['fuel_restant'],
                         'Compteur Immo' => $avion['compteur_immo'],
                         'En vol' => $avion['en_vol'],
-                        'Nombre maintenance' => $avion['nb_maintenance'],
+                        'Réservée' => (isset($avion['reservee']) && (int)$avion['reservee'] === 1) ? 'Oui' : 'Non',
                         'Date du dernier vol' => $dernierVol,
                         'Date achat' => (!empty($avion['date_achat'] ?? '') && preg_match('/^\d{4}-\d{2}-\d{2}$/', $avion['date_achat'] ?? '')) ? (implode('-', array_reverse(explode('-', $avion['date_achat']))) ) : ($avion['date_achat'] ?? ''),
                         'Mode d\'achat' => (isset($avion['mode_achat']) && $avion['mode_achat'] === 'credit') ? 'Crédit' : ((isset($avion['mode_achat']) && $avion['mode_achat'] === 'comptant') ? 'Comptant' : ((isset($avion['nb_annees_credit']) && intval($avion['nb_annees_credit']) > 0) ? 'Crédit' : 'Comptant')),
@@ -196,7 +196,14 @@ include __DIR__ . '/../includes/menu_logged.php';
                         <td style="width:8%;"><?= htmlspecialchars($avion['fuel_restant'] ?? '') ?></td>
                         <td style="width:8%;"><?= htmlspecialchars($avion['compteur_immo'] ?? '') ?></td>
                         <td style="width:8%;"><?= htmlspecialchars($avion['en_vol'] ?? '') ?></td>
-                        <td style="width:8%;"><?= htmlspecialchars($avion['nb_maintenance'] ?? '') ?></td>
+                        <td style="width:8%;"><?php
+                            $res = $avion['reservee'] ?? null;
+                            if ($res === null || $res === '') {
+                                echo 'Non';
+                            } else {
+                                echo ((int)$res === 1) ? 'Oui' : 'Non';
+                            }
+                        ?></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>

@@ -53,6 +53,7 @@ if (!isset($_SESSION['user'])) {
         if ($callsign) {
             echo '<div style="font-size:1.25em;font-weight:bold;color:#2a4d7a;margin-bottom:22px;">Bonjour ' . $callsign . ' 👋</div>';
         }
+
         // Message d'accueil administrable (3 lignes max)
         $stmtMsg = $pdo->prepare("SELECT valeur FROM VARIABLES_CONFIG WHERE nom = 'message_accueil'");
         $stmtMsg->execute();
@@ -63,6 +64,35 @@ if (!isset($_SESSION['user'])) {
                 . '<div style="font-weight:bold; color:#2a4d7a; margin-bottom:0.4em; text-align:center;">Message de la direction</div>'
                 . nl2br(htmlspecialchars($message_accueil))
                 . '</div></div>';
+        }
+        // Vérifier si le pilote connecté a une réservation active (statut 'reserved')
+        try {
+            if (isset($_SESSION['user']['id'])) {
+                $stmtRes = $pdo->prepare(
+                    "SELECT r.*, lr.icao_dep, lr.icao_arr
+                     FROM RESERVATIONS r
+                     LEFT JOIN LIGNES_REGULIERES lr ON r.ligne_id = lr.id
+                     WHERE r.pilote_id = ? AND r.statut = 'reserved'
+                     ORDER BY r.date_reservation DESC
+                     LIMIT 1"
+                );
+                $stmtRes->execute([$_SESSION['user']['id']]);
+                $res = $stmtRes->fetch();
+                if ($res) {
+                    $immat = isset($res['immat']) ? htmlspecialchars($res['immat']) : '';
+                    $dep = isset($res['icao_dep']) ? htmlspecialchars($res['icao_dep']) : '';
+                    $arr = isset($res['icao_arr']) ? htmlspecialchars($res['icao_arr']) : '';
+                    $date = isset($res['date_reservation']) ? date("d-m-Y H:i", strtotime($res['date_reservation'])) : '';
+                    echo '<div style="border:1px solid #f0ad4e; background:#fff3cd; padding:12px; border-radius:6px; margin-bottom:18px;">'
+                        . '<strong>Réservation active :</strong> '
+                        . ($immat ? 'Appareil: ' . $immat . ' — ' : '')
+                        . 'Ligne: ' . ($dep ?: 'N/A') . ' → ' . ($arr ?: 'N/A') . ' — Réservé le ' . $date
+                        . ' — <a href="pages/mon_compte.php">Voir / Annuler</a>'
+                        . '</div>';
+                }
+            }
+        } catch (PDOException $e) {
+            // Ne pas bloquer la page d'accueil si la vérification échoue
         }
         try {
             $sql = "

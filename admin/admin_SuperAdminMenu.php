@@ -25,7 +25,8 @@ $scripts = [
     'assurance_mensuelle.php' => "Assurance mensuelle",
     'credit_mensualite.php' => "Mensualités crédit",
     'update_fret.php' => "Mise à jour du fret",
-    'paiement_salaires_pilotes.php' => "Paiement salaires pilotes"
+    'paiement_salaires_pilotes.php' => "Paiement salaires pilotes",
+    'expire_reservations.php' => "Purge des réservations expirées"
 ];
 
 // Scripts nécessitant un CSV
@@ -89,6 +90,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['csv_script']) && isse
         </select>
         <button type="submit" class="btn" id="btn-executer">Exécuter</button>
     </form>
+
+    <h3>Raccourcis</h3>
+    <p>
+        <a href="/pages/reserver_ligne.php">Réserver une ligne</a>
+       
+    </p>
 
     <h3>Import CSV</h3>
     <?php foreach ($csvScripts as $csvFile => $csvLabel): ?>
