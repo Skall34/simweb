@@ -17,7 +17,7 @@ LEFT JOIN
 LEFT JOIN 
     PILOTES P ON F.dernier_utilisateur = P.id
 WHERE 
-    F.actif = 1 AND F.reservee = 0
+    F.actif = 1
 ORDER BY 
     F.immat;
 ");

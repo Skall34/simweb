@@ -38,7 +38,8 @@ include __DIR__ . '/../includes/header.php';
 include __DIR__ . '/../includes/menu_logged.php';
 ?>
 <main>
-    <h2>Lignes régulières disponibles</h2>
+    <?php $lines_count = count($lines); ?>
+    <h2>Lignes régulières disponibles (<?= $lines_count ?>)</h2>
     <p>Choisissez une ligne pour réserver un appareil.</p>
     <?php
     // message flash après réservation (session) ou fallback sur GET
