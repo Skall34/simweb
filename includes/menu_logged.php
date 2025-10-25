@@ -98,7 +98,7 @@ if (session_status() === PHP_SESSION_NONE) {
                     <a href="/admin/admin_variables.php">Administration des variables</a>
                     <a href="/admin/admin_message_accueil.php">Message d'accueil</a>
                 </div>
-                <?php if (isset($_SESSION['user']['callsign']) && in_array($_SESSION['user']['callsign'], ['SKY0707', 'SKY3434'])): ?>
+                <?php if (isset($_SESSION['user']['callsign']) && in_array($_SESSION['user']['callsign'], ['SKY0707', 'SKY0034'])): ?>
                     <a href="/admin/admin_SuperAdminMenu.php" style="color: #c00; font-weight: bold; margin-left: 10px;">Super Admin</a>
                 <?php endif; ?>
             </div>
