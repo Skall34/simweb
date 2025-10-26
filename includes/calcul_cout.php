@@ -205,10 +205,10 @@ function calculerRevenuNetVol($payload, $temps_vol, $distance, $majoration_missi
     // Calcul du revenu brut
     if ($distance>0 && $distance < 50) {
         $prix_kg_fret = floatval($prix_kg_fret) * 1.2; // Majoration pour les vols courts
-        logMsg("[calculerRevenuNetVol] Majoration de 20% appliquée pour distance < 100 NM", $logFile);       
+        logMsg("[calculerRevenuNetVol] Majoration de 20% appliquée pour distance < 50 NM", $logFile);       
         $revenu_brut = floatval($payload) * floatval($prix_kg_fret) * floatval($heures) * floatval($majoration_mission) / 10;
     }else{
-        logMsg("[calculerRevenuNetVol] Pas de majoration pour distance >= 100 NM", $logFile);
+        logMsg("[calculerRevenuNetVol] Pas de majoration pour distance >= 50 NM", $logFile);
         $revenu_brut = floatval($payload) * floatval($prix_kg_fret) * floatval($distance) * floatval($majoration_mission) / 1000;
         logMsg("[calculerRevenuNetVol] revenu_brut = $payload * $prix_kg_fret * $distance * $majoration_mission /1000", $logFile);
     }
