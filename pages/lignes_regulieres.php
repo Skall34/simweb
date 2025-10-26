@@ -59,8 +59,8 @@ include __DIR__ . '/../includes/menu_logged.php';
     }
     ?>
     <form method="get" style="margin-bottom:1em;">
-        <label>ICAO départ: <input type="text" name="icao_dep" value="<?= htmlspecialchars($filter_dep) ?>" maxlength="5" style="width:6em"/></label>
-        <label style="margin-left:1em">ICAO arrivée: <input type="text" name="icao_arr" value="<?= htmlspecialchars($filter_arr) ?>" maxlength="5" style="width:6em"/></label>
+        <label>ICAO départ (de 1 à 4 caractères): <input type="text" name="icao_dep" value="<?= htmlspecialchars($filter_dep) ?>" maxlength="5" style="width:6em"/></label>
+        <label style="margin-left:1em">ICAO arrivée (de 1 à 4 caractères): <input type="text" name="icao_arr" value="<?= htmlspecialchars($filter_arr) ?>" maxlength="5" style="width:6em"/></label>
         <button type="submit" class="btn">Filtrer</button>
         <button type="button" class="btn" id="resetBtn" style="margin-left:.5em">Réinitialiser</button>
     </form>

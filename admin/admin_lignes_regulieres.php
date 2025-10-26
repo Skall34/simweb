@@ -8,6 +8,12 @@ if (!isset($_SESSION['user'])) {
 }
 
 $message = '';
+$flash = '';
+// Read flash message from session (set after POST redirects)
+if (!empty($_SESSION['flash_message'])) {
+    $message = $_SESSION['flash_message'];
+    unset($_SESSION['flash_message']);
+}
 $edit_mode = false;
 $line = ['id' => '', 'icao_dep' => '', 'icao_arr' => '', 'created_at' => '', 'updated_at' => ''];
 
@@ -26,13 +32,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $chk = $pdo->prepare("SELECT COUNT(*) AS c FROM LIGNES_REGULIERES WHERE icao_dep = :dep AND icao_arr = :arr");
                 $chk->execute(['dep' => $icao_dep, 'arr' => $icao_arr]);
                 $row = $chk->fetch(PDO::FETCH_ASSOC);
-                if ($row && (int)$row['c'] > 0) {
-                    $message = "⚠️ La ligne $icao_dep → $icao_arr existe déjà.";
-                } else {
-                    $stmt = $pdo->prepare("INSERT INTO LIGNES_REGULIERES (icao_dep, icao_arr, created_at, updated_at) VALUES (:dep, :arr, NOW(), NOW())");
-                    $stmt->execute(['dep' => $icao_dep, 'arr' => $icao_arr]);
-                    $message = "✅ Ligne $icao_dep → $icao_arr ajoutée.";
-                }
+                    if ($row && (int)$row['c'] > 0) {
+                        $message = "⚠️ La ligne $icao_dep → $icao_arr existe déjà.";
+                    } else {
+                        $stmt = $pdo->prepare("INSERT INTO LIGNES_REGULIERES (icao_dep, icao_arr, created_at, updated_at) VALUES (:dep, :arr, NOW(), NOW())");
+                        $stmt->execute(['dep' => $icao_dep, 'arr' => $icao_arr]);
+                        $message = "✅ Ligne $icao_dep → $icao_arr ajoutée.";
+                    }
             } catch (Exception $e) {
                 $message = 'Erreur lors de l\'ajout : ' . htmlspecialchars($e->getMessage());
             }
@@ -79,7 +85,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // After any POST, reload the page values
+    // After any POST, store the message in session and redirect to show it (flash)
+    if (!empty($message)) {
+        $_SESSION['flash_message'] = $message;
+    }
     header('Location: admin_lignes_regulieres.php');
     exit;
 }

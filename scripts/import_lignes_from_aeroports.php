@@ -18,7 +18,7 @@ if ($isCli) {
 }
 
 // Récupère tous les ICAO de type large_airport
-$stmt = $pdo->prepare("SELECT ident FROM AEROPORTS WHERE (type_aeroport = 'large_airport' OR type_aeroport = 'MEDIUM_AIRPORT') AND ident like 'LF%' ORDER BY ident");
+$stmt = $pdo->prepare("SELECT ident FROM AEROPORTS WHERE (type_aeroport = 'large_airport' AND ident like 'LF%') OR (ident IN ('LFMT','CYUL','CYVR','TFFR','SPZO','SCEL','NTAA','AYPY','VNKT','FBMN','EINN','BIKF','BGBN','CYQX','CYQT','CYQR','CYVR','KSLC','KDFN','KTPA','MTPP','SVMC','SEQM','SCFA','SCEL','SCIP','NCRG','NSTU','NFFN','NWWW','AGGH','WABB','WAMM','WBSB','VDPP','VYMD','OPLA','OPGD','OOSA','HDAM','HKJK','FWKI','FNLU','FKKD','DRZA','DAUH')) ORDER BY ident");
 $stmt->execute();
 $airports = $stmt->fetchAll(PDO::FETCH_COLUMN);
 

@@ -151,7 +151,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                         'Carburant restant' => $avion['fuel_restant'],
                         'Compteur Immo' => $avion['compteur_immo'],
                         'En vol' => $avion['en_vol'],
-                        'Réservée' => (isset($avion['reservee']) && (int)$avion['reservee'] === 1) ? 'Oui' : 'Non',
+                        'Réservé' => (isset($avion['reservee']) && (int)$avion['reservee'] === 1) ? 'Oui' : 'Non',
                         'Date du dernier vol' => $dernierVol,
                         'Date achat' => (!empty($avion['date_achat'] ?? '') && preg_match('/^\d{4}-\d{2}-\d{2}$/', $avion['date_achat'] ?? '')) ? (implode('-', array_reverse(explode('-', $avion['date_achat']))) ) : ($avion['date_achat'] ?? ''),
                         'Mode d\'achat' => (isset($avion['mode_achat']) && $avion['mode_achat'] === 'credit') ? 'Crédit' : ((isset($avion['mode_achat']) && $avion['mode_achat'] === 'comptant') ? 'Comptant' : ((isset($avion['nb_annees_credit']) && intval($avion['nb_annees_credit']) > 0) ? 'Crédit' : 'Comptant')),

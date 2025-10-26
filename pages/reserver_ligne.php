@@ -31,11 +31,34 @@ $flotte = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Process reservation
 $message = '';
+$message_html = '';
+// Check if the pilote already has an active reservation (reserved or in_flight)
+$canReserve = true;
+$stmtActive = $pdo->prepare("SELECT id, statut FROM RESERVATIONS WHERE pilote_id = ? AND statut IN ('reserved','in_flight') LIMIT 1");
+$stmtActive->execute([$pilote_id]);
+$active = $stmtActive->fetch(PDO::FETCH_ASSOC);
+if ($active) {
+    $canReserve = false;
+    $message = 'Vous avez déjà une réservation active. Veuillez la terminer ou l\'annuler avant d\'en créer une nouvelle.';
+    $message_html = 'Vous avez déjà une réservation active. Veuillez la terminer ou l\'annuler avant d\'en créer une nouvelle. <a href="/pages/mon_compte.php">Gérer</a>';
+}
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $immat = $_POST['immat'] ?? '';
+    // Re-check at POST time to avoid race conditions
+    $stmtActive2 = $pdo->prepare("SELECT id FROM RESERVATIONS WHERE pilote_id = ? AND statut IN ('reserved','in_flight') LIMIT 1 FOR UPDATE");
+    $stmtActive2->execute([$pilote_id]);
+    $active2 = $stmtActive2->fetch(PDO::FETCH_ASSOC);
+    if ($active2) {
+        $message = 'Vous avez déjà une réservation active. Impossible d\'en créer une nouvelle.';
+        $message_html = 'Vous avez déjà une réservation active. Impossible d\'en créer une nouvelle. <a href="/pages/mon_compte.php">Gérer</a>';
+        $canReserve = false;
+    }
     if (!$immat) {
         $message = 'Veuillez sélectionner un appareil.';
     } else {
+        if (!$canReserve) {
+            // do not proceed
+        } else {
         try {
             $pdo->beginTransaction();
             // Vérifier si l'appareil est toujours disponible
@@ -78,6 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $message = 'Erreur lors de la réservation : ' . $e->getMessage();
             logMsg('Erreur réservation: ' . $e->getMessage(), __DIR__ . '/../scripts/logs/reservations.log');
         }
+        }
     }
 }
 
@@ -86,8 +110,10 @@ include __DIR__ . '/../includes/menu_logged.php';
 ?>
 <main>
     <h2>Réserver la ligne <?= htmlspecialchars($ligne['icao_dep']) ?> → <?= htmlspecialchars($ligne['icao_arr']) ?></h2>
-    <?php if ($message): ?>
-        <div style="color:#d60000;font-weight:bold;"><?= htmlspecialchars($message) ?></div>
+    <?php if ($message || $message_html): ?>
+        <div style="color:#d60000;font-weight:bold;">
+            <?= $message_html ? $message_html : htmlspecialchars($message) ?>
+        </div>
     <?php endif; ?>
     <form method="post">
         <label for="immat">Choisir un appareil :</label>
