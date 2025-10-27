@@ -639,7 +639,7 @@ footer {
     align-items: center;
 }
 .narrow-table-wrapper {
-  max-width: 820px; /* slightly wider so form controls and reset button fit on one line */
+  max-width: 790px; /* compromise width (midpoint between 820 and 760) */
   margin-left: 0; /* align left instead of centering */
   margin-right: auto;
 }

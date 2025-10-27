@@ -1,6 +1,14 @@
 <?php
 // filepath: /home/cyber/VA/skywings/admin/admin_saisie_vol.php
 require_once __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../includes/log_func.php';
+require_once __DIR__ . '/../includes/mail_utils.php';
+require_once __DIR__ . '/../includes/fonctions_financieres.php';
+require_once __DIR__ . '/../includes/fonctions_importer_vol.php';
+require_once __DIR__ . '/../includes/calcul_cout.php';
+
+$logFile = __DIR__ . '/../scripts/logs/importer_vol_manual.log';
+$mailSummaryEnabled = true; // activer/désactiver l'envoi du mail récapitulatif
 
 $erreurs = [];
 $success = false;
@@ -81,28 +89,146 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if (empty($erreurs)) {
-            $stmt = $pdo->prepare("INSERT INTO FROM_ACARS
-                (horodateur, callsign, immatriculation, departure_icao, departure_fuel, departure_time, arrival_icao, arrival_fuel, arrival_time, payload, commentaire, note_du_vol, mission, processed, created_at)
-                VALUES (:horodateur, :callsign, :immat, :depart, :fuelDep, :timeDep, :dest, :fuelArr, :timeArr, :payload, :commentaire, :note, :mission, 0, NOW())");
-            $stmt->execute([
-                'horodateur' => $form['departure_datetime'] ? str_replace('T', ' ', $form['departure_datetime']) . ':00' : null,
-                'callsign' => $form['callsign'],
-                'immat' => $form['immatriculation'],
-                'depart' => $form['departure_icao'],
-                'fuelDep' => floatval($form['departure_fuel']),
-                'timeDep' => $form['departure_datetime'] ? str_replace('T', ' ', $form['departure_datetime']) . ':00' : null,
-                'dest' => $form['arrival_icao'],
-                'fuelArr' => floatval($form['arrival_fuel']),
-                'timeArr' => $form['arrival_datetime'] ? str_replace('T', ' ', $form['arrival_datetime']) . ':00' : null,
-                'payload' => floatval($form['payload']),
-                'commentaire' => $form['commentaire'],
-                'note' => intval($form['note_du_vol']),
-                'mission' => $form['mission']
-            ]);
-            $success = true;
-            // Réinitialiser le formulaire après succès
-            foreach ($form as $key => $val) {
-                $form[$key] = '';
+            // Traitement immédiat du vol (mode identique à api_import_vol_direct.php)
+            try {
+                // Préparer les variables
+                $callsign = $form['callsign'];
+                $immat = $form['immatriculation'];
+                $departure_icao = strtoupper($form['departure_icao']);
+                $arrival_icao = strtoupper($form['arrival_icao']);
+                $departure_time = $form['departure_datetime'] ? str_replace('T', ' ', $form['departure_datetime']) . ':00' : null;
+                $arrival_time = $form['arrival_datetime'] ? str_replace('T', ' ', $form['arrival_datetime']) . ':00' : null;
+                $departure_fuel = floatval($form['departure_fuel']);
+                $arrival_fuel = floatval($form['arrival_fuel']);
+                $payload = floatval($form['payload']);
+                $note = intval($form['note_du_vol']);
+                $commentaire = $form['commentaire'];
+                $mission = $form['mission'];
+                $horodateur = $departure_time ?: date('Y-m-d H:i:s');
+                $tracegps = '';
+
+                // 1) Contrôles supplémentaires (doublon, pilote/avion, carburant non nul)
+                $erreurs_proc = [];
+                // carburant et conso
+                $conso = $departure_fuel - $arrival_fuel;
+                if ($departure_fuel == 0 || $arrival_fuel == 0 || $conso == 0) {
+                    $erreurs_proc[] = "Vol rejeté : carburant départ/arrivée/consommation à 0";
+                }
+
+                // pilote
+                $stmtPilote = $pdo->prepare("SELECT id FROM PILOTES WHERE callsign = :callsign");
+                $stmtPilote->execute(['callsign' => $callsign]);
+                $pilote = $stmtPilote->fetch();
+                if (!$pilote) $erreurs_proc[] = "Pilote '$callsign' introuvable.";
+
+                // avion
+                $stmtAvion = $pdo->prepare("SELECT id FROM FLOTTE WHERE immat = :immat AND actif = 1");
+                $stmtAvion->execute(['immat' => $immat]);
+                $avion = $stmtAvion->fetch();
+                if (!$avion) $erreurs_proc[] = "Avion '$immat' introuvable ou inactif.";
+
+                // doublon
+                if (function_exists('detecterDoublonVol') && detecterDoublonVol($pdo, $callsign, $departure_icao, $arrival_icao, $departure_fuel, $arrival_fuel, $payload, $note, $mission)) {
+                    $erreurs_proc[] = "Vol doublon détecté pour le pilote '$callsign'.";
+                }
+
+                if (!empty($erreurs_proc)) {
+                    foreach ($erreurs_proc as $errp) logMsg("[saisie_manuelle] $errp", $logFile);
+                    // rejeter le vol si la fonction existe
+                    if (function_exists('rejeterVol')) {
+                        rejeterVol($pdo, $form, implode(' | ', $erreurs_proc), $logFile);
+                    }
+                    $erreurs = array_merge($erreurs, $erreurs_proc);
+                } else {
+                    // Insertion en base (FROM_ACARS processed = 1)
+                    $stmt = $pdo->prepare("INSERT INTO FROM_ACARS (
+                        horodateur, callsign, immatriculation, departure_icao, departure_fuel, departure_time,
+                        arrival_icao, arrival_fuel, arrival_time, payload, commentaire, note_du_vol, mission, processed, created_at
+                    ) VALUES (
+                        :horodateur, :callsign, :immat, :dep_icao, :dep_fuel, :dep_time,
+                        :arr_icao, :arr_fuel, :arr_time, :payload, :commentaire, :note, :mission, 1, NOW()
+                    )");
+
+                    $stmt->execute([
+                        'horodateur'   => $horodateur,
+                        'callsign'     => $callsign,
+                        'immat'        => $immat,
+                        'dep_icao'     => $departure_icao,
+                        'dep_fuel'     => $departure_fuel,
+                        'dep_time'     => $departure_time,
+                        'arr_icao'     => $arrival_icao,
+                        'arr_fuel'     => $arrival_fuel,
+                        'arr_time'     => $arrival_time,
+                        'payload'      => $payload,
+                        'commentaire'  => $commentaire,
+                        'note'         => $note,
+                        'mission'      => $mission
+                    ]);
+
+                    // Traitement métier (fret, coûts, carnet, flotte, finances, usure)
+                    if ($payload > 0 && function_exists('deduireFretDepart')) {
+                        $fret_transporte = deduireFretDepart($departure_icao, $payload, $logFile);
+                        if (function_exists('ajouterFretDestination')) ajouterFretDestination($arrival_icao, $fret_transporte, $logFile);
+                    }
+
+                    $distance = function_exists('ComputeFlightDistance') ? ComputeFlightDistance($departure_icao, $arrival_icao) : 0;
+                    $majoration_mission = function_exists('getMajorationMission') ? getMajorationMission($mission) : 0;
+                    $cout_horaire = function_exists('getCoutHoraire') ? getCoutHoraire($immat) : 0;
+                    $carburant = $departure_fuel - $arrival_fuel;
+                    $temps_vol = '00:00:00';
+                    if ($departure_time && $arrival_time) {
+                        $t1 = new DateTime($departure_time);
+                        $t2 = new DateTime($arrival_time);
+                        if ($t2 <= $t1) $t2->modify('+1 day');
+                        $interval = $t1->diff($t2);
+                        $temps_vol = $interval->format('%H:%I:%S');
+                    }
+
+                    $cout_vol = function_exists('calculerRevenuNetVol') ? calculerRevenuNetVol($payload, $temps_vol, $distance, $majoration_mission, $carburant, $note, $cout_horaire, $immat) : 0;
+
+                    $vol_id = function_exists('remplirCarnetVolGeneral') ? remplirCarnetVolGeneral($horodateur, $callsign, $immat, $departure_icao, $arrival_icao, $departure_fuel, $arrival_fuel, $payload, $departure_time, $arrival_time, $mission, $commentaire, $note, $cout_vol, $temps_vol, $logFile) : null;
+                    logMsg("[saisie_manuelle] Vol inséré et traité: callsign=$callsign immat=$immat depart=$departure_icao dest=$arrival_icao payload=$payload cout=$cout_vol", $logFile);
+
+                    if (!empty($tracegps) && function_exists('ajouterTraceGPS') && $vol_id) {
+                        ajouterTraceGPS($vol_id, $tracegps, $logFile);
+                        logMsg("[saisie_manuelle] Trace GPS ajoutée pour vol id=$vol_id", $logFile);
+                    }
+
+                    if (function_exists('mettreAJourFlotte')) mettreAJourFlotte($immat, $arrival_fuel, $callsign, $arrival_icao, $logFile);
+                    if (function_exists('mettreAJourFinances')) mettreAJourFinances($immat, $cout_vol, $logFile);
+                    if (function_exists('mettreAJourRecettes')) {
+                        $commentaire_recette = "Vol importé manuellement : $departure_icao -> $arrival_icao, pilote: $callsign, immat: $immat";
+                        mettreAJourRecettes($cout_vol, $vol_id, $immat, $callsign, 'vol', 'Recette vol (saisie manuelle)');
+                    }
+                    if (function_exists('deduireUsure')) deduireUsure($immat, $note, $logFile);
+
+                    // Mail récapitulatif (si activé)
+                    if ($mailSummaryEnabled && function_exists('sendSummaryMail')) {
+                        $subject = "[SimWeb] Rapport import vol manuel - " . date('d/m/Y H:i');
+                        $body = "Import manuel d'un vol terminé.\n\n";
+                        $body .= "Pilote : $callsign\n";
+                        $body .= "Trajet : $departure_icao -> $arrival_icao\n";
+                        $body .= "Immatriculation : $immat\n";
+                        $payload_fmt = number_format(floatval($payload), 2, ',', ' ');
+                        $body .= "Payload : {$payload_fmt} Kg\n";
+                        $cout_vol_fmt = number_format(floatval($cout_vol), 2, ',', ' ');
+                        $body .= "Recettes du vol : {$cout_vol_fmt} €\n";
+                        $to = defined('ADMIN_EMAIL') ? ADMIN_EMAIL : 'zjfk7400@gmail.com';
+                        $mailResult = sendSummaryMail($subject, $body, $to);
+                        if ($mailResult === true || $mailResult === null) {
+                            logMsg("[saisie_manuelle] Mail récapitulatif envoyé à $to", $logFile);
+                        } else {
+                            logMsg("[saisie_manuelle] Erreur lors de l'envoi du mail récapitulatif : $mailResult", $logFile);
+                        }
+                    }
+
+                    $success = true;
+                    // réinitialiser formulaire
+                    foreach ($form as $key => $val) $form[$key] = '';
+                }
+            } catch (Exception $e) {
+                logMsg('[saisie_manuelle] Exception: ' . $e->getMessage(), $logFile);
+                $erreurs[] = 'Erreur lors du traitement du vol : ' . $e->getMessage();
             }
         }
     }
@@ -148,7 +274,7 @@ include __DIR__ . '/../includes/menu_logged.php';
             </div>
             <div class="form-group">
                 <label for="departure_icao">Départ (ICAO)</label>
-                <input type="text" name="departure_icao" id="departure_icao" maxlength="4" value="<?= htmlspecialchars($form['departure_icao']) ?>" required>
+                <input type="text" name="departure_icao" id="departure_icao" maxlength="4" value="<?= htmlspecialchars($form['departure_icao']) ?>" required style="text-transform:uppercase;" oninput="this.value = this.value.toUpperCase();">
             </div>
             <div class="form-group">
                 <label for="departure_fuel">Fuel départ</label>
@@ -160,7 +286,7 @@ include __DIR__ . '/../includes/menu_logged.php';
             </div>
             <div class="form-group">
                 <label for="arrival_icao">Arrivée (ICAO)</label>
-                <input type="text" name="arrival_icao" id="arrival_icao" maxlength="4" value="<?= htmlspecialchars($form['arrival_icao']) ?>" required>
+                <input type="text" name="arrival_icao" id="arrival_icao" maxlength="4" value="<?= htmlspecialchars($form['arrival_icao']) ?>" required style="text-transform:uppercase;" oninput="this.value = this.value.toUpperCase();">
             </div>
             <div class="form-group">
                 <label for="arrival_fuel">Fuel arrivée</label>

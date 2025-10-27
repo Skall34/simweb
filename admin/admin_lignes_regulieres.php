@@ -154,7 +154,7 @@ if ($filter_type !== null) {
 if (!empty($conds)) {
     $sql .= " WHERE " . implode(' AND ', $conds);
 }
-$sql .= " ORDER BY lr.icao_dep, lr.icao_arr";
+$sql .= " ORDER BY lr.icao_dep ASC, lr.icao_arr ASC";
 
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
@@ -194,8 +194,9 @@ include __DIR__ . '/../includes/menu_logged.php';
     <?php endif; ?>
 
     <section style="margin-bottom: 20px;">
+        <div class="narrow-table-wrapper" style="background:#f7fbff;padding:16px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.04);">
         <h3><?= $edit_mode ? 'Modifier la ligne' : 'Ajouter une nouvelle ligne' ?></h3>
-        <form method="post" class="form-inscription" style="display:flex;gap:10px;align-items:end;flex-wrap:wrap;">
+        <form method="post" class="form-inscription" style="display:flex;gap:10px;align-items:end;flex-wrap:nowrap;">
             <?php if ($edit_mode): ?>
                 <input type="hidden" name="id" value="<?= htmlspecialchars($line['id']) ?>">
             <?php endif; ?>
@@ -219,20 +220,42 @@ include __DIR__ . '/../includes/menu_logged.php';
                 </select>
             </label>
 
-            <div>
                 <?php if ($edit_mode): ?>
-                    <button class="btn-bleu" type="submit" name="action" value="update">Mettre à jour</button>
-                    <a href="admin_lignes_regulieres.php" class="btn" style="background:#ccc;color:#004080;padding:6px 10px;margin-left:8px;text-decoration:none;">Annuler</a>
-                <?php else: ?>
-                    <button class="btn-bleu" type="submit" name="action" value="add">Ajouter</button>
+                    <input type="hidden" name="id" value="<?= htmlspecialchars($line['id']) ?>">
                 <?php endif; ?>
-            </div>
-        </form>
+
+                <input name="icao_dep" required value="<?= htmlspecialchars($line['icao_dep']) ?>" placeholder="ICAO départ" aria-label="ICAO départ" style="width:120px;text-transform:uppercase;" oninput="this.value = this.value.toUpperCase();">
+
+                <input name="icao_arr" required value="<?= htmlspecialchars($line['icao_arr']) ?>" placeholder="ICAO arrivée" aria-label="ICAO arrivée" style="width:120px;text-transform:uppercase;" oninput="this.value = this.value.toUpperCase();">
+
+                <div>
+                    <?php if ($edit_mode): ?>
+                        <button class="btn-bleu" type="submit" name="action" value="update">Mettre à jour</button>
+                        <a href="admin_lignes_regulieres.php" class="btn" style="background:#ccc;color:#004080;padding:6px 10px;margin-left:8px;text-decoration:none;">Annuler</a>
+                    <?php else: ?>
+                        <button class="btn-bleu" type="submit" name="action" value="add">Ajouter</button>
+                    <?php endif; ?>
+                </div>
+            </form>
+        </div>
     </section>
 
     <section>
         <h3>Liste des lignes</h3>
-        <table class="table-skywings" style="width:100%;border-collapse:collapse;">
+
+
+        <!-- Filters placed under the table title, single-line (inputs inline with buttons) -->
+        <form method="get" class="form-inscription" style="display:flex;gap:10px;align-items:center;flex-wrap:nowrap;margin:8px 0 12px 0;">
+            <input name="filter_dep" placeholder="Départ" value="<?= htmlspecialchars($filter_dep) ?>" aria-label="Filtrer départ" style="width:120px;text-transform:uppercase;" oninput="this.value = this.value.toUpperCase();">
+            <input name="filter_arr" placeholder="Arrivée" value="<?= htmlspecialchars($filter_arr) ?>" aria-label="Filtrer arrivée" style="width:120px;text-transform:uppercase;" oninput="this.value = this.value.toUpperCase();">
+            <div style="margin-left:6px;">
+                <button class="btn-bleu" type="submit">Filtrer</button>
+                <a href="admin_lignes_regulieres.php" class="btn" style="background:#ccc;color:#004080;padding:6px 10px;margin-left:8px;text-decoration:none;">Réinitialiser</a>
+            </div>
+        </form>
+
+        <div class="narrow-table-wrapper">
+            <table class="table-skywings" style="width:100%;border-collapse:collapse;">
             <thead>
                 <tr>
                     <th>ICAO Dép.</th>
@@ -249,8 +272,8 @@ include __DIR__ . '/../includes/menu_logged.php';
                         <td><?= htmlspecialchars($r['icao_dep']) ?></td>
                         <td><?= htmlspecialchars($r['icao_arr']) ?></td>
                         <td><?= htmlspecialchars($r['type_label'] ?? $r['type_ligne']) ?></td>
-                        <td><?= htmlspecialchars($r['created_at']) ?></td>
-                        <td><?= htmlspecialchars($r['updated_at']) ?></td>
+                    <td><?= $r['created_at'] ? htmlspecialchars(date('d/m/Y H:i:s', strtotime($r['created_at']))) : '-' ?></td>
+                    <td><?= $r['updated_at'] ? htmlspecialchars(date('d/m/Y H:i:s', strtotime($r['updated_at']))) : '-' ?></td>
                         <td>
                             <a href="admin_lignes_regulieres.php?edit=<?= $r['id'] ?>">Éditer</a>
                             &nbsp;|&nbsp;
@@ -263,7 +286,8 @@ include __DIR__ . '/../includes/menu_logged.php';
                     </tr>
                 <?php endforeach; ?>
             </tbody>
-        </table>
+            </table>
+        </div>
     </section>
 
 </main>
