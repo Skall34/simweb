@@ -19,12 +19,21 @@ $userId = $_SESSION['user']['id'];
 // Filtres
 $immatFilter = $_GET['immat'] ?? '';
 $missionFilter = $_GET['mission'] ?? '';
+$fleetTypeFilter = $_GET['fleetType'] ?? '';
 
 // Récupérer la liste des missions pour le filtre
 $missionsList = [];
 try {
     $stmtMissions = $pdo->query("SELECT DISTINCT libelle FROM MISSIONS WHERE libelle IS NOT NULL AND libelle <> '' ORDER BY libelle ASC");
     $missionsList = $stmtMissions->fetchAll(PDO::FETCH_COLUMN);
+} catch (PDOException $e) {
+    // Ignore erreur
+}
+// Récupérer la liste des fleet types pour le filtre
+$fleetTypeList = [];
+try {
+    $stmtFleetTypes = $pdo->query("SELECT DISTINCT fleet_type FROM FLEET_TYPE ORDER BY fleet_type ASC");
+    $fleetTypeList = $stmtFleetTypes->fetchAll(PDO::FETCH_COLUMN);
 } catch (PDOException $e) {
     // Ignore erreur
 }
@@ -68,6 +77,11 @@ if ($missionFilter !== '') {
     $sql .= " AND m.libelle = :mission";
     $params['mission'] = $missionFilter;
 }
+if ($fleetTypeFilter !== '') {
+    $sql .= " AND ft.fleet_type = :fleetType";
+    $params['fleetType'] = $fleetTypeFilter;
+}
+
 $sql .= " ORDER BY c.date_vol DESC, c.heure_arrivee DESC";
 
 $stmt = $pdo->prepare($sql);
@@ -115,6 +129,14 @@ include __DIR__ . '/../includes/menu_logged.php';
             <option value="">-- Toutes les missions --</option>
             <?php foreach ($missionsList as $m): ?>
                 <option value="<?= htmlspecialchars($m) ?>" <?= ($missionFilter === $m) ? 'selected' : '' ?>><?= htmlspecialchars($m) ?></option>
+            <?php endforeach; ?>
+        </select>
+
+        <label for="fleetType" style="margin-left:18px;">Filtrer par fleet type:</label>
+        <select id="fleetType" name="fleetType">
+            <option value="">-- Tous les avions --</option>
+            <?php foreach ($fleetTypeList as $f): ?>
+                <option value="<?= htmlspecialchars($f) ?>" <?= ($fleetTypeFilter === $f) ? 'selected' : '' ?>><?= htmlspecialchars($f) ?></option>
             <?php endforeach; ?>
         </select>
 
