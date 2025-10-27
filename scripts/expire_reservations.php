@@ -21,7 +21,7 @@ try {
         $pdo->beginTransaction();
         try {
             // mark reservation expired
-            $upd = $pdo->prepare("UPDATE RESERVATIONS SET statut = 'cancelled' WHERE id = ?");
+            $upd = $pdo->prepare("UPDATE RESERVATIONS SET statut = 'expired' WHERE id = ?");
             $upd->execute([$r['id']]);
 
             // free aircraft immat if reserved
@@ -82,11 +82,33 @@ try {
         $body .= "<br><br>Détails des réservations expirées :<br>" . $detailsHtml;
     }
     $body .= "<br><br>Cordialement,<br>SimWeb";
-    $mailResult = sendSummaryMail($subject, $body);
-    if ($mailResult !== true) {
-        logMsg('Erreur envoi mail expiration reservations: ' . print_r($mailResult, true), 'expire_reservations');
+
+    // Only send a summary email if at least one reservation was expired.
+    if ($expiredCount <= 0) {
+        echo "Aucune réservation expirée — aucun mail envoyé.\n";
+        logMsg('Aucune réservation expirée; pas d\'envoi de mail récapitulatif.', 'expire_reservations');
     } else {
-        logMsg('Mail récapitulatif envoyé (' . $expiredCount . ' expirées)', 'expire_reservations');
+        // Diagnostic: log expired reservation IDs to help trace why mail may not be received
+        $expiredIds = array_map(function($x){ return $x['id']; }, $expiredDetails);
+        $idsStr = implode(',', $expiredIds);
+        $debugMsg = 'Reservations expirées ids=[' . $idsStr . '] count=' . $expiredCount;
+        echo $debugMsg . "\n";
+        logMsg($debugMsg, 'expire_reservations');
+
+        // Log the recipient address used by sendSummaryMail
+        $recipient = defined('ADMIN_EMAIL') ? ADMIN_EMAIL : '(undefined)';
+        $recMsg = 'Envoi mail récapitulatif vers: ' . $recipient;
+        echo $recMsg . "\n";
+        logMsg($recMsg, 'expire_reservations');
+
+        $mailResult = sendSummaryMail($subject, $body);
+        if ($mailResult !== true) {
+            logMsg('Erreur envoi mail expiration reservations: ' . print_r($mailResult, true), 'expire_reservations');
+            echo "Erreur envoi mail: " . print_r($mailResult, true) . "\n";
+        } else {
+            logMsg('Mail récapitulatif envoyé (' . $expiredCount . ' expirées)', 'expire_reservations');
+            echo "Mail récapitulatif envoyé.\n";
+        }
     }
 } catch (Exception $e) {
     echo "Error: " . $e->getMessage() . "\n";
