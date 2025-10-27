@@ -167,28 +167,6 @@ include __DIR__ . '/../includes/menu_logged.php';
 <main>
     <h2>Administration des Lignes régulières (<?= count($lines) ?>)</h2>
 
-    <!-- Formulaire de filtres -->
-    <form method="get" action="admin_lignes_regulieres.php" style="margin-bottom:12px; display:flex; gap:8px; flex-wrap:wrap; align-items:end;">
-        <label>ICAO départ:
-            <input type="text" name="icao_dep" value="<?= htmlspecialchars($filter_dep) ?>" style="width:100px; text-transform:uppercase;">
-        </label>
-        <label>ICAO arrivée:
-            <input type="text" name="icao_arr" value="<?= htmlspecialchars($filter_arr) ?>" style="width:100px; text-transform:uppercase;">
-        </label>
-        <label>Type de ligne:
-            <select name="type_ligne" style="width:200px;">
-                <option value="">-- Tous --</option>
-                <?php foreach ($typeLignes as $t): ?>
-                    <option value="<?= (int)$t['id'] ?>" <?= ($filter_type !== null && $filter_type === (int)$t['id']) ? 'selected' : '' ?>><?= htmlspecialchars($t['label']) ?></option>
-                <?php endforeach; ?>
-            </select>
-        </label>
-        <div>
-            <button class="btn" type="submit">Filtrer</button>
-            <a class="btn" href="admin_lignes_regulieres.php" style="margin-left:8px;">Réinitialiser</a>
-        </div>
-    </form>
-
     <?php if ($message): ?>
         <div class="success"><?= $message ?></div>
     <?php endif; ?>
@@ -248,6 +226,14 @@ include __DIR__ . '/../includes/menu_logged.php';
         <form method="get" class="form-inscription" style="display:flex;gap:10px;align-items:center;flex-wrap:nowrap;margin:8px 0 12px 0;">
             <input name="filter_dep" placeholder="Départ" value="<?= htmlspecialchars($filter_dep) ?>" aria-label="Filtrer départ" style="width:120px;text-transform:uppercase;" oninput="this.value = this.value.toUpperCase();">
             <input name="filter_arr" placeholder="Arrivée" value="<?= htmlspecialchars($filter_arr) ?>" aria-label="Filtrer arrivée" style="width:120px;text-transform:uppercase;" oninput="this.value = this.value.toUpperCase();">
+            <label>Type de ligne:
+                <select name="type_ligne" style="width:200px;">
+                    <option value="">-- Tous --</option>
+                    <?php foreach ($typeLignes as $t): ?>
+                        <option value="<?= (int)$t['id'] ?>" <?= ($filter_type !== null && $filter_type === (int)$t['id']) ? 'selected' : '' ?>><?= htmlspecialchars($t['label']) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </label>
             <div style="margin-left:6px;">
                 <button class="btn-bleu" type="submit">Filtrer</button>
                 <a href="admin_lignes_regulieres.php" class="btn" style="background:#ccc;color:#004080;padding:6px 10px;margin-left:8px;text-decoration:none;">Réinitialiser</a>
