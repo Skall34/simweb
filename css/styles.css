@@ -639,8 +639,8 @@ footer {
     align-items: center;
 }
 .narrow-table-wrapper {
-  max-width: 790px; /* compromise width (midpoint between 820 and 760) */
-  margin-left: 0; /* align left instead of centering */
+  max-width: 1100px; /* increased width to give more room for admin frames */
+  margin-left: 0; /* keep left alignment so panels line up with page content */
   margin-right: auto;
 }
 .narrow-table-wrapper .table-skywings {
