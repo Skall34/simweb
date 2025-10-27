@@ -24,6 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'add') {
         $icao_dep = strtoupper(trim($_POST['icao_dep'] ?? ''));
         $icao_arr = strtoupper(trim($_POST['icao_arr'] ?? ''));
+        $type_ligne = isset($_POST['type_ligne']) ? (int)$_POST['type_ligne'] : null;
         if ($icao_dep === '' || $icao_arr === '') {
             $message = 'Les deux codes ICAO sont requis.';
         } else {
@@ -35,8 +36,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if ($row && (int)$row['c'] > 0) {
                         $message = "⚠️ La ligne $icao_dep → $icao_arr existe déjà.";
                     } else {
-                        $stmt = $pdo->prepare("INSERT INTO LIGNES_REGULIERES (icao_dep, icao_arr, created_at, updated_at) VALUES (:dep, :arr, NOW(), NOW())");
-                        $stmt->execute(['dep' => $icao_dep, 'arr' => $icao_arr]);
+                        $stmt = $pdo->prepare("INSERT INTO LIGNES_REGULIERES (icao_dep, icao_arr, type_ligne, created_at, updated_at) VALUES (:dep, :arr, :type_ligne, NOW(), NOW())");
+                        $stmt->execute(['dep' => $icao_dep, 'arr' => $icao_arr, 'type_ligne' => $type_ligne]);
                         $message = "✅ Ligne $icao_dep → $icao_arr ajoutée.";
                     }
             } catch (Exception $e) {
@@ -49,6 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $id = (int)($_POST['id'] ?? 0);
         $icao_dep = strtoupper(trim($_POST['icao_dep'] ?? ''));
         $icao_arr = strtoupper(trim($_POST['icao_arr'] ?? ''));
+        $type_ligne = isset($_POST['type_ligne']) ? (int)$_POST['type_ligne'] : null;
         if ($id <= 0 || $icao_dep === '' || $icao_arr === '') {
             $message = 'Données invalides pour la mise à jour.';
         } else {
@@ -60,8 +62,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($row && (int)$row['c'] > 0) {
                     $message = "⚠️ Une autre ligne $icao_dep → $icao_arr existe déjà (mise à jour annulée).";
                 } else {
-                    $stmt = $pdo->prepare("UPDATE LIGNES_REGULIERES SET icao_dep = :dep, icao_arr = :arr, updated_at = NOW() WHERE id = :id");
-                    $stmt->execute(['dep' => $icao_dep, 'arr' => $icao_arr, 'id' => $id]);
+                    $stmt = $pdo->prepare("UPDATE LIGNES_REGULIERES SET icao_dep = :dep, icao_arr = :arr, type_ligne = :type_ligne, updated_at = NOW() WHERE id = :id");
+                    $stmt->execute(['dep' => $icao_dep, 'arr' => $icao_arr, 'type_ligne' => $type_ligne, 'id' => $id]);
                     $message = "✅ Ligne mise à jour en $icao_dep → $icao_arr.";
                 }
             } catch (Exception $e) {
@@ -107,8 +109,55 @@ if (isset($_GET['edit'])) {
     }
 }
 
-// Fetch all lines
-$stmt = $pdo->query("SELECT id, icao_dep, icao_arr, created_at, updated_at FROM LIGNES_REGULIERES ORDER BY icao_dep, icao_arr");
+// Fetch all lines (inclure le label du type via LEFT JOIN)
+$stmt = $pdo->query("
+    SELECT lr.id, lr.icao_dep, lr.icao_arr, lr.type_ligne, tl.label AS type_label, lr.created_at, lr.updated_at
+    FROM LIGNES_REGULIERES lr
+    LEFT JOIN TYPE_LIGNE tl ON lr.type_ligne = tl.id
+    ORDER BY lr.icao_dep, lr.icao_arr
+");
+$lines = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// --- Récupérer la liste des types de ligne pour la combobox ---
+try {
+    $stmtTypes = $pdo->query("SELECT id, label FROM TYPE_LIGNE ORDER BY label ASC");
+    $typeLignes = $stmtTypes->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    $typeLignes = [];
+}
+
+// --- NOUVEAU : lire les filtres GET ---
+$filter_dep = isset($_GET['icao_dep']) ? strtoupper(trim($_GET['icao_dep'])) : '';
+$filter_arr = isset($_GET['icao_arr']) ? strtoupper(trim($_GET['icao_arr'])) : '';
+$filter_type = (isset($_GET['type_ligne']) && $_GET['type_ligne'] !== '') ? (int)$_GET['type_ligne'] : null;
+
+// --- NOUVEAU : construire requête avec filtres ---
+$sql = "
+    SELECT lr.id, lr.icao_dep, lr.icao_arr, lr.type_ligne, tl.label AS type_label, lr.created_at, lr.updated_at
+    FROM LIGNES_REGULIERES lr
+    LEFT JOIN TYPE_LIGNE tl ON lr.type_ligne = tl.id
+";
+$conds = [];
+$params = [];
+if ($filter_dep !== '') {
+    $conds[] = "lr.icao_dep LIKE :dep";
+    $params['dep'] = $filter_dep . '%';
+}
+if ($filter_arr !== '') {
+    $conds[] = "lr.icao_arr LIKE :arr";
+    $params['arr'] = $filter_arr . '%';
+}
+if ($filter_type !== null) {
+    $conds[] = "lr.type_ligne = :type_ligne";
+    $params['type_ligne'] = $filter_type;
+}
+if (!empty($conds)) {
+    $sql .= " WHERE " . implode(' AND ', $conds);
+}
+$sql .= " ORDER BY lr.icao_dep, lr.icao_arr";
+
+$stmt = $pdo->prepare($sql);
+$stmt->execute($params);
 $lines = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 include __DIR__ . '/../includes/header.php';
@@ -117,6 +166,28 @@ include __DIR__ . '/../includes/menu_logged.php';
 
 <main>
     <h2>Administration des Lignes régulières (<?= count($lines) ?>)</h2>
+
+    <!-- Formulaire de filtres -->
+    <form method="get" action="admin_lignes_regulieres.php" style="margin-bottom:12px; display:flex; gap:8px; flex-wrap:wrap; align-items:end;">
+        <label>ICAO départ:
+            <input type="text" name="icao_dep" value="<?= htmlspecialchars($filter_dep) ?>" style="width:100px; text-transform:uppercase;">
+        </label>
+        <label>ICAO arrivée:
+            <input type="text" name="icao_arr" value="<?= htmlspecialchars($filter_arr) ?>" style="width:100px; text-transform:uppercase;">
+        </label>
+        <label>Type de ligne:
+            <select name="type_ligne" style="width:200px;">
+                <option value="">-- Tous --</option>
+                <?php foreach ($typeLignes as $t): ?>
+                    <option value="<?= (int)$t['id'] ?>" <?= ($filter_type !== null && $filter_type === (int)$t['id']) ? 'selected' : '' ?>><?= htmlspecialchars($t['label']) ?></option>
+                <?php endforeach; ?>
+            </select>
+        </label>
+        <div>
+            <button class="btn" type="submit">Filtrer</button>
+            <a class="btn" href="admin_lignes_regulieres.php" style="margin-left:8px;">Réinitialiser</a>
+        </div>
+    </form>
 
     <?php if ($message): ?>
         <div class="success"><?= $message ?></div>
@@ -137,6 +208,17 @@ include __DIR__ . '/../includes/menu_logged.php';
                 <input name="icao_arr" required value="<?= htmlspecialchars($line['icao_arr']) ?>" style="width:120px;text-transform:uppercase;">
             </label>
 
+            <label>Type de ligne:
+                <select name="type_ligne" style="width:200px;">
+                    <option value="">-- Aucun --</option>
+                    <?php foreach ($typeLignes as $t): ?>
+                        <option value="<?= (int)$t['id'] ?>" <?= (isset($line['type_ligne']) && (int)$line['type_ligne'] === (int)$t['id']) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($t['label']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </label>
+
             <div>
                 <?php if ($edit_mode): ?>
                     <button class="btn-bleu" type="submit" name="action" value="update">Mettre à jour</button>
@@ -155,6 +237,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                 <tr>
                     <th>ICAO Dép.</th>
                     <th>ICAO Arr.</th>
+                    <th>Type</th>
                     <th>Créé</th>
                     <th>Mise à jour</th>
                     <th>Actions</th>
@@ -165,6 +248,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                     <tr>
                         <td><?= htmlspecialchars($r['icao_dep']) ?></td>
                         <td><?= htmlspecialchars($r['icao_arr']) ?></td>
+                        <td><?= htmlspecialchars($r['type_label'] ?? $r['type_ligne']) ?></td>
                         <td><?= htmlspecialchars($r['created_at']) ?></td>
                         <td><?= htmlspecialchars($r['updated_at']) ?></td>
                         <td>

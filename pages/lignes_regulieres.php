@@ -12,9 +12,21 @@ $userId = $_SESSION['user']['id'];
 // Récupérer les filtres (GET) — on autorise des recherches partielles (prefix)
 $filter_dep = isset($_GET['icao_dep']) ? strtoupper(trim($_GET['icao_dep'])) : '';
 $filter_arr = isset($_GET['icao_arr']) ? strtoupper(trim($_GET['icao_arr'])) : '';
+// filtre par type de ligne (id) — null = tous
+$filter_type = (isset($_GET['type_ligne']) && $_GET['type_ligne'] !== '') ? (int)$_GET['type_ligne'] : null;
+
+// récupérer la liste des types pour le select
+try {
+    $stmtTypes = $pdo->query("SELECT id, label FROM TYPE_LIGNE ORDER BY label ASC");
+    $typeLignes = $stmtTypes->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    $typeLignes = [];
+}
 
 // Construire la requête de façon paramétrée (pour limiter l'impact sur l'existant)
-$sql = "SELECT lr.* FROM LIGNES_REGULIERES lr";
+$sql = "SELECT lr.*, tl.label AS type_label
+         FROM LIGNES_REGULIERES lr
+         LEFT JOIN TYPE_LIGNE tl ON lr.type_ligne = tl.id";
 $conds = [];
 $params = [];
 if ($filter_dep !== '') {
@@ -24,6 +36,10 @@ if ($filter_dep !== '') {
 if ($filter_arr !== '') {
     $conds[] = 'lr.icao_arr LIKE ?';
     $params[] = $filter_arr . '%';
+}
+if ($filter_type !== null) {
+    $conds[] = 'lr.type_ligne = ?';
+    $params[] = $filter_type;
 }
 if (count($conds) > 0) {
     $sql .= ' WHERE ' . implode(' AND ', $conds);
@@ -62,6 +78,15 @@ include __DIR__ . '/../includes/menu_logged.php';
     <form method="get" style="margin-bottom:1em;">
         <label>ICAO départ (de 1 à 4 caractères): <input type="text" name="icao_dep" value="<?= htmlspecialchars($filter_dep) ?>" maxlength="5" style="width:6em"/></label>
         <label style="margin-left:1em">ICAO arrivée (de 1 à 4 caractères): <input type="text" name="icao_arr" value="<?= htmlspecialchars($filter_arr) ?>" maxlength="5" style="width:6em"/></label>
+        <br>
+        <label style="margin-left:1em">Type de ligne:
+            <select name="type_ligne" style="margin-left:.4em">
+                <option value="">-- Tous --</option>
+                <?php foreach ($typeLignes as $t): ?>
+                    <option value="<?= (int)$t['id'] ?>" <?= ($filter_type !== null && $filter_type === (int)$t['id']) ? 'selected' : '' ?>><?= htmlspecialchars($t['label']) ?></option>
+                <?php endforeach; ?>
+            </select>
+        </label>
         <button type="submit" class="btn">Filtrer</button>
         <button type="button" class="btn" id="resetBtn" style="margin-left:.5em">Réinitialiser</button>
     </form>
@@ -76,17 +101,19 @@ include __DIR__ . '/../includes/menu_logged.php';
             <tr>
                 <th>Départ</th>
                 <th>Arrivée</th>
+                <th>Type</th>
                 <th></th>
             </tr>
         </thead>
         <tbody>
             <?php if (count($lines) === 0): ?>
-                <tr><td colspan="3">Aucune ligne trouvée pour ces filtres.</td></tr>
+                <tr><td colspan="4">Aucune ligne trouvée pour ces filtres.</td></tr>
             <?php else: ?>
                 <?php foreach ($lines as $line): ?>
                     <tr>
                         <td><?= htmlspecialchars($line['icao_dep']) ?></td>
                         <td><?= htmlspecialchars($line['icao_arr']) ?></td>
+                        <td><?= htmlspecialchars($line['type_label'] ?? '') ?></td>
                         <td>
                             <!-- Lien simple (sans style btn) demandé par l'utilisateur -->
                             <a href="reserver_ligne.php?ligne_id=<?= urlencode($line['id']) ?>">Réserver</a>
