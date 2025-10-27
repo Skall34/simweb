@@ -196,18 +196,10 @@ include __DIR__ . '/../includes/menu_logged.php';
                         </option>
                     <?php endforeach; ?>
                 </select>
-            </label>
-
-                <?php if ($edit_mode): ?>
-                    <input type="hidden" name="id" value="<?= htmlspecialchars($line['id']) ?>">
-                <?php endif; ?>
-
-                <input name="icao_dep" required value="<?= htmlspecialchars($line['icao_dep']) ?>" placeholder="ICAO départ" aria-label="ICAO départ" style="width:120px;text-transform:uppercase;" oninput="this.value = this.value.toUpperCase();">
-
-                <input name="icao_arr" required value="<?= htmlspecialchars($line['icao_arr']) ?>" placeholder="ICAO arrivée" aria-label="ICAO arrivée" style="width:120px;text-transform:uppercase;" oninput="this.value = this.value.toUpperCase();">
-
+            </label>   
                 <div>
                     <?php if ($edit_mode): ?>
+                        <input type="hidden" name="id" value="<?= htmlspecialchars($line['id']) ?>">
                         <button class="btn-bleu" type="submit" name="action" value="update">Mettre à jour</button>
                         <a href="admin_lignes_regulieres.php" class="btn" style="background:#ccc;color:#004080;padding:6px 10px;margin-left:8px;text-decoration:none;">Annuler</a>
                     <?php else: ?>
