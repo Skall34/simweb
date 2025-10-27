@@ -117,130 +117,131 @@ include __DIR__ . '/../includes/menu_logged.php';
     }
     ?>
 
-     <div class="compte-section">
-        <h3>Lignes régulières réservées</h3>
-        <?php if (count($reservations) === 0): ?>
-            <p>Aucune réservation active.</p>
-        <?php else: ?>
-            <table class="table-skywings" style="margin-top:8px;">
-                <thead>
-                    <tr>
-                        <th>Ligne</th>
-                        <th>Immat.</th>
-                        <th>Date réservation</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($reservations as $res): ?>
+    <div class="account-grid">
+        <div class="compte-section full-width">
+            <h3>Lignes régulières réservées</h3>
+            <?php if (count($reservations) === 0): ?>
+                <p>Aucune réservation active.</p>
+            <?php else: ?>
+                <table class="table-skywings" style="margin-top:8px;">
+                    <thead>
                         <tr>
-                            <td><?= htmlspecialchars(($res['icao_dep'] ?? '---') . ' → ' . ($res['icao_arr'] ?? '---')) ?></td>
-                            <td><?= htmlspecialchars($res['immat'] ?? '') ?></td>
-                            <td><?= htmlspecialchars($res['date_reservation']) ?></td>
-                            <td>
-                                <form method="post" style="display:inline;" class="form-cancel-reservation">
-                                    <input type="hidden" name="cancel_reservation_id" value="<?= intval($res['id']) ?>">
-                                    <button type="submit" class="btn">Annuler</button>
-                                </form>
-                            </td>
+                            <th>Ligne</th>
+                            <th>Immat.</th>
+                            <th>Date réservation</th>
+                            <th></th>
                         </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php endif; ?>
-    </div>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($reservations as $res): ?>
+                            <tr>
+                                <td><?= htmlspecialchars(($res['icao_dep'] ?? '---') . ' → ' . ($res['icao_arr'] ?? '---')) ?></td>
+                                <td><?= htmlspecialchars($res['immat'] ?? '') ?></td>
+                                <td><?= htmlspecialchars($res['date_reservation']) ?></td>
+                                <td>
+                                    <form method="post" style="display:inline;" class="form-cancel-reservation">
+                                        <input type="hidden" name="cancel_reservation_id" value="<?= intval($res['id']) ?>">
+                                        <button type="submit" class="btn">Annuler</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
+        </div>
 
-    <div style="display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start; margin-bottom: 32px;">
-        <div class="compte-section" style="flex:1 1 320px; min-width:280px;">
-            <h3>Informations personnelles</h3>
-            <div class="compte-infos">
-                <p><strong>Callsign :</strong> <?= htmlspecialchars($pilote['callsign']) ?></p>
-                <p><strong>Nom :</strong> <?= htmlspecialchars($pilote['nom'] ?? '') ?></p>
-                <p><strong>Prénom :</strong> <?= htmlspecialchars($pilote['prenom'] ?? '') ?></p>
-                <p><strong>Email :</strong> <?= htmlspecialchars($pilote['email'] ?? '') ?></p>
-                <p><strong>Grade :</strong> <?= htmlspecialchars($grade_nom) ?></p>
-                <p><strong>Revenu cumulé :</strong> <?= isset($pilote['revenus']) ? number_format($pilote['revenus'], 2) : '0.00' ?> €</p>
-                <?php if ($dernier_salaire): ?>
-                    <p><strong>Dernier salaire :</strong> <?= number_format($dernier_salaire['montant'], 2) ?> € (<?= htmlspecialchars($dernier_salaire['date_de_paiement']) ?>)</p>
+        <div class="left-column">
+            <div class="compte-section">
+                <h3>Informations personnelles</h3>
+                <div class="compte-infos">
+                    <p><strong>Callsign :</strong> <?= htmlspecialchars($pilote['callsign']) ?></p>
+                    <p><strong>Nom :</strong> <?= htmlspecialchars($pilote['nom'] ?? '') ?></p>
+                    <p><strong>Prénom :</strong> <?= htmlspecialchars($pilote['prenom'] ?? '') ?></p>
+                    <p><strong>Email :</strong> <?= htmlspecialchars($pilote['email'] ?? '') ?></p>
+                    <p><strong>Grade :</strong> <?= htmlspecialchars($grade_nom) ?></p>
+                    <p><strong>Revenu cumulé :</strong> <?= isset($pilote['revenus']) ? number_format($pilote['revenus'], 2, ',', ' ') : '0,00' ?> €</p>
+                    <?php if ($dernier_salaire): ?>
+                        <p><strong>Dernier salaire :</strong> <?= number_format($dernier_salaire['montant'], 2, ',', ' ') ?> € (<?= htmlspecialchars($dernier_salaire['date_de_paiement']) ?>)</p>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <div class="compte-section">
+                <h3>Changer le mot de passe</h3>
+                <form method="post" class="form-mdp">
+                    <div class="form-row">
+                        <label for="old_password">Mot de passe actuel :</label>
+                        <input type="password" name="old_password" id="old_password" required>
+                    </div>
+                    <div class="form-row">
+                        <label for="new_password">Nouveau mot de passe :</label>
+                        <input type="password" name="new_password" id="new_password" required>
+                    </div>
+                    <div class="form-row">
+                        <label for="new_password_confirm">Confirmer le nouveau mot de passe :</label>
+                        <input type="password" name="new_password_confirm" id="new_password_confirm" required>
+                    </div>
+                    <div class="form-row">
+                        <button type="submit" class="btn-bleu">Modifier</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="right-column">
+            <div class="compte-section">
+                <h3>Détail du dernier salaire versé</h3>
+                <?php if ($dernier_salaire):
+                    $date_paiement = $dernier_salaire['date_de_paiement'];
+                    $stmt = $pdo->prepare('SELECT temps_vol, payload FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = ? AND date_vol <= ?');
+                    $stmt->execute([$id, $date_paiement]);
+                    $vols_salaire = $stmt->fetchAll();
+                    $heures_salaire = 0;
+                    $payload_salaire = 0;
+                    foreach ($vols_salaire as $vol) {
+                        $heures_salaire += strtotime($vol['temps_vol']) ? (strtotime($vol['temps_vol']) - strtotime('TODAY')) : 0;
+                        $payload_salaire += (float)$vol['payload'];
+                    }
+                    $heures_salaire = $heures_salaire / 3600;
+                ?>
+                <div class="compte-infos">
+                    <p><strong>Date de paiement :</strong> <?= htmlspecialchars($dernier_salaire['date_de_paiement']) ?></p>
+                    <p><strong>Montant :</strong> <?= number_format($dernier_salaire['montant'], 2, ',', ' ') ?> €</p>
+                    <p><strong>Nombre d'heures volées :</strong> <?= number_format($heures_salaire, 2, ',', ' ') ?> h</p>
+                    <p><strong>Payload transporté :</strong> <?= number_format($payload_salaire, 2, ',', ' ') ?> kg</p>
+                </div>
+                <?php else: ?>
+                <div class="compte-infos">
+                    <p>Aucun salaire versé pour l'instant.</p>
+                </div>
                 <?php endif; ?>
             </div>
+
+            <div class="compte-section">
+                <h3>Statistiques de vol</h3>
+                <div class="compte-infos">
+                    <p><strong>Nombre de vols :</strong> <?= $nb_vols ?></p>
+                    <p><strong>Nombre d'heures de vol :</strong> <?= $heures ? number_format($heures, 2, ',', ' ') : '0,00' ?> h</p>
+                    <p><strong>Recettes rapportées :</strong> <?= $recettes ? number_format($recettes, 2, ',', ' ') : '0,00' ?> €</p>
+                </div>
+            </div>
+
+            <div class="compte-section">
+                <h3>Top 3 aéroports les plus fréquentés</h3>
+                <ol style="margin-left: 2em;">
+                    <?php foreach ($aeroports as $aero): ?>
+                        <li>
+                            <?= htmlspecialchars($aero['destination']) ?>
+                            <?php if (!empty($aero['ident'])): ?>
+                                (<?= htmlspecialchars($aero['ident']) ?>)
+                            <?php endif; ?>
+                            - <?= $aero['freq'] ?> vols
+                        </li>
+                    <?php endforeach; ?>
+                </ol>
+            </div>
         </div>
-       
-
-        <div class="compte-section" style="flex:1 1 320px; min-width:280px; max-width:420px;">
-            <h3>Détail du dernier salaire versé</h3>
-        <?php if ($dernier_salaire):
-                $date_paiement = $dernier_salaire['date_de_paiement'];
-                $stmt = $pdo->prepare('SELECT temps_vol, payload FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = ? AND date_vol <= ?');
-                $stmt->execute([$id, $date_paiement]);
-                $vols_salaire = $stmt->fetchAll();
-                $heures_salaire = 0;
-                $payload_salaire = 0;
-                foreach ($vols_salaire as $vol) {
-                    $heures_salaire += strtotime($vol['temps_vol']) ? (strtotime($vol['temps_vol']) - strtotime('TODAY')) : 0;
-                    $payload_salaire += (float)$vol['payload'];
-                }
-                $heures_salaire = $heures_salaire / 3600;
-            ?>
-            <div class="compte-infos">
-                <p><strong>Date de paiement :</strong> <?= htmlspecialchars($dernier_salaire['date_de_paiement']) ?></p>
-                <p><strong>Montant :</strong> <?= number_format($dernier_salaire['montant'], 2) ?> €</p>
-                <p><strong>Nombre d'heures volées (cumul pour ce salaire) :</strong> <?= number_format($heures_salaire, 2) ?> h</p>
-                <p><strong>Payload transporté (cumul pour ce salaire) :</strong> <?= number_format($payload_salaire, 2) ?> kg</p>
-            </div>
-            <?php else: ?>
-            <div class="compte-infos">
-                <p>Aucun salaire versé pour l'instant.</p>
-            </div>
-            <?php endif; ?>
-
-        </div>
-    </div>
-
-    <div class="compte-section">
-        <h3>Changer le mot de passe</h3>
-        <form method="post" class="form-mdp">
-            <div class="form-row">
-                <label for="old_password">Mot de passe actuel :</label>
-                <input type="password" name="old_password" id="old_password" required>
-            </div>
-            <div class="form-row">
-                <label for="new_password">Nouveau mot de passe :</label>
-                <input type="password" name="new_password" id="new_password" required>
-            </div>
-            <div class="form-row">
-                <label for="new_password_confirm">Confirmer le nouveau mot de passe :</label>
-                <input type="password" name="new_password_confirm" id="new_password_confirm" required>
-            </div>
-            <div class="form-row">
-                <button type="submit" class="btn-bleu">Modifier</button>
-            </div>
-        </form>
-    </div>
-    
-   
-    <div class="compte-section">
-        <h3>Statistiques de vol</h3>
-        <div class="compte-infos">
-            <p><strong>Nombre de vols :</strong> <?= $nb_vols ?></p>
-            <p><strong>Nombre d'heures de vol :</strong> <?= $heures ? number_format($heures, 2) : 0 ?> h</p>
-            <p><strong>Recettes rapportées :</strong> <?= $recettes ? number_format($recettes, 2) : 0 ?> €</p>
-        </div>
-    </div>
-
-    <div class="compte-section">
-        <h3>Top 3 aéroports les plus fréquentés</h3>
-            <ol style="margin-left: 2em;">
-                <?php foreach ($aeroports as $aero): ?>
-                    <li>
-                        <?= htmlspecialchars($aero['destination']) ?>
-                        <?php if (!empty($aero['ident'])): ?>
-                            (<?= htmlspecialchars($aero['ident']) ?>)
-                        <?php endif; ?>
-                        - <?= $aero['freq'] ?> vols
-                    </li>
-                <?php endforeach; ?>
-            </ol>
     </div>
 
     

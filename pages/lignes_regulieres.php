@@ -28,7 +28,7 @@ if ($filter_arr !== '') {
 if (count($conds) > 0) {
     $sql .= ' WHERE ' . implode(' AND ', $conds);
 }
-$sql .= ' ORDER BY lr.id DESC';
+$sql .= ' ORDER BY lr.icao_dep ASC';
 
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
@@ -58,6 +58,7 @@ include __DIR__ . '/../includes/menu_logged.php';
         }
     }
     ?>
+    <div class="narrow-table-wrapper">
     <form method="get" style="margin-bottom:1em;">
         <label>ICAO départ (de 1 à 4 caractères): <input type="text" name="icao_dep" value="<?= htmlspecialchars($filter_dep) ?>" maxlength="5" style="width:6em"/></label>
         <label style="margin-left:1em">ICAO arrivée (de 1 à 4 caractères): <input type="text" name="icao_arr" value="<?= htmlspecialchars($filter_arr) ?>" maxlength="5" style="width:6em"/></label>
@@ -95,5 +96,6 @@ include __DIR__ . '/../includes/menu_logged.php';
             <?php endif; ?>
         </tbody>
     </table>
+    </div>
 </main>
 <?php include __DIR__ . '/../includes/footer.php'; ?>

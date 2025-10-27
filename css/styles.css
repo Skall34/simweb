@@ -18,7 +18,6 @@
 }
 .compte-section h3 {
     margin-top: 0;
-    color: #2a4d7a
     color: #004080;
 }
 .compte-infos {
@@ -638,6 +637,39 @@ footer {
     color: white;
     display: flex;
     align-items: center;
+}
+.narrow-table-wrapper {
+  max-width: 820px; /* slightly wider so form controls and reset button fit on one line */
+  margin-left: 0; /* align left instead of centering */
+  margin-right: auto;
+}
+.narrow-table-wrapper .table-skywings {
+  width: 100%;
+}
+
+@media (max-width: 800px) {
+  .narrow-table-wrapper { max-width: 100%; padding: 0 12px; }
+}
+
+/* Account page two-column layout */
+.account-grid { display: grid; grid-template-columns: 1fr 360px; gap: 20px; align-items: start; max-width: 1100px; margin: 0; }
+@media (max-width: 900px) { .account-grid { grid-template-columns: 1fr; max-width: 100%; margin: 0; } }
+.left-column, .right-column { display: flex; flex-direction: column; gap: 18px; }
+.compte-section.full-width { grid-column: 1 / -1; max-width: none; width: 100%; }
+
+/* Ensure tables inside a full-width compte-section fill the available space */
+.compte-section.full-width .table-skywings { width: 100%; }
+
+/* Slightly increase row height for the reservations table inside the full-width section
+   so buttons (Annuler) have a thin white gap above and below. */
+.compte-section.full-width .table-skywings th,
+.compte-section.full-width .table-skywings td {
+  padding: 8px 12px;
+  text-align: left; /* keep content left-aligned inside this full-width table */
+}
+.compte-section.full-width .table-skywings td .btn {
+  padding: 6px 10px; /* compact button but with vertical breathing room */
+  line-height: 1; /* avoid extra height from line-height */
 }
 .missions-label {
     cursor: pointer;
