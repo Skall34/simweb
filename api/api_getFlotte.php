@@ -9,7 +9,8 @@ try {
     FT.type AS categorie, 
     F.en_vol, 
     P.callsign, 
-    F.etat
+    F.etat,
+    F.reservee
 FROM 
     FLOTTE F
 LEFT JOIN 
