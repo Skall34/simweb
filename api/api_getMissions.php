@@ -4,7 +4,7 @@ header('Content-Type: application/json');
 require_once __DIR__ . '/../includes/db_connect.php';
 
 try {
-    $stmt = $pdo->prepare("SELECT libelle FROM MISSIONS WHERE active = 1 ORDER BY libelle");
+    $stmt = $pdo->prepare("SELECT libelle, active FROM MISSIONS WHERE active != 0 ORDER BY libelle");
     $stmt->execute();
     $missions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
