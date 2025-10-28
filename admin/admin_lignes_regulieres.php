@@ -174,21 +174,24 @@ include __DIR__ . '/../includes/menu_logged.php';
     <section style="margin-bottom: 20px;">
         <div class="narrow-table-wrapper" style="background:#f7fbff;padding:16px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.04);">
         <h3><?= $edit_mode ? 'Modifier la ligne' : 'Ajouter une nouvelle ligne' ?></h3>
-    <form method="post" class="form-inscription" style="display:flex;gap:10px;align-items:flex-start;flex-wrap:nowrap;">
-            <?php if ($edit_mode): ?>
-                <input type="hidden" name="id" value="<?= htmlspecialchars($line['id']) ?>">
-            <?php endif; ?>
+    <form method="post" class="form-inscription" style="display:flex;gap:12px;align-items:center;flex-wrap:nowrap;flex-direction:row;white-space:nowrap;">
+             <?php if ($edit_mode): ?>
+                 <input type="hidden" name="id" value="<?= htmlspecialchars($line['id']) ?>">
+             <?php endif; ?>
 
-            <label style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;">ICAO départ:
+            <label style="display:inline-flex;flex-direction:row;align-items:center;gap:8px;margin:0;">
+                <span style="min-width:86px;display:inline-block;">ICAO départ:</span>
                 <input name="icao_dep" required value="<?= htmlspecialchars($line['icao_dep']) ?>" style="width:120px;text-transform:uppercase;">
             </label>
 
-            <label style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;">ICAO arrivée:
+            <label style="display:inline-flex;flex-direction:row;align-items:center;gap:8px;margin:0;">
+                <span style="min-width:86px;display:inline-block;">ICAO arrivée:</span>
                 <input name="icao_arr" required value="<?= htmlspecialchars($line['icao_arr']) ?>" style="width:120px;text-transform:uppercase;">
             </label>
 
-            <label style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;">Type de ligne:
-                <select name="type_ligne" style="width:200px;height:20px;">
+            <label style="display:inline-flex;flex-direction:row;align-items:center;gap:8px;margin:0;">
+                <span style="min-width:86px;display:inline-block;">Type de ligne:</span>
+                <select name="type_ligne" style="width:200px;height:36px;">
                     <option value="">-- Aucun --</option>
                     <?php foreach ($typeLignes as $t): ?>
                         <option value="<?= (int)$t['id'] ?>" <?= (isset($line['type_ligne']) && (int)$line['type_ligne'] === (int)$t['id']) ? 'selected' : '' ?>>
@@ -196,36 +199,37 @@ include __DIR__ . '/../includes/menu_logged.php';
                         </option>
                     <?php endforeach; ?>
                 </select>
-            </label>   
-                <div>
-                    <?php if ($edit_mode): ?>
-                        <input type="hidden" name="id" value="<?= htmlspecialchars($line['id']) ?>">
-                        <button class="btn-bleu" type="submit" name="action" value="update">Mettre à jour</button>
-                        <a href="admin_lignes_regulieres.php" class="btn" style="background:#ccc;color:#004080;padding:6px 10px;margin-left:8px;text-decoration:none;">Annuler</a>
-                    <?php else: ?>
-                        <button class="btn-bleu" type="submit" name="action" value="add">Ajouter</button>
-                    <?php endif; ?>
-                </div>
-            </form>
-        </div>
-    </section>
+            </label>
+            <div style="margin-left:12px;display:inline-flex;align-items:center;">
+                 <div>
+                     <?php if ($edit_mode): ?>
+                         <input type="hidden" name="id" value="<?= htmlspecialchars($line['id']) ?>">
+                         <button class="btn-bleu" type="submit" name="action" value="update">Mettre à jour</button>
+                         <a href="admin_lignes_regulieres.php" class="btn" style="background:#ccc;color:#004080;padding:6px 10px;margin-left:8px;text-decoration:none;">Annuler</a>
+                     <?php else: ?>
+                         <button class="btn-bleu" type="submit" name="action" value="add">Ajouter</button>
+                     <?php endif; ?>
+                 </div>
+             </div>
+             </form>
+         </div>
+     </section>
 
     <section>
         <h3>Liste des lignes</h3>
 
-
         <!-- Filters placed under the table title, single-line (inputs inline with buttons) -->
-        <form method="get" class="form-inscription" style="display:flex;gap:10px;align-items:flex-start;flex-wrap:nowrap;margin:8px 0 12px 0;">
-            <label style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;">Départ
+        <form method="get" class="form-inscription" style="display:flex;gap:12px;align-items:center;flex-wrap:nowrap;flex-direction:row;margin:8px 0 12px 0;white-space:nowrap;">
+            <label style="display:inline-flex;flex-direction:row;align-items:center;gap:8px;margin:0;">Départ
                 <input name="icao_dep" placeholder="Départ" value="<?= htmlspecialchars($filter_dep) ?>" aria-label="Filtrer départ" style="width:120px;text-transform:uppercase;" oninput="this.value = this.value.toUpperCase();">
             </label>
 
-            <label style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;">Arrivée
+            <label style="display:inline-flex;flex-direction:row;align-items:center;gap:8px;margin:0;">Arrivée
                 <input name="icao_arr" placeholder="Arrivée" value="<?= htmlspecialchars($filter_arr) ?>" aria-label="Filtrer arrivée" style="width:120px;text-transform:uppercase;" oninput="this.value = this.value.toUpperCase();">
             </label>
 
-            <label style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;">Type de ligne:
-                <select name="type_ligne" style="width:200px;height:20px;">
+            <label style="display:inline-flex;flex-direction:row;align-items:center;gap:8px;margin:0;">Type de ligne:
+                <select name="type_ligne" style="width:200px;height:36px;">
                     <option value="">-- Tous --</option>
                     <?php foreach ($typeLignes as $t): ?>
                         <option value="<?= (int)$t['id'] ?>" <?= ($filter_type !== null && $filter_type === (int)$t['id']) ? 'selected' : '' ?>><?= htmlspecialchars($t['label']) ?></option>
@@ -233,9 +237,9 @@ include __DIR__ . '/../includes/menu_logged.php';
                 </select>
             </label>
 
-            <div style="margin-left:6px;margin-top:20px;">
-                <button class="btn-bleu" type="submit">Filtrer</button>
-                <a href="admin_lignes_regulieres.php" class="btn" style="background:#ccc;color:#004080;padding:6px 10px;margin-left:8px;text-decoration:none;">Réinitialiser</a>
+            <div style="margin-left:12px;display:inline-flex;align-items:center;">
+                <button class="btn-bleu" type="submit" style="height:32px;">Filtrer</button>
+                <a href="admin_lignes_regulieres.php" class="btn" style="background:#ccc;color:#004080;padding:6px 10px;margin-left:8px;text-decoration:none;line-height:18px;">Réinitialiser</a>
             </div>
         </form>
 
