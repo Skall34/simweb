@@ -119,7 +119,7 @@ include __DIR__ . '/../includes/menu_logged.php';
 
     <div class="account-grid">
         <div class="compte-section full-width">
-            <h3>Lignes régulières réservées</h3>
+            <h3>Ligne régulière réservée</h3>
             <?php if (count($reservations) === 0): ?>
                 <p>Aucune réservation active.</p>
             <?php else: ?>
