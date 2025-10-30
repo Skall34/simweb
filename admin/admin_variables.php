@@ -65,6 +65,14 @@ $variables = [
         'max' => '100',
         'default' => '2'
     ]
+    ,
+    'reservation_timeout_hours' => [
+        'label' => 'Durée de validité d\'une réservation (heures)',
+        'type' => 'number',
+        'step' => '1',
+        'min' => '1',
+        'default' => '24'
+    ]
 ];
 
 // Initialiser les variables si absentes
