@@ -23,8 +23,12 @@ include '../../includes/menu_logged.php';
 
                 <h3 style="margin:12px 0 6px 0;color:#0b3460;font-size:1.05rem;">À quoi s'attendre</h3>
                 <ul style="margin-left:18px;color:#123;">
+                    <li>Si vous n'êtes pas positionné sur l'aéroport de départ, rien ne se passe, l'ACARS fonctionne exactement comme avant.</li>
+                    <li>Si vous êtes positionné sur l'aéroport de départ, un popup vous indique qu'une réservation à été trouvée et vous demande si vous souhaitez la consommer.</li>
+                    <li>Si vous refusez, l'ACARS fonctionne comme avant — aucun changement.</li>
                     <li>Si vous acceptez, le vol est chargé automatiquement : immatriculation et ICAO d'arrivée sont verrouillés.</li>
                     <li>La mission est définie automatiquement.</li>
+                    <li>Les mêmes champs dans la fenêtre de validation du vol sont pré-remplis et non modifiables.</li>
                     <li>Une fois le vol terminé et le rapport soumis, la recette du vol est multipliée par <strong>3</strong>.</li>
                     <li>L'appareil est ensuite libéré pour d'autres pilotes.</li>
                 </ul>
@@ -33,7 +37,6 @@ include '../../includes/menu_logged.php';
             <aside style="background:#fff;padding:14px;border-radius:8px;border:1px solid rgba(0,0,0,0.06);box-shadow:0 2px 8px rgba(0,0,0,0.03);">
                 <h4 style="margin-top:0;color:#0b3460;">Rappels</h4>
                 <p style="margin:6px 0;color:#333;font-size:0.98em;">Si vous ne consommez pas la réservation, l'appareil est libéré automatiquement après 24 heures.</p>
-                <p style="margin:6px 0;color:#333;font-size:0.98em;">Si vous refusez, l'ACARS fonctionne comme avant — aucun changement.</p>
             </aside>
         </div>
 
