@@ -120,11 +120,11 @@ include __DIR__ . '/../includes/menu_logged.php';
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <h2>Mes vols</h2>
-    <form method="get" action="flights.php" style="margin-bottom:12px;">
+    <form method="get" action="flights.php" class="filters-form">
         <label for="immat">Filtrer par immatriculation:</label>
         <input type="text" id="immat" name="immat" value="<?= htmlspecialchars($immatFilter) ?>" placeholder="Ex: F-XXXX">
 
-        <label for="mission" style="margin-left:18px;">Filtrer par Mission:</label>
+        <label for="mission" class="filter-margin">Filtrer par Mission:</label>
         <select id="mission" name="mission">
             <option value="">-- Toutes les missions --</option>
             <?php foreach ($missionsList as $m): ?>
@@ -132,7 +132,7 @@ include __DIR__ . '/../includes/menu_logged.php';
             <?php endforeach; ?>
         </select>
 
-        <label for="fleetType" style="margin-left:18px;">Filtrer par fleet type:</label>
+        <label for="fleetType" class="filter-margin">Filtrer par fleet type:</label>
         <select id="fleetType" name="fleetType">
             <option value="">-- Tous les avions --</option>
             <?php foreach ($fleetTypeList as $f): ?>
@@ -141,12 +141,12 @@ include __DIR__ . '/../includes/menu_logged.php';
         </select>
 
         <button class="btn" type="submit">Filtrer</button>
-        <button type="button" class="btn" style="margin-left:10px;" onclick="window.location.href='flights.php';">Réinitialiser</button>
+        <button type="button" class="btn btn-reset" onclick="window.location.href='flights.php';">Réinitialiser</button>
     </form>
     <?php
         $nbResults = count($flights);
         if ($immatFilter !== '' || $missionFilter !== '') {
-            echo '<p style="margin-bottom:8px;color:#1565c0;font-weight:bold;">' . $nbResults . ' vol' . ($nbResults > 1 ? 's' : '') . ' trouvé' . ($nbResults > 1 ? 's' : '') . ' avec ce filtre.</p>';
+            echo '<p class="filter-info">' . $nbResults . ' vol' . ($nbResults > 1 ? 's' : '') . ' trouvé' . ($nbResults > 1 ? 's' : '') . ' avec ce filtre.</p>';
         }
     ?>
     <?php if (empty($flights)): ?>
@@ -157,19 +157,19 @@ include __DIR__ . '/../includes/menu_logged.php';
             <table class="table-skywings">
                 <thead class="table-skywings">
                     <tr class="table-skywings">
-                        <th style="width:10%;">Date vol</th>
-                        <th style="width:8%">Immat</th>
-                        <th style="width:6%">Fleet Type</th>
-                        <th style="width:5%">Départ</th>
-                        <th style="width:5%">Dest.</th>
-                        <th style="width:5%;">Fuel arrivée</th>
-                        <th style="width:5%;">Conso</th>
-                        <th style="width:5%;">Payload</th>
-                        <th style="width:10%;">Heure arrivée</th>
-                        <th style="width:10%">Block time</th>
-                        <th style="width:5%">Note du vol</th>
-                        <th style="width:8%">Recette du vol</th>
-                        <th style="width:8%">Mission</th>
+                        <th class="col-10">Date vol</th>
+                        <th class="col-8">Immat</th>
+                        <th class="col-6">Fleet Type</th>
+                        <th class="col-5">Départ</th>
+                        <th class="col-5">Dest.</th>
+                        <th class="col-5">Fuel arrivée</th>
+                        <th class="col-5">Conso</th>
+                        <th class="col-5">Payload</th>
+                        <th class="col-10">Heure arrivée</th>
+                        <th class="col-10">Block time</th>
+                        <th class="col-5">Note du vol</th>
+                        <th class="col-8">Recette du vol</th>
+                        <th class="col-8">Mission</th>
                     </tr>
                 </thead>
                 <tbody class="table-skywings">
@@ -205,51 +205,49 @@ include __DIR__ . '/../includes/menu_logged.php';
                     $details_json = htmlspecialchars(json_encode($details), ENT_QUOTES, 'UTF-8');
                 ?>
                     <tr class="vol-row"  title="<?= htmlspecialchars($pirep_complet) ?>" data-details="<?= $details_json ?>">
-                        <td style="width:10%;"><?= $date_formatee ?></td>
-                        <td style="width:8%;"><?php echo htmlspecialchars($flight['immat']); ?></td>
-                        <td style="width:6%;"><?php echo htmlspecialchars($flight['fleet_type_label'] ?? ''); ?></td>
-                        <td style="width:5%;"><?php echo htmlspecialchars($flight['depart']); ?></td>
-                        <td style="width:5%;"><?php echo htmlspecialchars($flight['destination']); ?></td>
-                        <td style="width:5%;"><?php echo htmlspecialchars($flight['fuel_arrivee']); ?></td>
-                        <td style="width:5%;"><?php echo htmlspecialchars($flight['conso']); ?></td>
-                        <td style="width:5%;"><?php echo htmlspecialchars($flight['payload']); ?></td>
-                        <td style="width:10%;"><?php echo htmlspecialchars($flight['heure_arrivee']); ?></td>
-                        <td style="width:10%;"><?php echo htmlspecialchars(substr($flight['block_time'], 0, 8)); ?></td>
-                        <td style="width:5%"><?php echo htmlspecialchars($flight['note_du_vol']); ?></td>
-                        <td style="width:8%;">
+                        <td class="col-10"><?= $date_formatee ?></td>
+                        <td class="col-8"><?php echo htmlspecialchars($flight['immat']); ?></td>
+                        <td class="col-6"><?php echo htmlspecialchars($flight['fleet_type_label'] ?? ''); ?></td>
+                        <td class="col-5"><?php echo htmlspecialchars($flight['depart']); ?></td>
+                        <td class="col-5"><?php echo htmlspecialchars($flight['destination']); ?></td>
+                        <td class="col-5"><?php echo htmlspecialchars($flight['fuel_arrivee']); ?></td>
+                        <td class="col-5"><?php echo htmlspecialchars($flight['conso']); ?></td>
+                        <td class="col-5"><?php echo htmlspecialchars($flight['payload']); ?></td>
+                        <td class="col-10"><?php echo htmlspecialchars($flight['heure_arrivee']); ?></td>
+                        <td class="col-10"><?php echo htmlspecialchars(substr($flight['block_time'], 0, 8)); ?></td>
+                        <td class="col-5"><?php echo htmlspecialchars($flight['note_du_vol']); ?></td>
+                        <td class="col-8">
                             <?php
                                 $recette = $flight['cout_vol'] !== null ? (float)$flight['cout_vol'] : 0;
                                 $recette_formatee = number_format($recette, 2, ',', ' ');
                                 if ($recette < 0) {
-                                    echo '<span style="color:#d60000;">' . $recette_formatee . ' €</span>';
+                                    echo '<span class="flash-error">' . $recette_formatee . ' €</span>';
                                 } else {
                                     echo $recette_formatee . ' €';
                                 }
                             ?>
                         </td>
-                        <td style="width:8%;"><?php echo htmlspecialchars($flight['mission_libelle']); ?></td>
+                        <td class="col-8"><?php echo htmlspecialchars($flight['mission_libelle']); ?></td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>
             </table>
         </div>
         <!-- Popup modale pour détails du vol -->
-        <div id="vol-modal" class="vol-modal" style="display:none;">
-            <div class="vol-modal-content" >
+        <div id="vol-modal" class="vol-modal">
+            <div class="vol-modal-content">
                 <span class="vol-modal-close" id="vol-modal-close">&times;</span>
                 <h3>Détails du vol</h3>
-                <table style="width:100%;border-collapse:collapse;">
-                    <tr>
-                        <td style="width: 365px; padding: 0; margin: 0; border: 0; vertical-align: top;">
-                            <div id="vol-modal-body" >
+                <div class="modal-grid">
+                    <div class="modal-left">
+                        <div id="vol-modal-body">
                             <!-- Les détails du vol seront injectés ici -->
-                            </div>
-                        </td>
-                        <td style="width: 70%; padding: 0; margin: 0; border: 0; vertical-align: middle;">
-                            <div id="map" style="width: 600px; height: 400px;"></div>
-                        </td>
-                    </tr>
-                </table>
+                        </div>
+                    </div>
+                    <div class="modal-right">
+                        <div id="map" class="map-div"></div>
+                    </div>
+                </div>
             </div>
         </div>
     <?php endif; ?>

@@ -72,34 +72,34 @@ include __DIR__ . '/../includes/menu_logged.php';
 
     <form method="get" action="fleet.php">
         <label for="immat">Filtrer par immatriculation:</label>
-        <input type="text" id="immat" name="immat" value="<?= htmlspecialchars($immatFilter) ?>" placeholder="Ex: F-XXXX">
+        <input type="text" id="immat" name="immat" value="<?= htmlspecialchars($immatFilter) ?>" placeholder="Ex: F-XXXX" class="fleet-filter-input">
 
-        <label for="fleet_type" style="margin-left:18px;">Filtrer par Fleet type:</label>
-        <select id="fleet_type" name="fleet_type">
+        <label for="fleet_type" class="filter-margin">Filtrer par Fleet type:</label>
+        <select id="fleet_type" name="fleet_type" class="fleet-filter-select">
             <option value="">-- Tous les types --</option>
             <?php foreach ($fleetTypesList as $ft): ?>
                 <option value="<?= htmlspecialchars($ft) ?>" <?= ($fleetTypeFilter === $ft) ? 'selected' : '' ?>><?= htmlspecialchars($ft) ?></option>
             <?php endforeach; ?>
         </select>
 
-        <label style="margin-left:18px;">
+        <label class="filter-margin">
             <input type="checkbox" name="show_vendus" value="1" <?= $showVendus ? 'checked' : '' ?>>
             Afficher les appareils vendus
         </label>
-        <label style="margin-left:18px;">
+        <label class="filter-margin">
             <input type="checkbox" name="show_maintenance" value="1" <?= $showMaintenance ? 'checked' : '' ?>>
             Afficher uniquement les appareils en maintenance
         </label>
 
         <button class="btn" type="submit">Filtrer</button>
-        <button type="button" class="btn" style="margin-left:10px;" onclick="window.location.href='fleet.php';">Réinitialiser</button>
+        <button type="button" class="btn btn-reset" onclick="window.location.href='fleet.php';">Réinitialiser</button>
     </form>
 
     <?php if (empty($fleet)): ?>
-        <p style="font-size:1.25em;color:#0066cc;font-weight:600;background:#f7fbff;padding:18px 0;border-radius:8px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.04);margin:28px 0;">Aucun appareil trouvé.</p>
+        <p class="no-results">Aucun appareil trouvé.</p>
     <?php else: ?>
 
-        <div style="height: 18px;"></div>
+    <div style="height: 18px;"></div>
         <!-- Tableau d'en-tête fixe -->
         <table class="table-skywings">
             <thead class="table-skywings">
@@ -209,7 +209,7 @@ include __DIR__ . '/../includes/menu_logged.php';
             </tbody>
         </table>
         <!-- Popup modale pour détails avion -->
-        <div id="fleet-modal" class="fleet-modal" style="display:none;">
+        <div id="fleet-modal" class="fleet-modal">
             <div class="fleet-modal-content">
                 <span class="fleet-modal-close" id="fleet-modal-close">&times;</span>
                 <h3>Détails de l'appareil</h3>
@@ -218,46 +218,13 @@ include __DIR__ . '/../includes/menu_logged.php';
                 </div>
             </div>
         </div>
-        <style>
-        .fleet-modal {
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0,0,0,0.35);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .fleet-modal-content {
-            background: #fff;
-            padding: 24px 32px;
-            border-radius: 10px;
-            min-width: 320px;
-            max-width: 90vw;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.18);
-            position: relative;
-        }
-        .fleet-modal-close {
-            position: absolute;
-            top: 12px;
-            right: 18px;
-            font-size: 2em;
-            color: #0d47a1;
-            cursor: pointer;
-        }
-        </style>
         <script>
 
         // Gestion du popup détails avion
         document.querySelectorAll('.fleet-row').forEach(function(row) {
             row.addEventListener('click', function() {
                 const details = JSON.parse(this.getAttribute('data-details'));
-                let html = '<table style="width:100%;border-collapse:collapse;">';
+                let html = '<table class="fd-table">';
                 let modeAchat = details['Mode d\'achat'] || '';
                 // Liste des clés financières
                 const financeKeys = [
@@ -291,14 +258,14 @@ include __DIR__ . '/../includes/menu_logged.php';
                         continue;
                     }
                     if (financeKeys.includes(key)) {
-                        financeRows += '<tr><td style="font-weight:bold;padding:4px 8px;color:#0d47a1;">' + key + '</td><td style="padding:4px 8px;">' + (v ?? '') + '</td></tr>';
+                        financeRows += '<tr><td class="fd-label">' + key + '</td><td class="fd-value">' + (v ?? '') + '</td></tr>';
                     } else {
-                        normalRows += '<tr><td style="font-weight:bold;padding:4px 8px;color:#0d47a1;">' + key + '</td><td style="padding:4px 8px;">' + (v ?? '') + '</td></tr>';
+                        normalRows += '<tr><td class="fd-label">' + key + '</td><td class="fd-value">' + (v ?? '') + '</td></tr>';
                     }
                 }
                 html += normalRows;
                 if (financeRows) {
-                    html += '<tr><td colspan="2" style="padding:8px 0 2px 0;"><hr style="border:0;border-top:1.5px solid #1abc9c;margin:10px 0 6px 0;"></td></tr>';
+                    html += '<tr><td colspan="2"><hr class="divider"></td></tr>';
                     html += '<tr><td colspan="2" style="font-weight:bold;color:#1abc9c;font-size:1.08em;padding-bottom:6px;">Informations financières</td></tr>';
                     html += financeRows;
                 }
@@ -306,19 +273,19 @@ include __DIR__ . '/../includes/menu_logged.php';
                 const imagePath = '/assets/images/fleet/' + details['Immatriculation'] + '.jpg';
 
                 //verifie avec une requête AJAX si l'image existe                             
-                html += '<tr><td colspan="2" style="padding:8px 0 2px 0;"><hr style="border:0;border-top:1.5px solid #1abc9c;margin:10px 0 6px 0;"></td></tr>';
+                html += '<tr><td colspan="2"><hr class="divider"></td></tr>';
                 html += '<tr><td colspan="2" style="font-weight:bold;color:#1abc9c;font-size:1.08em;padding-bottom:6px;">Image de l\'appareil</td></tr>';   
-                html += '<tr><td colspan="2" style="text-align:center;"><img src="' + imagePath + '" alt="Image de l\'appareil" style="max-width:100%;height:auto;border-radius:8px;"></td></tr>';
+                html += '<tr><td colspan="2" style="text-align:center;"><img src="' + imagePath + '" alt="Image de l\'appareil" class="responsive-img"></td></tr>';
                                        
                 html += '</table>';
                 //si l'utilisateur est admin, on ajoute le bouton pour uploader une image
                 if (details['Immatriculation'] && <?php echo (int)($_SESSION['user']['isAdmin'] ?? 0); ?> === 1) {
-                    html += '<hr style="border:0;border-top:1.5px solid #1abc9c;margin:10px 0 6px 0;">';
+                    html += '<hr class="divider">';
                     html += '<p style="font-weight:bold;color:#1abc9c;font-size:1.08em;padding-bottom:6px;">Actions</p>';
-                    html += '<form id="uploadForm" enctype="multipart/form-data" method="post" action="/scripts/admin_fleet_image.php" style="margin-bottom:0;">';
+                    html += '<form id="uploadForm" enctype="multipart/form-data" method="post" action="/scripts/admin_fleet_image.php">';
                     html += '<input type="hidden" name="immat" value="' + details['Immatriculation'] + '">';
-                    html += '<input type="file" name="image" accept=".jpg" required style="margin-bottom:8px;">';
-                    html += '<button class="btn" type="submit" style="margin-top:8px;">Uploader l\'image (Max 250Ko)</button>';
+                    html += '<input type="file" name="image" accept=".jpg" required class="mb-8">';
+                    html += '<button class="btn mt-8" type="submit">Uploader l\'image (Max 250Ko)</button>';
                     html += '</form>';
                 }
                 document.getElementById('fleet-modal-body').innerHTML = html;

@@ -127,33 +127,34 @@ try {
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <h2>Liste des vols</h2>
 
-    <!-- Formulaire de filtre (réorganisé en tableau sur 2 lignes) -->
-    <form method="get" action="">
-                    <label for="callsign">Filtrer par Callsign :</label>
-                    <input type="text" id="callsign" name="callsign" value="<?php echo htmlspecialchars($callsignFilter); ?>">
-                    <label for="immat">Filtrer par Immat :</label>
-                    <input type="text" id="immat" name="immat" value="<?php echo htmlspecialchars($immatFilter); ?>">
-                    <BR>
-                    <label for="mission">Filtrer par Mission :</label>
-                    <select id="mission" name="mission">
-                        <option value="">-- Toutes les missions --</option>
-                        <?php foreach ($missionsList as $m): ?>
-                            <option value="<?= htmlspecialchars($m) ?>" <?= ($missionFilter === $m) ? 'selected' : '' ?>><?= htmlspecialchars($m) ?></option>
-                        <?php endforeach; ?>
-                    </select>
+    <!-- Formulaire de filtre (amélioré : utilises les classes centralisées) -->
+    <form method="get" action="" class="filters-form">
+    <label for="callsign">Filtrer par Callsign :</label>
+    <input type="text" id="callsign" name="callsign" class="fleet-filter-input input-160" value="<?php echo htmlspecialchars($callsignFilter); ?>">
 
-                    <label for="fleetType">Filtrer par Fleet Type :</label>
-                    <select id="fleetType" name="fleetType">
-                        <option value="">-- Tous les avions --</option>
-                        <?php foreach ($fleetTypeList as $f): ?>
-                            <option value="<?= htmlspecialchars($f) ?>" <?= ($fleetTypeFilter === $f) ? 'selected' : '' ?>><?= htmlspecialchars($f) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                    
-                    <button type="submit" class="btn" style="margin-right:8px;">Filtrer</button>
-                    <button type="button" class="btn" onclick="window.location.href='<?= basename($_SERVER['PHP_SELF']) ?>';">Réinitialiser</button>
+    <label for="immat" class="filter-margin">Filtrer par Immat :</label>
+    <input type="text" id="immat" name="immat" class="fleet-filter-input input-160" value="<?php echo htmlspecialchars($immatFilter); ?>">
+
+        <label for="mission" class="filter-margin">Filtrer par Mission :</label>
+        <select id="mission" name="mission" class="fleet-filter-select">
+            <option value="">-- Toutes les missions --</option>
+            <?php foreach ($missionsList as $m): ?>
+                <option value="<?= htmlspecialchars($m) ?>" <?= ($missionFilter === $m) ? 'selected' : '' ?>><?= htmlspecialchars($m) ?></option>
+            <?php endforeach; ?>
+        </select>
+
+        <label for="fleetType" class="filter-margin">Filtrer par Fleet Type :</label>
+        <select id="fleetType" name="fleetType" class="fleet-filter-select">
+            <option value="">-- Tous les avions --</option>
+            <?php foreach ($fleetTypeList as $f): ?>
+                <option value="<?= htmlspecialchars($f) ?>" <?= ($fleetTypeFilter === $f) ? 'selected' : '' ?>><?= htmlspecialchars($f) ?></option>
+            <?php endforeach; ?>
+        </select>
+
+        <button type="submit" class="btn">Filtrer</button>
+        <button type="button" class="btn btn-reset" onclick="window.location.href='<?= basename($_SERVER['PHP_SELF']) ?>';">Réinitialiser</button>
     </form>
-    <div style="height: 18px;"></div>
+    <div class="spacer-xl"></div>
     <div class="table-main-padding">
         
     <!-- Tableau d'en-tête fixe -->
