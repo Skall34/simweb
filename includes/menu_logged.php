@@ -11,6 +11,7 @@ if (session_status() === PHP_SESSION_NONE) {
     <a href="/pages/tableau_vols.php">📒 Carnet de vol</a>
     <a href="/pages/fleet.php">✈️ Flotte</a>
     <a href="/pages/flights.php">🛫 Mes vols</a>
+    <a href="/pages/reserver_ligne.php">🧭 Réserver une ligne</a>
     <a href="/pages/stats.php">📊 Stats</a>
     <a href="/pages/finances.php">💶 Finances</a>
     <a href="/pages/mon_compte.php">👤 Mon Compte</a>
@@ -70,7 +71,6 @@ if (session_status() === PHP_SESSION_NONE) {
             <a href="/pages/pilotes.php">👨‍✈️ Pilotes</a>
             <a href="/pages/simulation.php">🧮 Simulation</a>
             <a href="/pages/grades.php">🧑‍✈️ Grades</a>
-            
             <a href="/pages/saisie_manuelle.php">📝 Saisie Manuelle</a>
         </div>
     </div>
@@ -97,6 +97,7 @@ if (session_status() === PHP_SESSION_NONE) {
                     <a href="/admin/admin_gestion_pilotes.php">Administration des pilotes</a>
                     <a href="/admin/admin_grades.php">Administration des grades</a>
                     <a href="/admin/admin_variables.php">Administration des variables</a>
+                    <a href="/admin/admin_lignes_regulieres.php">Administration des lignes régulières</a>
                     <a href="/admin/admin_message_accueil.php">Message d'accueil</a>
                 </div>
                 <?php if (isset($_SESSION['user']['callsign']) && in_array($_SESSION['user']['callsign'], ['SKY0707', 'SKY0034'])): ?>

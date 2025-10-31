@@ -8,6 +8,10 @@ include '../../includes/menu_logged.php';
     <section style="max-width:1100px;margin:0 auto 32px auto;font-size:1.05em;line-height:1.6;background:#f7fbff;padding:26px 28px;border-radius:12px;box-shadow:0 6px 18px rgba(10,30,60,0.06);">
         <h2 style="color:#1a3552;margin-bottom:8px;">Vols réguliers — mode d'emploi</h2>
 
+        <div style="background:#fff3cd;border:1px solid #f0ad4e;color:#856404;padding:12px;border-radius:6px;margin-bottom:12px;"> 
+            <strong>Attention,</strong> pour pouvoir utiliser les lignes régulières, il faut l'Acars (SimAddon) version 4.0.4 minimum.
+        </div>
+
         <p style="margin-top:6px;color:#234;">Les vols réguliers génèrent des revenus stables et bénéficient d'un coefficient multiplicateur ×3.</p>
 
         <div style="display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start;">
