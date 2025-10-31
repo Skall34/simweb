@@ -12,15 +12,15 @@ include '../../includes/menu_logged.php';
             <strong>Attention,</strong> pour pouvoir utiliser les lignes régulières, il faut l'Acars (SimAddon) version 4.0.4 minimum.
         </div>
 
-        <p style="margin-top:6px;color:#234;">Les vols réguliers génèrent des revenus stables et bénéficient d'un coefficient multiplicateur ×3.</p>
+       
 
         <div style="display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start;">
             <div>
                 <h3 style="margin:8px 0 6px 0;color:#0b3460;font-size:1.05rem;">Comment ça marche</h3>
                 <ol style="margin-left:18px;color:#123;">
-                    <li>Allez dans <strong>Réserver un VR</strong> et choisissez la ligne qui vous intéresse. Utilisez les filtres si besoin.</li>
-                    <li>Cliquez sur <em>Réserver</em> à droite ; choisissez ensuite un appareil disponible (hors maintenance / réservé).</li>
-                    <li>La réservation est tenue pendant <strong>24 heures</strong> : l'appareil est bloqué pour les autres pilotes.</li>
+                    <li>Allez dans <strong>Réserver une ligne</strong> et choisissez la ligne qui vous intéresse. Utilisez les filtres si besoin.<strong> Une seule réservation possible à la fois</strong>.</li>
+                    <li>Cliquez sur <em>Réserver</em> à droite ; choisissez ensuite un appareil disponible (hors maintenance / déjà réservé).</li>
+                    <li>La réservation est tenue pendant <strong>24 heures</strong> : l'appareil est indisponible pour les autres pilotes.</li>
                     <li>Sur la page d'accueil et dans <strong>Mon compte</strong> vous verrez l'état de votre réservation.</li>
                     <li>Pour effectuer le vol, positionnez votre simulateur sur l'aéroport de départ puis lancez l'ACARS : un popup vous proposera d'appliquer la réservation.</li>
                 </ol>
@@ -39,7 +39,7 @@ include '../../includes/menu_logged.php';
             </div>
 
             <aside style="background:#fff;padding:14px;border-radius:8px;border:1px solid rgba(0,0,0,0.06);box-shadow:0 2px 8px rgba(0,0,0,0.03);">
-                <h4 style="margin-top:0;color:#0b3460;">Rappels</h4>
+                <h4 style="margin-top:0;color:#0b3460;">Rappel</h4>
                 <p style="margin:6px 0;color:#333;font-size:0.98em;">Si vous ne consommez pas la réservation, l'appareil est libéré automatiquement après 24 heures.</p>
             </aside>
         </div>

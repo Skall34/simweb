@@ -75,7 +75,7 @@ include __DIR__ . '/../includes/menu_logged.php';
         }
     }
     ?>
-    <div class="narrow-table-wrapper">
+    <!-- Filters above the table so the map can align with the table header -->
     <form method="get" style="margin-bottom:1em;">
         <label>ICAO départ (de 1 à 4 caractères): <input type="text" name="icao_dep" value="<?= htmlspecialchars($filter_dep) ?>" maxlength="5" style="width:6em"/></label>
         <label style="margin-left:1em">ICAO arrivée (de 1 à 4 caractères): <input type="text" name="icao_arr" value="<?= htmlspecialchars($filter_arr) ?>" maxlength="5" style="width:6em"/></label>
@@ -97,6 +97,9 @@ include __DIR__ . '/../includes/menu_logged.php';
             window.location.href = 'lignes_regulieres.php';
         });
     </script>
+
+    <div style="display:flex;gap:8px;align-items:flex-start;">
+        <div class="narrow-table-wrapper" style="flex:1;margin-right:0;">
     <table class="table-skywings">
         <thead>
             <tr>
@@ -124,6 +127,17 @@ include __DIR__ . '/../includes/menu_logged.php';
             <?php endif; ?>
         </tbody>
     </table>
+        </div>
+
+        <aside style="width:900px;max-width:100%;min-width:320px;flex:0 0 900px;margin-left:6px;">
+            <div style="background:#fff;padding:12px;border-radius:10px;border:1px solid rgba(0,0,0,0.06);box-shadow:0 6px 18px rgba(0,0,0,0.05);">
+                <h3 style="margin-top:0;font-size:1.05rem;color:#1a3552;">Carte des lignes régulières</h3>
+                <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:10px;border:1px solid rgba(0,0,0,0.06);margin-top:6px;">
+                    <iframe src="https://www.google.com/maps/d/u/0/embed?mid=1fYs3mM8W3nRfVHl78xp2w8st6hcK22w" width="100%" height="100%" style="position:absolute;top:0;left:0;border:0;" allowfullscreen="allowfullscreen"></iframe>
+                </div>
+                <p style="margin-top:10px;font-size:0.95em;color:#333;">Utilisez les contrôles Google Maps pour zoomer et afficher les détails.</p>
+            </div>
+        </aside>
     </div>
 </main>
 <?php include __DIR__ . '/../includes/footer.php'; ?>
