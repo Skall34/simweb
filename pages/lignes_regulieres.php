@@ -94,19 +94,23 @@ include __DIR__ . '/../includes/menu_logged.php';
     ?>
     <!-- Filters above the table so the map can align with the table header -->
     <form method="get" class="filters-form">
-        <label>ICAO départ: <input type="text" name="icao_dep" value="<?= htmlspecialchars($filter_dep) ?>" maxlength="5" class="icao-input"/></label>
-        <label>ICAO arrivée: <input type="text" name="icao_arr" value="<?= htmlspecialchars($filter_arr) ?>" maxlength="5" class="icao-input"/></label>
+        <label>ICAO départ:
+            <input type="text" name="icao_dep" value="<?= htmlspecialchars($filter_dep) ?>" maxlength="5" class="fleet-filter-input input-160" placeholder="Ex: LFPG" />
+        </label>
+        <label>ICAO arrivée:
+            <input type="text" name="icao_arr" value="<?= htmlspecialchars($filter_arr) ?>" maxlength="5" class="fleet-filter-input input-160" placeholder="Ex: LFPO" />
+        </label>
         <br>
         <label>Type de ligne:
-            <select name="type_ligne" class="filter-select">
+            <select name="type_ligne" class="fleet-filter-select input-160">
                 <option value="">-- Tous --</option>
                 <?php foreach ($typeLignes as $t): ?>
                     <option value="<?= (int)$t['id'] ?>" <?= ($filter_type !== null && $filter_type === (int)$t['id']) ? 'selected' : '' ?>><?= htmlspecialchars($t['label']) ?></option>
                 <?php endforeach; ?>
             </select>
         </label>
-        <button type="submit" class="btn">Filtrer</button>
-        <button type="button" class="btn reset-btn" id="resetBtn">Réinitialiser</button>
+    <button type="submit" class="btn-bleu">Filtrer</button>
+    <button type="button" class="btn btn-reset" id="resetBtn">Réinitialiser</button>
     </form>
     <script>
         document.getElementById('resetBtn').addEventListener('click', function () {

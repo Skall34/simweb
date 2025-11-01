@@ -68,6 +68,15 @@ LEFT JOIN MISSIONS m ON c.mission_id = m.id
 LEFT JOIN FLEET_TYPE ft ON f.fleet_type = ft.id
 WHERE c.pilote_id = :id_pilote";
 
+// Récupérer le nombre total de vols effectués par ce pilote (sans filtres)
+try {
+    $stmtCount = $pdo->prepare("SELECT COUNT(*) FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = :id_pilote");
+    $stmtCount->execute(['id_pilote' => $userId]);
+    $totalFlights = (int)$stmtCount->fetchColumn();
+} catch (PDOException $e) {
+    $totalFlights = 0;
+}
+
 $params = ['id_pilote' => $userId];
 if ($immatFilter !== '') {
     $sql .= " AND f.immat LIKE :immat";
@@ -119,13 +128,13 @@ include __DIR__ . '/../includes/menu_logged.php';
 <main>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <h2>Mes vols</h2>
+    <h2>Mes vols (<?= $totalFlights ?>)</h2>
     <form method="get" action="flights.php" class="filters-form">
         <label for="immat">Filtrer par immatriculation:</label>
-        <input type="text" id="immat" name="immat" value="<?= htmlspecialchars($immatFilter) ?>" placeholder="Ex: F-XXXX">
+        <input type="text" id="immat" name="immat" value="<?= htmlspecialchars($immatFilter) ?>" placeholder="Ex: F-XXXX" class="fleet-filter-input input-160">
 
         <label for="mission" class="filter-margin">Filtrer par Mission:</label>
-        <select id="mission" name="mission">
+    <select id="mission" name="mission" class="fleet-filter-select">
             <option value="">-- Toutes les missions --</option>
             <?php foreach ($missionsList as $m): ?>
                 <option value="<?= htmlspecialchars($m) ?>" <?= ($missionFilter === $m) ? 'selected' : '' ?>><?= htmlspecialchars($m) ?></option>
@@ -133,14 +142,14 @@ include __DIR__ . '/../includes/menu_logged.php';
         </select>
 
         <label for="fleetType" class="filter-margin">Filtrer par fleet type:</label>
-        <select id="fleetType" name="fleetType">
+    <select id="fleetType" name="fleetType" class="fleet-filter-select input-160">
             <option value="">-- Tous les avions --</option>
             <?php foreach ($fleetTypeList as $f): ?>
                 <option value="<?= htmlspecialchars($f) ?>" <?= ($fleetTypeFilter === $f) ? 'selected' : '' ?>><?= htmlspecialchars($f) ?></option>
             <?php endforeach; ?>
         </select>
 
-        <button class="btn" type="submit">Filtrer</button>
+    <button class="btn-bleu" type="submit">Filtrer</button>
         <button type="button" class="btn btn-reset" onclick="window.location.href='flights.php';">Réinitialiser</button>
     </form>
     <?php
@@ -176,16 +185,27 @@ include __DIR__ . '/../includes/menu_logged.php';
                 <?php foreach ($flights as $flight):
                     $pirep_complet = $flight['pirep_maintenance'];
                     $pirep_court = mb_strimwidth($pirep_complet, 0, 13, '...');
-                    $date_formatee = date("d-m-Y", strtotime($flight['date_vol']));
+                        $date_formatee = date("d-m-Y", strtotime($flight['date_vol']));
+                        // Format fuel arrival and conso: remove decimals when .00
+                        $fuel_arrivee_val = isset($flight['fuel_arrivee']) ? (float)$flight['fuel_arrivee'] : 0;
+                        $conso_val = isset($flight['conso']) ? (float)$flight['conso'] : 0;
+                        $formatFuel = function($v) {
+                            if ($v == (int)$v) {
+                                return (string)(int)$v;
+                            }
+                            return number_format($v, 2, ',', ' ');
+                        };
+                        $fuel_arrivee_display = $formatFuel($fuel_arrivee_val);
+                        $conso_display = $formatFuel($conso_val);
                     $details = [
                         'ID vol' => $flight['vol_id'],
                         'Date vol' => $date_formatee,
                         'Immat' => $flight['immat'],
                         'Départ' => $flight['depart'],
                         'Destination' => $flight['destination'],
-                        'Fuel départ' => $flight['fuel_depart'],
-                        'Fuel arrivée' => $flight['fuel_arrivee'],
-                        'Conso' => $flight['conso'],
+                            'Fuel départ' => $flight['fuel_depart'],
+                            'Fuel arrivée' => $fuel_arrivee_display,
+                            'Conso' => $conso_display,
                         'Payload' => $flight['payload'],
                         'Heure départ' => $flight['heure_depart'],
                         'Heure arrivée' => $flight['heure_arrivee'],
@@ -210,8 +230,8 @@ include __DIR__ . '/../includes/menu_logged.php';
                         <td class="col-6"><?php echo htmlspecialchars($flight['fleet_type_label'] ?? ''); ?></td>
                         <td class="col-5"><?php echo htmlspecialchars($flight['depart']); ?></td>
                         <td class="col-5"><?php echo htmlspecialchars($flight['destination']); ?></td>
-                        <td class="col-5"><?php echo htmlspecialchars($flight['fuel_arrivee']); ?></td>
-                        <td class="col-5"><?php echo htmlspecialchars($flight['conso']); ?></td>
+                        <td class="col-5"><?php echo htmlspecialchars($fuel_arrivee_display); ?></td>
+                        <td class="col-5"><?php echo htmlspecialchars($conso_display); ?></td>
                         <td class="col-5"><?php echo htmlspecialchars($flight['payload']); ?></td>
                         <td class="col-10"><?php echo htmlspecialchars($flight['heure_arrivee']); ?></td>
                         <td class="col-10"><?php echo htmlspecialchars(substr($flight['block_time'], 0, 8)); ?></td>

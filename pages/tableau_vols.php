@@ -151,7 +151,7 @@ try {
             <?php endforeach; ?>
         </select>
 
-        <button type="submit" class="btn">Filtrer</button>
+        <button type="submit" class="btn-bleu">Filtrer</button>
         <button type="button" class="btn btn-reset" onclick="window.location.href='<?= basename($_SERVER['PHP_SELF']) ?>';">Réinitialiser</button>
     </form>
     <div class="spacer-xl"></div>

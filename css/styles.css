@@ -48,15 +48,15 @@
     border-radius: 4px;
 }
 .btn-bleu {
-    background: #004080;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    padding: 8px 22px;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background 0.2s;
+  background: #004080;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px; /* match vertical padding of .btn-reset for identical height */
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 .btn-bleu:hover {
     background: #004080;
@@ -279,6 +279,25 @@ header {
 
 .btn:hover {
   background-color: #478ED4;
+}
+
+/* Reset button style (model used in admin pages) */
+.btn-reset {
+  background-color: #ccc;
+  color: #004080;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+.btn-reset:hover {
+  background-color: #bfbfbf;
+}
+.btn.btn-reset { /* ensure it overrides .btn */
+  background-color: #ccc;
+  color: #004080;
 }
 
 .nom-compagnie {
@@ -825,6 +844,15 @@ footer {
 .fleet-modal-close { position: absolute; top: 12px; right: 18px; font-size: 2em; color: #0d47a1; cursor: pointer; }
 .divider { border:0; border-top:1.5px solid #1abc9c; margin:10px 0 6px 0; }
 .input-250 { width: 250px; }
+.input-320 { width: 220px; }
+/* Ensure fleet-select with input-320 wins over generic .fleet-filter-select rules */
+.fleet-filter-select.input-320 { width: 220px !important; }
+/* Ensure selects inside .form-inscription can be sized like the filters below */
+.form-inscription .fleet-filter-select.input-160 { width: 160px !important; }
+.form-inscription .fleet-filter-input.input-160 { width: 160px !important; }
+/* Also ensure the generic fleet-filter input/select with input-160 get the correct width outside form-inscription contexts */
+.fleet-filter-select.input-160 { width: 160px !important; }
+.fleet-filter-input.input-160 { width: 160px !important; }
 .mb-8 { margin-bottom: 8px; }
 .mt-8 { margin-top: 8px; }
 .responsive-img { max-width:100%; height:auto; border-radius:8px; }

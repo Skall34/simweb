@@ -91,7 +91,7 @@ include __DIR__ . '/../includes/menu_logged.php';
             Afficher uniquement les appareils en maintenance
         </label>
 
-        <button class="btn" type="submit">Filtrer</button>
+        <button class="btn-bleu" type="submit">Filtrer</button>
         <button type="button" class="btn btn-reset" onclick="window.location.href='fleet.php';">Réinitialiser</button>
     </form>
 

@@ -321,7 +321,7 @@ include __DIR__ . '/../includes/menu_logged.php';
             </div>
             <div class="form-group" style="display:flex;gap:1em;">
                 <button type="submit" class="btn btn-primary">Ajouter le vol</button>
-                <button type="submit" name="reset" value="1" class="btn btn-secondary" style="margin-left:0;">Réinitialiser</button>
+                <button type="submit" name="reset" value="1" class="btn btn-reset" style="margin-left:0;">Réinitialiser</button>
             </div>
         </form>
     </div>
