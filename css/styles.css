@@ -48,15 +48,15 @@
     border-radius: 4px;
 }
 .btn-bleu {
-    background: #004080;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    padding: 8px 22px;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background 0.2s;
+  background: #004080;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px; /* match vertical padding of .btn-reset for identical height */
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 .btn-bleu:hover {
     background: #004080;
@@ -281,6 +281,25 @@ header {
   background-color: #478ED4;
 }
 
+/* Reset button style (model used in admin pages) */
+.btn-reset {
+  background-color: #ccc;
+  color: #004080;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+.btn-reset:hover {
+  background-color: #bfbfbf;
+}
+.btn.btn-reset { /* ensure it overrides .btn */
+  background-color: #ccc;
+  color: #004080;
+}
+
 .nom-compagnie {
   font-size: 1.4rem;
   font-weight: 700;
@@ -430,28 +449,28 @@ h2 {
 
 /* INFORMATIONS SUR UN VOL */
 .vol-modal {
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0,0,0,0.35);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.35);
+  display: none; /* hidden by default; JS will set inline style to 'flex' when opening */
+  align-items: center;
+  justify-content: center;
 }
-.vol-modal-content {
-    background: #fff;
-    padding: 24px 32px;
-    border-radius: 10px;
-    min-width: 320px;
-    max-width: 90vw;
-    max-height: 80vh;
-    overflow-y: auto;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
-    position: relative;
-}
+ .vol-modal-content {
+   background: #fff;
+   padding: 24px 32px;
+   border-radius: 10px;
+   min-width: 320px; /* match tableau_vols.php default */
+   max-width: 90vw;
+   max-height: 80vh;
+   overflow-y: auto;
+   box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+   position: relative;
+ }
 .vol-modal-close {
     position: absolute;
     top: 12px;
@@ -714,3 +733,161 @@ footer {
     background-color: #478ED4;
     color: white !important;
 }
+
+/* Generic panel used across pages (cards) */
+.panel {
+  background:#fff;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid rgba(0,0,0,0.06);
+  box-shadow:0 6px 18px rgba(0,0,0,0.05);
+}
+.panel h3 { margin-top:0; margin-bottom:8px; font-size:1.05rem; color:#1a3552; }
+
+/* spacing for stacked panels */
+.panel { margin-bottom:12px; }
+
+/* compact variant for tables inside small panels */
+.table-skywings.compact { font-size:0.95em; }
+
+/* Layout columns used on lignes_regulieres.php */
+.content-columns { display:flex; gap:32px; align-items:flex-start; }
+.right-aside { width:900px; max-width:100%; min-width:320px; flex:0 0 900px; margin-left:16px; }
+
+/* Vertical separator */
+.vertical-sep { width:1px; background:#e6e6e6; margin:0 12px; align-self:stretch; border-radius:2px; }
+
+/* Filters form */
+.filters-form { margin-bottom:1em; display:flex; flex-wrap:wrap; gap:0.6rem; align-items:center; }
+.filters-form .icao-input { width:6em; }
+.filters-form .filter-select { margin-left:.4em; }
+.reset-btn { margin-left:.5em; }
+
+/* Reservations list */
+.reservations-scroll { max-height:220px; overflow:auto; margin-bottom:10px; }
+.empty-msg { margin:0 0 10px 0; color:#555; }
+
+/* Map embed responsive container */
+.map-embed { position:relative; padding-bottom:56.25%; height:0; overflow:hidden; border-radius:10px; border:1px solid rgba(0,0,0,0.06); margin-top:6px; }
+.map-embed iframe.map-iframe { position:absolute; top:0; left:0; width:100%; height:100%; border:0; }
+.map-note { margin-top:10px; font-size:0.95em; color:#333; }
+
+/* Flash messages */
+.flash-success { font-weight:bold; color:#1ca64c; margin-bottom:16px; }
+.flash-error { font-weight:bold; color:#d60000; margin-bottom:16px; }
+
+/* --- Additional utility classes for migrated inline styles --- */
+/* Hero / index page */
+.hero-layout { display:flex; justify-content:center; align-items:flex-start; gap:2rem; margin-top:2rem; flex-wrap:wrap; }
+.hero-card { max-width:900px; border:1px solid #ccc; border-radius:10px; padding:1rem; background-color:#f9f9f9; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+.hero-right { max-width:600px; display:flex; flex-direction:column; gap:1.5rem; }
+.hero-image { width:100%; height:auto; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.2); }
+.inline-ul-margin { margin-left:2.2em; }
+.welcome-msg { font-size:1.25em; font-weight:bold; color:#2a4d7a; margin-bottom:22px; }
+.notice-box { display:flex; justify-content:center; margin-bottom:18px; }
+.notice-card { max-width:420px; width:100%; border:1px solid #2a4d7a; border-radius:8px; background:#f4f8fb; color:#234; padding:0.8em 1em; white-space:pre-line; font-size:1.08em; }
+.reservation-box { border:1px solid #f0ad4e; background:#fff3cd; padding:12px; border-radius:6px; margin-bottom:18px; }
+.map-div { width:100%; height:400px; }
+
+/* Flight details include */
+.fd-table { width:100%; border-collapse:collapse; }
+.fd-label { font-weight:bold; padding:4px 8px; color:#0d47a1; }
+.fd-value { padding:4px 8px; }
+
+/* Reservation page */
+.error-msg { color:#d60000; font-weight:bold; }
+.form-actions { margin-top:16px; }
+.btn-secondary { margin-left:8px; }
+
+/* Login page */
+.login-container { max-width:340px; margin:40px auto 0 auto; padding:32px 28px; background:#f7fbff; border-radius:10px; box-shadow:0 2px 12px rgba(0,0,0,0.07); }
+.text-center { text-align:center; }
+.form-column { display:flex; flex-direction:column; gap:18px; }
+.form-input { width:100%; padding:8px 10px; border-radius:6px; border:1px solid #b0bec5; font-size:1em; }
+.btn-full { width:100%; background:#1976d2; color:#fff; font-weight:bold; padding:10px 0; border:none; border-radius:6px; font-size:1.1em; cursor:pointer; }
+
+/* Small utility helpers added during inline-style migration */
+.content-row { display:flex; flex-direction:row; gap:2rem; align-items:flex-start; margin-bottom:2rem; }
+.spacer-xl { height:2.5rem; }
+.balance-value { font-size:1em; margin-left:10px; }
+.hidden { display:none !important; }
+
+/* Stats page helpers */
+.page-title { margin-bottom: 1.5em; }
+.stats-cards { display:flex; flex-wrap:wrap; gap:24px; margin-bottom:2.5em; }
+.charts-row { display:flex; flex-wrap:wrap; gap:40px; align-items:flex-start; margin-bottom:2.5em; }
+.chart-left { flex:1; min-width:320px; max-width:700px; }
+.chart-right { flex:3; min-width:600px; max-width:1400px; }
+.two-column-row { display:flex; flex-wrap:wrap; gap:40px; align-items:flex-start; margin-bottom:2.5em; }
+.records-box { font-size:1.13em; line-height:1.8; list-style:none; padding:0; margin:0; max-width:420px; text-align:center; background:#f8faff; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,0.01); padding:24px 18px; display:inline-block; }
+.records-box li { margin-bottom:12px; }
+
+/* Column width helpers used in tables (percent based) */
+.col-10 { width: 10%; }
+.col-8 { width: 8%; }
+.col-6 { width: 6%; }
+.col-5 { width: 5%; }
+.col-70 { width: 70%; }
+
+/* Login form small helpers */
+.login-label { font-weight:600; color:#0d47a1; }
+
+/* Additional helpers for index.php layout */
+.flex-1 { flex: 1; min-width: 320px; }
+.col-fixed-320 { flex: 0 0 320px; max-width: 380px; }
+.no-top-margin { margin-top: 0 !important; }
+.balance-panel { margin: 32px 0 0 0; font-size: 1.2em; font-weight: bold; }
+.balance-label { color: #2c3e50; }
+/* Fleet modal and small helpers */
+.fleet-modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.35); align-items: center; justify-content: center; }
+.fleet-modal-content { background: #fff; padding: 24px 32px; border-radius: 10px; min-width: 320px; max-width: 90vw; max-height: 80vh; overflow-y: auto; box-shadow: 0 4px 24px rgba(0,0,0,0.18); position: relative; }
+.fleet-modal-close { position: absolute; top: 12px; right: 18px; font-size: 2em; color: #0d47a1; cursor: pointer; }
+.divider { border:0; border-top:1.5px solid #1abc9c; margin:10px 0 6px 0; }
+.input-250 { width: 250px; }
+.input-320 { width: 220px; }
+/* Ensure fleet-select with input-320 wins over generic .fleet-filter-select rules */
+.fleet-filter-select.input-320 { width: 220px !important; }
+/* Ensure selects inside .form-inscription can be sized like the filters below */
+.form-inscription .fleet-filter-select.input-160 { width: 160px !important; }
+.form-inscription .fleet-filter-input.input-160 { width: 160px !important; }
+/* Also ensure the generic fleet-filter input/select with input-160 get the correct width outside form-inscription contexts */
+.fleet-filter-select.input-160 { width: 160px !important; }
+.fleet-filter-input.input-160 { width: 160px !important; }
+.mb-8 { margin-bottom: 8px; }
+.mt-8 { margin-top: 8px; }
+.responsive-img { max-width:100%; height:auto; border-radius:8px; }
+
+/* Modal column helpers used in vol/fleet modals */
+.modal-left { width: 365px; padding: 0; margin: 0; border: 0; vertical-align: top; }
+.modal-right { width: 70%; padding: 0; margin: 0; border: 0; vertical-align: middle; }
+
+/* Small helper to display filter results/info text */
+.filter-info { margin-bottom:8px; color:#1565c0; font-weight:bold; }
+
+/* Modal grid to layout details + map reliably */
+.modal-grid { display: flex; gap: 18px; align-items: flex-start; }
+
+/* Make modal responsive on small screens */
+@media (max-width: 900px) {
+  .vol-modal-content { min-width: 320px; padding: 18px; }
+  .modal-grid { flex-direction: column; }
+  .modal-left, .modal-right { width: 100%; }
+  .map-div { height: 300px; }
+}
+
+/* Make the modal map match the size used in tableau_vols.php (desktop) */
+.modal-right .map-div { width: 600px; height: 400px; }
+
+/* If container is too small, allow map to shrink responsively */
+@media (max-width: 1100px) {
+  .modal-right .map-div { width: 100%; height: 380px; }
+}
+
+/* Fleet page filter helpers (preserve original compact layout) */
+.fleet-filter-input { width: 250px; padding:6px 8px; border-radius:4px; border:1px solid #bbb; }
+.fleet-filter-select { width: 250px; padding:6px 8px; border-radius:4px; border:1px solid #bbb; }
+.filter-margin { margin-left:18px; }
+.btn-reset { margin-left:10px; }
+.input-160 { width: 160px; }
+.no-results { font-size:1.25em; color:#0066cc; font-weight:600; background:#f7fbff; padding:18px 0; border-radius:8px; text-align:center; box-shadow:0 2px 8px rgba(0,0,0,0.04); margin:28px 0; }
+

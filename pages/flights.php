@@ -68,6 +68,15 @@ LEFT JOIN MISSIONS m ON c.mission_id = m.id
 LEFT JOIN FLEET_TYPE ft ON f.fleet_type = ft.id
 WHERE c.pilote_id = :id_pilote";
 
+// Récupérer le nombre total de vols effectués par ce pilote (sans filtres)
+try {
+    $stmtCount = $pdo->prepare("SELECT COUNT(*) FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = :id_pilote");
+    $stmtCount->execute(['id_pilote' => $userId]);
+    $totalFlights = (int)$stmtCount->fetchColumn();
+} catch (PDOException $e) {
+    $totalFlights = 0;
+}
+
 $params = ['id_pilote' => $userId];
 if ($immatFilter !== '') {
     $sql .= " AND f.immat LIKE :immat";
@@ -119,34 +128,34 @@ include __DIR__ . '/../includes/menu_logged.php';
 <main>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <h2>Mes vols</h2>
-    <form method="get" action="flights.php" style="margin-bottom:12px;">
+    <h2>Mes vols (<?= $totalFlights ?>)</h2>
+    <form method="get" action="flights.php" class="filters-form">
         <label for="immat">Filtrer par immatriculation:</label>
-        <input type="text" id="immat" name="immat" value="<?= htmlspecialchars($immatFilter) ?>" placeholder="Ex: F-XXXX">
+        <input type="text" id="immat" name="immat" value="<?= htmlspecialchars($immatFilter) ?>" placeholder="Ex: F-XXXX" class="fleet-filter-input input-160">
 
-        <label for="mission" style="margin-left:18px;">Filtrer par Mission:</label>
-        <select id="mission" name="mission">
+        <label for="mission" class="filter-margin">Filtrer par Mission:</label>
+    <select id="mission" name="mission" class="fleet-filter-select">
             <option value="">-- Toutes les missions --</option>
             <?php foreach ($missionsList as $m): ?>
                 <option value="<?= htmlspecialchars($m) ?>" <?= ($missionFilter === $m) ? 'selected' : '' ?>><?= htmlspecialchars($m) ?></option>
             <?php endforeach; ?>
         </select>
 
-        <label for="fleetType" style="margin-left:18px;">Filtrer par fleet type:</label>
-        <select id="fleetType" name="fleetType">
+        <label for="fleetType" class="filter-margin">Filtrer par fleet type:</label>
+    <select id="fleetType" name="fleetType" class="fleet-filter-select input-160">
             <option value="">-- Tous les avions --</option>
             <?php foreach ($fleetTypeList as $f): ?>
                 <option value="<?= htmlspecialchars($f) ?>" <?= ($fleetTypeFilter === $f) ? 'selected' : '' ?>><?= htmlspecialchars($f) ?></option>
             <?php endforeach; ?>
         </select>
 
-        <button class="btn" type="submit">Filtrer</button>
-        <button type="button" class="btn" style="margin-left:10px;" onclick="window.location.href='flights.php';">Réinitialiser</button>
+    <button class="btn-bleu" type="submit">Filtrer</button>
+        <button type="button" class="btn btn-reset" onclick="window.location.href='flights.php';">Réinitialiser</button>
     </form>
     <?php
         $nbResults = count($flights);
         if ($immatFilter !== '' || $missionFilter !== '') {
-            echo '<p style="margin-bottom:8px;color:#1565c0;font-weight:bold;">' . $nbResults . ' vol' . ($nbResults > 1 ? 's' : '') . ' trouvé' . ($nbResults > 1 ? 's' : '') . ' avec ce filtre.</p>';
+            echo '<p class="filter-info">' . $nbResults . ' vol' . ($nbResults > 1 ? 's' : '') . ' trouvé' . ($nbResults > 1 ? 's' : '') . ' avec ce filtre.</p>';
         }
     ?>
     <?php if (empty($flights)): ?>
@@ -157,35 +166,46 @@ include __DIR__ . '/../includes/menu_logged.php';
             <table class="table-skywings">
                 <thead class="table-skywings">
                     <tr class="table-skywings">
-                        <th style="width:10%;">Date vol</th>
-                        <th style="width:8%">Immat</th>
-                        <th style="width:6%">Fleet Type</th>
-                        <th style="width:5%">Départ</th>
-                        <th style="width:5%">Dest.</th>
-                        <th style="width:5%;">Fuel arrivée</th>
-                        <th style="width:5%;">Conso</th>
-                        <th style="width:5%;">Payload</th>
-                        <th style="width:10%;">Heure arrivée</th>
-                        <th style="width:10%">Block time</th>
-                        <th style="width:5%">Note du vol</th>
-                        <th style="width:8%">Recette du vol</th>
-                        <th style="width:8%">Mission</th>
+                        <th class="col-10">Date vol</th>
+                        <th class="col-8">Immat</th>
+                        <th class="col-6">Fleet Type</th>
+                        <th class="col-5">Départ</th>
+                        <th class="col-5">Dest.</th>
+                        <th class="col-5">Fuel arrivée</th>
+                        <th class="col-5">Conso</th>
+                        <th class="col-5">Payload</th>
+                        <th class="col-10">Heure arrivée</th>
+                        <th class="col-10">Block time</th>
+                        <th class="col-5">Note du vol</th>
+                        <th class="col-8">Recette du vol</th>
+                        <th class="col-8">Mission</th>
                     </tr>
                 </thead>
                 <tbody class="table-skywings">
                 <?php foreach ($flights as $flight):
                     $pirep_complet = $flight['pirep_maintenance'];
                     $pirep_court = mb_strimwidth($pirep_complet, 0, 13, '...');
-                    $date_formatee = date("d-m-Y", strtotime($flight['date_vol']));
+                        $date_formatee = date("d-m-Y", strtotime($flight['date_vol']));
+                        // Format fuel arrival and conso: remove decimals when .00
+                        $fuel_arrivee_val = isset($flight['fuel_arrivee']) ? (float)$flight['fuel_arrivee'] : 0;
+                        $conso_val = isset($flight['conso']) ? (float)$flight['conso'] : 0;
+                        $formatFuel = function($v) {
+                            if ($v == (int)$v) {
+                                return (string)(int)$v;
+                            }
+                            return number_format($v, 2, ',', ' ');
+                        };
+                        $fuel_arrivee_display = $formatFuel($fuel_arrivee_val);
+                        $conso_display = $formatFuel($conso_val);
                     $details = [
                         'ID vol' => $flight['vol_id'],
                         'Date vol' => $date_formatee,
                         'Immat' => $flight['immat'],
                         'Départ' => $flight['depart'],
                         'Destination' => $flight['destination'],
-                        'Fuel départ' => $flight['fuel_depart'],
-                        'Fuel arrivée' => $flight['fuel_arrivee'],
-                        'Conso' => $flight['conso'],
+                            'Fuel départ' => $flight['fuel_depart'],
+                            'Fuel arrivée' => $fuel_arrivee_display,
+                            'Conso' => $conso_display,
                         'Payload' => $flight['payload'],
                         'Heure départ' => $flight['heure_depart'],
                         'Heure arrivée' => $flight['heure_arrivee'],
@@ -205,51 +225,49 @@ include __DIR__ . '/../includes/menu_logged.php';
                     $details_json = htmlspecialchars(json_encode($details), ENT_QUOTES, 'UTF-8');
                 ?>
                     <tr class="vol-row"  title="<?= htmlspecialchars($pirep_complet) ?>" data-details="<?= $details_json ?>">
-                        <td style="width:10%;"><?= $date_formatee ?></td>
-                        <td style="width:8%;"><?php echo htmlspecialchars($flight['immat']); ?></td>
-                        <td style="width:6%;"><?php echo htmlspecialchars($flight['fleet_type_label'] ?? ''); ?></td>
-                        <td style="width:5%;"><?php echo htmlspecialchars($flight['depart']); ?></td>
-                        <td style="width:5%;"><?php echo htmlspecialchars($flight['destination']); ?></td>
-                        <td style="width:5%;"><?php echo htmlspecialchars($flight['fuel_arrivee']); ?></td>
-                        <td style="width:5%;"><?php echo htmlspecialchars($flight['conso']); ?></td>
-                        <td style="width:5%;"><?php echo htmlspecialchars($flight['payload']); ?></td>
-                        <td style="width:10%;"><?php echo htmlspecialchars($flight['heure_arrivee']); ?></td>
-                        <td style="width:10%;"><?php echo htmlspecialchars(substr($flight['block_time'], 0, 8)); ?></td>
-                        <td style="width:5%"><?php echo htmlspecialchars($flight['note_du_vol']); ?></td>
-                        <td style="width:8%;">
+                        <td class="col-10"><?= $date_formatee ?></td>
+                        <td class="col-8"><?php echo htmlspecialchars($flight['immat']); ?></td>
+                        <td class="col-6"><?php echo htmlspecialchars($flight['fleet_type_label'] ?? ''); ?></td>
+                        <td class="col-5"><?php echo htmlspecialchars($flight['depart']); ?></td>
+                        <td class="col-5"><?php echo htmlspecialchars($flight['destination']); ?></td>
+                        <td class="col-5"><?php echo htmlspecialchars($fuel_arrivee_display); ?></td>
+                        <td class="col-5"><?php echo htmlspecialchars($conso_display); ?></td>
+                        <td class="col-5"><?php echo htmlspecialchars($flight['payload']); ?></td>
+                        <td class="col-10"><?php echo htmlspecialchars($flight['heure_arrivee']); ?></td>
+                        <td class="col-10"><?php echo htmlspecialchars(substr($flight['block_time'], 0, 8)); ?></td>
+                        <td class="col-5"><?php echo htmlspecialchars($flight['note_du_vol']); ?></td>
+                        <td class="col-8">
                             <?php
                                 $recette = $flight['cout_vol'] !== null ? (float)$flight['cout_vol'] : 0;
                                 $recette_formatee = number_format($recette, 2, ',', ' ');
                                 if ($recette < 0) {
-                                    echo '<span style="color:#d60000;">' . $recette_formatee . ' €</span>';
+                                    echo '<span class="flash-error">' . $recette_formatee . ' €</span>';
                                 } else {
                                     echo $recette_formatee . ' €';
                                 }
                             ?>
                         </td>
-                        <td style="width:8%;"><?php echo htmlspecialchars($flight['mission_libelle']); ?></td>
+                        <td class="col-8"><?php echo htmlspecialchars($flight['mission_libelle']); ?></td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>
             </table>
         </div>
         <!-- Popup modale pour détails du vol -->
-        <div id="vol-modal" class="vol-modal" style="display:none;">
-            <div class="vol-modal-content" >
+        <div id="vol-modal" class="vol-modal">
+            <div class="vol-modal-content">
                 <span class="vol-modal-close" id="vol-modal-close">&times;</span>
                 <h3>Détails du vol</h3>
-                <table style="width:100%;border-collapse:collapse;">
-                    <tr>
-                        <td style="width: 365px; padding: 0; margin: 0; border: 0; vertical-align: top;">
-                            <div id="vol-modal-body" >
+                <div class="modal-grid">
+                    <div class="modal-left">
+                        <div id="vol-modal-body">
                             <!-- Les détails du vol seront injectés ici -->
-                            </div>
-                        </td>
-                        <td style="width: 70%; padding: 0; margin: 0; border: 0; vertical-align: middle;">
-                            <div id="map" style="width: 600px; height: 400px;"></div>
-                        </td>
-                    </tr>
-                </table>
+                        </div>
+                    </div>
+                    <div class="modal-right">
+                        <div id="map" class="map-div"></div>
+                    </div>
+                </div>
             </div>
         </div>
     <?php endif; ?>

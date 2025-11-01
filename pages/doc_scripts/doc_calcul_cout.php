@@ -44,17 +44,17 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/menu_logged.php';
                 </ul>
             </li>
             <li>
-                <h4 class="sous-chapitre">Calculs intermédiaires (vol court < 100nm)</h4>
+                <h4 class="sous-chapitre">Calculs intermédiaires (vol court < 50 nm)</h4>
                 <ul>                   
-                    <li><b>Revenu brut</b> = fret (kg) × 5 € × heures × majoration mission x 1.2 (bonus vol court)</li>
+                    <li><b>Revenu brut</b> = fret (kg) × 5 € × heures × majoration mission x 1.2 (bonus vol court) / 10</li>
                     <li><b>Coût carburant</b> = carburant (L) × 0,88 €/l</li>
                     <li><b>Coût appareil</b> = coût horaire × heures × coefficient de note</li>
                 </ul>
             </li>
             <li>
-                <h4 class="sous-chapitre">Calculs intermédiaires (vol long > 100nm)</h4>
+                <h4 class="sous-chapitre">Calculs intermédiaires (vol long > 50 nm)</h4>
                 <ul>                   
-                    <li><b>Revenu brut</b> = fret (kg) × 5 € × distance × majoration mission / 2000</li>
+                    <li><b>Revenu brut</b> = fret (kg) × 5 € × distance × majoration mission / 1000</li>
                     <li><b>Coût carburant</b> = carburant (L) × 0,88 €/l</li>
                     <li><b>Coût appareil</b> = coût horaire × heures × coefficient de note</li>
                 </ul>

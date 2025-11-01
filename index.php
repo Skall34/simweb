@@ -15,15 +15,15 @@ if (!isset($_SESSION['user'])) {
     <?php
     if (!isset($_SESSION['user'])) {
         ?>
-        <div style="display: flex; justify-content: center; align-items: flex-start; gap: 2rem; margin-top: 2rem; flex-wrap: wrap;">
+        <div class="hero-layout">
             <!-- Texte à gauche -->
-            <div style="max-width: 900px; border: 1px solid #ccc; border-radius: 10px; padding: 1rem; background-color: #f9f9f9; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div class="hero-card">
                 <h2>Bienvenue sur <strong>SkyWings VA</strong></h2>                
                 <p><strong>SkyWings VA</strong> est une compagnie aérienne virtuelle qui vous permet de suivre vos vols, de gérer votre flotte, et de participer à des missions variées dans un univers immersif.</p>
                 <p>Une fois inscrit sur notre site, vous aurez accès à <b>SimAddon</b>, un logiciel qui va vous permettre de monitorer vos vols sur simulateur (XPlane ou FS2020, ou FS2024).</p>
                 <p><b>SimAddon</b>, vous permettra, entre autre, d'envoyer votre rapport de vol à la fin de votre périple, dans la base de données du site.</p>
                 <p>Il sera alors importé. Voici les étapes qu'il va suivre:</p>
-                <ul style="margin-left: 2.2em;">
+                <ul class="inline-ul-margin">
                     <li>Vérification de la validité du rapport de vol</li>
                     <li>Extraction des informations du vol (pilote, heure, aéroports, appareil, etc.)</li>
                     <li>Enregistrement des données dans la base de données</li>
@@ -36,10 +36,10 @@ if (!isset($_SESSION['user'])) {
             </div>
 
             <!-- Image + Vols en cours à droite -->
-            <div style="max-width: 600px; display: flex; flex-direction: column; gap: 1.5rem;">
-                <img src="assets/images/accueil.jpg" alt="SkyWings" style="width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
-                <section style="margin: 0; max-width: 100%;">
-                    <h2 style="margin-top: 0;">Vols en cours</h2>
+            <div class="hero-right">
+                <img src="assets/images/accueil.jpg" alt="SkyWings" class="hero-image">
+                <section>
+                    <h2 class="text-center no-top-margin">Vols en cours</h2>
                     <div id="live-flights-container">
                         <p>Chargement des vols en cours...</p>
                     </div>
@@ -51,7 +51,7 @@ if (!isset($_SESSION['user'])) {
         // Message de bienvenue personnalisé
         $callsign = isset($_SESSION['user']['callsign']) ? htmlspecialchars($_SESSION['user']['callsign']) : '';
         if ($callsign) {
-            echo '<div style="font-size:1.25em;font-weight:bold;color:#2a4d7a;margin-bottom:22px;">Bonjour ' . $callsign . ' 👋</div>';
+            echo '<div class="welcome-msg">Bonjour ' . $callsign . ' 👋</div>';
         }
 
         // Message d'accueil administrable (3 lignes max)
@@ -59,8 +59,8 @@ if (!isset($_SESSION['user'])) {
         $stmtMsg->execute();
         $message_accueil = $stmtMsg->fetchColumn();
         if ($message_accueil) {
-            echo '<div style="display:flex; justify-content:center; margin-bottom:18px;">'
-                . '<div style="max-width:420px; width:100%; border:1px solid #2a4d7a; border-radius:8px; background:#f4f8fb; color:#234; padding:0.8em 1em; white-space:pre-line; font-size:1.08em;">'
+            echo '<div class="notice-box">'
+                . '<div class="notice-card">'
                 . '<div style="font-weight:bold; color:#2a4d7a; margin-bottom:0.4em; text-align:center;">Message de la direction</div>'
                 . nl2br(htmlspecialchars($message_accueil))
                 . '</div></div>';
@@ -83,7 +83,7 @@ if (!isset($_SESSION['user'])) {
                     $dep = isset($res['icao_dep']) ? htmlspecialchars($res['icao_dep']) : '';
                     $arr = isset($res['icao_arr']) ? htmlspecialchars($res['icao_arr']) : '';
                     $date = isset($res['date_reservation']) ? date("d-m-Y H:i", strtotime($res['date_reservation'])) : '';
-                    echo '<div style="border:1px solid #f0ad4e; background:#fff3cd; padding:12px; border-radius:6px; margin-bottom:18px;">'
+                    echo '<div class="reservation-box">'
                         . '<strong>Réservation active :</strong> '
                         . ($immat ? 'Appareil: ' . $immat . ' — ' : '')
                         . 'Ligne: ' . ($dep ?: 'N/A') . ' → ' . ($arr ?: 'N/A') . ' — Réservé le ' . $date
@@ -107,7 +107,7 @@ if (!isset($_SESSION['user'])) {
                 FROM CARNET_DE_VOL_GENERAL cdvg
                 LEFT JOIN PILOTES p ON cdvg.pilote_id = p.id
                 LEFT JOIN FLOTTE f ON cdvg.appareil_id = f.id
-                ORDER BY cdvg.date_vol DESC, cdvg.heure_depart DESC
+                ORDER BY cdvg.date_vol DESC, cdvg.heure_arrivee DESC
                 LIMIT 10
             ";
             $stmt = $pdo->query($sql);
@@ -119,22 +119,22 @@ if (!isset($_SESSION['user'])) {
     ?>
 
 
-        <div style="display: flex; flex-direction: row; gap: 2rem; align-items: flex-start; margin-bottom: 2rem;">
-            <div style="flex: 1; min-width: 320px;">
-                <section style="margin: 0; max-width: 100%;">
-                    <h2 style="margin-top: 0;">Vols en cours</h2>
+        <div class="content-row">
+                <div class="flex-1">
+                    <section>
+                        <h2 class="no-top-margin">Vols en cours</h2>
                     <div id="live-flights-container">
                         <p>Chargement des vols en cours...</p>
                     </div>
                 </section>
             </div>
-            <div style="flex: 0 0 320px; max-width: 380px;">
-                <img src="assets/images/PDF.jpg" alt="SkyWings" style="width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+                <div class="col-fixed-320">
+                    <img src="assets/images/PDF.jpg" alt="SkyWings" class="hero-image">
             </div>
         </div>
 
     <!-- Espace vertical avant le tableau -->
-    <div style="height: 2.5rem;"></div>
+    <div class="spacer-xl"></div>
     <?php
     // Affichage de la balance commerciale sous le tableau
     // Fonction de formatage (copiée de finances.php)
@@ -159,9 +159,9 @@ if (!isset($_SESSION['user'])) {
     <?php
     $balanceColor = ($balance >= 0) ? '#1abc9c' : '#e74c3c';
     ?>
-    <div style="margin: 32px 0 0 0; font-size: 1.2em; font-weight: bold;">
-        <span style="color: #2c3e50;">Balance commerciale de la compagnie :</span>
-        <span style="color: <?= $balanceColor ?>; font-size: 1em; margin-left: 10px;"><?= format_chiffre($balance) ?> €</span>
+    <div class="balance-panel">
+        <span class="balance-label">Balance commerciale de la compagnie :</span>
+        <span class="balance-value" style="color: <?= $balanceColor ?>;"><?= format_chiffre($balance) ?> €</span>
     </div>
     <!-- Titre du tableau -->
     <h2>Les 10 derniers vols</h2>
@@ -210,7 +210,7 @@ try {
 <?php if (!empty($vols_en_cours)): ?>
     <!--affiche une carte openstreetmap avec les vols en cours-->
     <h2>Carte des vols en cours</h2>
-    <div id="map" style="width: 100%; height: 400px;"></div>
+    <div id="map" class="map-div"></div>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <script>

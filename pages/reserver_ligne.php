@@ -2,6 +2,7 @@
 session_start();
 require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/log_func.php';
+require_once __DIR__ . '/../includes/mail_utils.php';
 
 if (!isset($_SESSION['user']['id'])) {
     header('Location: ../login.php');
@@ -92,6 +93,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             $pdo->commit();
             $message = 'Réservation enregistrée.';
+            // send notification mail to admin
+            try {
+                $callsign = $_SESSION['user']['callsign'] ?? '';
+                $subject = "Nouvelle réservation : " . $immat . " (" . htmlspecialchars($ligne['icao_dep']) . "→" . htmlspecialchars($ligne['icao_arr']) . ")";
+                $body = "<h3>Nouvelle réservation</h3>" .
+                        "<ul>" .
+                        "<li><strong>Pilote :</strong> " . htmlspecialchars($callsign) . " (id: " . intval($pilote_id) . ")</li>" .
+                        "<li><strong>Ligne :</strong> " . htmlspecialchars($ligne['icao_dep']) . " → " . htmlspecialchars($ligne['icao_arr']) . " (id: " . intval($ligne_id) . ")</li>" .
+                        "<li><strong>Appareil :</strong> " . htmlspecialchars($immat) . "</li>" .
+                        "<li><strong>Date :</strong> " . date('Y-m-d H:i:s') . "</li>" .
+                        "</ul>";
+                $mailResult = sendSummaryMail($subject, $body);
+                if ($mailResult !== true) {
+                    logMsg('Envoi mail réservation échoué: ' . $mailResult, __DIR__ . '/../scripts/logs/reservations.log');
+                } else {
+                    logMsg('Mail de réservation envoyé pour immat=' . $immat, __DIR__ . '/../scripts/logs/reservations.log');
+                }
+            } catch (Exception $e) {
+                logMsg('Exception envoi mail réservation: ' . $e->getMessage(), __DIR__ . '/../scripts/logs/reservations.log');
+            }
             // set a session flash and redirige vers la liste pour afficher le message de confirmation
             $_SESSION['flash_reserved'] = 1;
             header('Location: lignes_regulieres.php');
@@ -111,7 +132,7 @@ include __DIR__ . '/../includes/menu_logged.php';
 <main>
     <h2>Réserver la ligne <?= htmlspecialchars($ligne['icao_dep']) ?> → <?= htmlspecialchars($ligne['icao_arr']) ?></h2>
     <?php if ($message || $message_html): ?>
-        <div style="color:#d60000;font-weight:bold;">
+        <div class="error-msg">
             <?= $message_html ? $message_html : htmlspecialchars($message) ?>
         </div>
     <?php endif; ?>
@@ -123,9 +144,9 @@ include __DIR__ . '/../includes/menu_logged.php';
                 <option value="<?= htmlspecialchars($a['immat']) ?>"><?= htmlspecialchars($a['immat']) ?><?= $a['fleet_type_label'] !== '' ? ' (' . htmlspecialchars($a['fleet_type_label']) . ')' : '' ?></option>
             <?php endforeach; ?>
         </select>
-        <div style="margin-top:16px;">
+        <div class="form-actions">
             <button type="submit" class="btn">Confirmer la réservation</button>
-            <button type="button" class="btn" id="cancelBtn" style="margin-left:8px">Annuler</button>
+            <button type="button" class="btn btn-secondary" id="cancelBtn">Annuler</button>
         </div>
     <script>
         document.getElementById('cancelBtn').addEventListener('click', function () {

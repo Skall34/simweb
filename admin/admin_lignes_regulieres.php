@@ -181,17 +181,17 @@ include __DIR__ . '/../includes/menu_logged.php';
 
             <label style="display:inline-flex;flex-direction:row;align-items:center;gap:8px;margin:0;">
                 <span style="min-width:86px;display:inline-block;">ICAO départ:</span>
-                <input name="icao_dep" required value="<?= htmlspecialchars($line['icao_dep']) ?>" style="width:120px;text-transform:uppercase;">
+                <input name="icao_dep" required value="<?= htmlspecialchars($line['icao_dep']) ?>" class="fleet-filter-input input-160" style="text-transform:uppercase;" oninput="this.value = this.value.toUpperCase();">
             </label>
 
             <label style="display:inline-flex;flex-direction:row;align-items:center;gap:8px;margin:0;">
                 <span style="min-width:86px;display:inline-block;">ICAO arrivée:</span>
-                <input name="icao_arr" required value="<?= htmlspecialchars($line['icao_arr']) ?>" style="width:120px;text-transform:uppercase;">
+                <input name="icao_arr" required value="<?= htmlspecialchars($line['icao_arr']) ?>" class="fleet-filter-input input-160" style="text-transform:uppercase;" oninput="this.value = this.value.toUpperCase();">
             </label>
 
             <label style="display:inline-flex;flex-direction:row;align-items:center;gap:8px;margin:0;">
                 <span style="min-width:86px;display:inline-block;">Type de ligne:</span>
-                <select name="type_ligne" style="width:200px;height:36px;">
+                <select name="type_ligne" class="fleet-filter-select input-160">
                     <option value="">-- Aucun --</option>
                     <?php foreach ($typeLignes as $t): ?>
                         <option value="<?= (int)$t['id'] ?>" <?= (isset($line['type_ligne']) && (int)$line['type_ligne'] === (int)$t['id']) ? 'selected' : '' ?>>
@@ -219,17 +219,17 @@ include __DIR__ . '/../includes/menu_logged.php';
         <h3>Liste des lignes</h3>
 
         <!-- Filters placed under the table title, single-line (inputs inline with buttons) -->
-        <form method="get" class="form-inscription" style="display:flex;gap:12px;align-items:center;flex-wrap:nowrap;flex-direction:row;margin:8px 0 12px 0;white-space:nowrap;">
-            <label style="display:inline-flex;flex-direction:row;align-items:center;gap:8px;margin:0;">Départ
-                <input name="icao_dep" placeholder="Départ" value="<?= htmlspecialchars($filter_dep) ?>" aria-label="Filtrer départ" style="width:120px;text-transform:uppercase;" oninput="this.value = this.value.toUpperCase();">
+        <form method="get" class="filters-form" style="margin:8px 0 12px 0;">
+            <label>Départ
+                <input name="icao_dep" placeholder="Départ" value="<?= htmlspecialchars($filter_dep) ?>" aria-label="Filtrer départ" class="fleet-filter-input input-160" oninput="this.value = this.value.toUpperCase();">
             </label>
 
-            <label style="display:inline-flex;flex-direction:row;align-items:center;gap:8px;margin:0;">Arrivée
-                <input name="icao_arr" placeholder="Arrivée" value="<?= htmlspecialchars($filter_arr) ?>" aria-label="Filtrer arrivée" style="width:120px;text-transform:uppercase;" oninput="this.value = this.value.toUpperCase();">
+            <label>Arrivée
+                <input name="icao_arr" placeholder="Arrivée" value="<?= htmlspecialchars($filter_arr) ?>" aria-label="Filtrer arrivée" class="fleet-filter-input input-160" oninput="this.value = this.value.toUpperCase();">
             </label>
 
-            <label style="display:inline-flex;flex-direction:row;align-items:center;gap:8px;margin:0;">Type de ligne:
-                <select name="type_ligne" style="width:200px;height:36px;">
+            <label>Type de ligne:
+                <select name="type_ligne" class="fleet-filter-select input-160">
                     <option value="">-- Tous --</option>
                     <?php foreach ($typeLignes as $t): ?>
                         <option value="<?= (int)$t['id'] ?>" <?= ($filter_type !== null && $filter_type === (int)$t['id']) ? 'selected' : '' ?>><?= htmlspecialchars($t['label']) ?></option>
@@ -238,8 +238,9 @@ include __DIR__ . '/../includes/menu_logged.php';
             </label>
 
             <div style="margin-left:12px;display:inline-flex;align-items:center;">
-                <button class="btn-bleu" type="submit" style="height:32px;">Filtrer</button>
-                <a href="admin_lignes_regulieres.php" class="btn" style="background:#ccc;color:#004080;padding:6px 10px;margin-left:8px;text-decoration:none;line-height:18px;">Réinitialiser</a>
+                <button class="btn-bleu" type="submit">Filtrer</button>
+                <!-- Keep the current visual style of the reset button exactly as-is (model for the site) -->
+                <a href="admin_lignes_regulieres.php" class="btn" style="background:#ccc;color:#004080;padding:8px 16px;margin-left:8px;text-decoration:none;line-height:18px;border-radius:4px;">Réinitialiser</a>
             </div>
         </form>
 

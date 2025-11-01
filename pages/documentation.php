@@ -57,7 +57,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/menu_logged.php';
                     $maj = rtrim(rtrim(number_format($maj, 2, '.', ''), '0'), '.');
                 }
                 echo '<td style="padding:3px 8px;text-align:center;">' . htmlspecialchars($maj) . '</td>';
-                if (isset($m['Active']) && (int)$m['Active'] === 1) {
+                if (isset($m['Active']) && (int)$m['Active'] != 0) {
                     echo '<td style="padding:3px 8px;text-align:center;">Oui</td>';
                 } else {
                     echo '<td style="padding:3px 8px;text-align:center;color:#c0392b;font-weight:bold;">Non</td>';

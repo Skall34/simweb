@@ -141,7 +141,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                                 <td>
                                     <form method="post" style="display:inline;" class="form-cancel-reservation">
                                         <input type="hidden" name="cancel_reservation_id" value="<?= intval($res['id']) ?>">
-                                        <button type="submit" class="btn">Annuler</button>
+                                        <button type="submit" class="btn-bleu">Annuler</button>
                                     </form>
                                 </td>
                             </tr>

@@ -50,6 +50,23 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $lines = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// Récupérer les réservations en cours (reserved, in_flight)
+try {
+    $stmtRes = $pdo->prepare(
+        "SELECT r.id AS res_id, r.ligne_id, r.immat, r.pilote_id, r.statut, r.date_reservation,
+                p.callsign AS pilote_callsign, lr.icao_dep, lr.icao_arr
+         FROM RESERVATIONS r
+         LEFT JOIN PILOTES p ON r.pilote_id = p.id
+         LEFT JOIN LIGNES_REGULIERES lr ON r.ligne_id = lr.id
+         WHERE r.statut IN ('reserved','in_flight')
+         ORDER BY r.date_reservation DESC"
+    );
+    $stmtRes->execute();
+    $reservations = $stmtRes->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    $reservations = [];
+}
+
 include __DIR__ . '/../includes/header.php';
 include __DIR__ . '/../includes/menu_logged.php';
 ?>
@@ -61,35 +78,39 @@ include __DIR__ . '/../includes/menu_logged.php';
     <?php
     // message flash après réservation (session) ou fallback sur GET
     if (!empty($_SESSION['flash_reserved'])) {
-        echo "<div style='font-weight:bold;color:#1ca64c;margin-bottom:16px;'>Réservation enregistrée avec succès. La réservation est valable pendant 24 heures.</div>";
+        echo "<div class='flash-success'>Réservation enregistrée avec succès. La réservation est valable pendant 24 heures.</div>";
         unset($_SESSION['flash_reserved']);
     } elseif (isset($_GET['reserved'])) {
         $res = $_GET['reserved'];
         if ($res === '1') {
-            echo "<div style='font-weight:bold;color:#1ca64c;margin-bottom:16px;'>Réservation enregistrée avec succès. La réservation est valable pendant 24 heures.</div>";
+            echo "<div class='flash-success'>Réservation enregistrée avec succès. La réservation est valable pendant 24 heures.</div>";
         } elseif ($res === '0') {
-            echo "<div style='font-weight:bold;color:#d60000;margin-bottom:16px;'>Échec de la réservation. Veuillez réessayer.</div>";
+            echo "<div class='flash-error'>Échec de la réservation. Veuillez réessayer.</div>";
         } else {
             // allow a custom message but escape it
-            echo "<div style='font-weight:bold;color:#1ca64c;margin-bottom:16px;'>" . htmlspecialchars($res) . "</div>";
+            echo "<div class='flash-success'>" . htmlspecialchars($res) . "</div>";
         }
     }
     ?>
-    <div class="narrow-table-wrapper">
-    <form method="get" style="margin-bottom:1em;">
-        <label>ICAO départ (de 1 à 4 caractères): <input type="text" name="icao_dep" value="<?= htmlspecialchars($filter_dep) ?>" maxlength="5" style="width:6em"/></label>
-        <label style="margin-left:1em">ICAO arrivée (de 1 à 4 caractères): <input type="text" name="icao_arr" value="<?= htmlspecialchars($filter_arr) ?>" maxlength="5" style="width:6em"/></label>
+    <!-- Filters above the table so the map can align with the table header -->
+    <form method="get" class="filters-form">
+        <label>ICAO départ:
+            <input type="text" name="icao_dep" value="<?= htmlspecialchars($filter_dep) ?>" maxlength="5" class="fleet-filter-input input-160" placeholder="Ex: LFPG" />
+        </label>
+        <label>ICAO arrivée:
+            <input type="text" name="icao_arr" value="<?= htmlspecialchars($filter_arr) ?>" maxlength="5" class="fleet-filter-input input-160" placeholder="Ex: LFPO" />
+        </label>
         <br>
-        <label style="margin-left:1em">Type de ligne:
-            <select name="type_ligne" style="margin-left:.4em">
+        <label>Type de ligne:
+            <select name="type_ligne" class="fleet-filter-select input-160">
                 <option value="">-- Tous --</option>
                 <?php foreach ($typeLignes as $t): ?>
                     <option value="<?= (int)$t['id'] ?>" <?= ($filter_type !== null && $filter_type === (int)$t['id']) ? 'selected' : '' ?>><?= htmlspecialchars($t['label']) ?></option>
                 <?php endforeach; ?>
             </select>
         </label>
-        <button type="submit" class="btn">Filtrer</button>
-        <button type="button" class="btn" id="resetBtn" style="margin-left:.5em">Réinitialiser</button>
+    <button type="submit" class="btn-bleu">Filtrer</button>
+    <button type="button" class="btn btn-reset" id="resetBtn">Réinitialiser</button>
     </form>
     <script>
         document.getElementById('resetBtn').addEventListener('click', function () {
@@ -97,7 +118,12 @@ include __DIR__ . '/../includes/menu_logged.php';
             window.location.href = 'lignes_regulieres.php';
         });
     </script>
-    <table class="table-skywings">
+
+    <div class="content-columns">
+    <div class="narrow-table-wrapper">
+            <div class="panel">
+                <h3>Lignes régulières</h3>
+                <table class="table-skywings">
         <thead>
             <tr>
                 <th>Départ</th>
@@ -124,6 +150,62 @@ include __DIR__ . '/../includes/menu_logged.php';
             <?php endif; ?>
         </tbody>
     </table>
+            </div>
+        </div>
+
+        <!-- Separator between table panel and map panel -->
+        <div class="vertical-sep"></div>
+
+        <aside class="right-aside">
+            <div class="panel">
+                <h3>Réservations en cours</h3>
+                <?php if (!empty($reservations)): ?>
+                    <div class="reservations-scroll">
+                        <table class="table-skywings compact">
+                            <thead>
+                                <tr>
+                                    <th>Pilote</th>
+                                    <th>Ligne</th>
+                                    <th>Appareil</th>
+                                    <th>Statut</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($reservations as $r): ?>
+                                    <tr>
+                                        <td><?= htmlspecialchars($r['pilote_callsign'] ?: 'N/A') ?></td>
+                                        <td><?= htmlspecialchars(($r['icao_dep'] ?? '') . '→' . ($r['icao_arr'] ?? '')) ?></td>
+                                        <td><?= htmlspecialchars($r['immat'] ?? '') ?></td>
+                                        <td><?php
+                                            $st = $r['statut'] ?? '';
+                                            if ($st === 'in_flight') {
+                                                echo 'En vol';
+                                            } elseif ($st === 'reserved') {
+                                                echo 'Réservé';
+                                            } else {
+                                                echo htmlspecialchars($st);
+                                            }
+                                        ?></td>
+                                        <td><?= htmlspecialchars($r['date_reservation']) ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php else: ?>
+                    <p class="empty-msg">Aucune réservation en cours.</p>
+                <?php endif; ?>
+            </div>
+
+            <div class="panel">
+                <h3>Carte des lignes régulières</h3>
+                <div class="map-embed">
+                    <iframe class="map-iframe" src="https://www.google.com/maps/d/u/0/embed?mid=1fYs3mM8W3nRfVHl78xp2w8st6hcK22w" allowfullscreen="allowfullscreen"></iframe>
+                </div>
+                <p class="map-note">Utilisez les contrôles Google Maps pour zoomer et afficher les détails.</p>
+            </div>
+        </aside>
     </div>
 </main>
 <?php include __DIR__ . '/../includes/footer.php'; ?>
