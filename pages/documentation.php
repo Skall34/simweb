@@ -8,18 +8,12 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/menu_logged.php';
             <h2>Fonctionnement général</h2>
             <p>Le site Skywings gère la vie d'une compagnie virtuelle de pilotes, avec automatisation des promotions, gestion des salaires, statistiques, et finances.</p>
             <p>Le système est valable sur tous les simulateurs de vols, en ayant pris soin d'installer FSUIPC (MSFS2020, MSFS2024, P3D) ou XUIPC (xPlane).</p>
-            <p>Il fonctionne avec l'acars que vous pouvez télécharger ici :
-                <a href="../assets/acars/SimAddon_zip_4.0.3.zip" download style="color:#1a3552;font-weight:bold;text-decoration:underline;">Télécharger ACARS</a>
-            </p>
-            <p>ou directement depuis le <a href="https://github.com/Skall34/SimAddon/releases" target="_blank" style="color:#1a3552;font-weight:bold;text-decoration:underline;">repo github</a></p>
-            <p>Et son mode d'emploi que vous pouvez télécharger ici :
-                <a href="../assets/acars/DocumentationUtilisateurSimAddon.pdf" download style="color:#1a3552;font-weight:bold;text-decoration:underline;">Télécharger documentation acars</a>
-            </p>
-            <p>Un très complet wiki ici
-                <a href="https://github.com/Skall34/SimAddon/wiki" target="_blank" style="color:#1a3552;font-weight:bold;text-decoration:underline;">Accéder au wiki</a>
-            </p>
+            <p>Il fonctionne avec l'acars que vous pouvez télécharger ici <a href="https://github.com/Skall34/SimAddon/releases" target="_blank" style="color:#1a3552;font-weight:bold;text-decoration:underline;">repo github</a></p>
+            
+            <p>Un très complet wiki ici <a href="https://github.com/Skall34/SimAddon/wiki" target="_blank" style="color:#1a3552;font-weight:bold;text-decoration:underline;">Accéder au wiki</a></p>
+            
         </section>
-        <BR>
+        
         <section>
             <h2>Les missions</h2>
             <ul>
@@ -68,22 +62,22 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/menu_logged.php';
         }
         ?>
         </section>
-        <BR>
+        
         <section>
             <h2>Traitements automatiques</h2>
             <ul>
                 <li><strong>Paiement des assurances :</strong> Script mensuel qui calcule la prime d'assurance que Skywings doit payer pour les avions détenus. Déduit de la balance commerciale le 1er de chaque mois</li>
                 <li><strong>Calcul de la recette d'un vol :</strong> Lors de chaque import d'un vol, le temps de vol, le frêt transporté, l'appareil utilisé, la note du vol sont autant de paramètres qui sont pris en compte. Pour plus de détails, consulter le lien ci-dessous.</li>
                 <li><strong>Paiement des mensualités des crédits :</strong> Certains appareils sont achetés à crédit. Le paiement des mensualité se fait une fois / mois.</li>
-                <li><strong>Maintenance des appareils :</strong> Script quotidien, qui en fonction de létat de chaque appareil, le fait passer en maintenance. Pour une usure normale, l'appareil passe en maintenance pour 24h lorsqu'il atteind 30% d'usure. Lors d'un crash (note de 1), l'appareil est immobilisé 3 jours</li>
-                <li><strong>Paiement des salaires :</strong> Script mensuel qui calcule le salaire de chaque pilote selon ses heures de vol, son grade et le fret transporté (2€/kg), met à jour les finances, envoie un mail au pilote et un récapitulatif à l'administrateur.</li>
+                <li><strong>Maintenance des appareils :</strong> Script quotidien, qui en fonction de l'état de chaque appareil, le fait passer en maintenance. Pour une usure normale, l'appareil passe en maintenance pour 24h lorsqu'il atteind 30% d'usure. Lors d'un crash (note de 1), l'appareil est immobilisé 3 jours</li>
+                <li><strong>Paiement des salaires :</strong> Script mensuel qui calcule le salaire de chaque pilote selon ses heures de vol, son grade, met à jour les finances, envoie un mail au pilote et un récapitulatif à l'administrateur.</li>
                 <li><strong>Promotion des grades :</strong> Script qui promeut les pilotes selon leurs heures de vol, envoie un mail et logue chaque promotion. Est executé tous les 1er du mois.</li>
                 <li><strong>Mise à jour du frêt :</strong> Une fois par semaine, le vendredi, une certaine quantité de frêt aléatoire (entre 1 et 100 Kg) est attribué aux aéroports.</li>
             </ul>
         </section>
-        <BR>
+        
         <section>
-            <h2>Documentation détaillée des scripts</h2>
+            <h2>Documentations détaillées des scripts</h2>
             <ul>
                 <li><a href="doc_scripts/doc_assurance_mensuelle.php" style="color:#1a3552;font-weight:bold;text-decoration:underline;">Assurance mensuelle</a></li>
                 <li><a href="doc_scripts/doc_calcul_cout.php" style="color:#1a3552;font-weight:bold;text-decoration:underline;">Calcul de la recette d'un vol</a></li>

@@ -137,7 +137,15 @@ include __DIR__ . '/../includes/menu_logged.php';
                             <tr>
                                 <td><?= htmlspecialchars(($res['icao_dep'] ?? '---') . ' → ' . ($res['icao_arr'] ?? '---')) ?></td>
                                 <td><?= htmlspecialchars($res['immat'] ?? '') ?></td>
-                                <td><?= htmlspecialchars($res['date_reservation']) ?></td>
+                                <td><?php
+                                    // afficher la date de réservation au format JJ-MM-AAAA HH:MM (conserver l'heure)
+                                    try {
+                                        $dtr = new DateTime($res['date_reservation']);
+                                        echo $dtr->format('d-m-Y H:i');
+                                    } catch (Exception $e) {
+                                        echo htmlspecialchars($res['date_reservation']);
+                                    }
+                                ?></td>
                                 <td>
                                     <form method="post" style="display:inline;" class="form-cancel-reservation">
                                         <input type="hidden" name="cancel_reservation_id" value="<?= intval($res['id']) ?>">
@@ -161,9 +169,6 @@ include __DIR__ . '/../includes/menu_logged.php';
                     <p><strong>Email :</strong> <?= htmlspecialchars($pilote['email'] ?? '') ?></p>
                     <p><strong>Grade :</strong> <?= htmlspecialchars($grade_nom) ?></p>
                     <p><strong>Revenu cumulé :</strong> <?= isset($pilote['revenus']) ? number_format($pilote['revenus'], 2, ',', ' ') : '0,00' ?> €</p>
-                    <?php if ($dernier_salaire): ?>
-                        <p><strong>Dernier salaire :</strong> <?= number_format($dernier_salaire['montant'], 2, ',', ' ') ?> € (<?= htmlspecialchars($dernier_salaire['date_de_paiement']) ?>)</p>
-                    <?php endif; ?>
                 </div>
             </div>
 
@@ -194,19 +199,34 @@ include __DIR__ . '/../includes/menu_logged.php';
                 <h3>Détail du dernier salaire versé</h3>
                 <?php if ($dernier_salaire):
                     $date_paiement = $dernier_salaire['date_de_paiement'];
-                    $stmt = $pdo->prepare('SELECT temps_vol, payload FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = ? AND date_vol <= ?');
-                    $stmt->execute([$id, $date_paiement]);
-                    $vols_salaire = $stmt->fetchAll();
-                    $heures_salaire = 0;
-                    $payload_salaire = 0;
-                    foreach ($vols_salaire as $vol) {
-                        $heures_salaire += strtotime($vol['temps_vol']) ? (strtotime($vol['temps_vol']) - strtotime('TODAY')) : 0;
-                        $payload_salaire += (float)$vol['payload'];
-                    }
-                    $heures_salaire = $heures_salaire / 3600;
+                        // Calculer la plage du mois précédent par rapport à la date de paiement
+                        try {
+                            $dt = new DateTime($date_paiement);
+                        } catch (Exception $e) {
+                            $dt = new DateTime();
+                        }
+                        // premier jour du mois précédent
+                        $start_prev = $dt->modify('first day of this month')->modify('-1 month')->format('Y-m-01');
+                        // dernier jour du mois précédent
+                        $end_prev = (new DateTime($start_prev))->format('Y-m-t');
+
+                        // Récupérer la somme des secondes de vol et le payload pour le mois précédent
+                        $stmt = $pdo->prepare('SELECT COALESCE(SUM(TIME_TO_SEC(temps_vol)),0) AS total_secs, COALESCE(SUM(payload),0) AS payload_sum FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = ? AND date_vol BETWEEN ? AND ?');
+                        $stmt->execute([$id, $start_prev . ' 00:00:00', $end_prev . ' 23:59:59']);
+                        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                        $total_secs = isset($row['total_secs']) ? (int)$row['total_secs'] : 0;
+                        $heures_salaire = $total_secs / 3600;
+                        $payload_salaire = isset($row['payload_sum']) ? (float)$row['payload_sum'] : 0.0;
                 ?>
                 <div class="compte-infos">
-                    <p><strong>Date de paiement :</strong> <?= htmlspecialchars($dernier_salaire['date_de_paiement']) ?></p>
+                    <p><strong>Date de paiement :</strong> <?php
+                        try {
+                            $dtp = new DateTime($dernier_salaire['date_de_paiement']);
+                            echo $dtp->format('d-m-Y');
+                        } catch (Exception $e) {
+                            echo htmlspecialchars($dernier_salaire['date_de_paiement']);
+                        }
+                    ?></p>
                     <p><strong>Montant :</strong> <?= number_format($dernier_salaire['montant'], 2, ',', ' ') ?> €</p>
                     <p><strong>Nombre d'heures volées :</strong> <?= number_format($heures_salaire, 2, ',', ' ') ?> h</p>
                     <p><strong>Payload transporté :</strong> <?= number_format($payload_salaire, 2, ',', ' ') ?> kg</p>
@@ -233,9 +253,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                     <?php foreach ($aeroports as $aero): ?>
                         <li>
                             <?= htmlspecialchars($aero['destination']) ?>
-                            <?php if (!empty($aero['ident'])): ?>
-                                (<?= htmlspecialchars($aero['ident']) ?>)
-                            <?php endif; ?>
+                            
                             - <?= $aero['freq'] ?> vols
                         </li>
                     <?php endforeach; ?>

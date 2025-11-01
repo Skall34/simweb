@@ -64,23 +64,35 @@ try {
     $assiette = abs($balance_actuelle);
     $assurance_mensuelle = round($assiette * $pourcentage, 2);
 
-    $commentaire_assurance = "Prélèvement assurance mensuelle ($pourcentage de la valeur absolue de la balance actuelle : $assiette €)";
+    // Format numbers for human-readable output (comma decimal, space thousands)
+    $assiette_fmt = number_format((float)$assiette, 2, ',', ' ');
+    $assurance_fmt = number_format((float)$assurance_mensuelle, 2, ',', ' ');
+    $balance_fmt = number_format((float)$balance_actuelle, 2, ',', ' ');
+    // Pourcentage lisible (ex: 0.2% or 0,2%)
+    if ($pourcentage < 1) {
+        $pourcentage_display = rtrim(rtrim(number_format($pourcentage * 100, 3, ',', ' '), '0'), ',') . '%';
+    } else {
+        $pourcentage_display = rtrim(rtrim(number_format($pourcentage, 3, ',', ' '), '0'), ',');
+    }
+
+    $commentaire_assurance = "Prélèvement assurance mensuelle ({$pourcentage_display} de la valeur absolue de la balance actuelle : {$assiette_fmt} €)";
     mettreAJourDepenses($assurance_mensuelle, null, '', 'SYSTEM', 'assurance', $commentaire_assurance);
     logMsg("Assurance mensuelle enregistrée dans finances_depenses: $assurance_mensuelle | $commentaire_assurance", $logFile);
     logMsg("Traitement terminé.", $logFile);
     // Affichage récapitulatif pour l'admin
     $message = "Traitement d'assurance mensuelle terminé.\n";
-    $message .= "Montant prélevé : $assurance_mensuelle €\n";
-    $message .= "Base de calcul (valeur absolue de la balance) : $assiette €\n";
-    $message .= "Balance avant : $balance_actuelle €\n";
+    $message .= "Montant prélevé : {$assurance_fmt} €\n";
+    $message .= "Base de calcul (valeur absolue de la balance) : {$assiette_fmt} €\n";
+    $message .= "Balance avant : {$balance_fmt} €\n";
 
     echo $message;
     // Envoi du mail récapitulatif enrichi
     if ($mailSummaryEnabled && function_exists('sendSummaryMail')) {
         $subject = "[SimWeb] Rapport assurance mensuelle - " . date('d/m/Y H:i');
         $body = "Bonjour,\n\nLe traitement d'assurance mensuelle s'est terminé.";
-        $body .= "\nMontant prélevé : $assurance_mensuelle €";
-        $body .= "\nBalance avant : $balance €";
+        $body .= "\nMontant prélevé : {$assurance_fmt} €";
+        $body .= "\nBase de calcul : {$assiette_fmt} € ({$pourcentage_display})";
+        $body .= "\nBalance avant : {$balance_fmt} €";
         $body .= "\n\nCeci est un message automatique.";
         $to = ADMIN_EMAIL;
         $mailResult = sendSummaryMail($subject, $body, $to);

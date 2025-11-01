@@ -36,8 +36,10 @@ $message_actuel = $stmt->fetchColumn() ?: '';
     <?php if ($error): ?><p style="color:red;font-weight:bold;"><?= $error ?></p><?php endif; ?>
     <form method="post" action="">
         <label for="message_accueil">Message (3 lignes max, 300 caractères) :</label><br>
-        <textarea id="message_accueil" name="message_accueil" rows="3" maxlength="300" style="width:100%;resize:none;"><?= htmlspecialchars($message_actuel) ?></textarea><br>
-        <button type="submit" class="btn">Enregistrer</button>
+        <textarea id="message_accueil" name="message_accueil" rows="3" maxlength="300" style="width:100%;resize:none;"><?= htmlspecialchars($message_actuel) ?></textarea>
+        <div style="text-align:center;margin-top:12px;">
+            <button type="submit" class="btn-bleu">Enregistrer</button>
+        </div>
     </form>
 </main>
 <?php include __DIR__ . '/../includes/footer.php'; ?>
