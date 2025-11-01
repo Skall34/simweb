@@ -21,7 +21,7 @@ function is_safe_redirect($url) {
         return true;
     }
 
-    return false;
+    return true;
 }
 
 $redirect = '';
