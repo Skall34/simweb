@@ -94,6 +94,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 include __DIR__ . '/../includes/header.php';
 include __DIR__ . '/../includes/menu_logged.php';
+// Récupérer les types d'aéroports distincts pour la combo
+$types_aero = [];
+try {
+    $tstmt = $pdo->query("SELECT DISTINCT type_aeroport FROM AEROPORTS WHERE type_aeroport IS NOT NULL AND type_aeroport <> '' ORDER BY type_aeroport ASC");
+    $types_aero = $tstmt->fetchAll(PDO::FETCH_COLUMN);
+} catch (PDOException $e) {
+    // ignore: on affichera un select vide si erreur
+}
 ?>
 
 <main>
@@ -107,9 +115,9 @@ include __DIR__ . '/../includes/menu_logged.php';
     <?php if ($etat === 'recherche'): ?>
         <form method="post" class="form-inscription">
             <label>Ident (code ICAO) * :
-                <input name="ident" style="width: 250px;" required>
+                <input name="ident" class="form-input input-250" required>
             </label>
-            <button type="submit" name="action" value="rechercher">Rechercher</button>
+            <button type="submit" name="action" value="rechercher" class="btn-bleu">Rechercher</button>
         </form>
     <?php endif; ?>
 
@@ -119,59 +127,63 @@ include __DIR__ . '/../includes/menu_logged.php';
             <input type="hidden" name="ident" value="<?= htmlspecialchars($aeroport['ident']) ?>">
 
             <label>Type :
-                <input name="type_aeroport" value="<?= htmlspecialchars($aeroport['type_aeroport']) ?>">
+                <select name="type_aeroport" class="form-input">
+                    <option value="">-- Sélectionner --</option>
+                    <?php foreach ($types_aero as $ta): ?>
+                        <option value="<?= htmlspecialchars($ta) ?>" <?= ($aeroport['type_aeroport']==$ta)?'selected':'' ?>><?= htmlspecialchars($ta) ?></option>
+                    <?php endforeach; ?>
+                </select>
             </label>
 
             <label>Nom :
-                <input name="name" value="<?= htmlspecialchars($aeroport['name']) ?>">
+                <input name="name" class="form-input" value="<?= htmlspecialchars($aeroport['name']) ?>">
             </label>
 
             <label>Ville :
-                <input name="municipality" value="<?= htmlspecialchars($aeroport['municipality']) ?>">
+                <input name="municipality" class="form-input" value="<?= htmlspecialchars($aeroport['municipality']) ?>">
             </label>
 
             <label>Latitude :
-                <input name="latitude_deg" value="<?= htmlspecialchars($aeroport['latitude_deg']) ?>">
+                <input name="latitude_deg" class="form-input" value="<?= htmlspecialchars($aeroport['latitude_deg']) ?>">
             </label>
 
             <label>Longitude :
-                <input name="longitude_deg" value="<?= htmlspecialchars($aeroport['longitude_deg']) ?>">
+                <input name="longitude_deg" class="form-input" value="<?= htmlspecialchars($aeroport['longitude_deg']) ?>">
             </label>
 
             <label>Altitude (ft) :
-                <input name="elevation_ft" value="<?= htmlspecialchars($aeroport['elevation_ft']) ?>">
+                <input name="elevation_ft" class="form-input" value="<?= htmlspecialchars($aeroport['elevation_ft']) ?>">
             </label>
 
             <label>Piste :
-                <textarea name="Piste"><?= htmlspecialchars($aeroport['Piste']) ?></textarea>
+                <textarea name="Piste" class="form-input"><?= htmlspecialchars($aeroport['Piste']) ?></textarea>
             </label>
 
             <label>Longueur de piste :
-                <input name="Longueur_de_piste" value="<?= htmlspecialchars($aeroport['Longueur_de_piste']) ?>">
+                <input name="Longueur_de_piste" class="form-input" value="<?= htmlspecialchars($aeroport['Longueur_de_piste']) ?>">
             </label>
 
             <label>Type de piste :
-                <input name="Type_de_piste" value="<?= htmlspecialchars($aeroport['Type_de_piste']) ?>">
+                <input name="Type_de_piste" class="form-input" value="<?= htmlspecialchars($aeroport['Type_de_piste']) ?>">
             </label>
 
             <label>Observations :
-                <textarea name="Observations"><?= htmlspecialchars($aeroport['Observations']) ?></textarea>
+                <textarea name="Observations" class="form-input"><?= htmlspecialchars($aeroport['Observations']) ?></textarea>
             </label>
 
             <label>Wikipedia :
-                <input name="wikipedia_link" value="<?= htmlspecialchars($aeroport['wikipedia_link']) ?>">
+                <input name="wikipedia_link" class="form-input" value="<?= htmlspecialchars($aeroport['wikipedia_link']) ?>">
             </label>
 
             <label>Fret présent sur place :
-                <input name="fret" type="number" value="<?= htmlspecialchars($aeroport['fret']) ?>">
+                <input name="fret" type="number" class="form-input" value="<?= htmlspecialchars($aeroport['fret']) ?>">
             </label>
 
-            <br>
-            <div style="display: flex; gap: 15px; margin-top: 10px;">
-                <button type="submit" name="action" value="<?= $etat === 'edition' ? 'mettre_a_jour' : 'creer' ?>" style="padding: 8px 20px; font-size: 1rem;">
+            <div class="form-actions" style="margin-top: 10px;">
+                <button type="submit" name="action" value="<?= $etat === 'edition' ? 'mettre_a_jour' : 'creer' ?>" class="btn-bleu">
                     <?= $etat === 'edition' ? 'Mettre à jour' : 'Créer' ?>
                 </button>
-                <button type="button" style="padding: 8px 20px; font-size: 1rem;" onclick="window.location.href='admin_aeroport.php'">Retour</button>
+                <button type="button" class="btn btn-reset" onclick="window.location.href='admin_aeroport.php'">Retour</button>
             </div>
         </form>
     <?php endif; ?>

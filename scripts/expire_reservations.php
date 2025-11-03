@@ -71,7 +71,13 @@ try {
                 $lr = $stmtLigne->fetch(PDO::FETCH_ASSOC);
                 if ($lr) $ligneLabel = htmlspecialchars(($lr['icao_dep'] ?? '---') . ' → ' . ($lr['icao_arr'] ?? '---'));
             }
-            $dateRes = htmlspecialchars($d['date_reservation'] ?? '');
+            $dateResRaw = $d['date_reservation'] ?? '';
+            try {
+                $dtres = new DateTime($dateResRaw);
+                $dateRes = htmlspecialchars($dtres->format('d-m-Y H:i'));
+            } catch (Exception $e) {
+                $dateRes = htmlspecialchars($dateResRaw);
+            }
             $detailsHtml .= "<tr><td>$immat</td><td>$piloteInfo</td><td>$ligneLabel</td><td>$dateRes</td></tr>";
         }
         $detailsHtml .= '</tbody></table>';

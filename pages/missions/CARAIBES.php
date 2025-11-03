@@ -1,13 +1,14 @@
 
 <?php
 session_start();
+// enforce login for missions pages
+if (!isset($_SESSION['callsign'])) {
+    header('Location: /index.php');
+    exit;
+}
 require_once __DIR__ . '/../../includes/db_connect.php';
 include __DIR__ . '/../../includes/header.php';
-if (!isset($_SESSION['user'])) {
-    include __DIR__ . '/../../includes/menu_guest.php';
-} else {
-    include __DIR__ . '/../../includes/menu_logged.php';
-}
+include __DIR__ . '/../../includes/menu_logged.php';
 ?>
 
 <main>

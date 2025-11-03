@@ -126,10 +126,9 @@ foreach ($pilotes as $index => $pilote) {
     logMsg($log_msg, __DIR__ . '/logs/paiement_salaires.log');
     // Log utile : mail envoyé ou erreur
     $to = $test_mode ? ADMIN_EMAIL : $pilote['email'];
-    $subject = "Votre salaire du mois";
+    $subject = "Ton salaire du mois";
     $message = "Bonjour " . $pilote['prenom'] . ",\n\n";
     $message .= "Tu as effectué " . number_format($heures_mois, 2) . " heures de vol ce mois-ci.\n";
-    $message .= "Tu as transporté " . number_format($total_fret_kg, 2) . " kg de fret, soit un bonus de " . number_format($bonus_fret, 2) . "€.\n";
     $message .= "Ton salaire total bien mérité est de " . number_format($montant, 2) . "€.\n\n";
     $message .= "Merci de voler pour Skywings,\nL'équipe Skywings";
     try {

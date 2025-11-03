@@ -90,8 +90,7 @@ if (session_status() === PHP_SESSION_NONE) {
                 <span>Admin</span>
                 <div class="submenu-admin">
                     <a href="/admin/admin_fleet_type.php">Administration des Fleet Type</a>
-                    <a href="/admin/admin_fleet.php">Acheter un Appareil</a>
-                    <a href="/admin/admin_vendre_appareil.php">Vendre un Appareil</a>
+                    <a href="/admin/admin_flotte.php">Administration des appareils</a>
                     <a href="/admin/admin_aeroport.php">Administration de la base des aéroports</a>
                     <a href="/admin/admin_missions.php">Administration des missions</a>
                     <a href="/admin/admin_gestion_pilotes.php">Administration des pilotes</a>

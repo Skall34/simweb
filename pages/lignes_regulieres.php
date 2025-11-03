@@ -187,7 +187,14 @@ include __DIR__ . '/../includes/menu_logged.php';
                                                 echo htmlspecialchars($st);
                                             }
                                         ?></td>
-                                        <td><?= htmlspecialchars($r['date_reservation']) ?></td>
+                                        <td><?php
+                                            try {
+                                                $dt = new DateTime($r['date_reservation']);
+                                                echo htmlspecialchars($dt->format('d-m-Y H:i'));
+                                            } catch (Exception $e) {
+                                                echo htmlspecialchars($r['date_reservation']);
+                                            }
+                                        ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>

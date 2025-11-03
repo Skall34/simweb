@@ -152,16 +152,16 @@ if (isset($_GET['edit'])) {
             <p style="color: red; font-weight:bold;"><?= $errorMessage ?></p>
         <?php endif; ?>
 
-        <form method="post" action="" class="form-inscription" style="display:flex;flex-direction:column;gap:10px;">
+    <form method="post" action="" class="form-inscription">
             <?php if ($edit_mode): ?>
                 <input type="hidden" name="id" value="<?= (int)$current['id'] ?>">
             <?php endif; ?>
 
             <label>Nom du fleet type *</label>
-            <input type="text" id="fleet_type" name="fleet_type" style="width: 250px;" required value="<?= htmlspecialchars($current['fleet_type']) ?>">
+            <input type="text" id="fleet_type" name="fleet_type" class="form-input input-250" required value="<?= htmlspecialchars($current['fleet_type']) ?>">
 
             <label>Catégorie *</label>
-            <select id="type" name="type" required style="width: 250px;">
+            <select id="type" name="type" required class="fleet-filter-select input-250">
                 <option value="">-- Sélectionner --</option>
                 <?php $cats = ['Monomoteur','Bimoteur','Liner','Helico']; foreach($cats as $c): ?>
                     <option value="<?= htmlspecialchars($c) ?>" <?= ($current['type']==$c)?'selected':'' ?>><?= htmlspecialchars($c) ?></option>
@@ -169,17 +169,19 @@ if (isset($_GET['edit'])) {
             </select>
 
             <label>Coût horaire (€) *</label>
-            <input type="number" id="cout_horaire" name="cout_horaire" step="0.01"  style="width: 250px;" required value="<?= htmlspecialchars($current['cout_horaire']) ?>">
+            <input type="number" id="cout_horaire" name="cout_horaire" step="0.01" class="form-input input-250" required value="<?= htmlspecialchars($current['cout_horaire']) ?>">
 
             <label>Coût de l'appareil (€) *</label>
-            <input type="number" id="cout_appareil" name="cout_appareil" step="0.01"  style="width: 250px;" required value="<?= htmlspecialchars($current['cout_appareil']) ?>">
+            <input type="number" id="cout_appareil" name="cout_appareil" step="0.01" class="form-input input-250" required value="<?= htmlspecialchars($current['cout_appareil']) ?>">
 
-            <div>
+            <div class="form-actions">
                 <?php if ($edit_mode): ?>
-                    <button type="submit" name="action" value="update" class="btn-bleu">Mettre à jour</button>
-                    <a href="admin_fleet_type.php" class="btn" style="margin-left:8px;">Annuler</a>
+                    <button type="submit" name="action" value="update" class="btn-bleu btn-small">Mettre à jour</button>
+                    <a href="admin_fleet_type.php" class="btn btn-small" style="margin-left:8px;">Annuler</a>
+                    <button type="button" class="btn btn-reset btn-small" onclick="window.location.href='admin_fleet_type.php';">Réinitialiser</button>
                 <?php else: ?>
-                    <button type="submit" name="action" value="add" class="btn-bleu">Ajouter</button>
+                    <button type="submit" name="action" value="add" class="btn-bleu btn-small">Ajouter</button>
+                    <button type="button" class="btn btn-reset btn-small" onclick="window.location.href='admin_fleet_type.php';">Réinitialiser</button>
                 <?php endif; ?>
             </div>
         </form>

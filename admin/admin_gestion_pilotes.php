@@ -60,7 +60,7 @@ include __DIR__ . '/../includes/menu_logged.php';
     <?php endif; ?>
     <form method="post" id="form-pilote">
         <label for="pilote_id"><strong>Choisir un callsign :</strong></label>
-        <select name="pilote_id" id="pilote_id" onchange="document.getElementById('form-pilote').submit();">
+        <select name="pilote_id" id="pilote_id" class="fleet-filter-select input-320" onchange="document.getElementById('form-pilote').submit();">
             <option value="">-- Sélectionner --</option>
             <?php foreach ($pilotes as $p): ?>
                 <option value="<?= $p['id'] ?>" <?= $selected_id==$p['id']?'selected':'' ?>><?= htmlspecialchars($p['callsign']) ?></option>
@@ -69,7 +69,7 @@ include __DIR__ . '/../includes/menu_logged.php';
     </form>
 
     <?php if ($info): ?>
-    <form method="post" class="form-pilote" style="margin-top:24px;max-width:400px;">
+    <form method="post" class="form-pilote">
         <input type="hidden" name="pilote_id" value="<?= $info['id'] ?>">
         <div class="form-row">
             <label>Callsign :</label>
@@ -88,52 +88,25 @@ include __DIR__ . '/../includes/menu_logged.php';
             <input type="email" name="email" value="<?= htmlspecialchars($info['email']) ?>">
         </div>
         <div class="form-row">
-            <label style="margin-right:6px;">Admin :</label>
-            <input type="checkbox" name="admin" value="1" <?= $info['admin']==1?'checked':'' ?> style="margin-left:0; margin-right:18px;">
-            <label style="margin-right:6px;">Actif :</label>
-            <input type="checkbox" name="actif" value="1" <?= (isset($info['actif']) && $info['actif']==1)?'checked':'' ?> style="margin-left:0;">
+            <label></label>
+            <div class="checkbox-group">
+                <label class="checkbox-inline">
+                    <input type="checkbox" name="admin" value="1" <?= $info['admin']==1?'checked':'' ?>>
+                    Admin
+                </label>
+                <label class="checkbox-inline">
+                    <input type="checkbox" name="actif" value="1" <?= (isset($info['actif']) && $info['actif']==1)?'checked':'' ?>>
+                    Actif
+                </label>
+            </div>
         </div>
-        <div class="form-row">
+        <div class="form-row form-actions">
             <button type="submit" name="update" class="btn-bleu">Enregistrer</button>
+            <button type="button" class="btn btn-reset" onclick="window.location.href='admin_gestion_pilotes.php';">Réinitialiser</button>
         </div>
     </form>
     <?php endif; ?>
 </main>
-<style>
-.form-pilote .form-row {
-    display: flex;
-    align-items: center;
-    margin-bottom: 12px;
-}
-.form-pilote label {
-    flex: 0 0 120px;
-    font-weight: 500;
-}
-.form-pilote input[type="text"],
-.form-pilote input[type="email"] {
-    flex: 1;
-    padding: 6px 8px;
-    border: 1px solid #bbb;
-    border-radius: 4px;
-}
-.form-pilote input[type="checkbox"] {
-    margin-left: 8px;
-}
-.btn-bleu {
-    background: #2a4d7a;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    padding: 8px 22px;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-.btn-bleu:hover {
-    background: #1a3552;
-}
-</style>
 <?php
 include __DIR__ . '/../includes/footer.php';
 ?>

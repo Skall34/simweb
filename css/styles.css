@@ -32,6 +32,9 @@
     max-width: 400px;
     margin: 0;
 }
+
+/* Small vertical spacing for change-password form to separate it from the section title */
+.form-mdp { margin-top: 10px; }
 .form-row {
     display: flex;
     align-items: center;
@@ -543,12 +546,42 @@ footer {
   resize: vertical;
 }
 
+/* Ensure inputs and textareas using .form-input inside .form-inscription share the same width
+   This forces Piste, Observations and Fret fields to align with the other form controls. */
+.form-inscription .form-input {
+  width: 100% !important;
+  max-width: 400px !important;
+  box-sizing: border-box;
+}
+
 .form-inscription button,
 .form-inscription .btn {
   width: 180px;
   max-width: 100%;
   margin-top: 0.5em;
   align-self: flex-start;
+}
+
+/* Compact action buttons inside forms so multiple buttons can fit on one line.
+   Scoped to .form-inscription .form-actions to avoid changing global button sizing. */
+.form-inscription .form-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.form-inscription .form-actions .btn,
+.form-inscription .form-actions button,
+.form-inscription .form-actions a {
+  width: auto; /* let buttons size to content */
+  padding: 6px 10px;
+  font-size: 0.95rem;
+}
+
+/* utility small button class (use when smaller footprint is desired) */
+.btn-small {
+  padding: 6px 10px;
+  font-size: 0.95rem;
+  min-width: 0;
 }
 
 /* Sous-menu Plus */
@@ -890,4 +923,34 @@ footer {
 .btn-reset { margin-left:10px; }
 .input-160 { width: 160px; }
 .no-results { font-size:1.25em; color:#0066cc; font-weight:600; background:#f7fbff; padding:18px 0; border-radius:8px; text-align:center; box-shadow:0 2px 8px rgba(0,0,0,0.04); margin:28px 0; }
+
+/* Admin: Gestion pilotes form styles moved from inline -> centralized */
+.form-pilote {
+  margin-top: 32px;
+  max-width: 420px;
+}
+.form-pilote .form-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.form-pilote label {
+  flex: 0 0 120px;
+  font-weight: 500;
+}
+.form-pilote input[type="text"],
+.form-pilote input[type="email"] {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid #c0c8d0;
+  border-radius: 8px; /* a bit rounder to match site inputs */
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(16,24,40,0.04);
+}
+.checkbox-group { display:flex; gap:18px; align-items:center; }
+.checkbox-inline { display:flex; align-items:center; gap:6px; cursor:pointer; }
+.form-row.form-actions { gap:12px; }
+
+/* Space under the listbox (select) so subsequent table/form isn't too close */
+#form-pilote { margin-bottom: 28px; }
 

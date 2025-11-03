@@ -1,4 +1,9 @@
 <?php
+session_start();
+if (!isset($_SESSION['callsign'])) {
+    header('Location: /index.php');
+    exit;
+}
 include '../../includes/header.php';
 include '../../includes/menu_logged.php';
 ?>
