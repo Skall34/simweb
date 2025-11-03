@@ -1,23 +1,9 @@
 <?php
 session_start();
 require_once __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../includes/require_admin.php';
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/menu_logged.php';
-
-// Vérification admin comme dans menu_logged.php
-if (!isset($_SESSION['user']['callsign'])) {
-    echo '<div style="margin:40px auto;max-width:600px;padding:32px;background:#fff;border-radius:12px;box-shadow:0 2px 16px rgba(0,0,0,0.08);color:#b00;text-align:center;">Accès réservé aux administrateurs.</div>';
-    include __DIR__ . '/../includes/footer.php';
-    exit;
-}
-$stmt = $pdo->prepare("SELECT admin FROM PILOTES WHERE callsign = :callsign");
-$stmt->execute(['callsign' => $_SESSION['user']['callsign']]);
-$isAdmin = $stmt->fetchColumn();
-if ($isAdmin != 1) {
-    echo '<div style="margin:40px auto;max-width:600px;padding:32px;background:#fff;border-radius:12px;box-shadow:0 2px 16px rgba(0,0,0,0.08);color:#b00;text-align:center;">Accès réservé aux administrateurs.</div>';
-    include __DIR__ . '/../includes/footer.php';
-    exit;
-}
 
 // Gestion des ajouts/edits/suppressions
 $action = $_POST['action'] ?? null;

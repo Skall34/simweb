@@ -1,15 +1,9 @@
 <?php
 session_start();
 require_once __DIR__ . '/../includes/db_connect.php';
-include __DIR__ . '/../includes/header.php';
-include __DIR__ . '/../includes/menu_logged.php';
-
-// Vérifier droits admin (à adapter selon ta logique)
-if (!isset($_SESSION['user']) || empty($_SESSION['user']['isAdmin'])) {
-    echo '<p style="color:red;">Accès réservé à l\'administration.</p>';
-    include __DIR__ . '/../includes/footer.php';
-    exit;
-}
+require_once __DIR__ . '/../includes/require_admin.php';
+require_once __DIR__ . '/../includes/header.php';
+require_once __DIR__ . '/../includes/menu_logged.php';
 
 // Traitement du formulaire
 $success = '';

@@ -1,10 +1,11 @@
 <?php
 session_start();
 require_once __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../includes/require_login.php';
 
 // Vérification admin
 if (!isset($_SESSION['user']['callsign'])) {
-    header('Location: /login.php');
+    header('Location: /index.php');
     exit;
 }
 $stmt = $pdo->prepare('SELECT admin FROM PILOTES WHERE callsign = ?');

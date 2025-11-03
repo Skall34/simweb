@@ -18,25 +18,20 @@ Page d'administration réservée à l'utilisateur SKY0707. Permet de lancer les 
 
 */
 
-require_once __DIR__ . '/../includes/header.php';
-
-require_once __DIR__ . '/../includes/menu_logged.php';
-
+session_start();
+require_once __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../includes/require_login.php';
 require_once __DIR__ . '/../includes/log_func.php';
 
-session_start();
-
-
-
-// Vérification de l'utilisateur
-
-if (!isset($_SESSION['user']['callsign']) || !in_array($_SESSION['user']['callsign'], ['SKY0707', 'SKY0034'])) {
-
+// Vérification de l'utilisateur (super-admins list)
+$callsign = $_SESSION['user']['callsign'] ?? ($_SESSION['callsign'] ?? null);
+if (! $callsign || !in_array($callsign, ['SKY0707', 'SKY0034'])) {
     header('Location: /index.php');
-
     exit;
-
 }
+
+require_once __DIR__ . '/../includes/header.php';
+require_once __DIR__ . '/../includes/menu_logged.php';
 
 
 

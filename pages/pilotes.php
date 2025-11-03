@@ -3,11 +3,7 @@ session_start();
 
 require_once __DIR__ . '/../includes/db_connect.php';
 
-// Vérifie si l'utilisateur est connecté
-if (!isset($_SESSION['user'])) {
-    header('Location: ../login.php');
-    exit;
-}
+require_once __DIR__ . '/../includes/require_login.php';
 
 // Récupère tous les pilotes
 $sql = "SELECT callsign, prenom, nom FROM PILOTES WHERE actif = 1 ORDER BY callsign";

@@ -1,11 +1,7 @@
 <?php
 session_start();
 require_once __DIR__ . '/../includes/db_connect.php';
-
-if (!isset($_SESSION['user'])) {
-    header('Location: ../login.php');
-    exit;
-}
+require_once __DIR__ . '/../includes/require_admin.php';
 
 $message = '';
 $flash = '';

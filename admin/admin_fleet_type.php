@@ -1,11 +1,8 @@
 <?php
 session_start();
 require_once __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../includes/require_login.php';
 // sécurité : accès réservé aux administrateurs
-if (!isset($_SESSION['user']['callsign'])) {
-    header('Location: ../login.php');
-    exit;
-}
 $stmtAdmin = $pdo->prepare("SELECT admin FROM PILOTES WHERE callsign = :callsign");
 $stmtAdmin->execute(['callsign' => $_SESSION['user']['callsign']]);
 $isAdmin = $stmtAdmin->fetchColumn();
