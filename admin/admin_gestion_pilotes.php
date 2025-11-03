@@ -1,20 +1,5 @@
 <?php
-session_start();
-require_once __DIR__ . '/../includes/db_connect.php';
-require_once __DIR__ . '/../includes/require_login.php';
-
-// Vérification admin
-if (!isset($_SESSION['user']['callsign'])) {
-    header('Location: /index.php');
-    exit;
-}
-$stmt = $pdo->prepare('SELECT admin FROM PILOTES WHERE callsign = ?');
-$stmt->execute([$_SESSION['user']['callsign']]);
-$isAdmin = $stmt->fetchColumn();
-if ($isAdmin != 1) {
-    echo "<p style='color:red;font-weight:bold;'>Accès réservé aux administrateurs.</p>";
-    exit;
-}
+require_once __DIR__ . '/../includes/require_admin.php';
 
 // Récupère tous les callsigns
 $stmt = $pdo->query('SELECT id, callsign FROM PILOTES ORDER BY callsign');

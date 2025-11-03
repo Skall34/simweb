@@ -1,8 +1,8 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/require_login.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/menu_logged.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/db_connect.php';
+require_once __DIR__ . '/../../includes/require_login.php';
+require_once __DIR__ . '/../../includes/header.php';
+require_once __DIR__ . '/../../includes/menu_logged.php';
+require_once __DIR__ . '/../../includes/db_connect.php';
 // Récupérer tous les grades
 $stmt = $pdo->query('SELECT nom, description, taux_horaire, niveau FROM GRADES ORDER BY niveau ASC');
 $grades = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -91,4 +91,4 @@ $grades = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <a href="/pages/documentation.php" class="btn" style="min-width:180px;text-decoration:none;">← Retour à la documentation</a>
     </div>
 </div>
-<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../../includes/footer.php'; ?>

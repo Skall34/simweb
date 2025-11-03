@@ -1,14 +1,9 @@
 
 <?php
-session_start();
-// enforce login for missions pages
-if (!isset($_SESSION['callsign'])) {
-    header('Location: /index.php');
-    exit;
-}
+require_once __DIR__ . '/../../includes/require_login.php';
 require_once __DIR__ . '/../../includes/db_connect.php';
-include __DIR__ . '/../../includes/header.php';
-include __DIR__ . '/../../includes/menu_logged.php';
+require_once __DIR__ . '/../../includes/header.php';
+require_once __DIR__ . '/../../includes/menu_logged.php';
 ?>
 
 <main>

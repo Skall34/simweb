@@ -1,12 +1,9 @@
 <?php
-session_start();
-// Require an active session (callsign set). If not logged, redirect to home.
-if (!isset($_SESSION['callsign'])) {
-    header('Location: /index.php');
-    exit;
-}
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/menu_logged.php';
+// Centralized login guard and normalized includes
+require_once __DIR__ . '/../includes/require_login.php';
+require_once __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../includes/header.php';
+require_once __DIR__ . '/../includes/menu_logged.php';
 ?>
     <div class="container" style="max-width:900px;margin:40px auto;background:#fff;padding:32px;border-radius:12px;box-shadow:0 2px 16px rgba(0,0,0,0.08);">
         <h1 style="text-align:center;color:#2c3e50;margin-bottom:32px;">Documentation du site Skywings</h1>
@@ -34,8 +31,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/menu_logged.php';
         </section>
         <section>
         <?php
-        // Connexion à la base
-        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/db_connect.php';
+    // DB already included above by normalized include
         try {
             $stmt = $pdo->query("SELECT libelle, majoration_mission, Active FROM MISSIONS ORDER BY libelle");
             $missions = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -97,4 +93,4 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/menu_logged.php';
         </section>
     </div>
 <!-- Décalage des puces blanches déplacé dans css/styles.css -->
-<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>

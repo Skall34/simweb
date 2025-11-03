@@ -1,7 +1,7 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/require_login.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/menu_logged.php';
+require_once __DIR__ . '/../../includes/require_login.php';
+require_once __DIR__ . '/../../includes/header.php';
+require_once __DIR__ . '/../../includes/menu_logged.php';
 // Récupérer le taux d'assurance depuis la base (VARIABLES_CONFIG.nom = 'taux_assurance')
 $taux_assurance_pct = '0,20%'; // valeur par défaut affichée (formatée)
 try {
@@ -71,4 +71,4 @@ try {
         <a href="/pages/documentation.php" class="btn" style="min-width:180px;text-decoration:none;">← Retour à la documentation</a>
     </div>
 </div>
-<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../../includes/footer.php'; ?>

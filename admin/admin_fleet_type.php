@@ -1,16 +1,5 @@
 <?php
-session_start();
-require_once __DIR__ . '/../includes/db_connect.php';
-require_once __DIR__ . '/../includes/require_login.php';
-// sécurité : accès réservé aux administrateurs
-$stmtAdmin = $pdo->prepare("SELECT admin FROM PILOTES WHERE callsign = :callsign");
-$stmtAdmin->execute(['callsign' => $_SESSION['user']['callsign']]);
-$isAdmin = $stmtAdmin->fetchColumn();
-if (!$isAdmin) {
-    echo '<div style="margin:40px auto;max-width:600px;padding:32px;background:#fff;border-radius:12px;box-shadow:0 2px 16px rgba(0,0,0,0.08);color:#b00;text-align:center;">Accès réservé aux administrateurs.</div>';
-    include __DIR__ . '/../includes/footer.php';
-    exit;
-}
+require_once __DIR__ . '/../includes/require_admin.php';
 // Traitement du formulaire
 $successMessage = '';
 $errorMessage = '';

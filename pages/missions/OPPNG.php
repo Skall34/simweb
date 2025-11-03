@@ -1,11 +1,7 @@
 <?php
-session_start();
-if (!isset($_SESSION['callsign'])) {
-    header('Location: /index.php');
-    exit;
-}
-include '../../includes/header.php';
-include '../../includes/menu_logged.php';
+require_once __DIR__ . '/../../includes/require_login.php';
+include __DIR__ . '/../../includes/header.php';
+include __DIR__ . '/../../includes/menu_logged.php';
 ?>
 <main>
     <h1 style="text-align:center;color:#1a3552;margin-top:24px;margin-bottom:18px;">Opération Papouasie</h1>
@@ -36,4 +32,4 @@ include '../../includes/menu_logged.php';
         </ul>
     </section>
 </main>
-<?php include '../../includes/footer.php'; ?>
+<?php include __DIR__ . '/../../includes/footer.php'; ?>
