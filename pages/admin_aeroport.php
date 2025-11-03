@@ -1,11 +1,11 @@
 <?php
 session_start();
-require __DIR__ . '/../includes/db_connect.php';
-
-if (!isset($_SESSION['user'])) {
-    header('Location: ../login.php');
+// Require an active session (callsign set). If not logged, redirect to home.
+if (!isset($_SESSION['callsign'])) {
+    header('Location: /index.php');
     exit;
 }
+require_once __DIR__ . '/../includes/db_connect.php';
 
 $message = '';
 $aeroport = [

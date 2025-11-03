@@ -1,6 +1,6 @@
 <?php
 session_start();
-require __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../includes/db_connect.php';
 // sécurité : accès réservé aux administrateurs
 if (!isset($_SESSION['user']['callsign'])) {
     header('Location: ../login.php');

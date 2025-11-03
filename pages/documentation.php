@@ -1,4 +1,10 @@
 <?php
+session_start();
+// Require an active session (callsign set). If not logged, redirect to home.
+if (!isset($_SESSION['callsign'])) {
+    header('Location: /index.php');
+    exit;
+}
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/menu_logged.php';
 ?>

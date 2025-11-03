@@ -1,13 +1,8 @@
 <?php
 session_start();
 
-require __DIR__ . '/../includes/db_connect.php';
-
-// Vérifie si l'utilisateur est connecté
-if (!isset($_SESSION['user'])) {
-    header('Location: ../login.php');
-    exit;
-}
+require_once __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../includes/require_login.php';
 
 // Récupère tous les types de flotte avec coût horaire et prix
 $sql = "SELECT fleet_type, cout_horaire, cout_appareil FROM FLEET_TYPE ORDER BY fleet_type";

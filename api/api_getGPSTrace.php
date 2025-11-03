@@ -2,7 +2,7 @@
 // filepath: api/api_get_gpstrace.php
 
 header('Content-Type: application/json');
-require __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../includes/db_connect.php';
 
 if (!isset($_GET['vol_id']) || !is_numeric($_GET['vol_id'])) {
     http_response_code(400);

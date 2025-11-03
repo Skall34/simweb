@@ -1,8 +1,7 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-require __DIR__ . '/../includes/db_connect.php';
-include '../includes/header.php';
+require_once __DIR__ . '/../includes/require_login.php';
+require_once __DIR__ . '/../includes/db_connect.php';
+include __DIR__ . '/../includes/header.php';
 include __DIR__ . '/../includes/menu_logged.php';
 
 // Récupérer les filtres

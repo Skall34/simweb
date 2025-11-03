@@ -1,6 +1,6 @@
 <?php
 session_start();
-require __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/log_func.php';
 require_once __DIR__ . '/../includes/fonctions_financieres.php';
 require_once __DIR__ . '/../includes/mail_utils.php';

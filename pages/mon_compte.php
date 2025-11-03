@@ -1,12 +1,7 @@
 <?php
-session_start();
+require_once __DIR__ . '/../includes/require_login.php';
 require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/log_func.php';
-
-if (!isset($_SESSION['user']['id'])) {
-    header('Location: login.php');
-    exit;
-}
 
 $id = $_SESSION['user']['id'];
 

@@ -1,5 +1,5 @@
 <?php
-
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/require_login.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/menu_logged.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/db_connect.php';

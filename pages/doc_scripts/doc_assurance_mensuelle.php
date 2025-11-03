@@ -1,5 +1,5 @@
 <?php
-
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/require_login.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/menu_logged.php';
 // Récupérer le taux d'assurance depuis la base (VARIABLES_CONFIG.nom = 'taux_assurance')

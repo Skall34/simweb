@@ -2,7 +2,7 @@
 
 session_start();
 
-require __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../includes/db_connect.php';
 
 // Vérifie si l'utilisateur est connecté
 if (!isset($_SESSION['user'])) {

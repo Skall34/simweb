@@ -1,13 +1,9 @@
 <?php
-session_start();
+require_once __DIR__ . '/../includes/require_login.php';
 require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/log_func.php';
 require_once __DIR__ . '/../includes/mail_utils.php';
 
-if (!isset($_SESSION['user']['id'])) {
-    header('Location: ../login.php');
-    exit;
-}
 $pilote_id = $_SESSION['user']['id'];
 
 $ligne_id = isset($_GET['ligne_id']) ? intval($_GET['ligne_id']) : 0;
