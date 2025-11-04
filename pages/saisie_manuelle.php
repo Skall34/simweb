@@ -253,7 +253,7 @@ include __DIR__ . '/../includes/menu_logged.php';
         <form method="post"  class="form-inscription" autocomplete="off">
             <div class="form-group">
                 <label for="callsign">Pilote (callsign)</label>
-                <select name="callsign" id="callsign" required>
+                <select name="callsign" id="callsign" required class="form-input">
                     <option value="">-- Sélectionner --</option>
                     <?php foreach ($callsigns as $c): ?>
                         <option value="<?= htmlspecialchars($c) ?>" <?= ($form['callsign'] === $c) ? 'selected' : '' ?>>
@@ -264,7 +264,7 @@ include __DIR__ . '/../includes/menu_logged.php';
             </div>
             <div class="form-group">
                 <label for="immatriculation">Immatriculation</label>
-                <select name="immatriculation" id="immatriculation" required>
+                <select name="immatriculation" id="immatriculation" required class="form-input">
                     <option value="">-- Sélectionner --</option>
                     <?php foreach ($immats as $i): ?>
                         <option value="<?= htmlspecialchars($i) ?>" <?= ($form['immatriculation'] === $i) ? 'selected' : '' ?>>
@@ -275,43 +275,43 @@ include __DIR__ . '/../includes/menu_logged.php';
             </div>
             <div class="form-group">
                 <label for="departure_icao">Départ (ICAO)</label>
-                <input type="text" name="departure_icao" id="departure_icao" maxlength="4" value="<?= htmlspecialchars($form['departure_icao']) ?>" required style="text-transform:uppercase;" oninput="this.value = this.value.toUpperCase();">
+                <input type="text" name="departure_icao" id="departure_icao" maxlength="4" value="<?= htmlspecialchars($form['departure_icao']) ?>" required class="form-input" style="text-transform:uppercase;" oninput="this.value = this.value.toUpperCase();">
             </div>
             <div class="form-group">
                 <label for="departure_fuel">Fuel départ</label>
-                <input type="number" name="departure_fuel" id="departure_fuel" min="0" step="1" value="<?= htmlspecialchars($form['departure_fuel']) ?>" required>
+                <input type="number" name="departure_fuel" id="departure_fuel" min="0" step="1" value="<?= htmlspecialchars($form['departure_fuel']) ?>" required class="form-input">
             </div>
             <div class="form-group">
                 <label for="departure_datetime">Date/heure départ</label>
-                <input type="datetime-local" name="departure_datetime" id="departure_datetime" value="<?= htmlspecialchars($form['departure_datetime']) ?>" required>
+                <input type="datetime-local" name="departure_datetime" id="departure_datetime" value="<?= htmlspecialchars($form['departure_datetime']) ?>" required class="form-input">
             </div>
             <div class="form-group">
                 <label for="arrival_icao">Arrivée (ICAO)</label>
-                <input type="text" name="arrival_icao" id="arrival_icao" maxlength="4" value="<?= htmlspecialchars($form['arrival_icao']) ?>" required style="text-transform:uppercase;" oninput="this.value = this.value.toUpperCase();">
+                <input type="text" name="arrival_icao" id="arrival_icao" maxlength="4" value="<?= htmlspecialchars($form['arrival_icao']) ?>" required class="form-input" style="text-transform:uppercase;" oninput="this.value = this.value.toUpperCase();">
             </div>
             <div class="form-group">
                 <label for="arrival_fuel">Fuel arrivée</label>
-                <input type="number" name="arrival_fuel" id="arrival_fuel" min="0" step="1" value="<?= htmlspecialchars($form['arrival_fuel']) ?>" required>
+                <input type="number" name="arrival_fuel" id="arrival_fuel" min="0" step="1" value="<?= htmlspecialchars($form['arrival_fuel']) ?>" required class="form-input">
             </div>
             <div class="form-group">
                 <label for="arrival_datetime">Date/heure arrivée</label>
-                <input type="datetime-local" name="arrival_datetime" id="arrival_datetime" value="<?= htmlspecialchars($form['arrival_datetime']) ?>" required>
+                <input type="datetime-local" name="arrival_datetime" id="arrival_datetime" value="<?= htmlspecialchars($form['arrival_datetime']) ?>" required class="form-input">
             </div>
             <div class="form-group">
                 <label for="payload">Payload (kg)</label>
-                <input type="number" name="payload" id="payload" min="0" step="1" value="<?= htmlspecialchars($form['payload']) ?>">
+                <input type="number" name="payload" id="payload" min="0" step="1" value="<?= htmlspecialchars($form['payload']) ?>" class="form-input">
             </div>
             <div class="form-group">
                 <label for="commentaire">Commentaire</label>
-                <input type="text" name="commentaire" id="commentaire" maxlength="255" value="<?= htmlspecialchars($form['commentaire']) ?>">
+                <input type="text" name="commentaire" id="commentaire" maxlength="255" value="<?= htmlspecialchars($form['commentaire']) ?>" class="form-input">
             </div>
             <div class="form-group">
                 <label for="note_du_vol">Note du vol (1-10)</label>
-                <input type="number" name="note_du_vol" id="note_du_vol" min="1" max="10" value="<?= htmlspecialchars($form['note_du_vol']) ?>" required>
+                <input type="number" name="note_du_vol" id="note_du_vol" min="1" max="10" value="<?= htmlspecialchars($form['note_du_vol']) ?>" required class="form-input">
             </div>
             <div class="form-group">
                 <label for="mission">Mission</label>
-                <select name="mission" id="mission" required>
+                <select name="mission" id="mission" required class="form-input">
                     <option value="">-- Sélectionner --</option>
                     <?php foreach ($missionslist as $m): ?>
                         <option value="<?= htmlspecialchars($m) ?>" <?= ($form['mission'] === $m) ? 'selected' : '' ?>>
@@ -321,8 +321,8 @@ include __DIR__ . '/../includes/menu_logged.php';
                 </select>
             </div>
             <div class="form-group" style="display:flex;gap:1em;">
-                <button type="submit" class="btn btn-primary">Ajouter le vol</button>
-                <button type="submit" name="reset" value="1" class="btn btn-reset" style="margin-left:0;">Réinitialiser</button>
+                <button type="submit" class="btn-bleu">Ajouter le vol</button>
+                <button type="submit" name="reset" value="1" class="btn-reset" style="margin-left:0;">Réinitialiser</button>
             </div>
         </form>
     </div>

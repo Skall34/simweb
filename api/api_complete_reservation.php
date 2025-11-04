@@ -35,7 +35,7 @@ register_shutdown_function(function() use ($debug) {
         http_response_code(500);
         $out = ['status' => 'error', 'message' => 'Fatal error', 'error' => $err];
         if ($debug) $out['debug'] = $err;
-        if (function_exists('logMsg')) logMsg('api_complete_reservation fatal: ' . json_encode($err));
+        if (function_exists('logMsg')) logMsg('api_complete_reservation fatal: ' . json_encode($err), __DIR__ . '/../scripts/logs/api_complete_reservation.log');
         echo json_encode($out);
         @flush();
     }
@@ -104,7 +104,7 @@ try {
 
 } catch (Exception $e) {
     if ($pdo->inTransaction()) $pdo->rollBack();
-    if (function_exists('logMsg')) logMsg('api_complete_reservation exception: ' . $e->getMessage());
+    if (function_exists('logMsg')) logMsg('api_complete_reservation exception: ' . $e->getMessage(), __DIR__ . '/../scripts/logs/api_complete_reservation.log');
     if ($debug) {
         echo json_encode(['status'=>'error','message'=>$e->getMessage(),'trace'=>$e->getTrace()]);
     } else {

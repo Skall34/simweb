@@ -15,34 +15,30 @@ include __DIR__ . '/../includes/menu_logged.php';
 ?>
 
 <main>
-    <h2>Liste des pilotes</h2>
-    <div style="display: flex; justify-content: flex-start; margin-top: 1.2rem;">
-        <div style="min-width:370px;">
-            <?php if (empty($pilotes)): ?>
-                <p>Aucun pilote trouvé.</p>
-            <?php else: ?>
-                <div class="table-section">
-                    <table class="table-skywings">
-                        <thead>
-                            <tr>
-                                <th>Callsign</th>
-                                <th>Prénom</th>
-                                <th>Nom</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($pilotes as $pilote): ?>
-                            <tr>
-                                <td><?= htmlspecialchars($pilote['callsign']) ?></td>
-                                <td><?= htmlspecialchars($pilote['prenom']) ?></td>
-                                <td><?= htmlspecialchars($pilote['nom']) ?></td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            <?php endif; ?>
-        </div>
+    <div class="container" style="max-width:700px;margin:40px 0 40px 0;background:#fff;padding:32px;border-radius:12px;box-shadow:0 2px 16px rgba(0,0,0,0.08);">
+        <h2 style="text-align:left;color:#1a3552;margin-bottom:28px;">Liste des pilotes</h2>
+        <?php if (empty($pilotes)): ?>
+            <p>Aucun pilote trouvé.</p>
+        <?php else: ?>
+            <table class="grades-table-gauche" style="width:100%;border-collapse:collapse;font-size:1.08em;margin-left:0;">
+                <thead>
+                    <tr style="background:#eaf2fb;">
+                        <th style="padding:10px 8px;text-align:left;">Callsign</th>
+                        <th style="padding:10px 8px;text-align:left;">Prénom</th>
+                        <th style="padding:10px 8px;text-align:left;">Nom</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($pilotes as $pilote): ?>
+                        <tr style="background:#fff;">
+                            <td style="padding:8px 8px;"><?= htmlspecialchars($pilote['callsign']) ?></td>
+                            <td style="padding:8px 8px;"><?= htmlspecialchars($pilote['prenom']) ?></td>
+                            <td style="padding:8px 8px;"><?= htmlspecialchars($pilote['nom']) ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php endif; ?>
     </div>
 </main>
 

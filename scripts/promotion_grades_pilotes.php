@@ -26,7 +26,7 @@ $grades = [
     5 => 400
 ];
 
-logMsg('[PROMOTION] Début du script de promotion automatique');
+logMsg('[PROMOTION] Début du script de promotion automatique', __DIR__ . '/logs/promotion_grades.log');
 $stmtPilotes = $pdo->query("SELECT id, email, grade_id, prenom, nom, callsign FROM PILOTES");
 $pilotes = $stmtPilotes->fetchAll(PDO::FETCH_ASSOC);
 

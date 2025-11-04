@@ -55,7 +55,7 @@ if (!empty($token)) {
         }
     } catch (Exception $e) {
         // log if available, but don't leak DB errors to clients
-        if (function_exists('logMsg')) logMsg('api_check_session token lookup failed: ' . $e->getMessage());
+        if (function_exists('logMsg')) logMsg('api_check_session token lookup failed: ' . $e->getMessage(), __DIR__ . '/../scripts/logs/api_check_session.log');
     }
 }
 

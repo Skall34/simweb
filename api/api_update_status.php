@@ -1,7 +1,4 @@
 <?php
-// Active les erreurs (en dev uniquement)
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 
 // Connexion BDD
 require_once __DIR__ . '/../includes/db_connect.php';

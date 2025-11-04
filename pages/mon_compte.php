@@ -85,12 +85,12 @@ if (isset($_POST['cancel_reservation_id'])) {
             }
             $pdo->commit();
             $message = 'Réservation annulée.';
-            logMsg("Pilote {$id} a annulé la réservation id={$res_id} immat=" . ($r['immat'] ?? ''));
+                logMsg("Pilote {$id} a annulé la réservation id={$res_id} immat=" . ($r['immat'] ?? ''), __DIR__ . '/../scripts/logs/reservations.log');
         }
     } catch (Exception $e) {
         if ($pdo->inTransaction()) $pdo->rollBack();
         $message = 'Erreur lors de l\'annulation : ' . $e->getMessage();
-        logMsg('Erreur annulation reservation: ' . $e->getMessage());
+            logMsg('Erreur annulation reservation: ' . $e->getMessage(), __DIR__ . '/../scripts/logs/reservations.log');
     }
 }
 

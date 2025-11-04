@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($user && password_verify($password, $user['password'])) {
         // Auth OK
-        logMsg('User ' . $user['id'] . ' (' . $user['callsign'] . ') logged in successfully.');
+    logMsg('User ' . $user['id'] . ' (' . $user['callsign'] . ') logged in successfully.', __DIR__ . '/scripts/logs/login.log');
         $_SESSION['user'] = [
             'id' => $user['id'],
             'callsign' => $user['callsign']
@@ -78,13 +78,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'ua_upd' => substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 255)
                 ];
                 $stmtTok->execute($params);
-                logMsg('Token persisted for user ' . $user['id']);
+                logMsg('Token persisted for user ' . $user['id'], __DIR__ . '/scripts/logs/login.log');
             } catch (Exception $e) {
                 // Don't block login on DB token persistence failure; log if logger available
-                logMsg('Token persistence failed: ' . $e->getMessage());
+                logMsg('Token persistence failed: ' . $e->getMessage(), __DIR__ . '/scripts/logs/login.log');
             }
         }else{
-            logMsg('No token provided for user ' . $user['id'] . ' during login.');
+            logMsg('No token provided for user ' . $user['id'] . ' during login.', __DIR__ . '/scripts/logs/login.log');
         }
         // Redirect to requested internal URL if valid, otherwise to index.php
         if (is_safe_redirect($redirect)) {
