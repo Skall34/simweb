@@ -29369,7 +29369,7 @@ CREATE TABLE `RESERVATIONS` (
   `ligne_id` int NOT NULL,
   `pilote_id` int NOT NULL,
   `immat` varchar(32) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `statut` enum('reserved','in_flight','completed','cancelled') COLLATE utf8mb4_general_ci DEFAULT 'reserved',
+  `statut` enum('reserved','in_flight','completed','cancelled','expired') COLLATE utf8mb4_general_ci DEFAULT 'reserved',
   `date_reservation` datetime DEFAULT CURRENT_TIMESTAMP,
   `date_debut` datetime DEFAULT NULL,
   `date_fin` datetime DEFAULT NULL,
