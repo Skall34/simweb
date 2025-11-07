@@ -59,8 +59,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             setcookie('simaddon_token', $token, 0, '/', '', $isHttps, true);
             // Persist token in database for cross-process/session continuity
             try {
-                // expires in 24h - adjust as needed
-                $expiresAt = date('Y-m-d H:i:s', time() + 24 * 3600);
+                // expires in 15 days - adjust as needed
+                $expiresAt = date('Y-m-d H:i:s', time() + 15 * 24 * 3600);
                 // Ensure table `simaddon_tokens` exists (see migration SQL below)
                 $stmtTok = $pdo->prepare(
                     "INSERT INTO simaddon_tokens (user_id, token, created_at, expires_at, ip, user_agent) VALUES (:user_id, :token, NOW(), :expires_at, :ip, :ua) " .

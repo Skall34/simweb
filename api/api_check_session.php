@@ -43,8 +43,8 @@ if (!empty($token)) {
                     $authenticated = true;
                     $user = ['id' => (int)$u['id'], 'callsign' => $u['callsign']];
 
-                    // Optionally refresh token expiry (extend by 24h)
-                    $newExpiry = date('Y-m-d H:i:s', time() + 24 * 3600);
+                    // Optionally refresh token expiry (extend by 15 days)
+                    $newExpiry = date('Y-m-d H:i:s', time() + 15 * 24 * 3600);
                     $upd = $pdo->prepare("UPDATE simaddon_tokens SET expires_at = :expires_at WHERE token = :token");
                     $upd->execute(['expires_at' => $newExpiry, 'token' => $token]);
                     // Refresh cookie
