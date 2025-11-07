@@ -156,8 +156,8 @@ include __DIR__ . '/../includes/menu_logged.php';
                         <tr>
                             <td style="border:1px solid #b3c6e0;padding:7px 10px;"> <?= htmlspecialchars($m['libelle']) ?> </td>
                             <td style="border:1px solid #b3c6e0;padding:7px 10px;"> <?= htmlspecialchars($m['majoration_mission']) ?> </td>
-                            <td style="border:1px solid #b3c6e0;padding:7px 10px; color:<?= ((int)$m['Active'] === 1) ? '#008800' : '#c00' ?>;font-weight:bold;">
-                                <?= ((int)$m['Active'] === 1) ? 'Oui' : 'Non' ?>
+                            <td style="border:1px solid #b3c6e0;padding:7px 10px; color:<?= ((int)$m['Active'] !== 0) ? '#008800' : '#c00' ?>;font-weight:bold;">
+                                <?= ((int)$m['Active'] !== 0) ? 'Oui' : 'Non' ?>
                             </td>
                         </tr>
                     <?php endforeach; ?>
