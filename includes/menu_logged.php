@@ -9,8 +9,8 @@ if (session_status() === PHP_SESSION_NONE) {
 <nav class="menu-logged">
     <a href="/index.php">🏠 Accueil</a>
     <a href="/pages/tableau_vols.php">📒 Carnet de vol</a>
-    <a href="/pages/fleet.php">✈️ Flotte</a>
     <a href="/pages/flights.php">🛫 Mes vols</a>
+    <a href="/pages/fleet.php">✈️ Flotte</a>
     <a href="/pages/reserver_ligne.php">🧭 Réserver une ligne</a>
     <a href="/pages/stats.php">📊 Stats</a>
     <a href="/pages/finances.php">💶 Finances</a>
