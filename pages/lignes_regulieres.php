@@ -113,7 +113,9 @@ include __DIR__ . '/../includes/menu_logged.php';
             window.location.href = 'lignes_regulieres.php';
         });
     </script>
-
+       <div style="background:#fff3cd;border:1px solid #f0ad4e;color:#856404;padding:12px;border-radius:6px;margin-bottom:12px;"> 
+            <strong>Attention,</strong> pour pouvoir utiliser les lignes régulières, il faut l'Acars (SimAddon) version 4.0.4 minimum.
+        </div>
     <div class="content-columns">
     <div class="narrow-table-wrapper">
             <div class="panel">
