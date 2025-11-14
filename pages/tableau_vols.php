@@ -91,7 +91,6 @@ try {
     $stmt->execute($params);
     $vols = $stmt->fetchAll();
 
-    // --- Ajout : récupération des positions des aéroports de départ et d'arrivée ---
     $aeroports = [];
     $icaos = [];
     foreach ($vols as $vol) {
@@ -124,34 +123,34 @@ try {
 <main>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <h2>Liste des vols</h2>
+    <h2><?= t('tableau_vols_title') ?></h2>
 
     <!-- Formulaire de filtre (amélioré : utilises les classes centralisées) -->
     <form method="get" action="" class="filters-form">
-    <label for="callsign">Filtrer par Callsign :</label>
-    <input type="text" id="callsign" name="callsign" class="fleet-filter-input input-160" value="<?php echo htmlspecialchars($callsignFilter); ?>">
+        <label for="callsign"><?= t('tableau_vols_filter_callsign') ?> :</label>
+        <input type="text" id="callsign" name="callsign" class="fleet-filter-input input-160" value="<?php echo htmlspecialchars($callsignFilter); ?>">
 
-    <label for="immat" class="filter-margin">Filtrer par Immat :</label>
-    <input type="text" id="immat" name="immat" class="fleet-filter-input input-160" value="<?php echo htmlspecialchars($immatFilter); ?>">
+        <label for="immat" class="filter-margin"><?= t('tableau_vols_filter_immat') ?> :</label>
+        <input type="text" id="immat" name="immat" class="fleet-filter-input input-160" value="<?php echo htmlspecialchars($immatFilter); ?>">
 
-        <label for="mission" class="filter-margin">Filtrer par Mission :</label>
+        <label for="mission" class="filter-margin"><?= t('tableau_vols_filter_mission') ?> :</label>
         <select id="mission" name="mission" class="fleet-filter-select">
-            <option value="">-- Toutes les missions --</option>
+            <option value=""><?= t('tableau_vols_filter_mission_all') ?></option>
             <?php foreach ($missionsList as $m): ?>
                 <option value="<?= htmlspecialchars($m) ?>" <?= ($missionFilter === $m) ? 'selected' : '' ?>><?= htmlspecialchars($m) ?></option>
             <?php endforeach; ?>
         </select>
 
-        <label for="fleetType" class="filter-margin">Filtrer par Fleet Type :</label>
+        <label for="fleetType" class="filter-margin"><?= t('tableau_vols_filter_fleet_type') ?> :</label>
         <select id="fleetType" name="fleetType" class="fleet-filter-select">
-            <option value="">-- Tous les avions --</option>
+            <option value=""><?= t('tableau_vols_filter_fleet_type_all') ?></option>
             <?php foreach ($fleetTypeList as $f): ?>
                 <option value="<?= htmlspecialchars($f) ?>" <?= ($fleetTypeFilter === $f) ? 'selected' : '' ?>><?= htmlspecialchars($f) ?></option>
             <?php endforeach; ?>
         </select>
 
-        <button type="submit" class="btn-bleu">Filtrer</button>
-        <button type="button" class="btn btn-reset" onclick="window.location.href='<?= basename($_SERVER['PHP_SELF']) ?>';">Réinitialiser</button>
+        <button type="submit" class="btn-bleu"><?= t('tableau_vols_filter_button') ?></button>
+        <button type="button" class="btn btn-reset" onclick="window.location.href='<?= basename($_SERVER['PHP_SELF']) ?>';"><?= t('tableau_vols_reset_button') ?></button>
     </form>
     <div class="spacer-xl"></div>
     <div class="table-main-padding">
@@ -160,20 +159,20 @@ try {
     <table class="table-skywings">
         <thead class="table-skywings" >
             <tr class="table-skywings">
-                <th style="width:10%">Date vol</th>
-                <th style="width:8%">Callsign</th>
-                <th style="width:5%">Immat</th>
-                <th style="width:10%">Fleet type</th>
-                <th style="width:5%">Départ</th>
-                <th style="width:5%">Dest.</th>
-                <th style="width:5%">Fuel arrivée</th>
-                <th style="width:5%">Conso</th>
-                <th style="width:5%">Payload</th>
-                <th style="width:10%">Heure arrivée</th>
-                <th style="width:10%">Block time</th>
-                <th style="width:5%">Note</th>
-                <th style="width:10%">Recette</th>
-                <th style="width:5%">Mission</th>
+                <th style="width:10%"><?= t('tableau_vols_table_date') ?></th>
+                <th style="width:8%"><?= t('tableau_vols_table_callsign') ?></th>
+                <th style="width:5%"><?= t('tableau_vols_table_immat') ?></th>
+                <th style="width:10%"><?= t('tableau_vols_table_fleet_type') ?></th>
+                <th style="width:5%"><?= t('tableau_vols_table_depart') ?></th>
+                <th style="width:5%"><?= t('tableau_vols_table_dest') ?></th>
+                <th style="width:5%"><?= t('tableau_vols_table_fuel_arrivee') ?></th>
+                <th style="width:5%"><?= t('tableau_vols_table_conso') ?></th>
+                <th style="width:5%"><?= t('tableau_vols_table_payload') ?></th>
+                <th style="width:10%"><?= t('tableau_vols_table_heure_arrivee') ?></th>
+                <th style="width:10%"><?= t('tableau_vols_table_block_time') ?></th>
+                <th style="width:5%"><?= t('tableau_vols_table_note') ?></th>
+                <th style="width:10%"><?= t('tableau_vols_table_recette') ?></th>
+                <th style="width:5%"><?= t('tableau_vols_table_mission') ?></th>
                 <th style="width:10px">&nbsp</th>
             </tr>
         </thead>
@@ -252,7 +251,7 @@ try {
     <div id="vol-modal" class="vol-modal" style="display:none;">
         <div class="vol-modal-content" >
             <span class="vol-modal-close" id="vol-modal-close">&times;</span>
-            <h3>Détails du vol</h3>
+            <h3><?= t('tableau_vols_modal_title') ?></h3>
             <table style="width:100%;border-collapse:collapse;">
                 <tr>
                     <td style="width: 365px; padding: 0; margin: 0; border: 0; vertical-align: top;">
@@ -398,7 +397,7 @@ document.querySelectorAll('.vol-row').forEach(function(row) {
         })
         .catch((e) => {
             console.error('Erreur lors du chargement des détails du vol.' + e);
-            document.getElementById('vol-modal-body').innerHTML = "<p>Erreur lors du chargement des détails du vol.</p>";
+            document.getElementById('vol-modal-body').innerHTML = "<p><?= t('tableau_vols_modal_error') ?></p>";
             document.getElementById('vol-modal').style.display = 'flex';
         });
     });

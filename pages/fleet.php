@@ -64,15 +64,15 @@ include __DIR__ . '/../includes/menu_logged.php';
 ?>
 
 <main>
-    <h2>Liste de la flotte : nous avons <?= $count ?>&nbsp;appareils actifs</h2>
+    <h2><?= t('fleet_title') ?> : <?= str_replace('{count}', $count, t('fleet_count')) ?></h2>
 
     <form method="get" action="fleet.php">
-        <label for="immat">Filtrer par immatriculation:</label>
+        <label for="immat"><?= t('fleet_filter_immat') ?>:</label>
         <input type="text" id="immat" name="immat" value="<?= htmlspecialchars($immatFilter) ?>" placeholder="Ex: F-XXXX" class="fleet-filter-input">
 
-        <label for="fleet_type" class="filter-margin">Filtrer par Fleet type:</label>
+        <label for="fleet_type" class="filter-margin"><?= t('fleet_filter_fleet_type') ?>:</label>
         <select id="fleet_type" name="fleet_type" class="fleet-filter-select">
-            <option value="">-- Tous les types --</option>
+            <option value=""><?= t('fleet_filter_fleet_type_all') ?></option>
             <?php foreach ($fleetTypesList as $ft): ?>
                 <option value="<?= htmlspecialchars($ft) ?>" <?= ($fleetTypeFilter === $ft) ? 'selected' : '' ?>><?= htmlspecialchars($ft) ?></option>
             <?php endforeach; ?>
@@ -80,19 +80,19 @@ include __DIR__ . '/../includes/menu_logged.php';
 
         <label class="filter-margin">
             <input type="checkbox" name="show_vendus" value="1" <?= $showVendus ? 'checked' : '' ?>>
-            Afficher les appareils vendus
+            <?= t('fleet_filter_show_vendus') ?>
         </label>
         <label class="filter-margin">
             <input type="checkbox" name="show_maintenance" value="1" <?= $showMaintenance ? 'checked' : '' ?>>
-            Afficher uniquement les appareils en maintenance
+            <?= t('fleet_filter_show_maintenance') ?>
         </label>
 
-        <button class="btn-bleu" type="submit">Filtrer</button>
-        <button type="button" class="btn btn-reset" onclick="window.location.href='fleet.php';">Réinitialiser</button>
+        <button class="btn-bleu" type="submit"><?= t('fleet_filter_button') ?></button>
+        <button type="button" class="btn btn-reset" onclick="window.location.href='fleet.php';"><?= t('fleet_reset_button') ?></button>
     </form>
 
     <?php if (empty($fleet)): ?>
-        <p class="no-results">Aucun appareil trouvé.</p>
+        <p class="no-results"><?= t('fleet_no_results') ?></p>
     <?php else: ?>
 
     <div style="height: 18px;"></div>
@@ -100,18 +100,18 @@ include __DIR__ . '/../includes/menu_logged.php';
         <table class="table-skywings">
             <thead class="table-skywings">
                 <tr class="table-skywings">
-                    <th style="width:8%;">Immatriculation</th>
-                    <th style="width:8%;">Fleet_type</th>
-                    <th style="width:8%;">Catégorie</th>
-                    <th style="width:8%;">Localisation</th>
-                    <th style="width:8%;">Hub de rattachement</th>
-                    <th style="width:8%;">Statut</th>
-                    <th style="width:8%;">État</th>
-                    <th style="width:8%;">Dernier utilisateur</th>
-                    <th style="width:8%;">Carburant restant</th>
-                    <th style="width:8%;">Compteur Immobilisation</th>
-                    <th style="width:8%;">En vol</th>
-                    <th style="width:8%;">Réservé</th>
+                    <th style="width:8%;"><?= t('fleet_table_immat') ?></th>
+                    <th style="width:8%;"><?= t('fleet_table_fleet_type') ?></th>
+                    <th style="width:8%;"><?= t('fleet_table_categorie') ?></th>
+                    <th style="width:8%;"><?= t('fleet_table_localisation') ?></th>
+                    <th style="width:8%;"><?= t('fleet_table_hub') ?></th>
+                    <th style="width:8%;"><?= t('fleet_table_status') ?></th>
+                    <th style="width:8%;"><?= t('fleet_table_etat') ?></th>
+                    <th style="width:8%;"><?= t('fleet_table_pilote') ?></th>
+                    <th style="width:8%;"><?= t('fleet_table_fuel') ?></th>
+                    <th style="width:8%;"><?= t('fleet_table_compteur') ?></th>
+                    <th style="width:8%;"><?= t('fleet_table_en_vol') ?></th>
+                    <th style="width:8%;"><?= t('fleet_table_reserve') ?></th>
 
                 </tr>
             </thead>
@@ -175,13 +175,13 @@ include __DIR__ . '/../includes/menu_logged.php';
                         <td style="width:8%;">
                             <?php
                             if (isset($avion['actif']) && !$avion['actif']) {
-                                echo 'Vendu';
+                                echo t('fleet_status_vendu');
                             } else {
                                 $statusVal = (int)($avion['status'] ?? 0);
                                 echo match($statusVal) {
-                                    0 => 'OK',
-                                    1 => 'En maintenance',
-                                    2 => 'Crash',
+                                    0 => t('fleet_status_ok'),
+                                    1 => t('fleet_status_maintenance'),
+                                    2 => t('fleet_status_crash'),
                                     default => htmlspecialchars($avion['status'] ?? '')
                                 };
                             }
@@ -208,7 +208,7 @@ include __DIR__ . '/../includes/menu_logged.php';
         <div id="fleet-modal" class="fleet-modal">
             <div class="fleet-modal-content">
                 <span class="fleet-modal-close" id="fleet-modal-close">&times;</span>
-                <h3>Détails de l'appareil</h3>
+                <h3><?= t('fleet_modal_title') ?></h3>
                 <div id="fleet-modal-body">
                     <!-- Les détails seront injectés ici -->
                 </div>
@@ -270,18 +270,18 @@ include __DIR__ . '/../includes/menu_logged.php';
 
                 //verifie avec une requête AJAX si l'image existe                             
                 html += '<tr><td colspan="2"><hr class="divider"></td></tr>';
-                html += '<tr><td colspan="2" style="font-weight:bold;color:#1abc9c;font-size:1.08em;padding-bottom:6px;">Image de l\'appareil</td></tr>';   
+                html += '<tr><td colspan="2" style="font-weight:bold;color:#1abc9c;font-size:1.08em;padding-bottom:6px;">' + <?= json_encode(t('fleet_modal_image')) ?> + '</td></tr>';
                 html += '<tr><td colspan="2" style="text-align:center;"><img src="' + imagePath + '" alt="Image de l\'appareil" class="responsive-img"></td></tr>';
                                        
                 html += '</table>';
                 //si l'utilisateur est admin, on ajoute le bouton pour uploader une image
                 if (details['Immatriculation'] && <?php echo (int)($_SESSION['user']['isAdmin'] ?? 0); ?> === 1) {
                     html += '<hr class="divider">';
-                    html += '<p style="font-weight:bold;color:#1abc9c;font-size:1.08em;padding-bottom:6px;">Actions</p>';
+                    html += '<p style="font-weight:bold;color:#1abc9c;font-size:1.08em;padding-bottom:6px;">' + <?= json_encode(t('fleet_modal_actions')) ?> + '</p>';
                     html += '<form id="uploadForm" enctype="multipart/form-data" method="post" action="/scripts/admin_fleet_image.php">';
                     html += '<input type="hidden" name="immat" value="' + details['Immatriculation'] + '">';
                     html += '<input type="file" name="image" accept=".jpg" required class="mb-8">';
-                    html += '<button class="btn mt-8" type="submit">Uploader l\'image (Max 250Ko)</button>';
+                    html += '<button class="btn mt-8" type="submit">' + <?= json_encode(t('fleet_modal_upload')) ?> + '</button>';
                     html += '</form>';
                 }
                 document.getElementById('fleet-modal-body').innerHTML = html;

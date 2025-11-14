@@ -28,21 +28,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $mdp2 = $_POST['motdepasse2'] ?? '';
 
     if (empty($prenom) || empty($nom) || empty($email) || empty($mdp) || empty($mdp2)) {
-        $errors[] = "Tous les champs sont obligatoires.";
+        $errors[] = t('register_error_required');
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errors[] = "Adresse email invalide.";
+        $errors[] = t('register_error_email');
     } elseif ($mdp !== $mdp2) {
-        $errors[] = "Les mots de passe ne correspondent pas.";
+        $errors[] = t('register_error_password_match');
     } else {
         // Si l'utilisateur a saisi un callsign, on vérifie sa validité et unicité
         if ($callsign !== '') {
             if (!isValidCallsign($callsign)) {
-                $errors[] = "Le callsign doit être au format SKY suivi de 4 chiffres (ex : SKY1234).";
+                $errors[] = t('register_error_callsign_format');
             } else {
                 $stmt = $pdo->prepare("SELECT id FROM PILOTES WHERE callsign = ?");
                 $stmt->execute([$callsign]);
                 if ($stmt->fetch()) {
-                    $errors[] = "Ce callsign est déjà utilisé, merci d'en choisir un autre.";
+                    $errors[] = t('register_error_callsign_used');
                 }
             }
         } else {
@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $pdo->prepare("SELECT id FROM PILOTES WHERE email = ?");
             $stmt->execute([$email]);
             if ($stmt->fetch()) {
-                $errors[] = "Un compte avec cet email existe déjà.";
+                $errors[] = t('register_error_email_used');
             }
         }
     }
@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Affecter le grade 1 (Junior) à tout nouveau pilote
         $stmt = $pdo->prepare("INSERT INTO PILOTES (callsign, password, prenom, nom, email, admin, grade_id, revenus, actif) VALUES (?, ?, ?, ?, ?, 0, 1, 0, 1)");
         if(!$stmt->execute([$callsign, $hash, $prenom, $nom, $email])) {
-            $errors[] = "Erreur lors de l'inscription, veuillez réessayer.";
+            $errors[] = t('register_error_insert');
         } else {
             $_SESSION['user'] = [
                 'callsign' => $callsign,
@@ -106,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 
 <main>
-    <h2>Inscription</h2>
+    <h2><?= t('register_title') ?></h2>
     <?php if (!empty($errors)): ?>
         <div class="erreurs">
             <ul>
@@ -118,36 +118,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
     <?php if (empty($errors) && $_SERVER['REQUEST_METHOD'] === 'POST'): ?>
         <div class="success" style="background:#e6f9e6;color:#1a7e1a;padding:12px 18px;border-radius:6px;margin-bottom:18px;font-weight:bold;text-align:center;box-shadow:0 2px 8px #0001;">
-            Inscription enregistrée avec succès !<br>Vous pouvez vous connecter dès maintenant avec votre callsign <strong><?= htmlspecialchars($callsign) ?></strong>.
+            <?= t('register_success') ?><br><?= t('register_success_login') ?> <strong><?= htmlspecialchars($callsign) ?></strong>.
         </div>
     <?php endif; ?>
 
     <form class="form-inscription" method="post" action="">
-    <label>Callsign :
-        <input type="text" name="callsign" pattern="SKY\d{4}" maxlength="7" placeholder="Exemple: SKY1234">
+    <label><?= t('register_callsign') ?>
+        <input type="text" name="callsign" pattern="SKY\d{4}" maxlength="7" placeholder="<?= t('register_callsign_placeholder') ?>">
     </label>
 
-    <label>Prénom :
+    <label><?= t('register_firstname') ?>
         <input type="text" name="prenom" required>
     </label>
 
-    <label>Nom :
+    <label><?= t('register_lastname') ?>
         <input type="text" name="nom" required>
     </label>
 
-    <label>Email :
+    <label><?= t('register_email') ?>
         <input type="email" name="email" required>
     </label>
 
-    <label>Mot de passe :
+    <label><?= t('register_password') ?>
         <input type="password" name="motdepasse" required>
     </label>
 
-    <label>Confirmer mot de passe :
+    <label><?= t('register_password_confirm') ?>
         <input type="password" name="motdepasse2" required>
     </label>
 
-    <button type="submit">S'inscrire</button>
+    <button type="submit"><?= t('register_submit') ?></button>
     </form>
 </main>
 

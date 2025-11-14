@@ -1,4 +1,6 @@
+
 <?php
+require_once("lang.php");
 require_once("includes/db_connect.php");
 
 try {
@@ -30,7 +32,7 @@ try {
             </tbody>
         </table>
     <?php else: ?>
-        <p>Aucun vol en cours.</p>
+        <p><?= t('liveflights_none') ?></p>
     <?php endif;
 } catch (PDOException $e) {
     echo "<p>Erreur lors de la récupération des vols en cours : " . htmlspecialchars($e->getMessage()) . "</p>";

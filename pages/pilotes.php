@@ -16,16 +16,16 @@ include __DIR__ . '/../includes/menu_logged.php';
 
 <main>
     <div class="container" style="max-width:700px;margin:40px 0 40px 0;background:#fff;padding:32px;border-radius:12px;box-shadow:0 2px 16px rgba(0,0,0,0.08);">
-        <h2 style="text-align:left;color:#1a3552;margin-bottom:28px;">Liste des pilotes</h2>
+        <h2 style="text-align:left;color:#1a3552;margin-bottom:28px;"><?= t('pilotes_title') ?></h2>
         <?php if (empty($pilotes)): ?>
-            <p>Aucun pilote trouvé.</p>
+            <p><?= t('pilotes_no_results') ?></p>
         <?php else: ?>
             <table class="grades-table-gauche" style="width:100%;border-collapse:collapse;font-size:1.08em;margin-left:0;">
                 <thead>
                     <tr style="background:#eaf2fb;">
-                        <th style="padding:10px 8px;text-align:left;">Callsign</th>
-                        <th style="padding:10px 8px;text-align:left;">Prénom</th>
-                        <th style="padding:10px 8px;text-align:left;">Nom</th>
+                        <th style="padding:10px 8px;text-align:left;"><?= t('pilotes_table_callsign') ?></th>
+                        <th style="padding:10px 8px;text-align:left;"><?= t('pilotes_table_prenom') ?></th>
+                        <th style="padding:10px 8px;text-align:left;"><?= t('pilotes_table_nom') ?></th>
                     </tr>
                 </thead>
                 <tbody>

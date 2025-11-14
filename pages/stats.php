@@ -106,28 +106,28 @@ include __DIR__ . '/../includes/menu_logged.php';
 
 
 <main>
-    <h2 style="margin-bottom: 1.5em;">Statistiques générales de la compagnie</h2>
+    <h2 style="margin-bottom: 1.5em;"><?= t('stats_title') ?></h2>
 
     <!-- Cartes synthétiques -->
     <div style="display: flex; flex-wrap: wrap; gap: 24px; margin-bottom: 2.5em;">
-        <div class="stat-card"><div class="stat-label">Appareils actifs</div><div class="stat-value"><?= $nbAppareils ?></div></div>
-        <div class="stat-card"><div class="stat-label">Destinations</div><div class="stat-value"><?= $nbDestinations ?></div></div>
-        <div class="stat-card"><div class="stat-label">Durée moyenne d'un vol</div><div class="stat-value"><?= $dureeMoyenneVols ?> min</div></div>
-        <div class="stat-card"><div class="stat-label">Appareil le plus utilisé</div><div class="stat-value"><?= htmlspecialchars($appareilPlusUtilise['immat']) ?><br><span class="stat-sub">(<?= $appareilPlusUtilise['nb'] ?> vols)</span></div></div>
-        <div class="stat-card"><div class="stat-label">Appareil ayant le plus d'heures</div><div class="stat-value"><?= htmlspecialchars($appareilPlusDHeures['immat']) ?><br><span class="stat-sub">(<?= $appareilPlusDHeures['total_heures'] ?> h)</span></div></div>
-        <div class="stat-card"><div class="stat-label">Pilote le plus actif</div><div class="stat-value"><?= htmlspecialchars($pilotePlusActif['callsign']) ?><br><span class="stat-sub">(<?= $pilotePlusActif['heures'] ?> h)</span></div></div>
-        <div class="stat-card"><div class="stat-label">Trajet le plus fréquent</div><div class="stat-value"><?= htmlspecialchars($trajetFrequent['trajet']) ?><br><span class="stat-sub">(<?= $trajetFrequent['nb'] ?> vols)</span></div></div>
+        <div class="stat-card"><div class="stat-label"><?= t('stats_card_active_planes') ?></div><div class="stat-value"><?= $nbAppareils ?></div></div>
+        <div class="stat-card"><div class="stat-label"><?= t('stats_card_destinations') ?></div><div class="stat-value"><?= $nbDestinations ?></div></div>
+        <div class="stat-card"><div class="stat-label"><?= t('stats_card_avg_flight_duration') ?></div><div class="stat-value"><?= $dureeMoyenneVols ?> <?= t('stats_card_minutes') ?></div></div>
+        <div class="stat-card"><div class="stat-label"><?= t('stats_card_most_used_plane') ?></div><div class="stat-value"><?= htmlspecialchars($appareilPlusUtilise['immat']) ?><br><span class="stat-sub">(<?= $appareilPlusUtilise['nb'] ?> <?= t('stats_card_flights') ?>)</span></div></div>
+        <div class="stat-card"><div class="stat-label"><?= t('stats_card_most_hours_plane') ?></div><div class="stat-value"><?= htmlspecialchars($appareilPlusDHeures['immat']) ?><br><span class="stat-sub">(<?= $appareilPlusDHeures['total_heures'] ?> <?= t('stats_card_hours') ?>)</span></div></div>
+        <div class="stat-card"><div class="stat-label"><?= t('stats_card_most_active_pilot') ?></div><div class="stat-value"><?= htmlspecialchars($pilotePlusActif['callsign']) ?><br><span class="stat-sub">(<?= $pilotePlusActif['heures'] ?> <?= t('stats_card_hours') ?>)</span></div></div>
+        <div class="stat-card"><div class="stat-label"><?= t('stats_card_most_frequent_route') ?></div><div class="stat-value"><?= htmlspecialchars($trajetFrequent['trajet']) ?><br><span class="stat-sub">(<?= $trajetFrequent['nb'] ?> <?= t('stats_card_flights') ?>)</span></div></div>
     </div>
 
 
     <!-- Graphique Vols par année + état flotte par immat -->
     <div style="display:flex; flex-wrap:wrap; gap:40px; align-items:flex-start; margin-bottom:2.5em;">
         <div style="flex:1; min-width:320px; max-width:700px;">
-            <h3 style="margin-bottom:0.5em;">Évolution du nombre de vols par année</h3>
+            <h3 style="margin-bottom:0.5em;"><?= t('stats_evolution_flights_per_year') ?></h3>
             <canvas id="chartVolsParAn" height="120"></canvas>
         </div>
         <div style="flex:3; min-width:600px; max-width:1400px;">
-            <h3 style="margin-bottom:0.5em;">État de chaque appareil (par immatriculation)</h3>
+            <h3 style="margin-bottom:0.5em;"><?= t('stats_fleet_status_by_immat') ?></h3>
             <canvas id="chartEtatFlotte" height="100"></canvas>
         </div>
     </div>
@@ -135,9 +135,9 @@ include __DIR__ . '/../includes/menu_logged.php';
     <!-- Top 10 pilotes par heures de vol -->
     <div style="display:flex; flex-wrap:wrap; gap:40px; align-items:flex-start; margin-bottom:2.5em;">
         <div style="flex:1; min-width:320px;">
-            <h3>Top 10 pilotes (heures de vol)</h3>
+            <h3><?= t('stats_top10_pilots') ?></h3>
             <table class="table-skywings">
-                <thead><tr><th>Callsign</th><th>Heures</th></tr></thead>
+                <thead><tr><th><?= t('stats_table_callsign') ?></th><th><?= t('stats_table_hours') ?></th></tr></thead>
                 <tbody>
                 <?php
                 $topPilotes = $pdo->query("SELECT p.callsign, ROUND(SUM(TIME_TO_SEC(temps_vol)/3600),1) AS heures FROM CARNET_DE_VOL_GENERAL c JOIN PILOTES p ON c.pilote_id = p.id GROUP BY p.callsign ORDER BY heures DESC LIMIT 10")->fetchAll();
@@ -148,9 +148,9 @@ include __DIR__ . '/../includes/menu_logged.php';
             </table>
         </div>
         <div style="flex:1; min-width:320px;">
-            <h3>Top 10 appareils (heures de vol)</h3>
+            <h3><?= t('stats_top10_planes') ?></h3>
             <table class="table-skywings">
-                <thead><tr><th>Immat</th><th>Heures</th></tr></thead>
+                <thead><tr><th><?= t('stats_table_immat') ?></th><th><?= t('stats_table_hours') ?></th></tr></thead>
                 <tbody>
                 <?php
                 $topAppareils = $pdo->query("SELECT f.immat, ROUND(SUM(TIME_TO_SEC(TIMEDIFF(c.heure_arrivee, c.heure_depart))/3600),1) AS heures FROM CARNET_DE_VOL_GENERAL c JOIN FLOTTE f ON c.appareil_id = f.id GROUP BY f.immat ORDER BY heures DESC LIMIT 10")->fetchAll();
@@ -165,9 +165,9 @@ include __DIR__ . '/../includes/menu_logged.php';
     <!-- Top 20 aéroports les plus visités + records -->
     <div style="display:flex; flex-wrap:wrap; gap:40px; align-items:flex-start; margin-bottom:2.5em;">
         <div style="flex:1; min-width:320px;">
-            <h3>Top 20 aéroports les plus visités</h3>
+            <h3><?= t('stats_top20_airports') ?></h3>
             <table class="table-skywings">
-                <thead><tr><th>Aéroport</th><th>Visites</th></tr></thead>
+                <thead><tr><th><?= t('stats_table_airport') ?></th><th><?= t('stats_table_visits') ?></th></tr></thead>
                 <tbody>
                 <?php foreach ($topAeroports as $a): ?>
                     <tr><td><?= htmlspecialchars($a['depart']) ?></td><td><?= htmlspecialchars($a['nb_visites']) ?></td></tr>
@@ -176,16 +176,16 @@ include __DIR__ . '/../includes/menu_logged.php';
             </table>
         </div>
         <div style="flex:1; min-width:320px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-            <h3 style="text-align:center;margin-bottom:18px;">Records de la compagnie</h3>
+            <h3 style="text-align:center;margin-bottom:18px;"><?= t('stats_company_records') ?></h3>
             <ul style="font-size:1.13em;line-height:1.8;list-style:none;padding:0;margin:0;max-width:420px;text-align:center;background:#f8faff;border-radius:12px;box-shadow:0 2px 12px #0001;padding:24px 18px;display:inline-block;">
                 <?php
                 $volLong = $pdo->query("SELECT c.id, p.callsign, f.immat, c.depart, c.destination, TIMEDIFF(c.heure_arrivee, c.heure_depart) AS duree FROM CARNET_DE_VOL_GENERAL c LEFT JOIN PILOTES p ON c.pilote_id=p.id LEFT JOIN FLOTTE f ON c.appareil_id=f.id ORDER BY TIMEDIFF(c.heure_arrivee, c.heure_depart) DESC LIMIT 1")->fetch();
                 $volCourt = $pdo->query("SELECT c.id, p.callsign, f.immat, c.depart, c.destination, TIMEDIFF(c.heure_arrivee, c.heure_depart) AS duree FROM CARNET_DE_VOL_GENERAL c LEFT JOIN PILOTES p ON c.pilote_id=p.id LEFT JOIN FLOTTE f ON c.appareil_id=f.id WHERE TIMEDIFF(c.heure_arrivee, c.heure_depart) > 0 ORDER BY TIMEDIFF(c.heure_arrivee, c.heure_depart) ASC LIMIT 1")->fetch();
                 $volsParMois = $pdo->query("SELECT COUNT(*)/COUNT(DISTINCT CONCAT(YEAR(date_vol),'-',MONTH(date_vol))) AS moy FROM CARNET_DE_VOL_GENERAL")->fetchColumn();
                 ?>
-                <li style="margin-bottom:12px;">🕑 <strong>Vol le plus long :</strong><br><span style="color:#1976d2;"> <?= htmlspecialchars($volLong['callsign']) ?>, <?= htmlspecialchars($volLong['immat']) ?>, <?= htmlspecialchars($volLong['depart']) ?> → <?= htmlspecialchars($volLong['destination']) ?> (<?= $volLong['duree'] ?>)</span></li>
-                <li style="margin-bottom:12px;">⚡ <strong>Vol le plus court :</strong><br><span style="color:#1976d2;"> <?= htmlspecialchars($volCourt['callsign']) ?>, <?= htmlspecialchars($volCourt['immat']) ?>, <?= htmlspecialchars($volCourt['depart']) ?> → <?= htmlspecialchars($volCourt['destination']) ?> (<?= $volCourt['duree'] ?>)</span></li>
-                <li>📈 <strong>Moyenne de vols par mois :</strong><br><span style="color:#1976d2;"> <?= number_format($volsParMois,1,',',' ') ?></span></li>
+                <li style="margin-bottom:12px;">🕑 <strong><?= t('stats_record_longest_flight') ?></strong><br><span style="color:#1976d2;"> <?= htmlspecialchars($volLong['callsign']) ?>, <?= htmlspecialchars($volLong['immat']) ?>, <?= htmlspecialchars($volLong['depart']) ?> → <?= htmlspecialchars($volLong['destination']) ?> (<?= $volLong['duree'] ?>)</span></li>
+                <li style="margin-bottom:12px;">⚡ <strong><?= t('stats_record_shortest_flight') ?></strong><br><span style="color:#1976d2;"> <?= htmlspecialchars($volCourt['callsign']) ?>, <?= htmlspecialchars($volCourt['immat']) ?>, <?= htmlspecialchars($volCourt['depart']) ?> → <?= htmlspecialchars($volCourt['destination']) ?> (<?= $volCourt['duree'] ?>)</span></li>
+                <li>📈 <strong><?= t('stats_record_avg_flights_per_month') ?></strong><br><span style="color:#1976d2;"> <?= number_format($volsParMois,1,',',' ') ?></span></li>
             </ul>
         </div>
     </div>

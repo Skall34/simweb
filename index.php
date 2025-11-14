@@ -18,30 +18,30 @@ if (!isset($_SESSION['user'])) {
         <div class="hero-layout">
             <!-- Texte à gauche -->
             <div class="hero-card">
-                <h2>Bienvenue sur <strong>SkyWings VA</strong></h2>                
-                <p><strong>SkyWings VA</strong> est une compagnie aérienne virtuelle qui vous permet de suivre vos vols, de gérer votre flotte, et de participer à des missions variées dans un univers immersif.</p>
-                <p>Une fois inscrit sur notre site, vous aurez accès à <b>SimAddon</b>, un logiciel qui va vous permettre de monitorer vos vols sur simulateur (XPlane ou FS2020, ou FS2024).</p>
-                <p><b>SimAddon</b>, vous permettra, entre autre, d'envoyer votre rapport de vol à la fin de votre périple, dans la base de données du site.</p>
-                <p>Il sera alors importé. Voici les étapes qu'il va suivre:</p>
+                <h2><?= t('index_hero_title') ?></h2>                
+                <p><?= t('index_hero_intro') ?></p>
+                <p><?= t('index_hero_simaddon_1') ?></p>
+                <p><?= t('index_hero_simaddon_2') ?></p>
+                <p><?= t('index_hero_steps_intro') ?></p>
                 <ul class="inline-ul-margin">
-                    <li>Vérification de la validité du rapport de vol</li>
-                    <li>Extraction des informations du vol (pilote, heure, aéroports, appareil, etc.)</li>
-                    <li>Enregistrement des données dans la base de données</li>
-                    <li>Met à jour le fret, la flotte, les finances, le carnet de vol, et l'usure des appareils.</li>
-                    <li>Met à jour la balance commerciale.</li>
-                    <li>Met à jour votre carnet de vol personnel</li>
+                    <li><?= t('index_hero_step1') ?></li>
+                    <li><?= t('index_hero_step2') ?></li>
+                    <li><?= t('index_hero_step3') ?></li>
+                    <li><?= t('index_hero_step4') ?></li>
+                    <li><?= t('index_hero_step5') ?></li>
+                    <li><?= t('index_hero_step6') ?></li>
                 </ul>
-                <p>Le site permet une gestion complète d'une flotte d'appareils, avec une gestion automatique de la maintenance.</p>
-                <p>Il gère aussi un système de grades pour les pilotes, qui a une influence sur les salaires.</p>
+                <p><?= t('index_hero_maintenance') ?></p>
+                <p><?= t('index_hero_grades') ?></p>
             </div>
 
             <!-- Image + Vols en cours à droite -->
             <div class="hero-right">
                 <img src="assets/images/accueil.jpg" alt="SkyWings" class="hero-image">
                 <section>
-                    <h2 class="text-center no-top-margin">Vols en cours</h2>
+                    <h2 class="text-center no-top-margin"><?= t('index_liveflights_title') ?></h2>
                     <div id="live-flights-container">
-                        <p>Chargement des vols en cours...</p>
+                        <p><?= t('index_liveflights_loading') ?></p>
                     </div>
                 </section>
             </div>
@@ -51,7 +51,7 @@ if (!isset($_SESSION['user'])) {
         // Message de bienvenue personnalisé
         $callsign = isset($_SESSION['user']['callsign']) ? htmlspecialchars($_SESSION['user']['callsign']) : '';
         if ($callsign) {
-            echo '<div class="welcome-msg">Bonjour ' . $callsign . ' 👋</div>';
+            echo '<div class="welcome-msg">' . t('index_welcome') . ' ' . $callsign . ' 👋</div>';
         }
 
         // Message d'accueil administrable (3 lignes max)
@@ -61,7 +61,7 @@ if (!isset($_SESSION['user'])) {
         if ($message_accueil) {
             echo '<div class="notice-box">'
                 . '<div class="notice-card">'
-                . '<div style="font-weight:bold; color:#2a4d7a; margin-bottom:0.4em; text-align:center;">Message de la direction</div>'
+                . '<div style="font-weight:bold; color:#2a4d7a; margin-bottom:0.4em; text-align:center;">' . t('index_notice_title') . '</div>'
                 . nl2br(htmlspecialchars($message_accueil))
                 . '</div></div>';
         }
@@ -84,10 +84,10 @@ if (!isset($_SESSION['user'])) {
                     $arr = isset($res['icao_arr']) ? htmlspecialchars($res['icao_arr']) : '';
                     $date = isset($res['date_reservation']) ? date("d-m-Y H:i", strtotime($res['date_reservation'])) : '';
                     echo '<div class="reservation-box">'
-                        . '<strong>Réservation active :</strong> '
-                        . ($immat ? 'Appareil: ' . $immat . ' — ' : '')
-                        . 'Ligne: ' . ($dep ?: 'N/A') . ' → ' . ($arr ?: 'N/A') . ' — Réservé le ' . $date
-                        . ' — <a href="pages/mon_compte.php">Voir / Annuler</a>'
+                        . '<strong>' . t('index_reservation_active') . '</strong> '
+                        . ($immat ? t('index_reservation_plane') . $immat . ' — ' : '')
+                        . t('index_reservation_line') . ($dep ?: 'N/A') . ' → ' . ($arr ?: 'N/A') . ' — ' . t('index_reservation_date') . $date
+                        . ' — <a href="pages/mon_compte.php">' . t('index_reservation_link') . '</a>'
                         . '</div>';
                 }
             }
@@ -113,7 +113,7 @@ if (!isset($_SESSION['user'])) {
             $stmt = $pdo->query($sql);
             $vols = $stmt->fetchAll();
         } catch (PDOException $e) {
-            echo "<p>Erreur lors de la récupération des vols : " . htmlspecialchars($e->getMessage()) . "</p>";
+            echo "<p>" . t('index_error_flights') . htmlspecialchars($e->getMessage()) . "</p>";
             $vols = [];
         }
     ?>
@@ -122,9 +122,9 @@ if (!isset($_SESSION['user'])) {
         <div class="content-row">
                 <div class="flex-1">
                     <section>
-                        <h2 class="no-top-margin">Vols en cours</h2>
+                        <h2 class="no-top-margin"><?= t('index_liveflights_title') ?></h2>
                     <div id="live-flights-container">
-                        <p>Chargement des vols en cours...</p>
+                        <p><?= t('index_liveflights_loading') ?></p>
                     </div>
                 </section>
             </div>
@@ -160,22 +160,22 @@ if (!isset($_SESSION['user'])) {
     $balanceColor = ($balance >= 0) ? '#1abc9c' : '#e74c3c';
     ?>
     <div class="balance-panel">
-        <span class="balance-label">Balance commerciale de la compagnie :</span>
+        <span class="balance-label"><?= t('index_balance_label') ?></span>
         <span class="balance-value" style="color: <?= $balanceColor ?>;"><?= format_chiffre($balance) ?> €</span>
     </div>
     <!-- Titre du tableau -->
-    <h2>Les 10 derniers vols</h2>
+    <h2><?= t('index_last10_title') ?></h2>
 
     <!-- Tableau des vols -->
     <table class="table-skywings">
         <thead>
             <tr>
-                <th>Date</th>
-                <th>Callsign</th>
-                <th>Appareil</th>
-                <th>Départ</th>
-                <th>Destination</th>
-                <th>Durée</th>
+                <th><?= t('index_table_date') ?></th>
+                <th><?= t('index_table_callsign') ?></th>
+                <th><?= t('index_table_plane') ?></th>
+                <th><?= t('index_table_dep') ?></th>
+                <th><?= t('index_table_arr') ?></th>
+                <th><?= t('index_table_duration') ?></th>
             </tr>
         </thead>
         <tbody>
@@ -209,7 +209,7 @@ try {
 ?>
 <?php if (!empty($vols_en_cours)): ?>
     <!--affiche une carte openstreetmap avec les vols en cours-->
-    <h2>Carte des vols en cours</h2>
+    <h2><?= t('index_map_title') ?></h2>
     <div id="map" class="map-div"></div>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
@@ -300,7 +300,7 @@ try {
                 document.getElementById('live-flights-container').innerHTML = html;
             })
             .catch(error => {
-                document.getElementById('live-flights-container').innerHTML = "<p>Erreur de chargement des vols en cours.</p>";
+                document.getElementById('live-flights-container').innerHTML = "<p>" + t('index_liveflights_error') + "</p>";
                 console.error("Erreur AJAX :", error);
             });
     }

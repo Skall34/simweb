@@ -102,28 +102,30 @@ $reservations = $stmt->fetchAll(PDO::FETCH_ASSOC);
 include __DIR__ . '/../includes/header.php';
 include __DIR__ . '/../includes/menu_logged.php';
 ?>
+
+<?php include_once __DIR__ . '/../lang/lang.php'; ?>
 <main>
-    <h2>Mon compte</h2>
+    <h2><?= t('account_title') ?></h2>
     <?php
     if ($message) {
-        $isSuccess = strpos($message, 'succès') !== false;
+        $isSuccess = strpos($message, t('account_success_keyword')) !== false;
         $color = $isSuccess ? '#1ca64c' : '#d60000';
-        echo "<div style='font-weight:bold;color:$color;margin-bottom:16px;'>$message</div>";
+        echo "<div style='font-weight:bold;color:$color;margin-bottom:16px;'>" . t($message) . "</div>";
     }
     ?>
 
     <div class="account-grid">
         <div class="compte-section full-width">
-            <h3>Ligne régulière réservée</h3>
+            <h3><?= t('account_reserved_line_title') ?></h3>
             <?php if (count($reservations) === 0): ?>
-                <p>Aucune réservation active.</p>
+                <p><?= t('account_no_active_reservation') ?></p>
             <?php else: ?>
                 <table class="table-skywings" style="margin-top:8px;">
                     <thead>
                         <tr>
-                            <th>Ligne</th>
-                            <th>Immat.</th>
-                            <th>Date réservation</th>
+                            <th><?= t('account_table_line') ?></th>
+                            <th><?= t('account_table_immat') ?></th>
+                            <th><?= t('account_table_date_reservation') ?></th>
                             <th></th>
                         </tr>
                     </thead>
@@ -133,7 +135,6 @@ include __DIR__ . '/../includes/menu_logged.php';
                                 <td><?= htmlspecialchars(($res['icao_dep'] ?? '---') . ' → ' . ($res['icao_arr'] ?? '---')) ?></td>
                                 <td><?= htmlspecialchars($res['immat'] ?? '') ?></td>
                                 <td><?php
-                                    // afficher la date de réservation au format JJ-MM-AAAA HH:MM (conserver l'heure)
                                     try {
                                         $dtr = new DateTime($res['date_reservation']);
                                         echo $dtr->format('d-m-Y H:i');
@@ -144,7 +145,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                                 <td>
                                     <form method="post" style="display:inline;" class="form-cancel-reservation">
                                         <input type="hidden" name="cancel_reservation_id" value="<?= intval($res['id']) ?>">
-                                        <button type="submit" class="btn-bleu">Annuler</button>
+                                        <button type="submit" class="btn-bleu"><?= t('account_cancel_button') ?></button>
                                     </form>
                                 </td>
                             </tr>
@@ -156,34 +157,34 @@ include __DIR__ . '/../includes/menu_logged.php';
 
         <div class="left-column">
             <div class="compte-section">
-                <h3>Informations personnelles</h3>
+                <h3><?= t('account_personal_info_title') ?></h3>
                 <div class="compte-infos">
-                    <p><strong>Callsign :</strong> <?= htmlspecialchars($pilote['callsign']) ?></p>
-                    <p><strong>Nom :</strong> <?= htmlspecialchars($pilote['nom'] ?? '') ?></p>
-                    <p><strong>Prénom :</strong> <?= htmlspecialchars($pilote['prenom'] ?? '') ?></p>
-                    <p><strong>Email :</strong> <?= htmlspecialchars($pilote['email'] ?? '') ?></p>
-                    <p><strong>Grade :</strong> <?= htmlspecialchars($grade_nom) ?></p>
-                    <p><strong>Revenu cumulé :</strong> <?= isset($pilote['revenus']) ? number_format($pilote['revenus'], 2, ',', ' ') : '0,00' ?> €</p>
+                    <p><strong><?= t('account_label_callsign') ?></strong> <?= htmlspecialchars($pilote['callsign']) ?></p>
+                    <p><strong><?= t('account_label_nom') ?></strong> <?= htmlspecialchars($pilote['nom'] ?? '') ?></p>
+                    <p><strong><?= t('account_label_prenom') ?></strong> <?= htmlspecialchars($pilote['prenom'] ?? '') ?></p>
+                    <p><strong><?= t('account_label_email') ?></strong> <?= htmlspecialchars($pilote['email'] ?? '') ?></p>
+                    <p><strong><?= t('account_label_grade') ?></strong> <?= htmlspecialchars($grade_nom) ?></p>
+                    <p><strong><?= t('account_label_revenus') ?></strong> <?= isset($pilote['revenus']) ? number_format($pilote['revenus'], 2, ',', ' ') : '0,00' ?> €</p>
                 </div>
             </div>
 
             <div class="compte-section">
-                <h3>Changer le mot de passe</h3>
+                <h3><?= t('account_change_password_title') ?></h3>
                 <form method="post" class="form-mdp">
                     <div class="form-row">
-                        <label for="old_password">Mot de passe actuel :</label>
+                        <label for="old_password"><?= t('account_label_old_password') ?></label>
                         <input type="password" name="old_password" id="old_password" required>
                     </div>
                     <div class="form-row">
-                        <label for="new_password">Nouveau mot de passe :</label>
+                        <label for="new_password"><?= t('account_label_new_password') ?></label>
                         <input type="password" name="new_password" id="new_password" required>
                     </div>
                     <div class="form-row">
-                        <label for="new_password_confirm">Confirmer le nouveau mot de passe :</label>
+                        <label for="new_password_confirm"><?= t('account_label_confirm_new_password') ?></label>
                         <input type="password" name="new_password_confirm" id="new_password_confirm" required>
                     </div>
                     <div class="form-row">
-                        <button type="submit" class="btn-bleu">Modifier</button>
+                        <button type="submit" class="btn-bleu"><?= t('account_change_button') ?></button>
                     </div>
                 </form>
             </div>
@@ -191,21 +192,16 @@ include __DIR__ . '/../includes/menu_logged.php';
 
         <div class="right-column">
             <div class="compte-section">
-                <h3>Détail du dernier salaire versé</h3>
+                <h3><?= t('account_last_salary_title') ?></h3>
                 <?php if ($dernier_salaire):
                     $date_paiement = $dernier_salaire['date_de_paiement'];
-                        // Calculer la plage du mois précédent par rapport à la date de paiement
                         try {
                             $dt = new DateTime($date_paiement);
                         } catch (Exception $e) {
                             $dt = new DateTime();
                         }
-                        // premier jour du mois précédent
                         $start_prev = $dt->modify('first day of this month')->modify('-1 month')->format('Y-m-01');
-                        // dernier jour du mois précédent
                         $end_prev = (new DateTime($start_prev))->format('Y-m-t');
-
-                        // Récupérer la somme des secondes de vol et le payload pour le mois précédent
                         $stmt = $pdo->prepare('SELECT COALESCE(SUM(TIME_TO_SEC(temps_vol)),0) AS total_secs, COALESCE(SUM(payload),0) AS payload_sum FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = ? AND date_vol BETWEEN ? AND ?');
                         $stmt->execute([$id, $start_prev . ' 00:00:00', $end_prev . ' 23:59:59']);
                         $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -214,7 +210,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                         $payload_salaire = isset($row['payload_sum']) ? (float)$row['payload_sum'] : 0.0;
                 ?>
                 <div class="compte-infos">
-                    <p><strong>Date de paiement :</strong> <?php
+                    <p><strong><?= t('account_label_salary_date') ?></strong> <?php
                         try {
                             $dtp = new DateTime($dernier_salaire['date_de_paiement']);
                             echo $dtp->format('d-m-Y');
@@ -222,42 +218,39 @@ include __DIR__ . '/../includes/menu_logged.php';
                             echo htmlspecialchars($dernier_salaire['date_de_paiement']);
                         }
                     ?></p>
-                    <p><strong>Montant :</strong> <?= number_format($dernier_salaire['montant'], 2, ',', ' ') ?> €</p>
-                    <p><strong>Nombre d'heures volées :</strong> <?= number_format($heures_salaire, 2, ',', ' ') ?> h</p>
-                    <p><strong>Payload transporté :</strong> <?= number_format($payload_salaire, 2, ',', ' ') ?> kg</p>
+                    <p><strong><?= t('account_label_salary_amount') ?></strong> <?= number_format($dernier_salaire['montant'], 2, ',', ' ') ?> €</p>
+                    <p><strong><?= t('account_label_salary_hours') ?></strong> <?= number_format($heures_salaire, 2, ',', ' ') ?> h</p>
+                    <p><strong><?= t('account_label_salary_payload') ?></strong> <?= number_format($payload_salaire, 2, ',', ' ') ?> kg</p>
                 </div>
                 <?php else: ?>
                 <div class="compte-infos">
-                    <p>Aucun salaire versé pour l'instant.</p>
+                    <p><?= t('account_no_salary') ?></p>
                 </div>
                 <?php endif; ?>
             </div>
 
             <div class="compte-section">
-                <h3>Statistiques de vol</h3>
+                <h3><?= t('account_flight_stats_title') ?></h3>
                 <div class="compte-infos">
-                    <p><strong>Nombre de vols :</strong> <?= $nb_vols ?></p>
-                    <p><strong>Nombre d'heures de vol :</strong> <?= $heures ? number_format($heures, 2, ',', ' ') : '0,00' ?> h</p>
-                    <p><strong>Recettes rapportées :</strong> <?= $recettes ? number_format($recettes, 2, ',', ' ') : '0,00' ?> €</p>
+                    <p><strong><?= t('account_label_nb_flights') ?></strong> <?= $nb_vols ?></p>
+                    <p><strong><?= t('account_label_nb_hours') ?></strong> <?= $heures ? number_format($heures, 2, ',', ' ') : '0,00' ?> h</p>
+                    <p><strong><?= t('account_label_revenue') ?></strong> <?= $recettes ? number_format($recettes, 2, ',', ' ') : '0,00' ?> €</p>
                 </div>
             </div>
 
             <div class="compte-section">
-                <h3>Top 3 aéroports les plus fréquentés</h3>
+                <h3><?= t('account_top3_airports_title') ?></h3>
                 <ol style="margin-left: 2em;">
                     <?php foreach ($aeroports as $aero): ?>
                         <li>
                             <?= htmlspecialchars($aero['destination']) ?>
-                            
-                            - <?= $aero['freq'] ?> vols
+                            - <?= $aero['freq'] ?> <?= t('account_label_flights') ?>
                         </li>
                     <?php endforeach; ?>
                 </ol>
             </div>
         </div>
     </div>
-
-    
 </main>
 
 <?php

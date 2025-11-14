@@ -15,10 +15,10 @@ include __DIR__ . '/../includes/menu_logged.php';
 ?>
 
 <main>
-    <h2>Fleet Types</h2>
+    <h2><?= t('fleet_type_title') ?></h2>
 
     <?php if (empty($types)): ?>
-        <p>Aucun type trouvé.</p>
+        <p><?= t('fleet_type_no_results') ?></p>
     <?php else: ?>
         <style>
             .table-section {
@@ -64,9 +64,9 @@ include __DIR__ . '/../includes/menu_logged.php';
                 <table class="table-skywings">
                     <thead>
                         <tr>
-                            <th class="fleet_type">Fleet type</th>
-                            <th class="cout_horaire">Coût horaire (€)</th>
-                            <th class="prix">Prix (€)</th>
+                            <th class="fleet_type"><?= t('fleet_type_table_type') ?></th>
+                            <th class="cout_horaire"><?= t('fleet_type_table_cout_horaire') ?></th>
+                            <th class="prix"><?= t('fleet_type_table_prix') ?></th>
                         </tr>
                     </thead>
                     <tbody>

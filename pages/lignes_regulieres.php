@@ -67,71 +67,67 @@ include __DIR__ . '/../includes/menu_logged.php';
 ?>
 <main>
     <?php $lines_count = count($lines); ?>
-    <h2>Lignes régulières disponibles (<?= $lines_count ?>)</h2>
-    <p>Choisissez une ligne pour réserver un appareil.</p>
+    <h2><?= str_replace('{count}', $lines_count, t('lignes_title')) ?></h2>
+    <p><?= t('lignes_subtitle') ?></p>
     <br>
     <?php
-    // message flash après réservation (session) ou fallback sur GET
     if (!empty($_SESSION['flash_reserved'])) {
-        echo "<div class='flash-success'>Réservation enregistrée avec succès. La réservation est valable pendant 24 heures.</div>";
+        echo "<div class='flash-success'>" . t('lignes_flash_success') . "</div>";
         unset($_SESSION['flash_reserved']);
     } elseif (isset($_GET['reserved'])) {
         $res = $_GET['reserved'];
         if ($res === '1') {
-            echo "<div class='flash-success'>Réservation enregistrée avec succès. La réservation est valable pendant 24 heures.</div>";
+            echo "<div class='flash-success'>" . t('lignes_flash_success') . "</div>";
         } elseif ($res === '0') {
-            echo "<div class='flash-error'>Échec de la réservation. Veuillez réessayer.</div>";
+            echo "<div class='flash-error'>" . t('lignes_flash_error') . "</div>";
         } else {
-            // allow a custom message but escape it
             echo "<div class='flash-success'>" . htmlspecialchars($res) . "</div>";
         }
     }
     ?>
-    <!-- Filters above the table so the map can align with the table header -->
     <form method="get" class="filters-form">
-        <label>ICAO départ:
-            <input type="text" name="icao_dep" value="<?= htmlspecialchars($filter_dep) ?>" maxlength="5" class="fleet-filter-input input-160" placeholder="Ex: LFPG" />
+        <label><?= t('lignes_filter_dep') ?>:
+            <input type="text" name="icao_dep" value="<?= htmlspecialchars($filter_dep) ?>" maxlength="5" class="fleet-filter-input input-160" placeholder="<?= t('lignes_filter_dep_placeholder') ?>" />
         </label>
-        <label>ICAO arrivée:
-            <input type="text" name="icao_arr" value="<?= htmlspecialchars($filter_arr) ?>" maxlength="5" class="fleet-filter-input input-160" placeholder="Ex: LFPO" />
+        <label><?= t('lignes_filter_arr') ?>:
+            <input type="text" name="icao_arr" value="<?= htmlspecialchars($filter_arr) ?>" maxlength="5" class="fleet-filter-input input-160" placeholder="<?= t('lignes_filter_arr_placeholder') ?>" />
         </label>
         <br>
-        <label>Type de ligne:
+        <label><?= t('lignes_filter_type') ?>:
             <select name="type_ligne" class="fleet-filter-select input-160">
-                <option value="">-- Tous --</option>
+                <option value=""><?= t('lignes_filter_type_all') ?></option>
                 <?php foreach ($typeLignes as $t): ?>
                     <option value="<?= (int)$t['id'] ?>" <?= ($filter_type !== null && $filter_type === (int)$t['id']) ? 'selected' : '' ?>><?= htmlspecialchars($t['label']) ?></option>
                 <?php endforeach; ?>
             </select>
         </label>
-    <button type="submit" class="btn-bleu">Filtrer</button>
-    <button type="button" class="btn btn-reset" id="resetBtn">Réinitialiser</button>
+    <button type="submit" class="btn-bleu"><?= t('lignes_filter_button') ?></button>
+    <button type="button" class="btn btn-reset" id="resetBtn"><?= t('lignes_reset_button') ?></button>
     </form>
     <script>
         document.getElementById('resetBtn').addEventListener('click', function () {
-            // redirige vers la même page sans paramètres
             window.location.href = 'lignes_regulieres.php';
         });
     </script>
-       <div style="background:#fff3cd;border:1px solid #f0ad4e;color:#856404;padding:12px;border-radius:6px;margin-bottom:12px;"> 
-            <strong>Attention,</strong> pour pouvoir utiliser les lignes régulières, il faut l'Acars (SimAddon) version 4.0.4 minimum.
-        </div>
+    <div style="background:#fff3cd;border:1px solid #f0ad4e;color:#856404;padding:12px;border-radius:6px;margin-bottom:12px;"> 
+        <strong><?= t('lignes_alert_title') ?></strong> <?= t('lignes_alert_text') ?>
+    </div>
     <div class="content-columns">
     <div class="narrow-table-wrapper">
             <div class="panel">
-                <h3>Lignes régulières</h3>
+                <h3><?= t('lignes_table_title') ?></h3>
                 <table class="table-skywings">
         <thead>
             <tr>
-                <th>Départ</th>
-                <th>Arrivée</th>
-                <th>Type</th>
+                <th><?= t('lignes_table_dep') ?></th>
+                <th><?= t('lignes_table_arr') ?></th>
+                <th><?= t('lignes_table_type') ?></th>
                 <th></th>
             </tr>
         </thead>
         <tbody>
             <?php if (count($lines) === 0): ?>
-                <tr><td colspan="4">Aucune ligne trouvée pour ces filtres.</td></tr>
+                <tr><td colspan="4"><?= t('lignes_no_results') ?></td></tr>
             <?php else: ?>
                 <?php foreach ($lines as $line): ?>
                     <tr>
@@ -139,8 +135,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                         <td><?= htmlspecialchars($line['icao_arr']) ?></td>
                         <td><?= htmlspecialchars($line['type_label'] ?? '') ?></td>
                         <td>
-                            <!-- Lien simple (sans style btn) demandé par l'utilisateur -->
-                            <a href="reserver_ligne.php?ligne_id=<?= urlencode($line['id']) ?>">Réserver</a>
+                            <a href="reserver_ligne.php?ligne_id=<?= urlencode($line['id']) ?>"><?= t('lignes_reserver_link') ?></a>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -150,22 +145,21 @@ include __DIR__ . '/../includes/menu_logged.php';
             </div>
         </div>
 
-        <!-- Separator between table panel and map panel -->
         <div class="vertical-sep"></div>
 
         <aside class="right-aside">
             <div class="panel">
-                <h3>Réservations en cours</h3>
+                <h3><?= t('lignes_reservations_title') ?></h3>
                 <?php if (!empty($reservations)): ?>
                     <div class="reservations-scroll">
                         <table class="table-skywings compact">
                             <thead>
                                 <tr>
-                                    <th>Pilote</th>
-                                    <th>Ligne</th>
-                                    <th>Appareil</th>
-                                    <th>Statut</th>
-                                    <th>Date</th>
+                                    <th><?= t('lignes_reservations_pilote') ?></th>
+                                    <th><?= t('lignes_reservations_ligne') ?></th>
+                                    <th><?= t('lignes_reservations_appareil') ?></th>
+                                    <th><?= t('lignes_reservations_statut') ?></th>
+                                    <th><?= t('lignes_reservations_date') ?></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -177,9 +171,9 @@ include __DIR__ . '/../includes/menu_logged.php';
                                         <td><?php
                                             $st = $r['statut'] ?? '';
                                             if ($st === 'in_flight') {
-                                                echo 'En vol';
+                                                echo t('lignes_statut_in_flight');
                                             } elseif ($st === 'reserved') {
-                                                echo 'Réservé';
+                                                echo t('lignes_statut_reserved');
                                             } else {
                                                 echo htmlspecialchars($st);
                                             }
@@ -198,16 +192,16 @@ include __DIR__ . '/../includes/menu_logged.php';
                         </table>
                     </div>
                 <?php else: ?>
-                    <p class="empty-msg">Aucune réservation en cours.</p>
+                    <p class="empty-msg"><?= t('lignes_reservations_empty') ?></p>
                 <?php endif; ?>
             </div>
 
             <div class="panel">
-                <h3>Carte des lignes régulières</h3>
+                <h3><?= t('lignes_map_title') ?></h3>
                 <div class="map-embed">
                     <iframe class="map-iframe" src="https://www.google.com/maps/d/u/0/embed?mid=1fYs3mM8W3nRfVHl78xp2w8st6hcK22w" allowfullscreen="allowfullscreen"></iframe>
                 </div>
-                <p class="map-note">Utilisez les contrôles Google Maps pour zoomer et afficher les détails.</p>
+                <p class="map-note"><?= t('lignes_map_note') ?></p>
             </div>
         </aside>
     </div>
