@@ -254,7 +254,7 @@ include __DIR__ . '/../includes/menu_logged.php';
             <div class="form-group">
                 <label for="callsign"><?= t('saisie_manuelle_callsign') ?></label>
                 <select name="callsign" id="callsign" required class="form-input">
-                    <option value="">-- Sélectionner --</option>
+                    <option value=""><?= t('select_placeholder') ?></option>
                     <?php foreach ($callsigns as $c): ?>
                         <option value="<?= htmlspecialchars($c) ?>" <?= ($form['callsign'] === $c) ? 'selected' : '' ?>>
                             <?= htmlspecialchars($c) ?>
@@ -265,7 +265,7 @@ include __DIR__ . '/../includes/menu_logged.php';
             <div class="form-group">
                 <label for="immatriculation"><?= t('saisie_manuelle_immat') ?></label>
                 <select name="immatriculation" id="immatriculation" required class="form-input">
-                    <option value="">-- Sélectionner --</option>
+                    <option value=""><?= t('select_placeholder') ?></option>
                     <?php foreach ($immats as $i): ?>
                         <option value="<?= htmlspecialchars($i) ?>" <?= ($form['immatriculation'] === $i) ? 'selected' : '' ?>>
                             <?= htmlspecialchars($i) ?>
@@ -312,7 +312,7 @@ include __DIR__ . '/../includes/menu_logged.php';
             <div class="form-group">
                 <label for="mission"><?= t('saisie_manuelle_mission') ?></label>
                 <select name="mission" id="mission" required class="form-input">
-                    <option value="">-- Sélectionner --</option>
+                    <option value=""><?= t('select_placeholder') ?></option>
                     <?php foreach ($missionslist as $m): ?>
                         <option value="<?= htmlspecialchars($m) ?>" <?= ($form['mission'] === $m) ? 'selected' : '' ?>>
                             <?= htmlspecialchars($m) ?>
@@ -321,8 +321,8 @@ include __DIR__ . '/../includes/menu_logged.php';
                 </select>
             </div>
             <div class="form-group" style="display:flex;gap:1em;">
-                <button type="submit" class="btn-bleu"><?= t('saisie_manuelle_add') ?></button>
-                <button type="submit" name="reset" value="1" class="btn-reset" style="margin-left:0;"><?= t('saisie_manuelle_reset') ?></button>
+                <button type="submit" class="btn"><?= t('saisie_manuelle_add') ?></button>
+                <button type="submit" name="reset" value="1" class="btn btn-reset"><?= t('saisie_manuelle_reset') ?></button>
             </div>
         </form>
     </div>

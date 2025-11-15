@@ -114,7 +114,7 @@ try {
             <label><?= t('admin_airports_ident_label') ?>
                 <input name="ident" class="form-input input-250" required>
             </label>
-            <button type="submit" name="action" value="rechercher" class="btn-bleu"><?= t('admin_airports_search_button') ?></button>
+            <button type="submit" name="action" value="rechercher" class="btn"><?= t('admin_airports_search_button') ?></button>
         </form>
     <?php endif; ?>
 
@@ -177,7 +177,7 @@ try {
             </label>
 
             <div class="form-actions admin-aeroport-actions">
-                <button type="submit" name="action" value="<?= $etat === 'edition' ? 'mettre_a_jour' : 'creer' ?>" class="btn-bleu">
+                <button type="submit" name="action" value="<?= $etat === 'edition' ? 'mettre_a_jour' : 'creer' ?>" class="btn">
                     <?= $etat === 'edition' ? t('admin_airports_update_button') : t('admin_airports_create_button') ?>
                 </button>
                 <button type="button" class="btn btn-reset" onclick="window.location.href='admin_aeroport.php'"><?= t('admin_airports_back_button') ?></button>

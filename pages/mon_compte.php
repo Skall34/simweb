@@ -145,7 +145,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                                 <td>
                                     <form method="post" style="display:inline;" class="form-cancel-reservation">
                                         <input type="hidden" name="cancel_reservation_id" value="<?= intval($res['id']) ?>">
-                                        <button type="submit" class="btn-bleu"><?= t('account_cancel_button') ?></button>
+                                        <button type="submit" class="btn"><?= t('account_cancel_button') ?></button>
                                     </form>
                                 </td>
                             </tr>
@@ -184,7 +184,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                         <input type="password" name="new_password_confirm" id="new_password_confirm" required>
                     </div>
                     <div class="form-row">
-                        <button type="submit" class="btn-bleu"><?= t('account_change_button') ?></button>
+                        <button type="submit" class="btn"><?= t('account_change_button') ?></button>
                     </div>
                 </form>
             </div>

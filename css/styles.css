@@ -24,11 +24,8 @@
 }
 .form-mdp {
     max-width: 400px;
-    margin: 0;
+    margin: 10px 0 0 0; /* Small vertical spacing for change-password form */
 }
-
-/* Small vertical spacing for change-password form to separate it from the section title */
-.form-mdp { margin-top: 10px; }
 .form-row {
     display: flex;
     align-items: center;
@@ -43,20 +40,6 @@
     padding: 6px 8px;
     border: 1px solid #bbb;
     border-radius: 4px;
-}
-.btn-bleu {
-  background: #004080;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  padding: 8px 16px; /* match vertical padding of .btn-reset for identical height */
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.btn-bleu:hover {
-    background: #004080;
 }
 /* Styles pour la documentation technique (calcul de coût, etc.) */
 .container section h2, .container section h3 {
@@ -249,7 +232,7 @@ header {
 }
 
 .btn {
-  background-color: #478ED4;
+  background-color: #004080;
   color: white;
   border: none;
   border-radius: 4px;
@@ -260,7 +243,7 @@ header {
 }
 
 .btn:hover {
-  background-color: #478ED4;
+  background-color: #003366;
 }
 
 /* Reset button style (model used in admin pages) */
@@ -898,7 +881,6 @@ footer {
 .fleet-filter-input { width: 250px; padding:6px 8px; border-radius:4px; border:1px solid #bbb; }
 .fleet-filter-select { width: 250px; padding:6px 8px; border-radius:4px; border:1px solid #bbb; }
 .filter-margin { margin-left:18px; }
-.btn-reset { margin-left:10px; }
 .input-160 { width: 160px; }
 .no-results { font-size:1.25em; color:#0066cc; font-weight:600; background:#f7fbff; padding:18px 0; border-radius:8px; text-align:center; box-shadow:0 2px 8px rgba(0,0,0,0.04); margin:28px 0; }
 
@@ -1003,7 +985,7 @@ footer {
 /* === GRADES & PILOTES PAGES - Simple display container === */
 .grades-container {
     max-width: 700px;
-    margin: 40px 0;
+    margin: 40px auto;
     background: #fff;
     padding: 32px;
     border-radius: 12px;
@@ -1594,6 +1576,62 @@ footer {
 .fleet-table th,
 .fleet-table td {
     width: 8%;
+}
+
+/* === DOC SCRIPTS - Code examples === */
+.code-example {
+    background: #f7f7fa;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 0.98em;
+    overflow-x: auto;
+}
+
+.exemple-calculs {
+    font-size: 0.97em;
+}
+
+.fonctionnement-list {
+    margin-left: 18px;
+}
+
+.details-text {
+    font-size: 0.95em;
+}
+
+.sub-list {
+    font-size: 0.95em;
+    margin-top: 4px;
+    padding-left: 28px;
+}
+
+/* === DOC PROMOTION GRADES - Grades table === */
+.grades-table-container {
+    max-width: 700px;
+    margin: 32px auto 0 auto;
+}
+
+.grades-table-promotion {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1.08rem;
+    background: transparent;
+}
+
+.grades-table-promotion thead tr {
+    background: #eaf2fb;
+}
+
+.grades-table-promotion th {
+    padding: 12px 10px;
+    color: #2a4d7a;
+    font-weight: 600;
+    border-bottom: 1px solid #e0e6ed;
+}
+
+.grades-table-promotion td {
+    padding: 12px 10px;
+    border-bottom: 1px solid #e0e6ed;
 }
 
 

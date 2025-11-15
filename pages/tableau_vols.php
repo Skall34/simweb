@@ -149,7 +149,7 @@ try {
             <?php endforeach; ?>
         </select>
 
-        <button type="submit" class="btn-bleu"><?= t('tableau_vols_filter_button') ?></button>
+        <button type="submit" class="btn"><?= t('tableau_vols_filter_button') ?></button>
         <button type="button" class="btn btn-reset" onclick="window.location.href='<?= basename($_SERVER['PHP_SELF']) ?>';"><?= t('tableau_vols_reset_button') ?></button>
     </form>
     <div class="spacer-xl"></div>

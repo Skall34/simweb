@@ -12,8 +12,8 @@ require_once __DIR__ . '/../includes/menu_logged.php';
             <h2><?= t('documentation_section_general_title') ?></h2>
             <p><?= t('documentation_section_general_intro') ?></p>
             <p><?= t('documentation_section_general_simulators') ?></p>
-            <p><?= t('documentation_section_general_acars') ?> <a href="https://github.com/Skall34/SimAddon/releases" target="_blank" style="color:#1a3552;font-weight:bold;text-decoration:underline;">repo github</a></p>
-            <p><?= t('documentation_section_general_wiki') ?> <a href="https://github.com/Skall34/SimAddon/wiki" target="_blank" style="color:#1a3552;font-weight:bold;text-decoration:underline;">Accéder au wiki</a></p>
+            <p><?= t('documentation_section_general_acars') ?> <a href="https://github.com/Skall34/SimAddon/releases" target="_blank" style="color:#1a3552;font-weight:bold;text-decoration:underline;"><?= t('documentation_link_repo_github') ?></a></p>
+            <p><?= t('documentation_section_general_wiki') ?> <a href="https://github.com/Skall34/SimAddon/wiki" target="_blank" style="color:#1a3552;font-weight:bold;text-decoration:underline;"><?= t('documentation_link_wiki') ?></a></p>
             
         </section>
         

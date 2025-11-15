@@ -30,7 +30,7 @@ $message_actuel = $stmt->fetchColumn() ?: '';
         <label for="message_accueil"><?= t('admin_welcome_label') ?></label><br>
         <textarea id="message_accueil" name="message_accueil" rows="3" maxlength="300" style="width:100%;resize:none;"><?= htmlspecialchars($message_actuel) ?></textarea>
         <div style="text-align:center;margin-top:12px;">
-            <button type="submit" class="btn-bleu"><?= t('admin_welcome_btn_save') ?></button>
+            <button type="submit" class="btn"><?= t('admin_welcome_btn_save') ?></button>
         </div>
     </form>
 </main>

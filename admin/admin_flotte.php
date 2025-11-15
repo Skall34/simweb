@@ -319,7 +319,7 @@ try {
             </div>
 
             <div class="form-actions">
-                <button type="submit" form="form-avion" class="btn-bleu"><?= t('admin_flotte_btn_signer') ?></button>
+                <button type="submit" form="form-avion" class="btn"><?= t('admin_flotte_btn_signer') ?></button>
                 <button type="reset" form="form-avion" class="btn btn-reset"><?= t('admin_flotte_btn_reinitialiser') ?></button>
             </div>
         </form>
@@ -379,7 +379,7 @@ try {
                     <p id="achatModeText" class="achat-mode-text"></p>
                     <p><strong>Revenus :</strong> <span id="detailRecettes"></span></p>
                 </div>
-                <button type="submit" id="btnVendre" class="btn-bleu btn-vendre"><?= t('admin_flotte_btn_vendre') ?></button>
+                <button type="submit" id="btnVendre" class="btn btn-vendre"><?= t('admin_flotte_btn_vendre') ?></button>
             </form>
         <?php endif; ?>
     </section>
@@ -485,7 +485,6 @@ document.addEventListener('DOMContentLoaded', function() {
 .form-inscription label { margin-top:10px; font-weight:bold; }
 .form-input { padding:8px; margin-top:5px; border:1px solid #ccc; border-radius:4px; font-size:1rem; width:100%; box-sizing:border-box; }
 .btn { padding:8px 16px; border-radius:6px; border:none; cursor:pointer; }
-.btn-bleu { background:#0066cc; color:#fff; font-weight:700; }
 .btn-reset { background:#999; color:#fff; }
 </style>
 

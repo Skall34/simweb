@@ -163,11 +163,11 @@ if (isset($_GET['edit'])) {
 
             <div class="form-actions">
                 <?php if ($edit_mode): ?>
-                    <button type="submit" name="action" value="update" class="btn-bleu btn-small"><?= t('admin_fleet_type_update_button') ?></button>
+                    <button type="submit" name="action" value="update" class="btn btn-small"><?= t('admin_fleet_type_update_button') ?></button>
                     <a href="admin_fleet_type.php" class="btn btn-small" style="margin-left:8px;"><?= t('admin_fleet_type_cancel_button') ?></a>
                     <button type="button" class="btn btn-reset btn-small" onclick="window.location.href='admin_fleet_type.php';"><?= t('admin_fleet_type_reset_button') ?></button>
                 <?php else: ?>
-                    <button type="submit" name="action" value="add" class="btn-bleu btn-small"><?= t('admin_fleet_type_add_button') ?></button>
+                    <button type="submit" name="action" value="add" class="btn btn-small"><?= t('admin_fleet_type_add_button') ?></button>
                     <button type="button" class="btn btn-reset btn-small" onclick="window.location.href='admin_fleet_type.php';"><?= t('admin_fleet_type_reset_button') ?></button>
                 <?php endif; ?>
             </div>

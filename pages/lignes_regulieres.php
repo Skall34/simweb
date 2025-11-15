@@ -101,7 +101,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                 <?php endforeach; ?>
             </select>
         </label>
-    <button type="submit" class="btn-bleu"><?= t('lignes_filter_button') ?></button>
+    <button type="submit" class="btn"><?= t('lignes_filter_button') ?></button>
     <button type="button" class="btn btn-reset" id="resetBtn"><?= t('lignes_reset_button') ?></button>
     </form>
     <script>

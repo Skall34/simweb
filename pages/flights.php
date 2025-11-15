@@ -145,7 +145,7 @@ include __DIR__ . '/../includes/menu_logged.php';
             <?php endforeach; ?>
         </select>
 
-        <button class="btn-bleu" type="submit"><?= t('flights_filter_button') ?></button>
+        <button class="btn" type="submit"><?= t('flights_filter_button') ?></button>
         <button type="button" class="btn btn-reset" onclick="window.location.href='flights.php';"><?= t('flights_reset_button') ?></button>
     </form>
     <?php

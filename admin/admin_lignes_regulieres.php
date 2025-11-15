@@ -198,10 +198,10 @@ include __DIR__ . '/../includes/menu_logged.php';
                  <div>
                      <?php if ($edit_mode): ?>
                          <input type="hidden" name="id" value="<?= htmlspecialchars($line['id']) ?>">
-                         <button class="btn-bleu" type="submit" name="action" value="update"><?= t('admin_lines_btn_update') ?></button>
+                         <button class="btn" type="submit" name="action" value="update"><?= t('admin_lines_btn_update') ?></button>
                          <a href="admin_lignes_regulieres.php" class="btn admin-lines-btn-cancel"><?= t('admin_lines_btn_cancel') ?></a>
                      <?php else: ?>
-                         <button class="btn-bleu" type="submit" name="action" value="add"><?= t('admin_lines_btn_add') ?></button>
+                         <button class="btn" type="submit" name="action" value="add"><?= t('admin_lines_btn_add') ?></button>
                      <?php endif; ?>
                  </div>
              </div>
@@ -232,7 +232,7 @@ include __DIR__ . '/../includes/menu_logged.php';
             </label>
 
             <div class="admin-lines-form-actions">
-                <button class="btn-bleu" type="submit"><?= t('admin_lines_btn_filter') ?></button>
+                <button class="btn" type="submit"><?= t('admin_lines_btn_filter') ?></button>
                 <!-- Keep the current visual style of the reset button exactly as-is (model for the site) -->
                 <a href="admin_lignes_regulieres.php" class="btn admin-lines-btn-reset"><?= t('admin_lines_btn_reset') ?></a>
             </div>

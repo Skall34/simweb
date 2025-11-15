@@ -87,7 +87,7 @@ include __DIR__ . '/../includes/menu_logged.php';
             </div>
         </div>
         <div class="form-row form-actions">
-            <button type="submit" name="update" class="btn-bleu"><?= t('admin_pilots_btn_save') ?></button>
+            <button type="submit" name="update" class="btn"><?= t('admin_pilots_btn_save') ?></button>
             <button type="button" class="btn btn-reset" onclick="window.location.href='admin_gestion_pilotes.php';"><?= t('admin_pilots_btn_reset') ?></button>
         </div>
     </form>
