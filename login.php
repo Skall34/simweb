@@ -94,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         exit;
     } else {
-        $error = "Login ou mot de passe incorrect.";
+        $error = t('login_error_credentials');
     }
 }
 else {
@@ -107,13 +107,13 @@ include 'includes/header.php';
 
 <main>
     <div class="login-container">
-        <h2 class="text-center">Connexion</h2>
+        <h2 class="text-center"><?= t('login_title') ?></h2>
         <?php if (!empty($error)) echo "<p class='flash-error' style='text-align:center;margin-bottom:1em;'>" . htmlspecialchars($error) . "</p>"; ?>
         <form method="post" action="login.php" class="form-column">
-            <label class="login-label">Callsign<br>
+            <label class="login-label"><?= t('login_label_callsign') ?><br>
                 <input type="text" name="callsign" required class="form-input">
             </label>
-            <label class="login-label">Mot de passe<br>
+            <label class="login-label"><?= t('login_label_password') ?><br>
                 <input type="password" name="password" required class="form-input">
             </label>
             <?php if (!empty($redirect)): ?>
@@ -122,7 +122,7 @@ include 'includes/header.php';
             <?php if (!empty($token)): ?>
                 <input type="hidden" name="token" value="<?= htmlspecialchars($token, ENT_QUOTES) ?>">
             <?php endif; ?>
-            <button type="submit" class="btn btn-full">Se connecter</button>
+            <button type="submit" class="btn btn-full"><?= t('login_btn_submit') ?></button>
         </form>
     </div>
 </main>

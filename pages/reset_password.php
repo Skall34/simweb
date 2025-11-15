@@ -26,16 +26,16 @@ if (isset($_GET['token'])) {
         }
         ?>
         <main>
-            <h2>Réinitialisation du mot de passe</h2>
+            <h2><?= t('reset_password_title') ?></h2>
             <?php if ($msg): ?>
-                <div class="alert success"><?= htmlspecialchars($msg) ?></div>
+                <div class="alert success"><?= t('reset_password_success') ?></div>
             <?php else: ?>
                 <form method="post" class="form-inscription" style="max-width:400px;">
                     <div class="form-group">
-                        <label for="newpass">Nouveau mot de passe :</label>
+                        <label for="newpass"><?= t('reset_password_new') ?> :</label>
                         <input type="password" name="newpass" id="newpass" required>
                     </div>
-                    <button type="submit" class="btn">Changer le mot de passe</button>
+                    <button type="submit" class="btn"><?= t('reset_password_change') ?></button>
                 </form>
             <?php endif; ?>
         </main>
@@ -43,14 +43,14 @@ if (isset($_GET['token'])) {
     } else {
         ?>
         <main>
-            <div class="alert error">Lien invalide ou expiré.</div>
+            <div class="alert error"><?= t('reset_password_invalid') ?></div>
         </main>
         <?php
     }
 } else {
     ?>
     <main>
-        <div class="alert error">Token manquant.</div>
+        <div class="alert error"><?= t('reset_password_missing') ?></div>
     </main>
     <?php
 }

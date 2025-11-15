@@ -23,8 +23,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute(['email' => $email, 'token' => $token, 'expires' => $expires]);
 
         $resetLink = "https://www.skywings.ovh/pages/reset_password.php?token=$token";
-        $subject = "Réinitialisation de votre mot de passe Skywings";
-        $body = "Bonjour cher pilote Skywings,\n\nPour réinitialiser votre mot de passe, cliquez sur le lien suivant:\n $resetLink\n\nCe lien expire dans 1 heure.";
+        $subject = t('forgot_mail_subject');
+        $body = t('forgot_mail_body', ['resetLink' => $resetLink]);
 
         $mailer = new PHPMailer(true);
         try {
@@ -41,25 +41,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $mailer->CharSet = 'UTF-8';
             $mailer->Body = $body;
             $mailer->send();
-            $msg = "Un email de réinitialisation vient de vous être envoyé.";
+            $msg = t('forgot_success_mail');
         } catch (Exception $e) {
-            $msg = "Erreur d'envoi de mail : " . $mailer->ErrorInfo;
+            $msg = t('forgot_error_mail') . $mailer->ErrorInfo;
         }
     } else {
-        $msg = "Adresse email inconnue.";
+        $msg = t('forgot_error_email_unknown');
     }
 }
 include __DIR__ . '/../includes/header.php';
 ?>
 
 <main>
-    <h2>Mot de passe oublié</h2>
+    <h2><?= t('forgot_title') ?></h2>
     <form method="post" class="form-inscription" autocomplete="off" style="max-width:400px;">
         <div class="form-group">
-            <label for="email">Email :</label>
+            <label for="email"><?= t('forgot_email_label') ?></label>
             <input type="email" name="email" id="email" required>
         </div>
-        <button type="submit" class="btn">Réinitialiser</button>
+        <button type="submit" class="btn"><?= t('forgot_submit') ?></button>
     </form>
     <?php if ($msg): ?>
         <div class="alert <?= strpos($msg, 'Erreur') === false ? 'success' : 'error' ?>">

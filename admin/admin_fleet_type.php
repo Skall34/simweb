@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../includes/require_admin.php';
+require_once __DIR__ . '/../lang.php';
 // Traitement du formulaire
 $successMessage = '';
 $errorMessage = '';
@@ -15,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $cout_appareil = floatval($_POST['cout_appareil'] ?? 0);
 
         if ($fleet_type === '' || $type === '') {
-            $errorMessage = "Les champs 'fleet_type' et 'type' sont obligatoires.";
+            $errorMessage = t('admin_fleet_type_error_required');
         } else {
             try {
                 if ($action === 'add') {
@@ -24,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt->execute(['fleet_type' => $fleet_type]);
                     $exists = $stmt->fetchColumn();
                     if ($exists) {
-                        $errorMessage = "Ce type de flotte existe déjà.";
+                        $errorMessage = t('admin_fleet_type_error_exists');
                     } else {
                         $stmt = $pdo->prepare("INSERT INTO FLEET_TYPE (fleet_type, type, cout_horaire, cout_appareil) VALUES (:fleet_type, :type, :cout_horaire, :cout_appareil)");
                         $stmt->execute([
@@ -34,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             'cout_appareil' => $cout_appareil
                         ]);
                         $newId = $pdo->lastInsertId();
-                        $_SESSION['flash_message'] = "✅ Nouveau fleet type ajouté : $fleet_type";
+                        $_SESSION['flash_message'] = str_replace('{fleet_type}', htmlspecialchars($fleet_type), t('admin_fleet_type_success_add'));
                         if ($newId) {
                             $redirect = 'admin_fleet_type.php?edit=' . (int)$newId;
                         }
@@ -43,17 +44,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     // update
                     $id = (int)($_POST['id'] ?? 0);
                     if ($id <= 0) {
-                        $errorMessage = 'Identifiant invalide pour la mise à jour.';
+                        $errorMessage = t('admin_fleet_type_error_invalid_id');
                     } else {
                         // éviter doublon (exclure current id)
                         $chk = $pdo->prepare("SELECT COUNT(*) FROM FLEET_TYPE WHERE fleet_type = :fleet_type AND id != :id");
                         $chk->execute(['fleet_type' => $fleet_type, 'id' => $id]);
                         if ($chk->fetchColumn() > 0) {
-                            $errorMessage = 'Un autre fleet_type avec ce nom existe déjà.';
+                            $errorMessage = t('admin_fleet_type_error_exists_other');
                         } else {
                             $stmt = $pdo->prepare("UPDATE FLEET_TYPE SET fleet_type = :fleet_type, type = :type, cout_horaire = :cout_horaire, cout_appareil = :cout_appareil WHERE id = :id");
                             $stmt->execute(['fleet_type' => $fleet_type, 'type' => $type, 'cout_horaire' => $cout_horaire, 'cout_appareil' => $cout_appareil, 'id' => $id]);
-                            $_SESSION['flash_message'] = "✅ Fleet type mis à jour.";
+                            $_SESSION['flash_message'] = t('admin_fleet_type_success_update');
                             // Après une modification, revenir sur la page principale pour vider le formulaire
                             $redirect = 'admin_fleet_type.php';
                         }
@@ -68,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'delete') {
         $id = (int)($_POST['id'] ?? 0);
         if ($id <= 0) {
-            $errorMessage = 'Identifiant invalide pour la suppression.';
+            $errorMessage = t('admin_fleet_type_error_invalid_id');
         } else {
             try {
                 // vérifier qu'aucun appareil n'est attaché à ce fleet_type
@@ -76,14 +77,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $chk->execute(['id' => $id]);
                 $cnt = (int)$chk->fetchColumn();
                 if ($cnt > 0) {
-                    $_SESSION['flash_message'] = "❌ Suppression impossible : $cnt appareil(s) sont rattachés à ce fleet type. Veuillez d'abord réaffecter ou supprimer ces appareils.";
+                    $_SESSION['flash_message'] = str_replace('{count}', $cnt, t('admin_fleet_type_error_delete_attached'));
                 } else {
                     $stmt = $pdo->prepare("DELETE FROM FLEET_TYPE WHERE id = :id");
                     $stmt->execute(['id' => $id]);
-                    $_SESSION['flash_message'] = "✅ Fleet type supprimé.";
+                    $_SESSION['flash_message'] = t('admin_fleet_type_success_delete');
                 }
             } catch (PDOException $e) {
-                $errorMessage = 'Erreur lors de la suppression : ' . htmlspecialchars($e->getMessage());
+                $errorMessage = t('admin_fleet_type_error_delete') . htmlspecialchars($e->getMessage());
             }
         }
     }
@@ -127,7 +128,7 @@ if (isset($_GET['edit'])) {
 
 <main style="display:flex; flex-direction:row; align-items:flex-start; gap:40px;">
     <div style="flex:1; min-width:280px; max-width:370px;">
-        <h2><?= $edit_mode ? 'Modifier un fleet type' : 'Ajouter un fleet type' ?></h2>
+        <h2><?= $edit_mode ? t('admin_fleet_type_edit_title') : t('admin_fleet_type_add_title') ?></h2>
 
         <?php if (!empty($_SESSION['flash_message'])): ?>
             <div style="background:#e6f9e6;color:#0b6623;padding:10px 12px;border-radius:8px;font-weight:600;font-size:1.05em;margin-bottom:10px;">
@@ -135,7 +136,7 @@ if (isset($_GET['edit'])) {
             </div>
             <?php unset($_SESSION['flash_message']); endif; ?>
         <?php if ($errorMessage): ?>
-            <p style="color: red; font-weight:bold;"><?= $errorMessage ?></p>
+            <p style="color: red; font-weight:bold;"><?= t($errorMessage) ?></p>
         <?php endif; ?>
 
     <form method="post" action="" class="form-inscription">
@@ -143,38 +144,38 @@ if (isset($_GET['edit'])) {
                 <input type="hidden" name="id" value="<?= (int)$current['id'] ?>">
             <?php endif; ?>
 
-            <label>Nom du fleet type *</label>
+            <label><?= t('admin_fleet_type_label_name') ?></label>
             <input type="text" id="fleet_type" name="fleet_type" class="form-input input-250" required value="<?= htmlspecialchars($current['fleet_type']) ?>">
 
-            <label>Catégorie *</label>
+            <label><?= t('admin_fleet_type_label_category') ?></label>
             <select id="type" name="type" required class="fleet-filter-select input-250">
-                <option value="">-- Sélectionner --</option>
+                <option value="">-- <?= t('admin_fleet_type_select_option') ?> --</option>
                 <?php $cats = ['Monomoteur','Bimoteur','Liner','Helico']; foreach($cats as $c): ?>
-                    <option value="<?= htmlspecialchars($c) ?>" <?= ($current['type']==$c)?'selected':'' ?>><?= htmlspecialchars($c) ?></option>
+                    <option value="<?= htmlspecialchars($c) ?>" <?= ($current['type']==$c)?'selected':'' ?>><?= t('admin_fleet_type_cat_' . strtolower($c)) ?></option>
                 <?php endforeach; ?>
             </select>
 
-            <label>Coût horaire (€) *</label>
+            <label><?= t('admin_fleet_type_label_hourly_cost') ?></label>
             <input type="number" id="cout_horaire" name="cout_horaire" step="0.01" class="form-input input-250" required value="<?= htmlspecialchars($current['cout_horaire']) ?>">
 
-            <label>Coût de l'appareil (€) *</label>
+            <label><?= t('admin_fleet_type_label_plane_cost') ?></label>
             <input type="number" id="cout_appareil" name="cout_appareil" step="0.01" class="form-input input-250" required value="<?= htmlspecialchars($current['cout_appareil']) ?>">
 
             <div class="form-actions">
                 <?php if ($edit_mode): ?>
-                    <button type="submit" name="action" value="update" class="btn-bleu btn-small">Mettre à jour</button>
-                    <a href="admin_fleet_type.php" class="btn btn-small" style="margin-left:8px;">Annuler</a>
-                    <button type="button" class="btn btn-reset btn-small" onclick="window.location.href='admin_fleet_type.php';">Réinitialiser</button>
+                    <button type="submit" name="action" value="update" class="btn btn-small"><?= t('admin_fleet_type_update_button') ?></button>
+                    <a href="admin_fleet_type.php" class="btn btn-small" style="margin-left:8px;"><?= t('admin_fleet_type_cancel_button') ?></a>
+                    <button type="button" class="btn btn-reset btn-small" onclick="window.location.href='admin_fleet_type.php';"><?= t('admin_fleet_type_reset_button') ?></button>
                 <?php else: ?>
-                    <button type="submit" name="action" value="add" class="btn-bleu btn-small">Ajouter</button>
-                    <button type="button" class="btn btn-reset btn-small" onclick="window.location.href='admin_fleet_type.php';">Réinitialiser</button>
+                    <button type="submit" name="action" value="add" class="btn btn-small"><?= t('admin_fleet_type_add_button') ?></button>
+                    <button type="button" class="btn btn-reset btn-small" onclick="window.location.href='admin_fleet_type.php';"><?= t('admin_fleet_type_reset_button') ?></button>
                 <?php endif; ?>
             </div>
         </form>
     </div>
 
     <aside style="min-width:900px;max-width:1800px;margin-left:40px;margin-right:auto;background:#f7fbff;border-radius:16px;box-shadow:0 2px 8px rgba(0,0,0,0.04);padding:18px 16px 12px 16px;align-self:center;">
-        <h3 style="margin-top:0;margin-bottom:12px;font-size:1.1em;color:#0066cc;">Fleet types existants</h3>
+        <h3 style="margin-top:0;margin-bottom:12px;font-size:1.1em;color:#0066cc;"><?= t('admin_fleet_type_existing_title') ?></h3>
         <?php
         $total = count($fleetTypes);
         $mid = (int)ceil($total / 2);
@@ -186,11 +187,11 @@ if (isset($_GET['edit'])) {
                 <table class="table-skywings" style="width:100%; white-space:nowrap; word-break:keep-all;">
                     <thead>
                         <tr>
-                            <th class="fleet_type">Nom</th>
-                            <th class="type">Catégorie</th>
-                            <th class="cout_horaire">Coût horaire (€)</th>
-                            <th class="prix">Prix (€)</th>
-                            <th>Actions</th>
+                            <th class="fleet_type"><?= t('admin_fleet_type_col_name') ?></th>
+                            <th class="type"><?= t('admin_fleet_type_col_category') ?></th>
+                            <th class="cout_horaire"><?= t('admin_fleet_type_col_hourly_cost') ?></th>
+                            <th class="prix"><?= t('admin_fleet_type_col_plane_cost') ?></th>
+                            <th><?= t('admin_fleet_type_col_actions') ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -201,9 +202,9 @@ if (isset($_GET['edit'])) {
                             <td class="cout_horaire" style="text-align:right;"><?= number_format((float)$ft['cout_horaire'], 2, ',', ' ') ?></td>
                             <td class="prix" style="text-align:right;font-weight:bold;"><?= number_format((float)$ft['cout_appareil'], 0, '', ' ') ?></td>
                             <td>
-                                <a href="admin_fleet_type.php?edit=<?= (int)$ft['id'] ?>">Éditer</a>
+                                <a href="admin_fleet_type.php?edit=<?= (int)$ft['id'] ?>"><?= t('admin_fleet_type_edit_link') ?></a>
                                 &nbsp;|&nbsp;
-                                <a href="#" onclick="if(confirm('Confirmer la suppression ?')){ document.getElementById('delete-form-<?= (int)$ft['id'] ?>').submit(); } return false;">Supprimer</a>
+                                <a href="#" onclick="if(confirm('<?= t('admin_fleet_type_confirm_delete') ?>')){ document.getElementById('delete-form-<?= (int)$ft['id'] ?>').submit(); } return false;"><?= t('admin_fleet_type_delete_link') ?></a>
                                 <form id="delete-form-<?= (int)$ft['id'] ?>" method="post" style="display:none;">
                                     <input type="hidden" name="id" value="<?= (int)$ft['id'] ?>">
                                     <input type="hidden" name="action" value="delete">

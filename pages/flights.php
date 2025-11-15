@@ -124,57 +124,57 @@ include __DIR__ . '/../includes/menu_logged.php';
 <main>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <h2>Mes vols (<?= $totalFlights ?>)</h2>
+    <h2><?= t('flights_title') ?> (<?= $totalFlights ?>)</h2>
     <form method="get" action="flights.php" class="filters-form">
-        <label for="immat">Filtrer par immatriculation:</label>
+        <label for="immat"><?= t('flights_filter_immat') ?>:</label>
         <input type="text" id="immat" name="immat" value="<?= htmlspecialchars($immatFilter) ?>" placeholder="Ex: F-XXXX" class="fleet-filter-input input-160">
 
-        <label for="mission" class="filter-margin">Filtrer par Mission:</label>
-    <select id="mission" name="mission" class="fleet-filter-select">
-            <option value="">-- Toutes les missions --</option>
+        <label for="mission" class="filter-margin"><?= t('flights_filter_mission') ?>:</label>
+        <select id="mission" name="mission" class="fleet-filter-select">
+            <option value=""><?= t('flights_filter_mission_all') ?></option>
             <?php foreach ($missionsList as $m): ?>
                 <option value="<?= htmlspecialchars($m) ?>" <?= ($missionFilter === $m) ? 'selected' : '' ?>><?= htmlspecialchars($m) ?></option>
             <?php endforeach; ?>
         </select>
 
-        <label for="fleetType" class="filter-margin">Filtrer par fleet type:</label>
-    <select id="fleetType" name="fleetType" class="fleet-filter-select input-160">
-            <option value="">-- Tous les avions --</option>
+        <label for="fleetType" class="filter-margin"><?= t('flights_filter_fleet_type') ?>:</label>
+        <select id="fleetType" name="fleetType" class="fleet-filter-select input-160">
+            <option value=""><?= t('flights_filter_fleet_type_all') ?></option>
             <?php foreach ($fleetTypeList as $f): ?>
                 <option value="<?= htmlspecialchars($f) ?>" <?= ($fleetTypeFilter === $f) ? 'selected' : '' ?>><?= htmlspecialchars($f) ?></option>
             <?php endforeach; ?>
         </select>
 
-    <button class="btn-bleu" type="submit">Filtrer</button>
-        <button type="button" class="btn btn-reset" onclick="window.location.href='flights.php';">Réinitialiser</button>
+        <button class="btn" type="submit"><?= t('flights_filter_button') ?></button>
+        <button type="button" class="btn btn-reset" onclick="window.location.href='flights.php';"><?= t('flights_reset_button') ?></button>
     </form>
     <?php
         $nbResults = count($flights);
         if ($immatFilter !== '' || $missionFilter !== '') {
-            echo '<p class="filter-info">' . $nbResults . ' vol' . ($nbResults > 1 ? 's' : '') . ' trouvé' . ($nbResults > 1 ? 's' : '') . ' avec ce filtre.</p>';
+            echo '<p class="filter-info">' . $nbResults . ' ' . t('flights_filter_results') . '</p>';
         }
     ?>
     <?php if (empty($flights)): ?>
-        <p>Aucun vol trouvé pour ce pilote.</p>
+        <p><?= t('flights_no_results') ?></p>
     <?php else: ?>
         <div class="table-main-padding">
             <!-- Tableau d'en-tête fixe -->
             <table class="table-skywings">
                 <thead class="table-skywings">
                     <tr class="table-skywings">
-                        <th class="col-10">Date vol</th>
-                        <th class="col-8">Immat</th>
-                        <th class="col-6">Fleet Type</th>
-                        <th class="col-5">Départ</th>
-                        <th class="col-5">Dest.</th>
-                        <th class="col-5">Fuel arrivée</th>
-                        <th class="col-5">Conso</th>
-                        <th class="col-5">Payload</th>
-                        <th class="col-10">Heure arrivée</th>
-                        <th class="col-10">Block time</th>
-                        <th class="col-5">Note du vol</th>
-                        <th class="col-8">Recette du vol</th>
-                        <th class="col-8">Mission</th>
+                        <th class="col-10"><?= t('flights_table_date') ?></th>
+                        <th class="col-8"><?= t('flights_table_immat') ?></th>
+                        <th class="col-6"><?= t('flights_table_fleet_type') ?></th>
+                        <th class="col-5"><?= t('flights_table_depart') ?></th>
+                        <th class="col-5"><?= t('flights_table_dest') ?></th>
+                        <th class="col-5"><?= t('flights_table_fuel_arrivee') ?></th>
+                        <th class="col-5"><?= t('flights_table_conso') ?></th>
+                        <th class="col-5"><?= t('flights_table_payload') ?></th>
+                        <th class="col-10"><?= t('flights_table_heure_arrivee') ?></th>
+                        <th class="col-10"><?= t('flights_table_block_time') ?></th>
+                        <th class="col-5"><?= t('flights_table_note') ?></th>
+                        <th class="col-8"><?= t('flights_table_recette') ?></th>
+                        <th class="col-8"><?= t('flights_table_mission') ?></th>
                     </tr>
                 </thead>
                 <tbody class="table-skywings">
@@ -253,7 +253,7 @@ include __DIR__ . '/../includes/menu_logged.php';
         <div id="vol-modal" class="vol-modal">
             <div class="vol-modal-content">
                 <span class="vol-modal-close" id="vol-modal-close">&times;</span>
-                <h3>Détails du vol</h3>
+                <h3><?= t('flights_modal_title') ?></h3>
                 <div class="modal-grid">
                     <div class="modal-left">
                         <div id="vol-modal-body">
@@ -364,7 +364,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Handle error if details cannot be loaded
                 console.error('Erreur lors du chargement des détails du vol.'+ e);
 
-                document.getElementById('vol-modal-body').innerHTML = "<p>Erreur lors du chargement des détails du vol.</p>";
+                document.getElementById('vol-modal-body').innerHTML = "<p><?= t('flights_modal_error') ?></p>";
                 document.getElementById('vol-modal').style.display = 'flex';
             });
         });

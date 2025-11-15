@@ -64,15 +64,15 @@ include __DIR__ . '/../includes/menu_logged.php';
 ?>
 
 <main>
-    <h2>Liste de la flotte : nous avons <?= $count ?>&nbsp;appareils actifs</h2>
+    <h2><?= t('fleet_title') ?> : <?= str_replace('{count}', $count, t('fleet_count')) ?></h2>
 
     <form method="get" action="fleet.php">
-        <label for="immat">Filtrer par immatriculation:</label>
+        <label for="immat"><?= t('fleet_filter_immat') ?>:</label>
         <input type="text" id="immat" name="immat" value="<?= htmlspecialchars($immatFilter) ?>" placeholder="Ex: F-XXXX" class="fleet-filter-input">
 
-        <label for="fleet_type" class="filter-margin">Filtrer par Fleet type:</label>
+        <label for="fleet_type" class="filter-margin"><?= t('fleet_filter_fleet_type') ?>:</label>
         <select id="fleet_type" name="fleet_type" class="fleet-filter-select">
-            <option value="">-- Tous les types --</option>
+            <option value=""><?= t('fleet_filter_fleet_type_all') ?></option>
             <?php foreach ($fleetTypesList as $ft): ?>
                 <option value="<?= htmlspecialchars($ft) ?>" <?= ($fleetTypeFilter === $ft) ? 'selected' : '' ?>><?= htmlspecialchars($ft) ?></option>
             <?php endforeach; ?>
@@ -80,38 +80,38 @@ include __DIR__ . '/../includes/menu_logged.php';
 
         <label class="filter-margin">
             <input type="checkbox" name="show_vendus" value="1" <?= $showVendus ? 'checked' : '' ?>>
-            Afficher les appareils vendus
+            <?= t('fleet_filter_show_vendus') ?>
         </label>
         <label class="filter-margin">
             <input type="checkbox" name="show_maintenance" value="1" <?= $showMaintenance ? 'checked' : '' ?>>
-            Afficher uniquement les appareils en maintenance
+            <?= t('fleet_filter_show_maintenance') ?>
         </label>
 
-        <button class="btn-bleu" type="submit">Filtrer</button>
-        <button type="button" class="btn btn-reset" onclick="window.location.href='fleet.php';">Réinitialiser</button>
+        <button class="btn" type="submit"><?= t('fleet_filter_button') ?></button>
+        <button type="button" class="btn btn-reset" onclick="window.location.href='fleet.php';"><?= t('fleet_reset_button') ?></button>
     </form>
 
     <?php if (empty($fleet)): ?>
-        <p class="no-results">Aucun appareil trouvé.</p>
+        <p class="no-results"><?= t('fleet_no_results') ?></p>
     <?php else: ?>
 
-    <div style="height: 18px;"></div>
+    <div class="fleet-spacer"></div>
         <!-- Tableau d'en-tête fixe -->
-        <table class="table-skywings">
+        <table class="table-skywings fleet-table">
             <thead class="table-skywings">
                 <tr class="table-skywings">
-                    <th style="width:8%;">Immatriculation</th>
-                    <th style="width:8%;">Fleet_type</th>
-                    <th style="width:8%;">Catégorie</th>
-                    <th style="width:8%;">Localisation</th>
-                    <th style="width:8%;">Hub de rattachement</th>
-                    <th style="width:8%;">Statut</th>
-                    <th style="width:8%;">État</th>
-                    <th style="width:8%;">Dernier utilisateur</th>
-                    <th style="width:8%;">Carburant restant</th>
-                    <th style="width:8%;">Compteur Immobilisation</th>
-                    <th style="width:8%;">En vol</th>
-                    <th style="width:8%;">Réservé</th>
+                    <th><?= t('fleet_table_immat') ?></th>
+                    <th><?= t('fleet_table_fleet_type') ?></th>
+                    <th><?= t('fleet_table_categorie') ?></th>
+                    <th><?= t('fleet_table_localisation') ?></th>
+                    <th><?= t('fleet_table_hub') ?></th>
+                    <th><?= t('fleet_table_status') ?></th>
+                    <th><?= t('fleet_table_etat') ?></th>
+                    <th><?= t('fleet_table_pilote') ?></th>
+                    <th><?= t('fleet_table_fuel') ?></th>
+                    <th><?= t('fleet_table_compteur') ?></th>
+                    <th><?= t('fleet_table_en_vol') ?></th>
+                    <th><?= t('fleet_table_reserve') ?></th>
 
                 </tr>
             </thead>
@@ -129,36 +129,36 @@ include __DIR__ . '/../includes/menu_logged.php';
                             // Format FR
                             $dernierVol = implode('-', array_reverse(explode('-', $date)));
                         } else {
-                            $dernierVol = 'Aucun vol';
+                            $dernierVol = t('fleet_text_no_flight');
                         }
                     } catch (Exception $e) {
-                        $dernierVol = 'Erreur';
+                        $dernierVol = t('fleet_text_error');
                     }
                     // Préparer les détails FLOTTE (inclut les champs financiers)
                     $details = [
-                        'Immatriculation' => $avion['immat'],
-                        'Fleet_type' => $avion['type_libelle'],
-                        'Catégorie' => $avion['categorie'],
-                        'Localisation' => $avion['localisation'],
-                        'Hub de rattachement' => $avion['hub'],
-                        'Statut' => $avion['status'],
-                        'État' => $avion['etat'],
-                        'Dernier utilisateur' => $avion['pilote_callsign'] ?? 'N/A',
-                        'Carburant restant' => $avion['fuel_restant'],
-                        'Compteur Immo' => $avion['compteur_immo'],
-                        'En vol' => $avion['en_vol'],
-                        'Réservé' => (isset($avion['reservee']) && (int)$avion['reservee'] === 1) ? 'Oui' : 'Non',
-                        'Date du dernier vol' => $dernierVol,
-                        'Date achat' => (!empty($avion['date_achat'] ?? '') && preg_match('/^\d{4}-\d{2}-\d{2}$/', $avion['date_achat'] ?? '')) ? (implode('-', array_reverse(explode('-', $avion['date_achat']))) ) : ($avion['date_achat'] ?? ''),
-                        'Mode d\'achat' => (isset($avion['mode_achat']) && $avion['mode_achat'] === 'credit') ? 'Crédit' : ((isset($avion['mode_achat']) && $avion['mode_achat'] === 'comptant') ? 'Comptant' : ((isset($avion['nb_annees_credit']) && intval($avion['nb_annees_credit']) > 0) ? 'Crédit' : 'Comptant')),
-                        'Recettes' => ($avion['recettes'] ?? '') . ' €',
-                        'Années crédit' => $avion['nb_annees_credit'] ?? '',
-                        'Taux crédit' => ($avion['taux_percent'] ?? '') . ' %',
-                        'Remboursement' => ($avion['remboursement'] ?? '') . ' €',
-                        'Traite payée cumulée' => ($avion['traite_payee_cumulee'] ?? '') . ' €',
-                        'Reste à payer' => ($avion['reste_a_payer'] ?? '') . ' €',
-                        'Recette vente' => empty($avion['date_vente'] ?? '') ? 'N/A' : (($avion['recette_vente'] ?? '') . ' €'),
-                        'Date vente' => empty($avion['date_vente'] ?? '') ? 'N/A' : ($avion['date_vente'] ?? ''),
+                        t('fleet_detail_immat') => $avion['immat'],
+                        t('fleet_detail_fleet_type') => $avion['type_libelle'],
+                        t('fleet_detail_categorie') => $avion['categorie'],
+                        t('fleet_detail_localisation') => $avion['localisation'],
+                        t('fleet_detail_hub') => $avion['hub'],
+                        t('fleet_detail_statut') => $avion['status'],
+                        t('fleet_detail_etat') => $avion['etat'],
+                        t('fleet_detail_last_user') => $avion['pilote_callsign'] ?? t('fleet_text_na'),
+                        t('fleet_detail_fuel') => $avion['fuel_restant'],
+                        t('fleet_detail_compteur') => $avion['compteur_immo'],
+                        t('fleet_detail_en_vol') => $avion['en_vol'],
+                        t('fleet_detail_reserve') => (isset($avion['reservee']) && (int)$avion['reservee'] === 1) ? t('fleet_text_yes') : t('fleet_text_no'),
+                        t('fleet_detail_last_flight') => $dernierVol,
+                        t('fleet_detail_date_achat') => (!empty($avion['date_achat'] ?? '') && preg_match('/^\d{4}-\d{2}-\d{2}$/', $avion['date_achat'] ?? '')) ? (implode('-', array_reverse(explode('-', $avion['date_achat']))) ) : ($avion['date_achat'] ?? ''),
+                        t('fleet_detail_mode_achat') => (isset($avion['mode_achat']) && $avion['mode_achat'] === 'credit') ? t('fleet_text_credit') : ((isset($avion['mode_achat']) && $avion['mode_achat'] === 'comptant') ? t('fleet_text_cash') : ((isset($avion['nb_annees_credit']) && intval($avion['nb_annees_credit']) > 0) ? t('fleet_text_credit') : t('fleet_text_cash'))),
+                        t('fleet_detail_recettes') => ($avion['recettes'] ?? '') . ' €',
+                        t('fleet_detail_annees_credit') => $avion['nb_annees_credit'] ?? '',
+                        t('fleet_detail_taux_credit') => ($avion['taux_percent'] ?? '') . ' %',
+                        t('fleet_detail_remboursement') => ($avion['remboursement'] ?? '') . ' €',
+                        t('fleet_detail_traite_payee') => ($avion['traite_payee_cumulee'] ?? '') . ' €',
+                        t('fleet_detail_reste_payer') => ($avion['reste_a_payer'] ?? '') . ' €',
+                        t('fleet_detail_recette_vente') => empty($avion['date_vente'] ?? '') ? t('fleet_text_na') : (($avion['recette_vente'] ?? '') . ' €'),
+                        t('fleet_detail_date_vente') => empty($avion['date_vente'] ?? '') ? t('fleet_text_na') : ($avion['date_vente'] ?? ''),
                     ];
                     $details_json = htmlspecialchars(json_encode($details), ENT_QUOTES, 'UTF-8');
                     $rowClass = 'fleet-row';
@@ -167,37 +167,37 @@ include __DIR__ . '/../includes/menu_logged.php';
                     }
                 ?>
                     <tr class="<?= $rowClass ?>" data-details="<?= $details_json ?>">
-                        <td style="width:8%;"><?= htmlspecialchars($avion['immat'] ?? '') ?></td>
-                        <td style="width:8%;"><?= htmlspecialchars($avion['type_libelle'] ?? '') ?></td>
-                        <td style="width:8%;"><?= htmlspecialchars($avion['categorie'] ?? '') ?></td>
-                        <td style="width:8%;"><?= htmlspecialchars($avion['localisation'] ?? '') ?></td>
-                        <td style="width:8%;"><?= htmlspecialchars($avion['hub'] ?? '') ?></td>
-                        <td style="width:8%;">
+                        <td><?= htmlspecialchars($avion['immat'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($avion['type_libelle'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($avion['categorie'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($avion['localisation'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($avion['hub'] ?? '') ?></td>
+                        <td>
                             <?php
                             if (isset($avion['actif']) && !$avion['actif']) {
-                                echo 'Vendu';
+                                echo t('fleet_status_vendu');
                             } else {
                                 $statusVal = (int)($avion['status'] ?? 0);
                                 echo match($statusVal) {
-                                    0 => 'OK',
-                                    1 => 'En maintenance',
-                                    2 => 'Crash',
+                                    0 => t('fleet_status_ok'),
+                                    1 => t('fleet_status_maintenance'),
+                                    2 => t('fleet_status_crash'),
                                     default => htmlspecialchars($avion['status'] ?? '')
                                 };
                             }
                             ?>
                         </td>
-                        <td style="width:8%;"><?= htmlspecialchars($avion['etat'] ?? '') ?></td>
-                        <td style="width:8%;"><?= htmlspecialchars(($avion['pilote_callsign'] ?? 'N/A') ?: '') ?></td>
-                        <td style="width:8%;"><?= htmlspecialchars($avion['fuel_restant'] ?? '') ?></td>
-                        <td style="width:8%;"><?= htmlspecialchars($avion['compteur_immo'] ?? '') ?></td>
-                        <td style="width:8%;"><?= htmlspecialchars($avion['en_vol'] ?? '') ?></td>
-                        <td style="width:8%;"><?php
+                        <td><?= htmlspecialchars($avion['etat'] ?? '') ?></td>
+                        <td><?= htmlspecialchars(($avion['pilote_callsign'] ?? t('fleet_text_na')) ?: '') ?></td>
+                        <td><?= htmlspecialchars($avion['fuel_restant'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($avion['compteur_immo'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($avion['en_vol'] ?? '') ?></td>
+                        <td><?php
                             $res = $avion['reservee'] ?? null;
                             if ($res === null || $res === '') {
-                                echo 'Non';
+                                echo t('fleet_text_no');
                             } else {
-                                echo ((int)$res === 1) ? 'Oui' : 'Non';
+                                echo ((int)$res === 1) ? t('fleet_text_yes') : t('fleet_text_no');
                             }
                         ?></td>
                     </tr>
@@ -208,7 +208,7 @@ include __DIR__ . '/../includes/menu_logged.php';
         <div id="fleet-modal" class="fleet-modal">
             <div class="fleet-modal-content">
                 <span class="fleet-modal-close" id="fleet-modal-close">&times;</span>
-                <h3>Détails de l'appareil</h3>
+                <h3><?= t('fleet_modal_title') ?></h3>
                 <div id="fleet-modal-body">
                     <!-- Les détails seront injectés ici -->
                 </div>
@@ -221,10 +221,10 @@ include __DIR__ . '/../includes/menu_logged.php';
             row.addEventListener('click', function() {
                 const details = JSON.parse(this.getAttribute('data-details'));
                 let html = '<table class="fd-table">';
-                let modeAchat = details['Mode d\'achat'] || '';
+                let modeAchat = details[<?= json_encode(t('fleet_detail_mode_achat')) ?>] || '';
                 // Liste des clés financières
                 const financeKeys = [
-                    'Date achat', 'Mode d\'achat', 'Recettes', 'Années crédit', 'Taux crédit', 'Remboursement', 'Traite payée cumulée', 'Reste à payer', 'Recette vente', 'Date vente'
+                    <?= json_encode(t('fleet_detail_date_achat')) ?>, <?= json_encode(t('fleet_detail_mode_achat')) ?>, <?= json_encode(t('fleet_detail_recettes')) ?>, <?= json_encode(t('fleet_detail_annees_credit')) ?>, <?= json_encode(t('fleet_detail_taux_credit')) ?>, <?= json_encode(t('fleet_detail_remboursement')) ?>, <?= json_encode(t('fleet_detail_traite_payee')) ?>, <?= json_encode(t('fleet_detail_reste_payer')) ?>, <?= json_encode(t('fleet_detail_recette_vente')) ?>, <?= json_encode(t('fleet_detail_date_vente')) ?>
                 ];
                 let financeRows = '';
                 let normalRows = '';
@@ -250,7 +250,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                         }
                     }
                     // Si achat comptant, on masque les champs crédit
-                    if (modeAchat === 'Comptant' && (key === 'Années crédit' || key === 'Taux crédit' || key === 'Remboursement' || key === 'Traite payée cumulée' || key === 'Reste à payer')) {
+                    if ((modeAchat === <?= json_encode(t('fleet_text_cash')) ?> || modeAchat === 'Comptant') && (key === <?= json_encode(t('fleet_detail_annees_credit')) ?> || key === <?= json_encode(t('fleet_detail_taux_credit')) ?> || key === <?= json_encode(t('fleet_detail_remboursement')) ?> || key === <?= json_encode(t('fleet_detail_traite_payee')) ?> || key === <?= json_encode(t('fleet_detail_reste_payer')) ?>)) {
                         continue;
                     }
                     if (financeKeys.includes(key)) {
@@ -262,26 +262,26 @@ include __DIR__ . '/../includes/menu_logged.php';
                 html += normalRows;
                 if (financeRows) {
                     html += '<tr><td colspan="2"><hr class="divider"></td></tr>';
-                    html += '<tr><td colspan="2" style="font-weight:bold;color:#1abc9c;font-size:1.08em;padding-bottom:6px;">Informations financières</td></tr>';
+                    html += '<tr><td colspan="2" style="font-weight:bold;color:#1abc9c;font-size:1.08em;padding-bottom:6px;">' + <?= json_encode(t('fleet_modal_finance_title')) ?> + '</td></tr>';
                     html += financeRows;
                 }
                 //s'il y a un fichier image associé, on l'affiche
-                const imagePath = '/assets/images/fleet/' + details['Immatriculation'] + '.jpg';
+                const imagePath = '/assets/images/fleet/' + details[<?= json_encode(t('fleet_detail_immat')) ?>] + '.jpg';
 
                 //verifie avec une requête AJAX si l'image existe                             
                 html += '<tr><td colspan="2"><hr class="divider"></td></tr>';
-                html += '<tr><td colspan="2" style="font-weight:bold;color:#1abc9c;font-size:1.08em;padding-bottom:6px;">Image de l\'appareil</td></tr>';   
+                html += '<tr><td colspan="2" style="font-weight:bold;color:#1abc9c;font-size:1.08em;padding-bottom:6px;">' + <?= json_encode(t('fleet_modal_image')) ?> + '</td></tr>';
                 html += '<tr><td colspan="2" style="text-align:center;"><img src="' + imagePath + '" alt="Image de l\'appareil" class="responsive-img"></td></tr>';
                                        
                 html += '</table>';
                 //si l'utilisateur est admin, on ajoute le bouton pour uploader une image
-                if (details['Immatriculation'] && <?php echo (int)($_SESSION['user']['isAdmin'] ?? 0); ?> === 1) {
+                if (details[<?= json_encode(t('fleet_detail_immat')) ?>] && <?php echo (int)($_SESSION['user']['isAdmin'] ?? 0); ?> === 1) {
                     html += '<hr class="divider">';
-                    html += '<p style="font-weight:bold;color:#1abc9c;font-size:1.08em;padding-bottom:6px;">Actions</p>';
+                    html += '<p style="font-weight:bold;color:#1abc9c;font-size:1.08em;padding-bottom:6px;">' + <?= json_encode(t('fleet_modal_actions')) ?> + '</p>';
                     html += '<form id="uploadForm" enctype="multipart/form-data" method="post" action="/scripts/admin_fleet_image.php">';
-                    html += '<input type="hidden" name="immat" value="' + details['Immatriculation'] + '">';
+                    html += '<input type="hidden" name="immat" value="' + details[<?= json_encode(t('fleet_detail_immat')) ?>] + '">';
                     html += '<input type="file" name="image" accept=".jpg" required class="mb-8">';
-                    html += '<button class="btn mt-8" type="submit">Uploader l\'image (Max 250Ko)</button>';
+                    html += '<button class="btn mt-8" type="submit">' + <?= json_encode(t('fleet_modal_upload')) ?> + '</button>';
                     html += '</form>';
                 }
                 document.getElementById('fleet-modal-body').innerHTML = html;

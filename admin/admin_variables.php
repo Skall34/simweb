@@ -1,57 +1,58 @@
 <?php
+
 require_once __DIR__ . '/../includes/require_admin.php';
+require_once __DIR__ . '/../lang.php';
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/menu_logged.php';
 
 // Variables à gérer
 $variables = [
     'prix_fret_kg_helico' => [
-        'label' => 'Prix du Kg transporté par hélicoptère',
+        'label' => t('admin_variables_label_prix_fret_kg_helico'),
         'type' => 'number',
         'step' => '1',
         'default' => '5.00'
     ],
     'prix_fret_kg_monomoteur' => [
-        'label' => 'Prix du Kg transporté par monomoteur',
+        'label' => t('admin_variables_label_prix_fret_kg_monomoteur'),
         'type' => 'number',
         'step' => '1',
         'default' => '5.00'
     ],
     'prix_fret_kg_bimoteur' => [
-        'label' => 'Prix du Kg transporté par bimoteur',
+        'label' => t('admin_variables_label_prix_fret_kg_bimoteur'),
         'type' => 'number',
         'step' => '1',
         'default' => '5.00'
     ],
     'prix_fret_kg_liner' => [
-        'label' => 'Prix du Kg transporté par liner',
+        'label' => t('admin_variables_label_prix_fret_kg_liner'),
         'type' => 'number',
         'step' => '1',
         'default' => '5.00'
     ],
     'bonus_fret_kg' => [
-        'label' => 'Bonus fret par Kg transporté (salaire)',
+        'label' => t('admin_variables_label_bonus_fret_kg'),
         'type' => 'number',
         'step' => '0.1',
         'default' => '2.00'
     ],
     'prix_litre_essence' => [
-        'label' => 'Prix du litre d\'essence',
+        'label' => t('admin_variables_label_prix_litre_essence'),
         'type' => 'number',
         'step' => '0.01',
         'default' => '0.88'
     ],
     'taux_assurance' => [
-        'label' => "Taux de l'assurance (%)",
+        'label' => t('admin_variables_label_taux_assurance'),
         'type' => 'number',
         'step' => '1',
         'min' => '0',
         'max' => '100',
         'default' => '2'
-    ]
-    ,
+    ],
     'reservation_timeout_hours' => [
-        'label' => 'Durée de validité d\'une réservation (heures)',
+        'label' => t('admin_variables_label_reservation_timeout_hours'),
         'type' => 'number',
         'step' => '1',
         'min' => '1',
@@ -86,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([$val, $key]);
         }
     }
-    $message = 'Variables mises à jour avec succès.';
+    $message = t('admin_variables_update_success');
 }
 
 // Récupération des valeurs actuelles
@@ -98,7 +99,7 @@ foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
 ?>
 <main>
     <div class="container" style="max-width:700px;margin:40px 0 40px 0;background:#fff;padding:32px;border-radius:12px;box-shadow:0 2px 16px rgba(0,0,0,0.08);">
-        <h2 style="text-align:left;color:#1a3552;margin-bottom:28px;">Administration des variables globales</h2>
+        <h2 style="text-align:left;color:#1a3552;margin-bottom:28px;"><?= t('admin_variables_title') ?></h2>
         <?php if ($message): ?>
             <div style="margin-bottom:18px;color:#1a3552;background:#eaf2fb;padding:10px 16px;border-radius:6px;">
                 <?= htmlspecialchars($message) ?>
@@ -115,7 +116,7 @@ foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
                     <?php endif; ?>
                 </label>
             <?php endforeach; ?>
-            <button type="submit" style="margin-top:12px;padding:10px 18px;background:#1a3552;color:#fff;border:none;border-radius:4px;align-self:flex-start;">Enregistrer</button>
+            <button type="submit" style="margin-top:12px;padding:10px 18px;background:#1a3552;color:#fff;border:none;border-radius:4px;align-self:flex-start;"><?= t('admin_variables_save_button') ?></button>
         </form>
     </div>
 </main>

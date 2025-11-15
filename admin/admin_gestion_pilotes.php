@@ -25,12 +25,12 @@ if (isset($_POST['update']) && $info) {
     $actif = isset($_POST['actif']) ? 1 : 0;
     $stmt = $pdo->prepare('UPDATE PILOTES SET prenom = ?, nom = ?, email = ?, admin = ?, actif = ? WHERE id = ?');
     if ($stmt->execute([$prenom, $nom, $email, $admin, $actif, $selected_id])) {
-        $message = "Modifications enregistrées.";
+        $message = t('admin_pilots_success_update');
         // Réinitialise la sélection du pilote
         $selected_id = null;
         $info = null;
     } else {
-        $message = "Erreur lors de la modification.";
+        $message = t('admin_pilots_error_update');
     }
 }
 
@@ -38,16 +38,16 @@ include __DIR__ . '/../includes/header.php';
 include __DIR__ . '/../includes/menu_logged.php';
 ?>
 <main>
-    <h2>Gestion des pilotes</h2>
+    <h2><?= t('admin_pilots_title') ?></h2>
     <?php if ($message): ?>
-        <div style="font-weight:bold;color:<?= strpos($message,'enregistr')!==false?'#1ca64c':'#d60000' ?>;margin-bottom:16px;">
+        <div class="<?= strpos($message,t('admin_pilots_success_keyword'))!==false?'admin-pilots-message-success':'admin-pilots-message-error' ?>">
             <?= htmlspecialchars($message) ?>
         </div>
     <?php endif; ?>
     <form method="post" id="form-pilote">
-        <label for="pilote_id"><strong>Choisir un callsign :</strong></label>
+        <label for="pilote_id"><strong><?= t('admin_pilots_select_callsign') ?></strong></label>
         <select name="pilote_id" id="pilote_id" class="fleet-filter-select input-320" onchange="document.getElementById('form-pilote').submit();">
-            <option value="">-- Sélectionner --</option>
+            <option value=""><?= t('admin_pilots_select_default') ?></option>
             <?php foreach ($pilotes as $p): ?>
                 <option value="<?= $p['id'] ?>" <?= $selected_id==$p['id']?'selected':'' ?>><?= htmlspecialchars($p['callsign']) ?></option>
             <?php endforeach; ?>
@@ -58,19 +58,19 @@ include __DIR__ . '/../includes/menu_logged.php';
     <form method="post" class="form-pilote">
         <input type="hidden" name="pilote_id" value="<?= $info['id'] ?>">
         <div class="form-row">
-            <label>Callsign :</label>
+            <label><?= t('admin_pilots_label_callsign') ?></label>
             <input type="text" value="<?= htmlspecialchars($info['callsign']) ?>" disabled>
         </div>
         <div class="form-row">
-            <label>Prénom :</label>
+            <label><?= t('admin_pilots_label_prenom') ?></label>
             <input type="text" name="prenom" value="<?= htmlspecialchars($info['prenom']) ?>">
         </div>
         <div class="form-row">
-            <label>Nom :</label>
+            <label><?= t('admin_pilots_label_nom') ?></label>
             <input type="text" name="nom" value="<?= htmlspecialchars($info['nom']) ?>">
         </div>
         <div class="form-row">
-            <label>Email :</label>
+            <label><?= t('admin_pilots_label_email') ?></label>
             <input type="email" name="email" value="<?= htmlspecialchars($info['email']) ?>">
         </div>
         <div class="form-row">
@@ -78,17 +78,17 @@ include __DIR__ . '/../includes/menu_logged.php';
             <div class="checkbox-group">
                 <label class="checkbox-inline">
                     <input type="checkbox" name="admin" value="1" <?= $info['admin']==1?'checked':'' ?>>
-                    Admin
+                    <?= t('admin_pilots_label_admin') ?>
                 </label>
                 <label class="checkbox-inline">
                     <input type="checkbox" name="actif" value="1" <?= (isset($info['actif']) && $info['actif']==1)?'checked':'' ?>>
-                    Actif
+                    <?= t('admin_pilots_label_actif') ?>
                 </label>
             </div>
         </div>
         <div class="form-row form-actions">
-            <button type="submit" name="update" class="btn-bleu">Enregistrer</button>
-            <button type="button" class="btn btn-reset" onclick="window.location.href='admin_gestion_pilotes.php';">Réinitialiser</button>
+            <button type="submit" name="update" class="btn"><?= t('admin_pilots_btn_save') ?></button>
+            <button type="button" class="btn btn-reset" onclick="window.location.href='admin_gestion_pilotes.php';"><?= t('admin_pilots_btn_reset') ?></button>
         </div>
     </form>
     <?php endif; ?>

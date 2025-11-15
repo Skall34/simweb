@@ -1,3 +1,3 @@
 <footer>
-    &copy; 2025 SkyWings Virtual Airline. Tous droits réservés.
+    &copy; 2025 <?= t('footer_copyright') ?>. <?= t('footer_rights') ?>
 </footer>

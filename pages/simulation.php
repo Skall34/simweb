@@ -49,36 +49,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <?php include __DIR__ . '/../includes/menu_logged.php'; ?>
 <main>
     <div class="container" style="max-width:600px;margin:40px auto;background:#fff;padding:32px;border-radius:12px;box-shadow:0 2px 16px rgba(0,0,0,0.08);">
-        <h2 style="text-align:center;">Simulation de gain net d'un vol</h2>
+        <h2 style="text-align:center;"><?= t('simulation_title') ?></h2>
         <form method="post" style="margin-top:32px;">
-            <label for="avion_id"><b>Avion :</b></label>
+            <label for="avion_id"><b><?= t('simulation_avion') ?> :</b></label>
             <select name="avion_id" id="avion_id" required>
-                <option value="">-- Choisir un avion --</option>
+                <option value="">-- <?= t('simulation_avion_select') ?> --</option>
                 <?php foreach ($avions as $a): ?>
                     <option value="<?= $a['id'] ?>" <?= (isset($_POST['avion_id']) && $_POST['avion_id'] == $a['id']) ? 'selected' : '' ?>>
                         <?= htmlspecialchars($a['immat']) ?> (<?= htmlspecialchars($a['fleet_type']) ?>)
                     </option>
                 <?php endforeach; ?>
             </select><br><br>
-            <label for="payload"><b>Fret (kg) :</b></label>
+            <label for="payload"><b><?= t('simulation_fret') ?> :</b></label>
             <input type="number" name="payload" id="payload" min="0" step="1" value="<?= htmlspecialchars($_POST['payload'] ?? '') ?>" required><br><br>
-            <label for="distance"><b>Distance (nm) :</b></label>
+            <label for="distance"><b><?= t('simulation_distance') ?> :</b></label>
             <input type="number" name="distance" id="distance" min="0" step="1" value="<?= htmlspecialchars($_POST['distance'] ?? '') ?>" required><br><br>
-            <label for="temps_vol"><b>Temps de vol (heures décimales) :</b></label>
+            <label for="temps_vol"><b><?= t('simulation_temps_vol') ?> :</b></label>
             <input type="number" name="temps_vol" id="temps_vol" min="0" step="0.01" value="<?= htmlspecialchars($_POST['temps_vol'] ?? '') ?>" required><br><br>
-            <button class="btn" type="submit">Simuler</button>
+            <button class="btn" type="submit"><?= t('simulation_simuler') ?></button>
         </form>
         <p style="margin-top:24px;font-size:1.05em;color:#555;">
-            <b>Paramètres de simulation&nbsp;:</b><br>
-            - Majoration de mission : <b>1</b> (mission standard)<br>
-            - Estimation consommation carburant : <b>3 L/nm</b> (soit <?= isset($_POST['distance']) && is_numeric($_POST['distance']) ? (float)$_POST['distance']*3 : 'distance × 3' ?> L pour ce vol)<br>
-            - Coefficient lié à la note : <b>0,8</b> (note 8/10)
+            <b><?= t('simulation_params') ?>&nbsp;:</b><br>
+            - <?= t('simulation_majoration') ?>: <b>1</b> (mission standard)<br>
+            - <?= t('simulation_carburant') ?>: <b>3 L/nm</b> (<?= isset($_POST['distance']) && is_numeric($_POST['distance']) ? (float)$_POST['distance']*3 : 'distance × 3' ?> L <?= t('simulation_carburant_for_this_flight') ?>)<br>
+            - <?= t('simulation_coef_note') ?>: <b>0,8</b> (note 8/10)
         </p>
         <?php if ($message): ?>
-            <div style="color:#c0392b;font-weight:bold;margin-top:18px;"><?= htmlspecialchars($message) ?></div>
+            <div style="color:#c0392b;font-weight:bold;margin-top:18px;"><?= t('simulation_error') ?></div>
         <?php elseif ($gain_net !== null): ?>
             <div style="margin-top:32px;padding:18px;background:#eafaf1;border-radius:8px;text-align:center;">
-                <b>Gain net estimé :</b> <span style="color:#16a085;font-size:1.5em;"><?= number_format($gain_net, 2, ',', ' ') ?> €</span>
+                <b><?= t('simulation_result') ?></b> <span style="color:#16a085;font-size:1.5em;"><?= number_format($gain_net, 2, ',', ' ') ?> €</span>
             </div>
         <?php endif; ?>
     </div>

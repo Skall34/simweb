@@ -44,41 +44,47 @@ function format_chiffre($valeur) {
 
 function color_chiffre($valeur) {
     $val = floatval($valeur);
-    $color = ($val < 0) ? 'red' : (($val > 0) ? 'green' : 'inherit');
-    return '<span style="color:' . $color . ';">' . format_chiffre($valeur) . '</span>';
+    $class = ($val < 0) ? 'finances-value-negative' : (($val > 0) ? 'finances-value-positive' : '');
+    return '<span class="' . $class . '">' . format_chiffre($valeur) . '</span>';
 }
 
 include __DIR__ . '/../includes/header.php';
 include __DIR__ . '/../includes/menu_logged.php';
 ?>
 <main>
-    <h2>Synthèse financière de la compagnie</h2>
+    <h2><?= t('finances_title') ?></h2>
 
-    <div class="compte-section" style="display:flex;gap:32px;align-items:stretch;max-width:1800px;">
-        <div style="flex:1;min-width:180px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;">
-            <div style="font-size:2.1em;font-weight:bold;color:#2a4d7a;display:flex;align-items:center;gap:10px;">
-                <span style="font-size:1.2em;">💰</span> <?= color_chiffre($balance) ?> €
+    <div class="compte-section finances-cards-row">
+        <div class="finances-card">
+            <div class="finances-card-value">
+                <span class="icon">💰</span> <?= color_chiffre($balance) ?> €
             </div>
-            <div style="font-size:1em;color:#555;margin-top:6px;">Balance commerciale</div>
+            <div class="finances-card-label"><?= t('finances_balance') ?></div>
         </div>
-        <div style="flex:1;min-width:180px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;">
-            <div style="font-size:1.3em;font-weight:bold;color:#1ca64c;display:flex;align-items:center;gap:10px;">
-                <span style="font-size:1.1em;">⬆️</span> <?= format_chiffre($recettes['total'] ?? 0) ?> €
+        <div class="finances-card">
+            <div class="finances-card-value-income">
+                <span class="icon">⬆️</span> <?= format_chiffre($recettes['total'] ?? 0) ?> €
             </div>
-            <div style="font-size:1em;color:#555;margin-top:6px;">Recettes (<?= $recettes['nb'] ?? 0 ?> op.)<br><span style="font-size:0.97em;">Dernière : <?= !empty($recettes['derniere']) ? date('d/m/Y H:i', strtotime($recettes['derniere'])) : 'N/A' ?></span></div>
+            <div class="finances-card-label">
+                <?= t('finances_income') ?> (<?= $recettes['nb'] ?? 0 ?> <?= t('finances_ops') ?>)<br>
+                <span class="small-text"><?= t('finances_last') ?> <?= !empty($recettes['derniere']) ? date('d/m/Y H:i', strtotime($recettes['derniere'])) : 'N/A' ?></span>
+            </div>
         </div>
-        <div style="flex:1;min-width:180px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;">
-            <div style="font-size:1.3em;font-weight:bold;color:#d60000;display:flex;align-items:center;gap:10px;">
-                <span style="font-size:1.1em;">⬇️</span> <?= format_chiffre($depenses['total'] ?? 0) ?> €
+        <div class="finances-card">
+            <div class="finances-card-value-expense">
+                <span class="icon">⬇️</span> <?= format_chiffre($depenses['total'] ?? 0) ?> €
             </div>
-            <div style="font-size:1em;color:#555;margin-top:6px;">Dépenses (<?= $depenses['nb'] ?? 0 ?> op.)<br><span style="font-size:0.97em;">Dernière : <?= !empty($depenses['derniere']) ? date('d/m/Y H:i', strtotime($depenses['derniere'])) : 'N/A' ?></span></div>
+            <div class="finances-card-label">
+                <?= t('finances_expense') ?> (<?= $depenses['nb'] ?? 0 ?> <?= t('finances_ops') ?>)<br>
+                <span class="small-text"><?= t('finances_last') ?> <?= !empty($depenses['derniere']) ? date('d/m/Y H:i', strtotime($depenses['derniere'])) : 'N/A' ?></span>
+            </div>
         </div>
     </div>
 
-    <details style="margin-bottom:18px;">
-        <summary style="font-weight:bold;cursor:pointer;">Voir les 10 dernières recettes</summary>
+    <details class="finances-details">
+        <summary><?= t('finances_last_10_income') ?></summary>
         <table class="table-skywings">
-            <thead><tr><th>Date</th><th>Montant (€)</th><th>Type</th><th>Commentaire</th></tr></thead>
+            <thead><tr><th><?= t('finances_date') ?></th><th><?= t('finances_amount') ?></th><th><?= t('finances_type') ?></th><th><?= t('finances_comment') ?></th></tr></thead>
             <tbody>
                 <?php foreach ($dernieres_recettes as $r): ?>
                 <tr>
@@ -92,10 +98,10 @@ include __DIR__ . '/../includes/menu_logged.php';
         </table>
     </details>
 
-    <details>
-        <summary style="font-weight:bold;cursor:pointer;">Voir les 10 dernières dépenses</summary>
+    <details class="finances-details">
+        <summary><?= t('finances_last_10_expense') ?></summary>
         <table class="table-skywings">
-            <thead><tr><th>Date</th><th>Montant (€)</th><th>Type</th><th>Commentaire</th></tr></thead>
+            <thead><tr><th><?= t('finances_date') ?></th><th><?= t('finances_amount') ?></th><th><?= t('finances_type') ?></th><th><?= t('finances_comment') ?></th></tr></thead>
             <tbody>
                 <?php foreach ($dernieres_depenses as $d): ?>
                 <tr>

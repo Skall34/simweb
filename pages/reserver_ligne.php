@@ -36,8 +36,8 @@ $stmtActive->execute([$pilote_id]);
 $active = $stmtActive->fetch(PDO::FETCH_ASSOC);
 if ($active) {
     $canReserve = false;
-    $message = 'Vous avez déjà une réservation active. Veuillez la terminer ou l\'annuler avant d\'en créer une nouvelle.';
-    $message_html = 'Vous avez déjà une réservation active. Veuillez la terminer ou l\'annuler avant d\'en créer une nouvelle. <a href="/pages/mon_compte.php">Gérer</a>';
+    $message = t('reserver_ligne_error_already_active');
+    $message_html = t('reserver_ligne_error_already_active_html');
 }
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $immat = $_POST['immat'] ?? '';
@@ -46,12 +46,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmtActive2->execute([$pilote_id]);
     $active2 = $stmtActive2->fetch(PDO::FETCH_ASSOC);
     if ($active2) {
-        $message = 'Vous avez déjà une réservation active. Impossible d\'en créer une nouvelle.';
-        $message_html = 'Vous avez déjà une réservation active. Impossible d\'en créer une nouvelle. <a href="/pages/mon_compte.php">Gérer</a>';
+        $message = t('reserver_ligne_error_already_active_short');
+        $message_html = t('reserver_ligne_error_already_active_html');
         $canReserve = false;
     }
     if (!$immat) {
-        $message = 'Veuillez sélectionner un appareil.';
+        $message = t('reserver_ligne_error_no_aircraft');
     } else {
         if (!$canReserve) {
             // do not proceed
@@ -62,9 +62,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmtChk = $pdo->prepare('SELECT reservee FROM FLOTTE WHERE immat = ? FOR UPDATE');
             $stmtChk->execute([$immat]);
             $row = $stmtChk->fetch(PDO::FETCH_ASSOC);
-            if (!$row) throw new Exception('Appareil introuvable');
+            if (!$row) throw new Exception(t('reserver_ligne_error_aircraft_not_found'));
             if ($row['reservee']) {
-                throw new Exception('Appareil déjà réservé.');
+                throw new Exception(t('reserver_ligne_error_aircraft_reserved'));
             }
             // Marquer l'avion comme réservé
             $stmtUpd = $pdo->prepare('UPDATE FLOTTE SET reservee = 1 WHERE immat = ?');
@@ -77,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($existing) {
                     // Si elle est déjà réservée (statut 'reserved') par quelqu'un d'autre, bloquer
                     if ($existing['statut'] === 'reserved') {
-                        throw new Exception('Appareil déjà réservé.');
+                        throw new Exception(t('reserver_ligne_error_aircraft_reserved'));
                     }
                     // Réutiliser l'enregistrement existant (historique conservé)
                     $stmtUpdRes = $pdo->prepare('UPDATE RESERVATIONS SET pilote_id = ?, statut = ?, date_reservation = NOW(), date_debut = NULL, date_fin = NULL, acars_cle = NULL WHERE id = ?');
@@ -88,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmtIns->execute([$ligne_id, $pilote_id, $immat, 'reserved']);
                 }
             $pdo->commit();
-            $message = 'Réservation enregistrée.';
+            $message = t('reserver_ligne_success');
             // send notification mail to admin
             try {
                 $callsign = $_SESSION['user']['callsign'] ?? '';
@@ -115,7 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         } catch (Exception $e) {
             $pdo->rollBack();
-            $message = 'Erreur lors de la réservation : ' . $e->getMessage();
+            $message = t('reserver_ligne_error_exception', ['error' => $e->getMessage()]);
             logMsg('Erreur réservation: ' . $e->getMessage(), __DIR__ . '/../scripts/logs/reservations.log');
         }
         }
@@ -126,23 +126,23 @@ include __DIR__ . '/../includes/header.php';
 include __DIR__ . '/../includes/menu_logged.php';
 ?>
 <main>
-    <h2>Réserver la ligne <?= htmlspecialchars($ligne['icao_dep']) ?> → <?= htmlspecialchars($ligne['icao_arr']) ?></h2>
+    <h2><?= t('reserver_ligne_title', ['dep' => htmlspecialchars($ligne['icao_dep']), 'arr' => htmlspecialchars($ligne['icao_arr'])]) ?></h2>
     <?php if ($message || $message_html): ?>
         <div class="error-msg">
             <?= $message_html ? $message_html : htmlspecialchars($message) ?>
         </div>
     <?php endif; ?>
     <form method="post">
-        <label for="immat">Choisir un appareil :</label>
+        <label for="immat"><?= t('reserver_ligne_label_immat') ?></label>
         <select name="immat" id="immat">
-            <option value="">-- Sélectionner --</option>
+            <option value=""><?= t('reserver_ligne_select_default') ?></option>
             <?php foreach ($flotte as $a): ?>
                 <option value="<?= htmlspecialchars($a['immat']) ?>"><?= htmlspecialchars($a['immat']) ?><?= $a['fleet_type_label'] !== '' ? ' (' . htmlspecialchars($a['fleet_type_label']) . ')' : '' ?></option>
             <?php endforeach; ?>
         </select>
         <div class="form-actions">
-            <button type="submit" class="btn">Confirmer la réservation</button>
-            <button type="button" class="btn btn-secondary" id="cancelBtn">Annuler</button>
+            <button type="submit" class="btn"><?= t('reserver_ligne_btn_confirm') ?></button>
+            <button type="button" class="btn btn-secondary" id="cancelBtn"><?= t('reserver_ligne_btn_cancel') ?></button>
         </div>
     <script>
         document.getElementById('cancelBtn').addEventListener('click', function () {

@@ -3,98 +3,98 @@ require_once __DIR__ . '/../../includes/require_login.php';
 require_once __DIR__ . '/../../includes/header.php';
 require_once __DIR__ . '/../../includes/menu_logged.php';
 ?>
-<div class="container" style="max-width:900px;margin:40px auto;background:#fff;padding:32px;border-radius:12px;box-shadow:0 2px 16px rgba(0,0,0,0.08);">
-    <h1 style="text-align:center;color:#2c3e50;margin-bottom:32px;">Script : Calcul du revenu net d'un vol</h1>
+<div class="container grades-container">
+    <h1><?= t('doc_calcul_title') ?></h1>
     <section>
-        <h2>Calcul détaillé du revenu net d'un vol</h2>
-        <p>Le calcul du revenu net d'un vol prend en compte de nombreux paramètres métier pour refléter la réalité économique de la compagnie. Voici la logique complète utilisée par le script&nbsp;:</p>
-        <h3>1. Paramètres pris en compte</h3>
+        <h2><?= t('doc_calcul_section_title') ?></h2>
+        <p><?= t('doc_calcul_intro') ?></p>
+        <h3><?= t('doc_calcul_params_title') ?></h3>?></h3>
         <ul>
-            <li><b>Fret transporté (payload)</b> : quantité de fret en kg.</li>
-            <li><b>Distance du vol</b> : en miles entre les aéroports de départ et d'arrivée.</li>
-            <li><b>Durée du vol</b> : au format HH:MM:SS, convertie en heures décimales.</li>
-            <li><b>Mission</b> : chaque mission peut avoir un coefficient de majoration (bonus/malus sur les recettes).</li>
-            <li><b>Consommation de carburant</b> : en litres.</li>
-            <li><b>Note du vol</b> : de 1 (crash) à 10 (vol parfait), influe fortement sur le coût d’utilisation de l’appareil.</li>
-            <li><b>Coût horaire de l’appareil</b> : dépend du type d’appareil, récupéré via la flotte.</li>
+            <li><?= t('doc_calcul_param1') ?></li>
+            <li><?= t('doc_calcul_param2') ?></li>
+            <li><?= t('doc_calcul_param3') ?></li>
+            <li><?= t('doc_calcul_param4') ?></li>
+            <li><?= t('doc_calcul_param5') ?></li>
+            <li><?= t('doc_calcul_param6') ?></li>
+            <li><?= t('doc_calcul_param7') ?></li>
         </ul>
-        <h3>2. Étapes du calcul</h3>
+        <h3><?= t('doc_calcul_etapes_title') ?></h3>
         <ol>
             <li>
-                <h4 class="sous-chapitre">Coefficient de note</h4>
+                <h4 class="sous-chapitre"><?= t('doc_calcul_etape1_title') ?></h4>
                 <ul>
-                    <li>Crash ou incident grave (note 1 ou 2)&nbsp;: coût d’utilisation multiplié par 50 ou 100.</li>
-                    <li>Note moyenne (3 à 6)&nbsp;: coût d’utilisation majoré modérément.</li>
-                    <li>Bonne note (8 à 10)&nbsp;: coût d’utilisation réduit (jusqu’à 0,5x).</li>
-                    <li>Objectif&nbsp;: inciter à voler proprement.</li>
+                    <li><?= t('doc_calcul_etape1_coef1') ?></li>
+                    <li><?= t('doc_calcul_etape1_coef2') ?></li>
+                    <li><?= t('doc_calcul_etape1_coef3') ?></li>
+                    <li><?= t('doc_calcul_etape1_objectif') ?></li>
                 </ul>
             </li>
             <li>
-                <h4 class="sous-chapitre">Majoration de mission</h4>
+                <h4 class="sous-chapitre"><?= t('doc_calcul_etape2_title') ?></h4>
                 <ul>
-                    <li>Certaines missions (ponctuelles, spéciales) bénéficient d’un coefficient multiplicateur sur les recettes.</li>
-                    <li>Si aucune majoration n’est définie, le coefficient est 1.</li>
+                    <li><?= t('doc_calcul_etape2_text1') ?></li>
+                    <li><?= t('doc_calcul_etape2_text2') ?></li>
                 </ul>
             </li>
             <li>
-                <h4 class="sous-chapitre">Coût horaire de l’appareil</h4>
+                <h4 class="sous-chapitre"><?= t('doc_calcul_etape3_title') ?></h4>
                 <ul>
-                    <li>Récupéré selon l’immatriculation et le type d’appareil.</li>
-                    <li>Permet de refléter le coût réel d’exploitation.</li>
+                    <li><?= t('doc_calcul_etape3_text1') ?></li>
+                    <li><?= t('doc_calcul_etape3_text2') ?></li>
                 </ul>
             </li>
             <li>
-                <h4 class="sous-chapitre">Calculs intermédiaires (vol court < 50 nm)</h4>
+                <h4 class="sous-chapitre"><?= t('doc_calcul_etape4_title') ?></h4>
                 <ul>                   
-                    <li><b>Revenu brut</b> = fret (kg) × 5 € × heures × majoration mission x 1.2 (bonus vol court) / 10</li>
-                    <li><b>Coût carburant</b> = carburant (L) × 0,88 €/l</li>
-                    <li><b>Coût appareil</b> = coût horaire × heures × coefficient de note</li>
+                    <li><?= t('doc_calcul_etape4_revenu') ?></li>
+                    <li><?= t('doc_calcul_etape4_carburant') ?></li>
+                    <li><?= t('doc_calcul_etape4_appareil') ?></li>
                 </ul>
             </li>
             <li>
-                <h4 class="sous-chapitre">Calculs intermédiaires (vol long > 50 nm)</h4>
+                <h4 class="sous-chapitre"><?= t('doc_calcul_etape5_title') ?></h4>
                 <ul>                   
-                    <li><b>Revenu brut</b> = fret (kg) × 5 € × distance × majoration mission / 1000</li>
-                    <li><b>Coût carburant</b> = carburant (L) × 0,88 €/l</li>
-                    <li><b>Coût appareil</b> = coût horaire × heures × coefficient de note</li>
+                    <li><?= t('doc_calcul_etape5_revenu') ?></li>
+                    <li><?= t('doc_calcul_etape5_carburant') ?></li>
+                    <li><?= t('doc_calcul_etape5_appareil') ?></li>
                 </ul>
             </li>
             <li>
-                <h4 class="sous-chapitre">Revenu net</h4>
+                <h4 class="sous-chapitre"><?= t('doc_calcul_etape6_title') ?></h4>
                 <ul>
-                    <li><b>Formule finale</b> :<br>
-                        <code>Revenu net = Revenu brut – (Coût carburant + Coût appareil)</code>
+                    <li><?= t('doc_calcul_etape6_formule') ?><br>
+                        <code><?= t('doc_calcul_etape6_formule_code') ?></code>
                     </li>
-                    <li>Toutes les étapes sont loguées pour audit.</li>
+                    <li><?= t('doc_calcul_etape6_log') ?></li>
                 </ul>
             </li>
         </ol>
-        <h3>3. Exemple de calcul</h3>
+        <h3><?= t('doc_calcul_exemple_title') ?></h3>
         <ul>
-            <li>Fret : 2400 kg</li>
-            <li>Durée : 2h30 (2,5h)</li>
-            <li>Distance : 300 nm</li>
-            <li>Mission : “OP FRANCE” (majoration 1,2)</li>
-            <li>Carburant : 600 L</li>
-            <li>Note : 8 (coef note : 0,8)</li>
-            <li>Coût horaire appareil : 350 €/h</li>
+            <li><?= t('doc_calcul_exemple_fret') ?></li>
+            <li><?= t('doc_calcul_exemple_duree') ?></li>
+            <li><?= t('doc_calcul_exemple_distance') ?></li>
+            <li><?= t('doc_calcul_exemple_mission') ?></li>
+            <li><?= t('doc_calcul_exemple_carburant') ?></li>
+            <li><?= t('doc_calcul_exemple_note') ?></li>
+            <li><?= t('doc_calcul_exemple_cout') ?></li>
         </ul>
-        <ul style="font-size:0.97em;">
-            <li>Revenu brut = 2400 × 5 × 300 × 1,2 / 1000 = 4320 €</li>
-            <li>Coût carburant = 600 × 0,88 = 528 €</li>
-            <li>Coût appareil = 350 × 2,5 × 0,8 = 700 €</li>
-            <li>Revenu net = 2160 – (528 + 700) = 3092€</li>
+        <ul class="exemple-calculs">
+            <li><?= t('doc_calcul_exemple_calc1') ?></li>
+            <li><?= t('doc_calcul_exemple_calc2') ?></li>
+            <li><?= t('doc_calcul_exemple_calc3') ?></li>
+            <li><?= t('doc_calcul_exemple_calc4') ?></li>
         </ul>
-        <h3>4. Fonctions principales du script</h3>
+        <h3><?= t('doc_calcul_fonctions_title') ?></h3>
         <ul>
             <li><code>coef_note($note)</code>.</li>
-            <li><code>getMajorationMission($mission_libelle)</code> : récupère la majoration de la mission.</li>
-            <li><code>getCoutHoraire($immat)</code> : récupère le coût horaire de l’appareil.</li>
-            <li><code>calculerRevenuNetVol($payload, $temps_vol, $majoration_mission, $carburant, $note, $cout_horaire)</code> : effectue tous les calculs ci-dessus.</li>
+            <li><code>getMajorationMission($mission_libelle)</code> : <?= t('doc_calcul_fonction2') ?></li>
+            <li><code>getCoutHoraire($immat)</code> : <?= t('doc_calcul_fonction3') ?></li>
+            <li><code>calculerRevenuNetVol($payload, $temps_vol, $majoration_mission, $carburant, $note, $cout_horaire)</code> : <?= t('doc_calcul_fonction4') ?></li>
         </ul>
     </section>
-    <div style="text-align:center; margin-top:38px;">
-        <a href="/pages/documentation.php" class="btn" style="min-width:180px;text-decoration:none;">← Retour à la documentation</a>
+    <div class="text-center" style="margin-top: 38px;">
+        <a href="/pages/documentation.php" class="btn"><?= t('doc_back_link') ?></a>
     </div>
 </div>
 <?php require_once __DIR__ . '/../../includes/footer.php'; ?>

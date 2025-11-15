@@ -1,31 +1,31 @@
 <?php
 // Centralized login guard and normalized includes
 require_once __DIR__ . '/../includes/require_login.php';
+require_once __DIR__ . '/../lang.php';
 require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/menu_logged.php';
 ?>
     <div class="container" style="max-width:900px;margin:40px auto;background:#fff;padding:32px;border-radius:12px;box-shadow:0 2px 16px rgba(0,0,0,0.08);">
-        <h1 style="text-align:center;color:#2c3e50;margin-bottom:32px;">Documentation du site Skywings</h1>
+        <h1 style="text-align:center;color:#2c3e50;margin-bottom:32px;"><?= t('documentation_title') ?></h1>
         <section>
-            <h2>Fonctionnement général</h2>
-            <p>Le site Skywings gère la vie d'une compagnie virtuelle de pilotes, avec automatisation des promotions, gestion des salaires, statistiques, et finances.</p>
-            <p>Le système est valable sur tous les simulateurs de vols, en ayant pris soin d'installer FSUIPC (MSFS2020, MSFS2024, P3D) ou XUIPC (xPlane).</p>
-            <p>Il fonctionne avec l'acars que vous pouvez télécharger ici <a href="https://github.com/Skall34/SimAddon/releases" target="_blank" style="color:#1a3552;font-weight:bold;text-decoration:underline;">repo github</a></p>
-            
-            <p>Un très complet wiki ici <a href="https://github.com/Skall34/SimAddon/wiki" target="_blank" style="color:#1a3552;font-weight:bold;text-decoration:underline;">Accéder au wiki</a></p>
+            <h2><?= t('documentation_section_general_title') ?></h2>
+            <p><?= t('documentation_section_general_intro') ?></p>
+            <p><?= t('documentation_section_general_simulators') ?></p>
+            <p><?= t('documentation_section_general_acars') ?> <a href="https://github.com/Skall34/SimAddon/releases" target="_blank" style="color:#1a3552;font-weight:bold;text-decoration:underline;"><?= t('documentation_link_repo_github') ?></a></p>
+            <p><?= t('documentation_section_general_wiki') ?> <a href="https://github.com/Skall34/SimAddon/wiki" target="_blank" style="color:#1a3552;font-weight:bold;text-decoration:underline;"><?= t('documentation_link_wiki') ?></a></p>
             
         </section>
         
         <section>
-            <h2>Les missions</h2>
+            <h2><?= t('documentation_section_missions_title') ?></h2>
             <ul>
-                <li><strong>Nous opérons différents types de missions:</strong>
+                <li><strong><?= t('documentation_section_missions_types') ?></strong>
                     <ul>
-                        <li><strong>Missions ponctuelles :</strong> Un voyage défini à l'avance. Souvent une étape par semaine. (HYDRAVIONS, ESQUIMOS, etc.)</li>
-                        <li><strong>Missions permanentes :</strong> OP FRANCE (transport de frêt d'un aéroport français à un autre) / OP LINER (transport de frêt depuis ou vers un aéroport hors France).</li>
-                        Les missions bénéficient d'un coeficient multiplicateur pour le calcul des recettes des vols associés
-                        <li><strong>Vols libre :</strong> Aucunes restrictions. Pas de coéficient appliqué.</li>
+                        <li><strong><?= t('documentation_section_missions_ponctuelles') ?></strong> <?= t('documentation_section_missions_ponctuelles_desc') ?></li>
+                        <li><strong><?= t('documentation_section_missions_permanentes') ?></strong> <?= t('documentation_section_missions_permanentes_desc') ?></li>
+                        <?= t('documentation_section_missions_coef') ?>
+                        <li><strong><?= t('documentation_section_missions_libre') ?></strong> <?= t('documentation_section_missions_libre_desc') ?></li>
                     </ul>
             </ul>
         </section>
@@ -40,10 +40,10 @@ require_once __DIR__ . '/../includes/menu_logged.php';
             echo '<p style="color:red;">Erreur lors de la récupération des missions : ' . htmlspecialchars($e->getMessage()) . '</p>';
         }
         if (!empty($missions)) {
-            echo '<h3 style="margin-top:30px;">Détail des missions</h3>';
+            echo '<h3 style="margin-top:30px;">' . t('documentation_section_missions_detail_title') . '</h3>';
             echo '<table style="max-width:480px;font-size:0.92em;border-collapse:collapse;margin-bottom:20px;box-shadow:0 1px 6px rgba(0,0,0,0.07);">';
             echo '<tr style="background:#e6f0fa;color:#1a3552;font-weight:bold;">';
-            echo '<th style="padding:4px 8px;">Libellé</th><th style="padding:4px 8px;">Majoration</th><th style="padding:4px 8px;">Active</th>';
+            echo '<th style="padding:4px 8px;">' . t('documentation_section_missions_table_libelle') . '</th><th style="padding:4px 8px;">' . t('documentation_section_missions_table_majoration') . '</th><th style="padding:4px 8px;">' . t('documentation_section_missions_table_active') . '</th>';
             echo '</tr>';
             foreach ($missions as $m) {
                 echo '<tr style="background:#fff;">';
@@ -54,9 +54,9 @@ require_once __DIR__ . '/../includes/menu_logged.php';
                 }
                 echo '<td style="padding:3px 8px;text-align:center;">' . htmlspecialchars($maj) . '</td>';
                 if (isset($m['Active']) && (int)$m['Active'] != 0) {
-                    echo '<td style="padding:3px 8px;text-align:center;">Oui</td>';
+                    echo '<td style="padding:3px 8px;text-align:center;">' . t('documentation_section_missions_table_active_yes') . '</td>';
                 } else {
-                    echo '<td style="padding:3px 8px;text-align:center;color:#c0392b;font-weight:bold;">Non</td>';
+                    echo '<td style="padding:3px 8px;text-align:center;color:#c0392b;font-weight:bold;">' . t('documentation_section_missions_table_active_no') . '</td>';
                 }
                 echo '</tr>';
             }
@@ -66,29 +66,29 @@ require_once __DIR__ . '/../includes/menu_logged.php';
         </section>
         
         <section>
-            <h2>Traitements automatiques</h2>
+            <h2><?= t('documentation_section_automations_title') ?></h2>
             <ul>
-                <li><strong>Paiement des assurances :</strong> Script mensuel qui calcule la prime d'assurance que Skywings doit payer pour les avions détenus. Déduit de la balance commerciale le 1er de chaque mois</li>
-                <li><strong>Calcul de la recette d'un vol :</strong> Lors de chaque import d'un vol, le temps de vol, le frêt transporté, l'appareil utilisé, la note du vol sont autant de paramètres qui sont pris en compte. Pour plus de détails, consulter le lien ci-dessous.</li>
-                <li><strong>Paiement des mensualités des crédits :</strong> Certains appareils sont achetés à crédit. Le paiement des mensualité se fait une fois / mois.</li>
-                <li><strong>Maintenance des appareils :</strong> Script quotidien, qui en fonction de l'état de chaque appareil, le fait passer en maintenance. Pour une usure normale, l'appareil passe en maintenance pour 24h lorsqu'il atteind 30% d'usure. Lors d'un crash (note de 1), l'appareil est immobilisé 3 jours</li>
-                <li><strong>Paiement des salaires :</strong> Script mensuel qui calcule le salaire de chaque pilote selon ses heures de vol, son grade, met à jour les finances, envoie un mail au pilote et un récapitulatif à l'administrateur.</li>
-                <li><strong>Promotion des grades :</strong> Script qui promeut les pilotes selon leurs heures de vol, envoie un mail et logue chaque promotion. Est executé tous les 1er du mois.</li>
-                <li><strong>Mise à jour du frêt :</strong> Une fois par semaine, le vendredi, une certaine quantité de frêt aléatoire (entre 1 et 100 Kg) est attribué aux aéroports.</li>
+                <li><strong><?= t('documentation_section_automations_assurance_title') ?></strong> <?= t('documentation_section_automations_assurance_desc') ?></li>
+                <li><strong><?= t('documentation_section_automations_recette_title') ?></strong> <?= t('documentation_section_automations_recette_desc') ?></li>
+                <li><strong><?= t('documentation_section_automations_credit_title') ?></strong> <?= t('documentation_section_automations_credit_desc') ?></li>
+                <li><strong><?= t('documentation_section_automations_maintenance_title') ?></strong> <?= t('documentation_section_automations_maintenance_desc') ?></li>
+                <li><strong><?= t('documentation_section_automations_salaires_title') ?></strong> <?= t('documentation_section_automations_salaires_desc') ?></li>
+                <li><strong><?= t('documentation_section_automations_promotion_title') ?></strong> <?= t('documentation_section_automations_promotion_desc') ?></li>
+                <li><strong><?= t('documentation_section_automations_fret_title') ?></strong> <?= t('documentation_section_automations_fret_desc') ?></li>
             </ul>
         </section>
         
         <section>
-            <h2>Documentations détaillées des scripts</h2>
+            <h2><?= t('documentation_section_scripts_title') ?></h2>
             <ul>
-                <li><a href="doc_scripts/doc_assurance_mensuelle.php" style="color:#1a3552;font-weight:bold;text-decoration:underline;">Assurance mensuelle</a></li>
-                <li><a href="doc_scripts/doc_calcul_cout.php" style="color:#1a3552;font-weight:bold;text-decoration:underline;">Calcul de la recette d'un vol</a></li>
-                <li><a href="doc_scripts/doc_credit_mensualite.php" style="color:#1a3552;font-weight:bold;text-decoration:underline;">Calcul des mensualités de crédits</a></li>
-                <li><a href="doc_scripts/doc_importer_vol.php" style="color:#1a3552;font-weight:bold;text-decoration:underline;">Importer vol</a></li>
-                <li><a href="doc_scripts/doc_maintenance.php" style="color:#1a3552;font-weight:bold;text-decoration:underline;">Maintenance appareils</a></li>
-                <li><a href="doc_scripts/doc_paiement_salaires_pilotes.php" style="color:#1a3552;font-weight:bold;text-decoration:underline;">Paiement du salaires des pilotes</a></li>
-                <li><a href="doc_scripts/doc_promotion_grades_pilotes.php" style="color:#1a3552;font-weight:bold;text-decoration:underline;">Promotions grades des pilotes</a></li>
-                <li><a href="doc_scripts/doc_update_fret.php" style="color:#1a3552;font-weight:bold;text-decoration:underline;">Update Fret</a></li>
+                <li><a href="doc_scripts/doc_assurance_mensuelle.php" style="color:#1a3552;font-weight:bold;text-decoration:underline;"><?= t('documentation_section_scripts_assurance') ?></a></li>
+                <li><a href="doc_scripts/doc_calcul_cout.php" style="color:#1a3552;font-weight:bold;text-decoration:underline;"><?= t('documentation_section_scripts_calcul_cout') ?></a></li>
+                <li><a href="doc_scripts/doc_credit_mensualite.php" style="color:#1a3552;font-weight:bold;text-decoration:underline;"><?= t('documentation_section_scripts_credit') ?></a></li>
+                <li><a href="doc_scripts/doc_importer_vol.php" style="color:#1a3552;font-weight:bold;text-decoration:underline;"><?= t('documentation_section_scripts_importer_vol') ?></a></li>
+                <li><a href="doc_scripts/doc_maintenance.php" style="color:#1a3552;font-weight:bold;text-decoration:underline;"><?= t('documentation_section_scripts_maintenance') ?></a></li>
+                <li><a href="doc_scripts/doc_paiement_salaires_pilotes.php" style="color:#1a3552;font-weight:bold;text-decoration:underline;"><?= t('documentation_section_scripts_salaires') ?></a></li>
+                <li><a href="doc_scripts/doc_promotion_grades_pilotes.php" style="color:#1a3552;font-weight:bold;text-decoration:underline;"><?= t('documentation_section_scripts_promotion') ?></a></li>
+                <li><a href="doc_scripts/doc_update_fret.php" style="color:#1a3552;font-weight:bold;text-decoration:underline;"><?= t('documentation_section_scripts_update_fret') ?></a></li>
             </ul>
         </section>
     </div>

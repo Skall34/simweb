@@ -1,4 +1,6 @@
+
 <?php
+require_once("lang.php");
 require_once("includes/db_connect.php");
 
 try {
@@ -12,10 +14,10 @@ try {
         <table class="table-skywings">
             <thead>
                 <tr>
-                    <th>Callsign</th>
-                    <th>Départ</th>
-                    <th>Destination</th>
-                    <th>Appareil</th>
+                    <th><?= t('liveflights_header_callsign') ?></th>
+                    <th><?= t('liveflights_header_departure') ?></th>
+                    <th><?= t('liveflights_header_destination') ?></th>
+                    <th><?= t('liveflights_header_aircraft') ?></th>
                 </tr>
             </thead>
             <tbody>
@@ -30,8 +32,8 @@ try {
             </tbody>
         </table>
     <?php else: ?>
-        <p>Aucun vol en cours.</p>
+        <p><?= t('liveflights_none') ?></p>
     <?php endif;
 } catch (PDOException $e) {
-    echo "<p>Erreur lors de la récupération des vols en cours : " . htmlspecialchars($e->getMessage()) . "</p>";
+    echo "<p>" . t('liveflights_error_fetch') . htmlspecialchars($e->getMessage()) . "</p>";
 }

@@ -15,43 +15,11 @@ include __DIR__ . '/../includes/menu_logged.php';
 ?>
 
 <main>
-    <h2>Fleet Types</h2>
+    <h2><?= t('fleet_type_title') ?></h2>
 
     <?php if (empty($types)): ?>
-        <p>Aucun type trouvé.</p>
+        <p><?= t('fleet_type_no_results') ?></p>
     <?php else: ?>
-        <style>
-            .table-section {
-                min-width: 420px;
-                max-width: 600px;
-                margin: 0;
-            }
-            .table-skywings {
-                width: 100%;
-                border-collapse: collapse;
-                background: #fff;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-                border-radius: 8px;
-                overflow: hidden;
-            }
-            .table-skywings th, .table-skywings td {
-                padding: 4px 8px;
-                font-size: 14px;
-                text-align: left;
-            }
-            .table-skywings th {
-                background: #0d47a1;
-                color: #fff;
-                font-weight: 600;
-                border-bottom: 2px solid #08306b;
-            }
-            .table-skywings tr:nth-child(even) td {
-                background: #f7fbff;
-            }
-            .table-skywings th.fleet_type, .table-skywings td.fleet_type { width: 120px; }
-            .table-skywings th.cout_horaire, .table-skywings td.cout_horaire { width: 110px; }
-            .table-skywings th.prix, .table-skywings td.prix { width: 100px; }
-        </style>
         <?php
         // Découpe le tableau en 2 colonnes égales
         $total = count($types);
@@ -59,14 +27,14 @@ include __DIR__ . '/../includes/menu_logged.php';
         $col1 = array_slice($types, 0, $mid);
         $col2 = array_slice($types, $mid);
         ?>
-        <div style="display: flex; gap: 32px; align-items: flex-start;">
-            <div class="table-section">
+        <div class="fleet-type-tables-row">
+            <div class="fleet-type-table-section">
                 <table class="table-skywings">
                     <thead>
                         <tr>
-                            <th class="fleet_type">Fleet type</th>
-                            <th class="cout_horaire">Coût horaire (€)</th>
-                            <th class="prix">Prix (€)</th>
+                            <th class="fleet_type"><?= t('fleet_type_table_type') ?></th>
+                            <th class="cout_horaire"><?= t('fleet_type_table_cout_horaire') ?></th>
+                            <th class="prix"><?= t('fleet_type_table_prix') ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -80,13 +48,13 @@ include __DIR__ . '/../includes/menu_logged.php';
                     </tbody>
                 </table>
             </div>
-            <div class="table-section">
+            <div class="fleet-type-table-section">
                 <table class="table-skywings">
                     <thead>
                         <tr>
-                            <th class="fleet_type">Fleet type</th>
-                            <th class="cout_horaire">Coût horaire (€)</th>
-                            <th class="prix">Prix (€)</th>
+                            <th class="fleet_type"><?= t('fleet_type_table_type') ?></th>
+                            <th class="cout_horaire"><?= t('fleet_type_table_cout_horaire') ?></th>
+                            <th class="prix"><?= t('fleet_type_table_prix') ?></th>
                         </tr>
                     </thead>
                     <tbody>

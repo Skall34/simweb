@@ -239,9 +239,9 @@ include __DIR__ . '/../includes/menu_logged.php';
 ?>
 
 <main>
-        <h2>Saisie manuelle d'un vol</h1>
+        <h2><?= t('saisie_manuelle_title') ?></h2>
         <?php if ($success): ?>
-            <div class="alert success">✅ Vol ajouté avec succès !</div>
+            <div class="alert success">✅ <?= t('saisie_manuelle_success') ?></div>
         <?php elseif ($erreurs): ?>
             <div class="alert error">
                 <?php foreach ($erreurs as $err): ?>
@@ -252,9 +252,9 @@ include __DIR__ . '/../includes/menu_logged.php';
 
         <form method="post"  class="form-inscription" autocomplete="off">
             <div class="form-group">
-                <label for="callsign">Pilote (callsign)</label>
+                <label for="callsign"><?= t('saisie_manuelle_callsign') ?></label>
                 <select name="callsign" id="callsign" required class="form-input">
-                    <option value="">-- Sélectionner --</option>
+                    <option value=""><?= t('select_placeholder') ?></option>
                     <?php foreach ($callsigns as $c): ?>
                         <option value="<?= htmlspecialchars($c) ?>" <?= ($form['callsign'] === $c) ? 'selected' : '' ?>>
                             <?= htmlspecialchars($c) ?>
@@ -263,9 +263,9 @@ include __DIR__ . '/../includes/menu_logged.php';
                 </select>
             </div>
             <div class="form-group">
-                <label for="immatriculation">Immatriculation</label>
+                <label for="immatriculation"><?= t('saisie_manuelle_immat') ?></label>
                 <select name="immatriculation" id="immatriculation" required class="form-input">
-                    <option value="">-- Sélectionner --</option>
+                    <option value=""><?= t('select_placeholder') ?></option>
                     <?php foreach ($immats as $i): ?>
                         <option value="<?= htmlspecialchars($i) ?>" <?= ($form['immatriculation'] === $i) ? 'selected' : '' ?>>
                             <?= htmlspecialchars($i) ?>
@@ -274,45 +274,45 @@ include __DIR__ . '/../includes/menu_logged.php';
                 </select>
             </div>
             <div class="form-group">
-                <label for="departure_icao">Départ (ICAO)</label>
+                <label for="departure_icao"><?= t('saisie_manuelle_depart_icao') ?></label>
                 <input type="text" name="departure_icao" id="departure_icao" maxlength="4" value="<?= htmlspecialchars($form['departure_icao']) ?>" required class="form-input" style="text-transform:uppercase;" oninput="this.value = this.value.toUpperCase();">
             </div>
             <div class="form-group">
-                <label for="departure_fuel">Fuel départ</label>
+                <label for="departure_fuel"><?= t('saisie_manuelle_depart_fuel') ?></label>
                 <input type="number" name="departure_fuel" id="departure_fuel" min="0" step="1" value="<?= htmlspecialchars($form['departure_fuel']) ?>" required class="form-input">
             </div>
             <div class="form-group">
-                <label for="departure_datetime">Date/heure départ</label>
+                <label for="departure_datetime"><?= t('saisie_manuelle_depart_datetime') ?></label>
                 <input type="datetime-local" name="departure_datetime" id="departure_datetime" value="<?= htmlspecialchars($form['departure_datetime']) ?>" required class="form-input">
             </div>
             <div class="form-group">
-                <label for="arrival_icao">Arrivée (ICAO)</label>
+                <label for="arrival_icao"><?= t('saisie_manuelle_arrivee_icao') ?></label>
                 <input type="text" name="arrival_icao" id="arrival_icao" maxlength="4" value="<?= htmlspecialchars($form['arrival_icao']) ?>" required class="form-input" style="text-transform:uppercase;" oninput="this.value = this.value.toUpperCase();">
             </div>
             <div class="form-group">
-                <label for="arrival_fuel">Fuel arrivée</label>
+                <label for="arrival_fuel"><?= t('saisie_manuelle_arrivee_fuel') ?></label>
                 <input type="number" name="arrival_fuel" id="arrival_fuel" min="0" step="1" value="<?= htmlspecialchars($form['arrival_fuel']) ?>" required class="form-input">
             </div>
             <div class="form-group">
-                <label for="arrival_datetime">Date/heure arrivée</label>
+                <label for="arrival_datetime"><?= t('saisie_manuelle_arrivee_datetime') ?></label>
                 <input type="datetime-local" name="arrival_datetime" id="arrival_datetime" value="<?= htmlspecialchars($form['arrival_datetime']) ?>" required class="form-input">
             </div>
             <div class="form-group">
-                <label for="payload">Payload (kg)</label>
+                <label for="payload"><?= t('saisie_manuelle_payload') ?></label>
                 <input type="number" name="payload" id="payload" min="0" step="1" value="<?= htmlspecialchars($form['payload']) ?>" class="form-input">
             </div>
             <div class="form-group">
-                <label for="commentaire">Commentaire</label>
+                <label for="commentaire"><?= t('saisie_manuelle_commentaire') ?></label>
                 <input type="text" name="commentaire" id="commentaire" maxlength="255" value="<?= htmlspecialchars($form['commentaire']) ?>" class="form-input">
             </div>
             <div class="form-group">
-                <label for="note_du_vol">Note du vol (1-10)</label>
+                <label for="note_du_vol"><?= t('saisie_manuelle_note') ?></label>
                 <input type="number" name="note_du_vol" id="note_du_vol" min="1" max="10" value="<?= htmlspecialchars($form['note_du_vol']) ?>" required class="form-input">
             </div>
             <div class="form-group">
-                <label for="mission">Mission</label>
+                <label for="mission"><?= t('saisie_manuelle_mission') ?></label>
                 <select name="mission" id="mission" required class="form-input">
-                    <option value="">-- Sélectionner --</option>
+                    <option value=""><?= t('select_placeholder') ?></option>
                     <?php foreach ($missionslist as $m): ?>
                         <option value="<?= htmlspecialchars($m) ?>" <?= ($form['mission'] === $m) ? 'selected' : '' ?>>
                             <?= htmlspecialchars($m) ?>
@@ -321,8 +321,8 @@ include __DIR__ . '/../includes/menu_logged.php';
                 </select>
             </div>
             <div class="form-group" style="display:flex;gap:1em;">
-                <button type="submit" class="btn-bleu">Ajouter le vol</button>
-                <button type="submit" name="reset" value="1" class="btn-reset" style="margin-left:0;">Réinitialiser</button>
+                <button type="submit" class="btn"><?= t('saisie_manuelle_add') ?></button>
+                <button type="submit" name="reset" value="1" class="btn btn-reset"><?= t('saisie_manuelle_reset') ?></button>
             </div>
         </form>
     </div>
