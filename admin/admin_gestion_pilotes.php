@@ -40,7 +40,7 @@ include __DIR__ . '/../includes/menu_logged.php';
 <main>
     <h2><?= t('admin_pilots_title') ?></h2>
     <?php if ($message): ?>
-        <div style="font-weight:bold;color:<?= strpos($message,t('admin_pilots_success_keyword'))!==false?'#1ca64c':'#d60000' ?>;margin-bottom:16px;">
+        <div class="<?= strpos($message,t('admin_pilots_success_keyword'))!==false?'admin-pilots-message-success':'admin-pilots-message-error' ?>">
             <?= htmlspecialchars($message) ?>
         </div>
     <?php endif; ?>

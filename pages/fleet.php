@@ -95,23 +95,23 @@ include __DIR__ . '/../includes/menu_logged.php';
         <p class="no-results"><?= t('fleet_no_results') ?></p>
     <?php else: ?>
 
-    <div style="height: 18px;"></div>
+    <div class="fleet-spacer"></div>
         <!-- Tableau d'en-tête fixe -->
-        <table class="table-skywings">
+        <table class="table-skywings fleet-table">
             <thead class="table-skywings">
                 <tr class="table-skywings">
-                    <th style="width:8%;"><?= t('fleet_table_immat') ?></th>
-                    <th style="width:8%;"><?= t('fleet_table_fleet_type') ?></th>
-                    <th style="width:8%;"><?= t('fleet_table_categorie') ?></th>
-                    <th style="width:8%;"><?= t('fleet_table_localisation') ?></th>
-                    <th style="width:8%;"><?= t('fleet_table_hub') ?></th>
-                    <th style="width:8%;"><?= t('fleet_table_status') ?></th>
-                    <th style="width:8%;"><?= t('fleet_table_etat') ?></th>
-                    <th style="width:8%;"><?= t('fleet_table_pilote') ?></th>
-                    <th style="width:8%;"><?= t('fleet_table_fuel') ?></th>
-                    <th style="width:8%;"><?= t('fleet_table_compteur') ?></th>
-                    <th style="width:8%;"><?= t('fleet_table_en_vol') ?></th>
-                    <th style="width:8%;"><?= t('fleet_table_reserve') ?></th>
+                    <th><?= t('fleet_table_immat') ?></th>
+                    <th><?= t('fleet_table_fleet_type') ?></th>
+                    <th><?= t('fleet_table_categorie') ?></th>
+                    <th><?= t('fleet_table_localisation') ?></th>
+                    <th><?= t('fleet_table_hub') ?></th>
+                    <th><?= t('fleet_table_status') ?></th>
+                    <th><?= t('fleet_table_etat') ?></th>
+                    <th><?= t('fleet_table_pilote') ?></th>
+                    <th><?= t('fleet_table_fuel') ?></th>
+                    <th><?= t('fleet_table_compteur') ?></th>
+                    <th><?= t('fleet_table_en_vol') ?></th>
+                    <th><?= t('fleet_table_reserve') ?></th>
 
                 </tr>
             </thead>
@@ -167,12 +167,12 @@ include __DIR__ . '/../includes/menu_logged.php';
                     }
                 ?>
                     <tr class="<?= $rowClass ?>" data-details="<?= $details_json ?>">
-                        <td style="width:8%;"><?= htmlspecialchars($avion['immat'] ?? '') ?></td>
-                        <td style="width:8%;"><?= htmlspecialchars($avion['type_libelle'] ?? '') ?></td>
-                        <td style="width:8%;"><?= htmlspecialchars($avion['categorie'] ?? '') ?></td>
-                        <td style="width:8%;"><?= htmlspecialchars($avion['localisation'] ?? '') ?></td>
-                        <td style="width:8%;"><?= htmlspecialchars($avion['hub'] ?? '') ?></td>
-                        <td style="width:8%;">
+                        <td><?= htmlspecialchars($avion['immat'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($avion['type_libelle'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($avion['categorie'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($avion['localisation'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($avion['hub'] ?? '') ?></td>
+                        <td>
                             <?php
                             if (isset($avion['actif']) && !$avion['actif']) {
                                 echo t('fleet_status_vendu');
@@ -187,12 +187,12 @@ include __DIR__ . '/../includes/menu_logged.php';
                             }
                             ?>
                         </td>
-                        <td style="width:8%;"><?= htmlspecialchars($avion['etat'] ?? '') ?></td>
-                        <td style="width:8%;"><?= htmlspecialchars(($avion['pilote_callsign'] ?? 'N/A') ?: '') ?></td>
-                        <td style="width:8%;"><?= htmlspecialchars($avion['fuel_restant'] ?? '') ?></td>
-                        <td style="width:8%;"><?= htmlspecialchars($avion['compteur_immo'] ?? '') ?></td>
-                        <td style="width:8%;"><?= htmlspecialchars($avion['en_vol'] ?? '') ?></td>
-                        <td style="width:8%;"><?php
+                        <td><?= htmlspecialchars($avion['etat'] ?? '') ?></td>
+                        <td><?= htmlspecialchars(($avion['pilote_callsign'] ?? 'N/A') ?: '') ?></td>
+                        <td><?= htmlspecialchars($avion['fuel_restant'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($avion['compteur_immo'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($avion['en_vol'] ?? '') ?></td>
+                        <td><?php
                             $res = $avion['reservee'] ?? null;
                             if ($res === null || $res === '') {
                                 echo 'Non';

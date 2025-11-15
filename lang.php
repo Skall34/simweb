@@ -21,7 +21,14 @@ function load_lang() {
 
 $LANG = load_lang();
 
-function t($key) {
+function t($key, $params = []) {
     global $LANG;
-    return $LANG[$key] ?? $key;
+    $text = $LANG[$key] ?? $key;
+    
+    // Replace placeholders like :param with values from $params array
+    foreach ($params as $param => $value) {
+        $text = str_replace(':' . $param, $value, $text);
+    }
+    
+    return $text;
 }

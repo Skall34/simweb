@@ -598,7 +598,7 @@ return [
     'admin_grades_confirm_delete' => 'Supprimer ce grade ?',
 
     // --- admin_lignes_regulieres.php ---
-    'admin_lines_title' => 'Administration des Lignes régulières ({count})',
+    'admin_lines_title' => 'Administration des Lignes régulières (:count)',
     'admin_lines_error_icao_required' => 'Les deux codes ICAO sont requis.',
     'admin_lines_error_exists' => '⚠️ La ligne {dep} → {arr} existe déjà.',
     'admin_lines_success_add' => '✅ Ligne {dep} → {arr} ajoutée.',

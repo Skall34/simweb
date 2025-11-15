@@ -82,19 +82,19 @@ include __DIR__ . '/../includes/menu_logged.php';
     <h2><?= t('admin_missions_title') ?></h2>
 
     <?php if ($message): ?>
-        <p style="color: green; font-weight:bold;"> <?= htmlspecialchars($message) ?> </p>
+        <p class="message-success"> <?= htmlspecialchars($message) ?> </p>
     <?php endif; ?>
     <?php if ($errors): ?>
-        <ul style="color: red;">
+        <ul class="message-error">
             <?php foreach ($errors as $error): ?>
                 <li><?= htmlspecialchars($error) ?></li>
             <?php endforeach; ?>
         </ul>
     <?php endif; ?>
 
-    <div style="display:flex; align-items:flex-start; gap:1.2rem;">
-        <div style="flex:1 1 380px; min-width:320px; max-width:420px;">
-            <form method="post" style="margin-bottom:2rem;">
+    <div class="admin-missions-layout">
+        <div class="admin-missions-left">
+            <form method="post" class="admin-missions-form-select">
                 <label for="mission_id"><strong><?= t('admin_missions_select_label') ?></strong></label>
                 <select name="mission_id" id="mission_id" onchange="this.form.submit()">
                     <option value=""><?= t('admin_missions_select_default') ?></option>
@@ -108,7 +108,7 @@ include __DIR__ . '/../includes/menu_logged.php';
             </form>
 
             <?php if ($selectedMission): ?>
-                <form method="post" style="max-width:400px; margin-bottom:2.5rem; background:#f7fbff; padding:18px 20px; border-radius:7px; box-shadow:0 2px 8px #0001;">
+                <form method="post" class="admin-missions-form-edit">
                     <input type="hidden" name="mission_id" value="<?= $selectedMission['id'] ?>">
                     <label for="libelle"><?= t('admin_missions_label_libelle') ?></label>
                     <input type="text" name="libelle" id="libelle" value="<?= htmlspecialchars($selectedMission['libelle']) ?>" required>
@@ -116,8 +116,8 @@ include __DIR__ . '/../includes/menu_logged.php';
                     <label for="majoration_mission"><?= t('admin_missions_label_majoration') ?></label>
                     <input type="number" step="0.10" min="0" name="majoration_mission" id="majoration_mission" value="<?= htmlspecialchars($selectedMission['majoration_mission']) ?>" required>
 
-                    <label for="Active" style="display: inline-flex; align-items: center; gap: 0.25em; cursor: pointer;">
-                        <input type="checkbox" name="Active" id="Active" value="1" <?php if ((int)$selectedMission['Active'] === 1) echo 'checked'; ?> style="margin: 0;">
+                    <label for="Active" class="admin-missions-checkbox-label">
+                        <input type="checkbox" name="Active" id="Active" value="1" <?php if ((int)$selectedMission['Active'] === 1) echo 'checked'; ?>>
                         <?= t('admin_missions_label_active') ?>
                     </label>
 
@@ -125,7 +125,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                 </form>
             <?php endif; ?>
 
-            <form method="post" style="max-width:400px; background:#f7fbff; padding:18px 20px; border-radius:7px; box-shadow:0 2px 8px #0001;">
+            <form method="post" class="admin-missions-form-create">
                 <h3><?= t('admin_missions_create_title') ?></h3>
                 <label for="libelle_new"><?= t('admin_missions_label_libelle') ?></label>
                 <input type="text" name="libelle_new" id="libelle_new" required>
@@ -133,30 +133,30 @@ include __DIR__ . '/../includes/menu_logged.php';
                 <label for="majoration_mission_new"><?= t('admin_missions_label_majoration') ?></label>
                 <input type="number" step="0.10" min="0" name="majoration_mission_new" id="majoration_mission_new" value="1.00" required>
 
-                <label for="Active_new" style="display: inline-flex; align-items: center; gap: 0.25em; cursor: pointer;">
-                    <input type="checkbox" name="Active_new" id="Active_new" value="1" checked style="margin: 0;">
+                <label for="Active_new" class="admin-missions-checkbox-label">
+                    <input type="checkbox" name="Active_new" id="Active_new" value="1" checked>
                     <?= t('admin_missions_label_active') ?>
                 </label>
 
                 <button type="submit" name="action" value="create"><?= t('admin_missions_btn_create') ?></button>
             </form>
         </div>
-        <div style="flex:1 1 320px; min-width:260px; max-width:380px;">
-            <h3 style="margin-top:0;"><?= t('admin_missions_table_title') ?></h3>
-            <table style="width:100%;border-collapse:collapse;background:#f7fbff;box-shadow:0 2px 8px #0001;font-size:0.97em;">
+        <div class="admin-missions-right">
+            <h3 class="admin-missions-table-title"><?= t('admin_missions_table_title') ?></h3>
+            <table class="admin-missions-table">
                 <thead>
                     <tr>
-                        <th style="background:#e6f0fa;color:#0066cc;font-weight:bold;border:1px solid #b3c6e0;padding:7px 10px;"><?= t('admin_missions_col_libelle') ?></th>
-                        <th style="background:#e6f0fa;color:#0066cc;font-weight:bold;border:1px solid #b3c6e0;padding:7px 10px;"><?= t('admin_missions_col_majoration') ?></th>
-                        <th style="background:#e6f0fa;color:#0066cc;font-weight:bold;border:1px solid #b3c6e0;padding:7px 10px;"><?= t('admin_missions_col_active') ?></th>
+                        <th><?= t('admin_missions_col_libelle') ?></th>
+                        <th><?= t('admin_missions_col_majoration') ?></th>
+                        <th><?= t('admin_missions_col_active') ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ($missionsList as $m): ?>
                         <tr>
-                            <td style="border:1px solid #b3c6e0;padding:7px 10px;"> <?= htmlspecialchars($m['libelle']) ?> </td>
-                            <td style="border:1px solid #b3c6e0;padding:7px 10px;"> <?= htmlspecialchars($m['majoration_mission']) ?> </td>
-                            <td style="border:1px solid #b3c6e0;padding:7px 10px; color:<?= ((int)$m['Active'] !== 0) ? '#008800' : '#c00' ?>;font-weight:bold;">
+                            <td><?= htmlspecialchars($m['libelle']) ?></td>
+                            <td><?= htmlspecialchars($m['majoration_mission']) ?></td>
+                            <td class="<?= ((int)$m['Active'] !== 0) ? 'admin-missions-active-yes' : 'admin-missions-active-no' ?>">
                                 <?= ((int)$m['Active'] !== 0) ? t('admin_missions_active_yes') : t('admin_missions_active_no') ?>
                             </td>
                         </tr>
@@ -166,13 +166,5 @@ include __DIR__ . '/../includes/menu_logged.php';
         </div>
     </div>
 </main>
-
-<style>
-form label { display:block; margin-top:10px; margin-bottom:3px; }
-form input[type=text], form input[type=number] { width:100%; padding:5px 7px; margin-bottom:8px; border:1px solid #b3c6e0; border-radius:3px; }
-form select { padding:5px 7px; border-radius:3px; border:1px solid #b3c6e0; margin-bottom:10px; }
-form button { margin-top:10px; background:#0066cc; color:#fff; border:none; padding:7px 18px; border-radius:4px; cursor:pointer; font-weight:bold; }
-form button:hover { background:#0055a3; }
-</style>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>

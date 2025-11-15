@@ -159,21 +159,21 @@ try {
     <table class="table-skywings">
         <thead class="table-skywings" >
             <tr class="table-skywings">
-                <th style="width:10%"><?= t('tableau_vols_table_date') ?></th>
-                <th style="width:8%"><?= t('tableau_vols_table_callsign') ?></th>
-                <th style="width:5%"><?= t('tableau_vols_table_immat') ?></th>
-                <th style="width:10%"><?= t('tableau_vols_table_fleet_type') ?></th>
-                <th style="width:5%"><?= t('tableau_vols_table_depart') ?></th>
-                <th style="width:5%"><?= t('tableau_vols_table_dest') ?></th>
-                <th style="width:5%"><?= t('tableau_vols_table_fuel_arrivee') ?></th>
-                <th style="width:5%"><?= t('tableau_vols_table_conso') ?></th>
-                <th style="width:5%"><?= t('tableau_vols_table_payload') ?></th>
-                <th style="width:10%"><?= t('tableau_vols_table_heure_arrivee') ?></th>
-                <th style="width:10%"><?= t('tableau_vols_table_block_time') ?></th>
-                <th style="width:5%"><?= t('tableau_vols_table_note') ?></th>
-                <th style="width:10%"><?= t('tableau_vols_table_recette') ?></th>
-                <th style="width:5%"><?= t('tableau_vols_table_mission') ?></th>
-                <th style="width:10px">&nbsp</th>
+                <th class="col-date"><?= t('tableau_vols_table_date') ?></th>
+                <th class="col-callsign"><?= t('tableau_vols_table_callsign') ?></th>
+                <th class="col-immat"><?= t('tableau_vols_table_immat') ?></th>
+                <th class="col-fleet-type"><?= t('tableau_vols_table_fleet_type') ?></th>
+                <th class="col-icao"><?= t('tableau_vols_table_depart') ?></th>
+                <th class="col-icao"><?= t('tableau_vols_table_dest') ?></th>
+                <th class="col-fuel"><?= t('tableau_vols_table_fuel_arrivee') ?></th>
+                <th class="col-conso"><?= t('tableau_vols_table_conso') ?></th>
+                <th class="col-payload"><?= t('tableau_vols_table_payload') ?></th>
+                <th class="col-time"><?= t('tableau_vols_table_heure_arrivee') ?></th>
+                <th class="col-time"><?= t('tableau_vols_table_block_time') ?></th>
+                <th class="col-immat"><?= t('tableau_vols_table_note') ?></th>
+                <th class="col-recette"><?= t('tableau_vols_table_recette') ?></th>
+                <th class="col-mission"><?= t('tableau_vols_table_mission') ?></th>
+                <th class="col-action">&nbsp</th>
             </tr>
         </thead>
         <tbody class="table-skywings" >
@@ -215,30 +215,30 @@ try {
             $details_json = htmlspecialchars(json_encode($details), ENT_QUOTES, 'UTF-8');
         ?>
             <tr class="vol-row" title="<?= htmlspecialchars($pirep_complet) ?>" data-details="<?= $details_json ?>">
-                <td style="width:10%"><?= $date_formatee ?></td>
-                <td style="width:8%"><?php echo htmlspecialchars($vol['callsign']); ?></td>
-                <td style="width:5%"><?php echo htmlspecialchars($vol['immat']); ?></td>
-                <td style="width:10%"><?php echo htmlspecialchars($vol['fleet_type_libelle']); ?></td>
-                <td style="width:5%"><?php echo htmlspecialchars($vol['depart']); ?></td>
-                <td style="width:5%"><?php echo htmlspecialchars($vol['destination']); ?></td>
-                <td style="width:5%"><?php echo rtrim(rtrim(htmlspecialchars($vol['fuel_arrivee']), '0'), '.') ?: '0'; ?></td>
-                <td style="width:5%"><?php echo rtrim(rtrim(htmlspecialchars($vol['conso']), '0'), '.') ?: '0'; ?></td>
-                <td style="width:5%"><?php echo htmlspecialchars($vol['payload']); ?></td>
-                <td style="width:10%"><?php echo htmlspecialchars($vol['heure_arrivee']); ?></td>
-                <td style="width:10%"><?php echo htmlspecialchars(substr($vol['block_time'], 0, 8)); ?></td>
-                <td style="width=5%"><?php echo htmlspecialchars($vol['note_du_vol']); ?></td>
-                <td style="width:10%">
+                <td class="col-date"><?= $date_formatee ?></td>
+                <td class="col-callsign"><?php echo htmlspecialchars($vol['callsign']); ?></td>
+                <td class="col-immat"><?php echo htmlspecialchars($vol['immat']); ?></td>
+                <td class="col-fleet-type"><?php echo htmlspecialchars($vol['fleet_type_libelle']); ?></td>
+                <td class="col-icao"><?php echo htmlspecialchars($vol['depart']); ?></td>
+                <td class="col-icao"><?php echo htmlspecialchars($vol['destination']); ?></td>
+                <td class="col-fuel"><?php echo rtrim(rtrim(htmlspecialchars($vol['fuel_arrivee']), '0'), '.') ?: '0'; ?></td>
+                <td class="col-conso"><?php echo rtrim(rtrim(htmlspecialchars($vol['conso']), '0'), '.') ?: '0'; ?></td>
+                <td class="col-payload"><?php echo htmlspecialchars($vol['payload']); ?></td>
+                <td class="col-time"><?php echo htmlspecialchars($vol['heure_arrivee']); ?></td>
+                <td class="col-time"><?php echo htmlspecialchars(substr($vol['block_time'], 0, 8)); ?></td>
+                <td class="col-immat"><?php echo htmlspecialchars($vol['note_du_vol']); ?></td>
+                <td class="col-recette">
                     <?php
                     $recette = $vol['cout_vol'] !== null ? (float)$vol['cout_vol'] : 0;
                     $recette_formatee = number_format($recette, 2, ',', ' ');
                     if ($recette < 0) {
-                        echo '<span style="color:#d60000;">' . $recette_formatee . ' €</span>';
+                        echo '<span class="recette-negative">' . $recette_formatee . ' €</span>';
                     } else {
                         echo $recette_formatee . ' €';
                     }
                     ?>
                 </td>
-                <td style="width=5%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="<?php echo htmlspecialchars($vol['mission_libelle']); ?>">
+                <td class="col-mission" title="<?php echo htmlspecialchars($vol['mission_libelle']); ?>">
                     <?php echo mb_strimwidth($vol['mission_libelle'], 0, 11, '...'); ?>
                 </td>
             </tr>
@@ -248,19 +248,19 @@ try {
     </table>
     </div>
     <!-- Popup modale pour détails du vol -->
-    <div id="vol-modal" class="vol-modal" style="display:none;">
+    <div id="vol-modal" class="vol-modal hidden">
         <div class="vol-modal-content" >
             <span class="vol-modal-close" id="vol-modal-close">&times;</span>
             <h3><?= t('tableau_vols_modal_title') ?></h3>
-            <table style="width:100%;border-collapse:collapse;">
+            <table class="vol-modal-table">
                 <tr>
-                    <td style="width: 365px; padding: 0; margin: 0; border: 0; vertical-align: top;">
+                    <td class="vol-modal-left">
                         <div id="vol-modal-body" >
                         <!-- Les détails du vol seront injectés ici -->
                         </div>
                     </td>
-                    <td style="width: 70%; padding: 0; margin: 0; border: 0; vertical-align: middle;">
-                        <div id="map" style="width: 600px; height: 400px;"></div>
+                    <td class="vol-modal-right">
+                        <div id="map" class="vol-modal-map"></div>
                     </td>
                 </tr>
             </table>

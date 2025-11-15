@@ -165,26 +165,26 @@ include __DIR__ . '/../includes/menu_logged.php';
         <div class="success"><?= $message ?></div>
     <?php endif; ?>
 
-    <section style="margin-bottom: 20px;">
-        <div class="narrow-table-wrapper" style="background:#f7fbff;padding:16px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+    <section class="admin-lines-form-section">
+        <div class="narrow-table-wrapper admin-lines-form-wrapper">
         <h3><?= $edit_mode ? t('admin_lines_form_edit_title') : t('admin_lines_form_add_title') ?></h3>
-    <form method="post" class="form-inscription" style="display:flex;gap:12px;align-items:center;flex-wrap:nowrap;flex-direction:row;white-space:nowrap;">
+    <form method="post" class="form-inscription admin-lines-inline-form">
              <?php if ($edit_mode): ?>
                  <input type="hidden" name="id" value="<?= htmlspecialchars($line['id']) ?>">
              <?php endif; ?>
 
-            <label style="display:inline-flex;flex-direction:row;align-items:center;gap:8px;margin:0;">
-                <span style="min-width:86px;display:inline-block;"><?= t('admin_lines_label_icao_dep') ?></span>
-                <input name="icao_dep" required value="<?= htmlspecialchars($line['icao_dep']) ?>" class="fleet-filter-input input-160" style="text-transform:uppercase;" oninput="this.value = this.value.toUpperCase();">
+            <label>
+                <span><?= t('admin_lines_label_icao_dep') ?></span>
+                <input name="icao_dep" required value="<?= htmlspecialchars($line['icao_dep']) ?>" class="fleet-filter-input input-160 input-uppercase" oninput="this.value = this.value.toUpperCase();">
             </label>
 
-            <label style="display:inline-flex;flex-direction:row;align-items:center;gap:8px;margin:0;">
-                <span style="min-width:86px;display:inline-block;"><?= t('admin_lines_label_icao_arr') ?></span>
-                <input name="icao_arr" required value="<?= htmlspecialchars($line['icao_arr']) ?>" class="fleet-filter-input input-160" style="text-transform:uppercase;" oninput="this.value = this.value.toUpperCase();">
+            <label>
+                <span><?= t('admin_lines_label_icao_arr') ?></span>
+                <input name="icao_arr" required value="<?= htmlspecialchars($line['icao_arr']) ?>" class="fleet-filter-input input-160 input-uppercase" oninput="this.value = this.value.toUpperCase();">
             </label>
 
-            <label style="display:inline-flex;flex-direction:row;align-items:center;gap:8px;margin:0;">
-                <span style="min-width:86px;display:inline-block;"><?= t('admin_lines_label_type') ?></span>
+            <label>
+                <span><?= t('admin_lines_label_type') ?></span>
                 <select name="type_ligne" class="fleet-filter-select input-160">
                     <option value=""><?= t('admin_lines_type_none') ?></option>
                     <?php foreach ($typeLignes as $t): ?>
@@ -194,12 +194,12 @@ include __DIR__ . '/../includes/menu_logged.php';
                     <?php endforeach; ?>
                 </select>
             </label>
-            <div style="margin-left:12px;display:inline-flex;align-items:center;">
+            <div class="admin-lines-form-actions">
                  <div>
                      <?php if ($edit_mode): ?>
                          <input type="hidden" name="id" value="<?= htmlspecialchars($line['id']) ?>">
                          <button class="btn-bleu" type="submit" name="action" value="update"><?= t('admin_lines_btn_update') ?></button>
-                         <a href="admin_lignes_regulieres.php" class="btn" style="background:#ccc;color:#004080;padding:6px 10px;margin-left:8px;text-decoration:none;"><?= t('admin_lines_btn_cancel') ?></a>
+                         <a href="admin_lignes_regulieres.php" class="btn admin-lines-btn-cancel"><?= t('admin_lines_btn_cancel') ?></a>
                      <?php else: ?>
                          <button class="btn-bleu" type="submit" name="action" value="add"><?= t('admin_lines_btn_add') ?></button>
                      <?php endif; ?>
@@ -213,7 +213,7 @@ include __DIR__ . '/../includes/menu_logged.php';
         <h3><?= t('admin_lines_list_title') ?></h3>
 
         <!-- Filters placed under the table title, single-line (inputs inline with buttons) -->
-        <form method="get" class="filters-form" style="margin:8px 0 12px 0;">
+        <form method="get" class="filters-form admin-lines-filters-form">
             <label><?= t('admin_lines_filter_dep') ?>
                 <input name="icao_dep" placeholder="<?= t('admin_lines_filter_dep_placeholder') ?>" value="<?= htmlspecialchars($filter_dep) ?>" aria-label="<?= t('admin_lines_filter_dep') ?>" class="fleet-filter-input input-160" oninput="this.value = this.value.toUpperCase();">
             </label>
@@ -231,15 +231,15 @@ include __DIR__ . '/../includes/menu_logged.php';
                 </select>
             </label>
 
-            <div style="margin-left:12px;display:inline-flex;align-items:center;">
+            <div class="admin-lines-form-actions">
                 <button class="btn-bleu" type="submit"><?= t('admin_lines_btn_filter') ?></button>
                 <!-- Keep the current visual style of the reset button exactly as-is (model for the site) -->
-                <a href="admin_lignes_regulieres.php" class="btn" style="background:#ccc;color:#004080;padding:8px 16px;margin-left:8px;text-decoration:none;line-height:18px;border-radius:4px;"><?= t('admin_lines_btn_reset') ?></a>
+                <a href="admin_lignes_regulieres.php" class="btn admin-lines-btn-reset"><?= t('admin_lines_btn_reset') ?></a>
             </div>
         </form>
 
         <div class="narrow-table-wrapper">
-            <table class="table-skywings" style="width:100%;border-collapse:collapse;">
+            <table class="table-skywings admin-lines-table">
             <thead>
                 <tr>
                     <th><?= t('admin_lines_table_icao_dep') ?></th>
@@ -262,7 +262,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                             <a href="admin_lignes_regulieres.php?edit=<?= $r['id'] ?>"><?= t('admin_lines_link_edit') ?></a>
                             &nbsp;|&nbsp;
                             <a href="#" onclick="if(confirm('<?= t('admin_lines_confirm_delete') ?>')){ document.getElementById('delete-form-<?= $r['id'] ?>').submit(); } return false;"><?= t('admin_lines_link_delete') ?></a>
-                            <form id="delete-form-<?= $r['id'] ?>" method="post" style="display:none;">
+                            <form id="delete-form-<?= $r['id'] ?>" method="post" class="hidden">
                                 <input type="hidden" name="id" value="<?= $r['id'] ?>">
                                 <input type="hidden" name="action" value="delete">
                             </form>

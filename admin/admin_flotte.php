@@ -190,9 +190,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $form_action === 'buy') {
                 if ($to) {
                     $mailResult = sendSummaryMail($mailSubject, $mailBody, $to);
                     if ($mailResult === true) {
-                        $successMessage .= '<br><span style="color:green;">' . t('admin_flotte_mail_sent') . '</span>';
+                        $successMessage .= '<br><span class="mail-status-success">' . t('admin_flotte_mail_sent') . '</span>';
                     } else {
-                        $successMessage .= '<br><span style="color:orange;">' . t('admin_flotte_mail_not_sent') . htmlspecialchars($mailResult) . '</span>';
+                        $successMessage .= '<br><span class="mail-status-warning">' . t('admin_flotte_mail_not_sent') . htmlspecialchars($mailResult) . '</span>';
                     }
                 }
 
@@ -258,20 +258,20 @@ try {
 }
 ?>
 
-<main style="display:flex; gap:40px; align-items:flex-start;">
-    <section style="flex:1; min-width:360px; max-width:520px;">
+<main class="admin-flotte-main">
+    <section class="admin-flotte-section">
         <h2><?= t('admin_flotte_title_acheter') ?></h2>
 
         <?php if ($successMessage): ?>
-            <p style="color: green; font-weight:bold;"><?= $successMessage ?></p>
+            <p class="message-success"><?= $successMessage ?></p>
         <?php elseif ($errorMessage): ?>
-            <p style="color: red; font-weight:bold;"><?= $errorMessage ?></p>
+            <p class="message-error"><?= $errorMessage ?></p>
         <?php endif; ?>
 
         <form method="post" action="" class="form-inscription" id="form-avion">
             <input type="hidden" name="form_action" value="buy">
 
-            <div style="margin-bottom:10px;">
+            <div class="radio-section">
                 <div class="radio-group">
                     <label class="radio-label">
                         <input type="radio" name="achat_mode" value="comptant" id="achat_comptant" <?= (!isset($_POST['achat_mode']) || $_POST['achat_mode'] === 'comptant') ? 'checked' : '' ?>>
@@ -294,8 +294,8 @@ try {
                     <?php endforeach; ?>
                 </select>
             </label>
-            <div id="prixAchatFleetType" style="margin:8px 0 0 0; font-weight:bold; color:#0066cc;"></div>
-            <div id="typeFleetType" style="margin:8px 0 0 0; font-weight:bold; color:#444;"></div>
+            <div id="prixAchatFleetType" class="prix-info"></div>
+            <div id="typeFleetType" class="type-info"></div>
 
             <label>Immatriculation * :
                 <input type="text" name="immat" maxlength="10" value="<?= htmlspecialchars($_POST['immat'] ?? '') ?>" class="form-input" required>
@@ -309,7 +309,7 @@ try {
                 <input type="text" name="hub" maxlength="4" pattern="[A-Z0-9]{0,4}" title="Max 4 caractères alphanumériques en majuscule" value="<?= htmlspecialchars($_POST['hub'] ?? '') ?>" class="form-input">
             </label>
 
-            <div id="credit-fields" style="display: none; margin-top:10px;">
+            <div id="credit-fields" class="credit-fields">
                 <label>Nombre d'années de crédit * :
                     <input type="number" name="nb_annees_credit" min="1" max="50" value="<?= htmlspecialchars($_POST['nb_annees_credit'] ?? '') ?>" class="form-input">
                 </label>
@@ -318,18 +318,18 @@ try {
                 </label>
             </div>
 
-            <div class="form-actions" style="margin-top:12px;">
+            <div class="form-actions">
                 <button type="submit" form="form-avion" class="btn-bleu"><?= t('admin_flotte_btn_signer') ?></button>
                 <button type="reset" form="form-avion" class="btn btn-reset"><?= t('admin_flotte_btn_reinitialiser') ?></button>
             </div>
         </form>
     </section>
 
-    <section style="flex:1; min-width:360px; max-width:520px;">
+    <section class="admin-flotte-section">
         <h2><?= t('admin_flotte_title_vendre') ?></h2>
 
         <?php if (isset($_GET['vente']) && $_GET['vente'] === 'ok' && isset($_GET['immat'])): ?>
-            <p style="color: green; font-weight:bold;"><?= str_replace('{immat}', htmlspecialchars($_GET['immat']), t('admin_flotte_success_vente')) ?></p>
+            <p class="message-success"><?= str_replace('{immat}', htmlspecialchars($_GET['immat']), t('admin_flotte_success_vente')) ?></p>
         <?php endif; ?>
 
         <?php if (empty($flotte)): ?>
@@ -338,10 +338,10 @@ try {
             <form id="venteForm" method="post" action="" onsubmit="return confirm('<?= t('admin_flotte_confirm_vente') ?>');">
 
                 <input type="hidden" name="form_action" value="sell">
-                <label for="avionSelect" style="font-weight:bold;display:block;margin-bottom:7px;">
-                    <span style="color:#0066cc;font-size:1.15em;vertical-align:middle;">✈️</span> <?= t('admin_flotte_choisir_a_vendre') ?>
+                <label for="avionSelect" class="avion-select-label">
+                    <span class="avion-icon">✈️</span> <?= t('admin_flotte_choisir_a_vendre') ?>
                 </label>
-                <select id="avionSelect" name="avion_id" class="form-input" style="width:250px;">
+                <select id="avionSelect" name="avion_id" class="form-input avion-select">
                     <option value=""><?= t('admin_flotte_select_avion') ?></option>
                     <?php foreach ($flotte as $avion): 
                         // prepare formatted values for display
@@ -369,17 +369,17 @@ try {
                         </option>
                     <?php endforeach; ?>
                 </select>
-                <div id="detailsAvion" style="display:none; margin-bottom:15px;">
+                <div id="detailsAvion" class="avion-details">
                     <p><strong>Type :</strong> <span id="detailType"></span></p>
                     <p><strong>Localisation :</strong> <span id="detailLocalisation"></span></p>
                     <p><strong>Hub :</strong> <span id="detailHub"></span></p>
                     <p><strong>Reste à payer :</strong> <span id="detailReste"></span></p>
                     <p><strong>Date d'achat :</strong> <span id="detailDateAchat"></span></p>
                     <p><strong>Recette de vente :</strong> <span id="detailPrixVentePrevu"></span></p>
-                    <p id="achatModeText" style="font-style:italic;color:#555;"></p>
+                    <p id="achatModeText" class="achat-mode-text"></p>
                     <p><strong>Revenus :</strong> <span id="detailRecettes"></span></p>
                 </div>
-                <button type="submit" id="btnVendre" class="btn-bleu" style="display:none;"><?= t('admin_flotte_btn_vendre') ?></button>
+                <button type="submit" id="btnVendre" class="btn-bleu btn-vendre"><?= t('admin_flotte_btn_vendre') ?></button>
             </form>
         <?php endif; ?>
     </section>
@@ -417,7 +417,11 @@ document.addEventListener('DOMContentLoaded', function() {
         var creditFields = document.getElementById('credit-fields');
         var achatCredit = document.getElementById('achat_credit');
         if (!creditFields || !achatCredit) return;
-        creditFields.style.display = achatCredit.checked ? 'block' : 'none';
+        if (achatCredit.checked) {
+            creditFields.classList.add('visible');
+        } else {
+            creditFields.classList.remove('visible');
+        }
     }
     var achatComptant = document.getElementById('achat_comptant');
     var achatCredit = document.getElementById('achat_credit');
@@ -451,11 +455,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     achatModeText.textContent = "";
                 }
                 document.getElementById('detailRecettes').textContent = selected.getAttribute('data-recettes') ? selected.getAttribute('data-recettes') + ' €' : '-';
-                detailsDiv.style.display = 'block';
-                btnVendre.style.display = 'inline-block';
+                detailsDiv.classList.add('visible');
+                btnVendre.classList.add('visible');
             } else {
-                detailsDiv.style.display = 'none';
-                btnVendre.style.display = 'none';
+                detailsDiv.classList.remove('visible');
+                btnVendre.classList.remove('visible');
             }
         });
     }

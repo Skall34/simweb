@@ -593,7 +593,7 @@ return [
     'admin_grades_confirm_delete' => 'Delete this grade?',
 
     // --- admin_lignes_regulieres.php ---
-    'admin_lines_title' => 'Regular Lines Administration ({count})',
+        'admin_lines_title' => 'Regular Routes Administration (:count)',
     'admin_lines_error_icao_required' => 'Both ICAO codes are required.',
     'admin_lines_error_exists' => '⚠️ Line {dep} → {arr} already exists.',
     'admin_lines_success_add' => '✅ Line {dep} → {arr} added.',

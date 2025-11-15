@@ -106,10 +106,10 @@ include __DIR__ . '/../includes/menu_logged.php';
 
 
 <main>
-    <h2 style="margin-bottom: 1.5em;"><?= t('stats_title') ?></h2>
+    <h2 class="stats-title"><?= t('stats_title') ?></h2>
 
     <!-- Cartes synthétiques -->
-    <div style="display: flex; flex-wrap: wrap; gap: 24px; margin-bottom: 2.5em;">
+    <div class="stats-cards-container">
         <div class="stat-card"><div class="stat-label"><?= t('stats_card_active_planes') ?></div><div class="stat-value"><?= $nbAppareils ?></div></div>
         <div class="stat-card"><div class="stat-label"><?= t('stats_card_destinations') ?></div><div class="stat-value"><?= $nbDestinations ?></div></div>
         <div class="stat-card"><div class="stat-label"><?= t('stats_card_avg_flight_duration') ?></div><div class="stat-value"><?= $dureeMoyenneVols ?> <?= t('stats_card_minutes') ?></div></div>
@@ -121,20 +121,20 @@ include __DIR__ . '/../includes/menu_logged.php';
 
 
     <!-- Graphique Vols par année + état flotte par immat -->
-    <div style="display:flex; flex-wrap:wrap; gap:40px; align-items:flex-start; margin-bottom:2.5em;">
-        <div style="flex:1; min-width:320px; max-width:700px;">
-            <h3 style="margin-bottom:0.5em;"><?= t('stats_evolution_flights_per_year') ?></h3>
+    <div class="stats-charts-row">
+        <div class="stats-chart-flights">
+            <h3 class="stats-chart-title"><?= t('stats_evolution_flights_per_year') ?></h3>
             <canvas id="chartVolsParAn" height="120"></canvas>
         </div>
-        <div style="flex:3; min-width:600px; max-width:1400px;">
-            <h3 style="margin-bottom:0.5em;"><?= t('stats_fleet_status_by_immat') ?></h3>
+        <div class="stats-chart-fleet">
+            <h3 class="stats-chart-title"><?= t('stats_fleet_status_by_immat') ?></h3>
             <canvas id="chartEtatFlotte" height="100"></canvas>
         </div>
     </div>
 
     <!-- Top 10 pilotes par heures de vol -->
-    <div style="display:flex; flex-wrap:wrap; gap:40px; align-items:flex-start; margin-bottom:2.5em;">
-        <div style="flex:1; min-width:320px;">
+    <div class="stats-tables-row">
+        <div class="stats-table-container">
             <h3><?= t('stats_top10_pilots') ?></h3>
             <table class="table-skywings">
                 <thead><tr><th><?= t('stats_table_callsign') ?></th><th><?= t('stats_table_hours') ?></th></tr></thead>
@@ -147,7 +147,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                 </tbody>
             </table>
         </div>
-        <div style="flex:1; min-width:320px;">
+        <div class="stats-table-container">
             <h3><?= t('stats_top10_planes') ?></h3>
             <table class="table-skywings">
                 <thead><tr><th><?= t('stats_table_immat') ?></th><th><?= t('stats_table_hours') ?></th></tr></thead>
@@ -163,8 +163,8 @@ include __DIR__ . '/../includes/menu_logged.php';
     </div>
 
     <!-- Top 20 aéroports les plus visités + records -->
-    <div style="display:flex; flex-wrap:wrap; gap:40px; align-items:flex-start; margin-bottom:2.5em;">
-        <div style="flex:1; min-width:320px;">
+    <div class="stats-tables-row">
+        <div class="stats-table-container">
             <h3><?= t('stats_top20_airports') ?></h3>
             <table class="table-skywings">
                 <thead><tr><th><?= t('stats_table_airport') ?></th><th><?= t('stats_table_visits') ?></th></tr></thead>
@@ -175,17 +175,17 @@ include __DIR__ . '/../includes/menu_logged.php';
                 </tbody>
             </table>
         </div>
-        <div style="flex:1; min-width:320px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-            <h3 style="text-align:center;margin-bottom:18px;"><?= t('stats_company_records') ?></h3>
-            <ul style="font-size:1.13em;line-height:1.8;list-style:none;padding:0;margin:0;max-width:420px;text-align:center;background:#f8faff;border-radius:12px;box-shadow:0 2px 12px #0001;padding:24px 18px;display:inline-block;">
+        <div class="stats-records-container">
+            <h3 class="stats-records-title"><?= t('stats_company_records') ?></h3>
+            <ul class="stats-records-list">
                 <?php
                 $volLong = $pdo->query("SELECT c.id, p.callsign, f.immat, c.depart, c.destination, TIMEDIFF(c.heure_arrivee, c.heure_depart) AS duree FROM CARNET_DE_VOL_GENERAL c LEFT JOIN PILOTES p ON c.pilote_id=p.id LEFT JOIN FLOTTE f ON c.appareil_id=f.id ORDER BY TIMEDIFF(c.heure_arrivee, c.heure_depart) DESC LIMIT 1")->fetch();
                 $volCourt = $pdo->query("SELECT c.id, p.callsign, f.immat, c.depart, c.destination, TIMEDIFF(c.heure_arrivee, c.heure_depart) AS duree FROM CARNET_DE_VOL_GENERAL c LEFT JOIN PILOTES p ON c.pilote_id=p.id LEFT JOIN FLOTTE f ON c.appareil_id=f.id WHERE TIMEDIFF(c.heure_arrivee, c.heure_depart) > 0 ORDER BY TIMEDIFF(c.heure_arrivee, c.heure_depart) ASC LIMIT 1")->fetch();
                 $volsParMois = $pdo->query("SELECT COUNT(*)/COUNT(DISTINCT CONCAT(YEAR(date_vol),'-',MONTH(date_vol))) AS moy FROM CARNET_DE_VOL_GENERAL")->fetchColumn();
                 ?>
-                <li style="margin-bottom:12px;">🕑 <strong><?= t('stats_record_longest_flight') ?></strong><br><span style="color:#1976d2;"> <?= htmlspecialchars($volLong['callsign']) ?>, <?= htmlspecialchars($volLong['immat']) ?>, <?= htmlspecialchars($volLong['depart']) ?> → <?= htmlspecialchars($volLong['destination']) ?> (<?= $volLong['duree'] ?>)</span></li>
-                <li style="margin-bottom:12px;">⚡ <strong><?= t('stats_record_shortest_flight') ?></strong><br><span style="color:#1976d2;"> <?= htmlspecialchars($volCourt['callsign']) ?>, <?= htmlspecialchars($volCourt['immat']) ?>, <?= htmlspecialchars($volCourt['depart']) ?> → <?= htmlspecialchars($volCourt['destination']) ?> (<?= $volCourt['duree'] ?>)</span></li>
-                <li>📈 <strong><?= t('stats_record_avg_flights_per_month') ?></strong><br><span style="color:#1976d2;"> <?= number_format($volsParMois,1,',',' ') ?></span></li>
+                <li>🕑 <strong><?= t('stats_record_longest_flight') ?></strong><br><span class="stats-record-value"> <?= htmlspecialchars($volLong['callsign']) ?>, <?= htmlspecialchars($volLong['immat']) ?>, <?= htmlspecialchars($volLong['depart']) ?> → <?= htmlspecialchars($volLong['destination']) ?> (<?= $volLong['duree'] ?>)</span></li>
+                <li>⚡ <strong><?= t('stats_record_shortest_flight') ?></strong><br><span class="stats-record-value"> <?= htmlspecialchars($volCourt['callsign']) ?>, <?= htmlspecialchars($volCourt['immat']) ?>, <?= htmlspecialchars($volCourt['depart']) ?> → <?= htmlspecialchars($volCourt['destination']) ?> (<?= $volCourt['duree'] ?>)</span></li>
+                <li>📈 <strong><?= t('stats_record_avg_flights_per_month') ?></strong><br><span class="stats-record-value"> <?= number_format($volsParMois,1,',',' ') ?></span></li>
             </ul>
         </div>
     </div>

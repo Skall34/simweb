@@ -176,7 +176,7 @@ try {
                 <input name="fret" type="number" class="form-input" value="<?= htmlspecialchars($aeroport['fret']) ?>">
             </label>
 
-            <div class="form-actions" style="margin-top: 10px;">
+            <div class="form-actions admin-aeroport-actions">
                 <button type="submit" name="action" value="<?= $etat === 'edition' ? 'mettre_a_jour' : 'creer' ?>" class="btn-bleu">
                     <?= $etat === 'edition' ? t('admin_airports_update_button') : t('admin_airports_create_button') ?>
                 </button>

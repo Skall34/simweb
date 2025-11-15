@@ -1,9 +1,3 @@
-/* Tableau grades aligné à gauche */
-.grades-table-gauche {
-    margin-left: 0 !important;
-    margin-right: auto !important;
-    max-width: 700px;
-}
 /* Styles Mon Compte */
 .compte-section {
     border: 1px solid #ccc;
@@ -175,21 +169,6 @@ table.table-skywings tr:hover {
     background-color: #e6f0ff;
     transition: background 0.2s;
 }
-
-/* styles dans stats.php
-        .table-skywings th, .table-skywings td {
-            padding: 4px 8px;
-            font-size: 14px;
-        }
-        .table-skywings th {
-            background: #0d47a1;
-            color: #fff;
-            font-weight: 600;
-        }
-        .table-skywings tr:nth-child(even) td {
-            background: #f7fbff;
-        }
-*/
 
 /* Style moderne pour la liste de sélection Skywings */
 .select-skywings {
@@ -829,7 +808,6 @@ footer {
 
 /* Reservation page */
 .error-msg { color:#d60000; font-weight:bold; }
-.form-actions { margin-top:16px; }
 .btn-secondary { margin-left:8px; }
 
 /* Login page */
@@ -953,4 +931,671 @@ footer {
 
 /* Space under the listbox (select) so subsequent table/form isn't too close */
 #form-pilote { margin-bottom: 28px; }
+
+/* === TABLEAU VOLS - Table column widths === */
+.table-skywings .col-date { width: 10%; }
+.table-skywings .col-callsign { width: 8%; }
+.table-skywings .col-immat { width: 5%; }
+.table-skywings .col-fleet-type { width: 10%; }
+.table-skywings .col-icao { width: 5%; }
+.table-skywings .col-fuel { width: 5%; }
+.table-skywings .col-conso { width: 5%; }
+.table-skywings .col-payload { width: 5%; }
+.table-skywings .col-time { width: 10%; }
+.table-skywings .col-recette { width: 10%; }
+.table-skywings .col-mission { width: 5%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.table-skywings .col-action { width: 10px; }
+
+/* Negative recette amount styling */
+.recette-negative { color: #d60000; }
+
+/* === VOL MODAL - Table layout for details + map === */
+.vol-modal-table { width: 100%; border-collapse: collapse; }
+.vol-modal-table td { padding: 0; margin: 0; border: 0; vertical-align: top; }
+.vol-modal-left { width: 365px; }
+.vol-modal-right { width: 70%; vertical-align: middle; }
+.vol-modal-map { width: 600px; height: 400px; }
+
+@media (max-width: 1100px) {
+  .vol-modal-map { width: 100%; height: 380px; }
+}
+
+/* === ADMIN FLOTTE - Layout and forms === */
+.admin-flotte-main { display: flex; gap: 40px; align-items: flex-start; }
+.admin-flotte-section { flex: 1; min-width: 360px; max-width: 520px; }
+.message-success { color: green; font-weight: bold; }
+.message-error { color: red; font-weight: bold; }
+.radio-section { margin-bottom: 10px; }
+.prix-info { margin: 8px 0 0 0; font-weight: bold; color: #0066cc; }
+.type-info { margin: 8px 0 0 0; font-weight: bold; color: #444; }
+.credit-fields { display: none; margin-top: 10px; }
+.credit-fields.visible { display: block; }
+.avion-select-label { font-weight: bold; display: block; margin-bottom: 7px; }
+.avion-icon { color: #0066cc; font-size: 1.15em; vertical-align: middle; }
+.avion-select { width: 250px; }
+.avion-details { display: none; margin-bottom: 15px; }
+.avion-details.visible { display: block; }
+.achat-mode-text { font-style: italic; color: #555; }
+.btn-vendre { display: none; }
+.btn-vendre.visible { display: inline-block; }
+.mail-status-success { color: green; }
+.mail-status-warning { color: orange; }
+
+/* === FORM ACTIONS - Global === */
+.form-actions { margin-top: 12px; }
+
+/* === ADMIN GRADES - Layout and forms === */
+.admin-grades-container {
+    max-width: 1100px;
+    margin: 40px 0;
+    background: #fff;
+    padding: 32px;
+    border-radius: 12px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+}
+
+.admin-grades-title {
+    text-align: left;
+    color: #1a3552;
+    margin-bottom: 28px;
+}
+
+/* === GRADES & PILOTES PAGES - Simple display container === */
+.grades-container {
+    max-width: 700px;
+    margin: 40px 0;
+    background: #fff;
+    padding: 32px;
+    border-radius: 12px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+}
+
+.grades-container h2 {
+    text-align: left;
+    color: #1a3552;
+    margin-bottom: 28px;
+}
+
+/* Override min-width for grades table in public pages */
+.grades-container .grades-table-gauche {
+    min-width: 0;
+    width: 100%;
+}
+
+.admin-grades-message {
+    margin-bottom: 18px;
+    color: #1a3552;
+    background: #eaf2fb;
+    padding: 10px 16px;
+    border-radius: 6px;
+}
+
+.admin-grades-form {
+    margin-bottom: 32px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+
+.admin-grades-form input[type="text"],
+.admin-grades-form input[type="number"] {
+    padding: 8px 10px;
+    border-radius: 4px;
+    border: 1px solid #bbb;
+}
+
+.admin-grades-form input[name="description"] {
+    min-width: 180px;
+}
+
+.admin-grades-form input[name="taux_horaire"] {
+    width: 120px;
+}
+
+.admin-grades-form button[type="submit"] {
+    padding: 8px 18px;
+    background: #1a3552;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.admin-grades-form button[type="submit"]:hover {
+    background: #2a4562;
+}
+
+.grades-table-gauche {
+    min-width: 1000px;
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1.08em;
+    margin-left: 0;
+    table-layout: auto;
+}
+
+.grades-table-gauche thead tr {
+    background: #eaf2fb;
+}
+
+.grades-table-gauche th {
+    padding: 10px 8px;
+    text-align: left;
+}
+
+.grades-table-gauche tbody tr {
+    background: #fff;
+}
+
+.grades-table-gauche td {
+    padding: 8px;
+}
+
+.grades-table-gauche td input[name="nom"] {
+    width: 220px;
+    padding: 4px 6px;
+    border-radius: 3px;
+    border: 1px solid #bbb;
+}
+
+.grades-table-gauche td input[name="taux_horaire"] {
+    width: 80px;
+    padding: 4px 6px;
+    border-radius: 3px;
+    border: 1px solid #bbb;
+}
+
+.grades-table-gauche td input[name="description"] {
+    width: 320px;
+    padding: 4px 6px;
+    border-radius: 3px;
+    border: 1px solid #bbb;
+}
+
+.grades-table-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.grades-table-actions .btn-save {
+    background: #1a3552;
+    color: #fff;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.grades-table-actions .btn-save:hover {
+    background: #2a4562;
+}
+
+.grades-table-actions .btn-delete {
+    background: #b00;
+    color: #fff;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.grades-table-actions .btn-delete:hover {
+    background: #d00;
+}
+
+/* === ADMIN LIGNES REGULIERES - Forms and filters === */
+.admin-lines-form-section {
+    margin-bottom: 20px;
+}
+
+.admin-lines-form-wrapper {
+    background: #f7fbff;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.admin-lines-inline-form {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: nowrap;
+    flex-direction: row;
+    white-space: nowrap;
+}
+
+.admin-lines-inline-form label {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+}
+
+.admin-lines-inline-form label span {
+    min-width: 86px;
+    display: inline-block;
+}
+
+.admin-lines-inline-form .input-uppercase {
+    text-transform: uppercase;
+}
+
+.admin-lines-form-actions {
+    margin-left: 12px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.admin-lines-btn-cancel {
+    background: #ccc;
+    color: #004080;
+    padding: 6px 10px;
+    margin-left: 8px;
+    text-decoration: none;
+}
+
+.admin-lines-filters-form {
+    margin: 8px 0 12px 0;
+}
+
+.admin-lines-btn-reset {
+    background: #ccc;
+    color: #004080;
+    padding: 8px 16px;
+    margin-left: 8px;
+    text-decoration: none;
+    line-height: 18px;
+    border-radius: 4px;
+}
+
+.admin-lines-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* === STATS PAGE - Cards, charts, and layout === */
+.stats-title {
+    margin-bottom: 1.5em;
+}
+
+.stats-cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    margin-bottom: 2.5em;
+}
+
+.stats-charts-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px;
+    align-items: flex-start;
+    margin-bottom: 2.5em;
+}
+
+.stats-chart-flights {
+    flex: 1;
+    min-width: 320px;
+    max-width: 700px;
+}
+
+.stats-chart-fleet {
+    flex: 3;
+    min-width: 600px;
+    max-width: 1400px;
+}
+
+.stats-chart-title {
+    margin-bottom: 0.5em;
+}
+
+.stats-tables-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px;
+    align-items: flex-start;
+    margin-bottom: 2.5em;
+}
+
+.stats-table-container {
+    flex: 1;
+    min-width: 320px;
+}
+
+.stats-records-container {
+    flex: 1;
+    min-width: 320px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.stats-records-title {
+    text-align: center;
+    margin-bottom: 18px;
+}
+
+.stats-records-list {
+    font-size: 1.13em;
+    line-height: 1.8;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-width: 420px;
+    text-align: center;
+    background: #f8faff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px #0001;
+    padding: 24px 18px;
+    display: inline-block;
+}
+
+.stats-records-list li {
+    margin-bottom: 12px;
+}
+
+.stats-record-value {
+    color: #1976d2;
+}
+
+/* === ADMIN MISSIONS - Layout and forms === */
+.admin-missions-layout {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.2rem;
+}
+
+.admin-missions-left {
+    flex: 1 1 380px;
+    min-width: 320px;
+    max-width: 420px;
+}
+
+.admin-missions-right {
+    flex: 1 1 320px;
+    min-width: 260px;
+    max-width: 380px;
+}
+
+.admin-missions-form-select {
+    margin-bottom: 2rem;
+}
+
+.admin-missions-form-edit {
+    max-width: 400px;
+    margin-bottom: 2.5rem;
+    background: #f7fbff;
+    padding: 18px 20px;
+    border-radius: 7px;
+    box-shadow: 0 2px 8px #0001;
+}
+
+.admin-missions-form-create {
+    max-width: 400px;
+    background: #f7fbff;
+    padding: 18px 20px;
+    border-radius: 7px;
+    box-shadow: 0 2px 8px #0001;
+}
+
+.admin-missions-form-edit label,
+.admin-missions-form-create label {
+    display: block;
+    margin-top: 10px;
+    margin-bottom: 3px;
+}
+
+.admin-missions-form-edit input[type="text"],
+.admin-missions-form-edit input[type="number"],
+.admin-missions-form-create input[type="text"],
+.admin-missions-form-create input[type="number"] {
+    width: 100%;
+    padding: 5px 7px;
+    margin-bottom: 8px;
+    border: 1px solid #b3c6e0;
+    border-radius: 3px;
+}
+
+.admin-missions-form-edit select,
+.admin-missions-form-create select {
+    padding: 5px 7px;
+    border-radius: 3px;
+    border: 1px solid #b3c6e0;
+    margin-bottom: 10px;
+}
+
+.admin-missions-form-edit button,
+.admin-missions-form-create button {
+    margin-top: 10px;
+    background: #0066cc;
+    color: #fff;
+    border: none;
+    padding: 7px 18px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.admin-missions-form-edit button:hover,
+.admin-missions-form-create button:hover {
+    background: #0055a3;
+}
+
+.admin-missions-checkbox-label {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 0.25em;
+    cursor: pointer;
+}
+
+.admin-missions-checkbox-label input {
+    margin: 0 !important;
+}
+
+.admin-missions-table-title {
+    margin-top: 0;
+}
+
+.admin-missions-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #f7fbff;
+    box-shadow: 0 2px 8px #0001;
+    font-size: 0.97em;
+}
+
+.admin-missions-table th {
+    background: #e6f0fa;
+    color: #0066cc;
+    font-weight: bold;
+    border: 1px solid #b3c6e0;
+    padding: 7px 10px;
+}
+
+.admin-missions-table td {
+    border: 1px solid #b3c6e0;
+    padding: 7px 10px;
+}
+
+.admin-missions-active-yes {
+    color: #008800;
+    font-weight: bold;
+}
+
+.admin-missions-active-no {
+    color: #c00;
+    font-weight: bold;
+}
+
+/* === FINANCES PAGE - Cards and layout === */
+.finances-cards-row {
+    display: flex;
+    gap: 32px;
+    align-items: stretch;
+    max-width: 1800px;
+}
+
+.finances-card {
+    flex: 1;
+    min-width: 180px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.finances-card-value {
+    font-size: 2.1em;
+    font-weight: bold;
+    color: #2a4d7a;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.finances-card-value .icon {
+    font-size: 1.2em;
+}
+
+.finances-card-value-income {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #1ca64c;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.finances-card-value-income .icon {
+    font-size: 1.1em;
+}
+
+.finances-card-value-expense {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #d60000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.finances-card-value-expense .icon {
+    font-size: 1.1em;
+}
+
+.finances-card-label {
+    font-size: 1em;
+    color: #555;
+    margin-top: 6px;
+}
+
+.finances-card-label .small-text {
+    font-size: 0.97em;
+}
+
+.finances-value-positive {
+    color: green;
+}
+
+.finances-value-negative {
+    color: red;
+}
+
+.finances-details {
+    margin-bottom: 18px;
+}
+
+.finances-details summary {
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* === FLEET TYPE PAGE - Two column table layout === */
+.fleet-type-tables-row {
+    display: flex;
+    gap: 32px;
+    align-items: flex-start;
+}
+
+.fleet-type-table-section {
+    min-width: 420px;
+    max-width: 600px;
+    margin: 0;
+}
+
+.fleet-type-table-section .table-skywings {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.fleet-type-table-section .table-skywings th,
+.fleet-type-table-section .table-skywings td {
+    padding: 4px 8px;
+    font-size: 14px;
+    text-align: left;
+}
+
+.fleet-type-table-section .table-skywings th {
+    background: #0d47a1;
+    color: #fff;
+    font-weight: 600;
+    border-bottom: 2px solid #08306b;
+}
+
+.fleet-type-table-section .table-skywings tr:nth-child(even) td {
+    background: #f7fbff;
+}
+
+.fleet-type-table-section .table-skywings th.fleet_type,
+.fleet-type-table-section .table-skywings td.fleet_type {
+    width: 120px;
+}
+
+.fleet-type-table-section .table-skywings th.cout_horaire,
+.fleet-type-table-section .table-skywings td.cout_horaire {
+    width: 110px;
+}
+
+.fleet-type-table-section .table-skywings th.prix,
+.fleet-type-table-section .table-skywings td.prix {
+    width: 100px;
+}
+
+/* === ADMIN AEROPORT - Form actions === */
+.admin-aeroport-actions {
+    margin-top: 10px;
+}
+
+/* === ADMIN GESTION PILOTES - Message styling === */
+.admin-pilots-message-success {
+    font-weight: bold;
+    color: #1ca64c;
+    margin-bottom: 16px;
+}
+
+.admin-pilots-message-error {
+    font-weight: bold;
+    color: #d60000;
+    margin-bottom: 16px;
+}
+
+/* === FLEET PAGE - Table and spacing === */
+.fleet-spacer {
+    height: 18px;
+}
+
+.fleet-table th,
+.fleet-table td {
+    width: 8%;
+}
+
+
+
 

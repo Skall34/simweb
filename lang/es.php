@@ -592,7 +592,7 @@ return [
     'admin_grades_confirm_delete' => '¿Eliminar este rango?',
 
     // --- admin_lignes_regulieres.php ---
-    'admin_lines_title' => 'Administración de Líneas Regulares ({count})',
+    'admin_lines_title' => 'Administración de Líneas Regulares (:count)',
     'admin_lines_error_icao_required' => 'Ambos códigos OACI son requeridos.',
     'admin_lines_error_exists' => '⚠️ La línea {dep} → {arr} ya existe.',
     'admin_lines_success_add' => '✅ Línea {dep} → {arr} añadida.',

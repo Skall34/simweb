@@ -11,22 +11,22 @@ $stmt = $pdo->query('SELECT nom, description, taux_horaire FROM GRADES ORDER BY 
 $grades = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <main>
-    <div class="container" style="max-width:700px;margin:40px 0 40px 0;background:#fff;padding:32px;border-radius:12px;box-shadow:0 2px 16px rgba(0,0,0,0.08);">
-        <h2 style="text-align:left;color:#1a3552;margin-bottom:28px;"><?= t('grades_title') ?></h2>
-        <table class="grades-table-gauche" style="width:100%;border-collapse:collapse;font-size:1.08em;margin-left:0;">
+    <div class="container grades-container">
+        <h2><?= t('grades_title') ?></h2>
+        <table class="grades-table-gauche">
             <thead>
-                <tr style="background:#eaf2fb;">
-                    <th style="padding:10px 8px;text-align:left;"><?= t('grades_table_grade') ?></th>
-                    <th style="padding:10px 8px;text-align:left;"><?= t('grades_table_taux_horaire') ?></th>
-                    <th style="padding:10px 8px;text-align:left;"><?= t('grades_table_condition') ?></th>
+                <tr>
+                    <th><?= t('grades_table_grade') ?></th>
+                    <th><?= t('grades_table_taux_horaire') ?></th>
+                    <th><?= t('grades_table_condition') ?></th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($grades as $grade): ?>
-                    <tr style="background:#fff;">
-                        <td style="padding:8px 8px;"><strong><?= htmlspecialchars($grade['nom']) ?></strong></td>
-                        <td style="padding:8px 8px;"><?= number_format($grade['taux_horaire'], 2, ',', ' ') ?></td>
-                        <td style="padding:8px 8px;"><?= htmlspecialchars($grade['description']) ?></td>
+                    <tr>
+                        <td><strong><?= htmlspecialchars($grade['nom']) ?></strong></td>
+                        <td><?= number_format($grade['taux_horaire'], 2, ',', ' ') ?></td>
+                        <td><?= htmlspecialchars($grade['description']) ?></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
