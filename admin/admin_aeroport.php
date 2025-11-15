@@ -1,5 +1,7 @@
 <?php
+
 require_once __DIR__ . '/../includes/require_admin.php';
+require_once __DIR__ . '/../lang.php';
 
 $message = '';
 $aeroport = [
@@ -55,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Met à jour la date de dernière modification globale
         $pdo->exec("UPDATE AEROPORTS_LAST_ADMIN_UPDATE SET last_update = NOW()");
 
-        $message = "✅ Aéroport <strong>$ident</strong> mis à jour.<BR>";
+        $message = str_replace('{ident}', htmlspecialchars($ident), t('admin_airports_success_update'));
         $etat = 'recherche'; // on revient à l'écran de recherche
 
     } elseif (isset($_POST['action']) && $_POST['action'] === 'creer') {
@@ -81,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Met à jour la date de dernière modification globale
         $pdo->exec("UPDATE AEROPORTS_LAST_ADMIN_UPDATE SET last_update = NOW()");
 
-        $message = "✅ Aéroport <strong>$ident</strong> créé.<BR>";
+        $message = str_replace('{ident}', htmlspecialchars($ident), t('admin_airports_success_create'));
         $etat = 'recherche'; // on revient à l'écran de recherche
     }
 }
@@ -98,8 +100,9 @@ try {
 }
 ?>
 
+
 <main>
-    <h2>Administration des Aéroports</h2>
+    <h2><?= t('admin_airports_title') ?></h2>
 
     <?php if ($message): ?>
         <div class="success"><?= $message ?></div>
@@ -108,10 +111,10 @@ try {
     <!-- Étape 1 : formulaire de recherche -->
     <?php if ($etat === 'recherche'): ?>
         <form method="post" class="form-inscription">
-            <label>Ident (code ICAO) * :
+            <label><?= t('admin_airports_ident_label') ?>
                 <input name="ident" class="form-input input-250" required>
             </label>
-            <button type="submit" name="action" value="rechercher" class="btn-bleu">Rechercher</button>
+            <button type="submit" name="action" value="rechercher" class="btn-bleu"><?= t('admin_airports_search_button') ?></button>
         </form>
     <?php endif; ?>
 
@@ -120,64 +123,64 @@ try {
         <form method="post" class="form-inscription">
             <input type="hidden" name="ident" value="<?= htmlspecialchars($aeroport['ident']) ?>">
 
-            <label>Type :
+            <label><?= t('admin_airports_type_label') ?>
                 <select name="type_aeroport" class="form-input">
-                    <option value="">-- Sélectionner --</option>
+                    <option value="">-- <?= t('admin_airports_select_option') ?> --</option>
                     <?php foreach ($types_aero as $ta): ?>
                         <option value="<?= htmlspecialchars($ta) ?>" <?= ($aeroport['type_aeroport']==$ta)?'selected':'' ?>><?= htmlspecialchars($ta) ?></option>
                     <?php endforeach; ?>
                 </select>
             </label>
 
-            <label>Nom :
+            <label><?= t('admin_airports_name_label') ?>
                 <input name="name" class="form-input" value="<?= htmlspecialchars($aeroport['name']) ?>">
             </label>
 
-            <label>Ville :
+            <label><?= t('admin_airports_city_label') ?>
                 <input name="municipality" class="form-input" value="<?= htmlspecialchars($aeroport['municipality']) ?>">
             </label>
 
-            <label>Latitude :
+            <label><?= t('admin_airports_lat_label') ?>
                 <input name="latitude_deg" class="form-input" value="<?= htmlspecialchars($aeroport['latitude_deg']) ?>">
             </label>
 
-            <label>Longitude :
+            <label><?= t('admin_airports_lon_label') ?>
                 <input name="longitude_deg" class="form-input" value="<?= htmlspecialchars($aeroport['longitude_deg']) ?>">
             </label>
 
-            <label>Altitude (ft) :
+            <label><?= t('admin_airports_alt_label') ?>
                 <input name="elevation_ft" class="form-input" value="<?= htmlspecialchars($aeroport['elevation_ft']) ?>">
             </label>
 
-            <label>Piste :
+            <label><?= t('admin_airports_runway_label') ?>
                 <textarea name="Piste" class="form-input"><?= htmlspecialchars($aeroport['Piste']) ?></textarea>
             </label>
 
-            <label>Longueur de piste :
+            <label><?= t('admin_airports_runway_length_label') ?>
                 <input name="Longueur_de_piste" class="form-input" value="<?= htmlspecialchars($aeroport['Longueur_de_piste']) ?>">
             </label>
 
-            <label>Type de piste :
+            <label><?= t('admin_airports_runway_type_label') ?>
                 <input name="Type_de_piste" class="form-input" value="<?= htmlspecialchars($aeroport['Type_de_piste']) ?>">
             </label>
 
-            <label>Observations :
+            <label><?= t('admin_airports_obs_label') ?>
                 <textarea name="Observations" class="form-input"><?= htmlspecialchars($aeroport['Observations']) ?></textarea>
             </label>
 
-            <label>Wikipedia :
+            <label><?= t('admin_airports_wiki_label') ?>
                 <input name="wikipedia_link" class="form-input" value="<?= htmlspecialchars($aeroport['wikipedia_link']) ?>">
             </label>
 
-            <label>Fret présent sur place :
+            <label><?= t('admin_airports_freight_label') ?>
                 <input name="fret" type="number" class="form-input" value="<?= htmlspecialchars($aeroport['fret']) ?>">
             </label>
 
             <div class="form-actions" style="margin-top: 10px;">
                 <button type="submit" name="action" value="<?= $etat === 'edition' ? 'mettre_a_jour' : 'creer' ?>" class="btn-bleu">
-                    <?= $etat === 'edition' ? 'Mettre à jour' : 'Créer' ?>
+                    <?= $etat === 'edition' ? t('admin_airports_update_button') : t('admin_airports_create_button') ?>
                 </button>
-                <button type="button" class="btn btn-reset" onclick="window.location.href='admin_aeroport.php'">Retour</button>
+                <button type="button" class="btn btn-reset" onclick="window.location.href='admin_aeroport.php'"><?= t('admin_airports_back_button') ?></button>
             </div>
         </form>
     <?php endif; ?>

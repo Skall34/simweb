@@ -84,9 +84,9 @@ include __DIR__ . '/../includes/menu_logged.php';
                 <table class="table-skywings">
                     <thead>
                         <tr>
-                            <th class="fleet_type">Fleet type</th>
-                            <th class="cout_horaire">Coût horaire (€)</th>
-                            <th class="prix">Prix (€)</th>
+                            <th class="fleet_type"><?= t('fleet_type_table_type') ?></th>
+                            <th class="cout_horaire"><?= t('fleet_type_table_cout_horaire') ?></th>
+                            <th class="prix"><?= t('fleet_type_table_prix') ?></th>
                         </tr>
                     </thead>
                     <tbody>

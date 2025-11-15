@@ -24,9 +24,19 @@ require_once __DIR__ . '/../lang.php';
                 </a>
             </span>
         </div>
-        <div style="margin-right:20px;">
-            <a href="?lang=fr">🇫🇷</a>
-            <a href="?lang=en">🇬🇧</a>
+        <div style="position: absolute; top: 53px; right: 12px; z-index: 10;">
+            <form method="get" id="lang-switcher-form" style="margin:0;">
+                <select name="lang" id="lang-switcher" style="padding:2px 8px; border-radius:4px; border:1px solid #ccc; background:#fff;">
+                    <option value="fr" <?= ($_SESSION['lang'] ?? 'fr') === 'fr' ? 'selected' : '' ?>>Français</option>
+                    <option value="en" <?= ($_SESSION['lang'] ?? 'fr') === 'en' ? 'selected' : '' ?>>English</option>
+                    <option value="es" <?= ($_SESSION['lang'] ?? 'fr') === 'es' ? 'selected' : '' ?>>Español</option>
+                </select>
+            </form>
+            <script>
+            document.getElementById('lang-switcher').addEventListener('change', function() {
+                document.getElementById('lang-switcher-form').submit();
+            });
+            </script>
         </div>
         <div class="formulaire-login">
             <?php if (!isset($_SESSION['user'])): ?>

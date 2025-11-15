@@ -67,7 +67,7 @@ foreach ($pilotes as $pilote) {
         $message = "Bonjour " . htmlspecialchars($pilote['prenom']) . " " . htmlspecialchars($pilote['nom']) . ",<br><br>";
         $message .= "Votre nouveau grade est <strong>$grade_nom</strong>.<br>Continuez à voler pour progresser !<br><br>";
         $message .= "Cordialement,<br>L'équipe Skywings";
-        $mailResult = send_mail($to, $subject, $message);
+        $mailResult = sendSummaryMail($subject, $message, $to);
         if ($mailResult === true || $mailResult === null) {
             logMsg("Mail de promotion envoyé à $to", __DIR__ . '/logs/promotion_grades.log');
         } else {

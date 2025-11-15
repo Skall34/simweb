@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../includes/require_admin.php';
+require_once __DIR__ . '/../lang.php';
 require_once __DIR__ . '/../includes/log_func.php';
 require_once __DIR__ . '/../includes/fonctions_financieres.php';
 require_once __DIR__ . '/../includes/mail_utils.php';
@@ -60,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $form_action === 'sell' && isset($_
         header('Location: admin_flotte.php?vente=ok&immat=' . urlencode($immat_vendue));
         exit;
     } catch (PDOException $e) {
-        $errorMessage = "Erreur lors de la vente : " . htmlspecialchars($e->getMessage());
+        $errorMessage = t('admin_flotte_error_vente') . htmlspecialchars($e->getMessage());
         logMsg("[ERREUR] Vente échouée pour avion_id=$avion_id : " . $e->getMessage(), $logFile);
     }
 }
@@ -102,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $form_action === 'buy') {
         strlen($hub) > 4 || !preg_match('/^[A-Z0-9]{0,4}$/', $hub) ||
         ($achat_mode === 'credit' && ($nb_annees_credit <= 0 || $taux_percent <= 0))
     ) {
-        $errorMessage = "Tous les champs obligatoires doivent être remplis correctement avec les formats demandés.";
+        $errorMessage = t('admin_flotte_error_champs_obligatoires');
     } else {
         try {
             // Vérifier si l'immatriculation existe déjà
@@ -110,7 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $form_action === 'buy') {
             $stmt->execute(['immat' => $immat]);
             if ($stmt->fetchColumn() > 0) {
                 logMsg("[ERREUR] Immatriculation déjà existante : $immat", $logFile);
-                $errorMessage = "Un avion avec cette immatriculation existe déjà.";
+                $errorMessage = t('admin_flotte_error_immat_exist');
             } else {
                 // Récupérer le prix d'achat dans FLEET_TYPE
                 $stmtPrix = $pdo->prepare("SELECT cout_appareil FROM FLEET_TYPE WHERE id = :fleet_type_id");
@@ -170,7 +171,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $form_action === 'buy') {
                 $commentaire_finance = "Achat appareil $immat par $callsign_acheteur";
                 mettreAJourDepenses($prix_achat, $avion_id, $immat, $callsign_acheteur, 'achat', $commentaire_finance);
                 logMsg("Achat enregistré dans finances_depenses pour immat=$immat, montant=$prix_achat", $logFile);
-                $successMessage = "L'appareil $immat a été acheté avec succès.";
+                $successMessage = str_replace('{immat}', htmlspecialchars($immat), t('admin_flotte_success_achat'));
 
                 // Envoi du mail récapitulatif
                 $mailSubject = "Nouvel achat d'appareil";
@@ -189,9 +190,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $form_action === 'buy') {
                 if ($to) {
                     $mailResult = sendSummaryMail($mailSubject, $mailBody, $to);
                     if ($mailResult === true) {
-                        $successMessage .= '<br><span style="color:green;">Un mail de notification a été envoyé à l\'administrateur.</span>';
+                        $successMessage .= '<br><span style="color:green;">' . t('admin_flotte_mail_sent') . '</span>';
                     } else {
-                        $successMessage .= '<br><span style="color:orange;">Mail non envoyé : ' . htmlspecialchars($mailResult) . '</span>';
+                        $successMessage .= '<br><span style="color:orange;">' . t('admin_flotte_mail_not_sent') . htmlspecialchars($mailResult) . '</span>';
                     }
                 }
 
@@ -199,7 +200,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $form_action === 'buy') {
                 $_POST = [];
             }
         } catch (PDOException $e) {
-            $errorMessage = "Erreur SQL : " . htmlspecialchars($e->getMessage());
+            $errorMessage = t('admin_flotte_error_sql') . htmlspecialchars($e->getMessage());
         }
     }
 }
@@ -225,7 +226,7 @@ try {
         $fleetTypePricesFormatted[$k] = number_format((float)$v, 2, ',', ' ');
     }
 } catch (PDOException $e) {
-    $errorMessage = "Erreur lors de la récupération des types de flotte : " . htmlspecialchars($e->getMessage());
+    $errorMessage = t('admin_flotte_error_fleet_types') . htmlspecialchars($e->getMessage());
 }
 
 // Pour l'interface Vente : récupérer la flotte active
@@ -252,14 +253,14 @@ try {
         $flotte[] = $avion;
     }
 } catch (PDOException $e) {
-    $errorMessage = "Erreur lors de la récupération de la flotte : " . htmlspecialchars($e->getMessage());
+    $errorMessage = t('admin_flotte_error_flotte') . htmlspecialchars($e->getMessage());
     $flotte = [];
 }
 ?>
 
 <main style="display:flex; gap:40px; align-items:flex-start;">
     <section style="flex:1; min-width:360px; max-width:520px;">
-        <h2>Acheter un appareil</h2>
+        <h2><?= t('admin_flotte_title_acheter') ?></h2>
 
         <?php if ($successMessage): ?>
             <p style="color: green; font-weight:bold;"><?= $successMessage ?></p>
@@ -274,18 +275,18 @@ try {
                 <div class="radio-group">
                     <label class="radio-label">
                         <input type="radio" name="achat_mode" value="comptant" id="achat_comptant" <?= (!isset($_POST['achat_mode']) || $_POST['achat_mode'] === 'comptant') ? 'checked' : '' ?>>
-                        <span>Achat comptant</span>
+                        <span><?= t('admin_flotte_radio_comptant') ?></span>
                     </label>
                     <label class="radio-label">
                         <input type="radio" name="achat_mode" value="credit" id="achat_credit" <?= (isset($_POST['achat_mode']) && $_POST['achat_mode'] === 'credit') ? 'checked' : '' ?>>
-                        <span>Achat à crédit</span>
+                        <span><?= t('admin_flotte_radio_credit') ?></span>
                     </label>
                 </div>
             </div>
 
             <label>Fleet type * :
                 <select name="fleet_type" id="fleetTypeSelect" required class="form-input">
-                    <option value="">-- Choisissez un fleet type --</option>
+                    <option value=""><?= t('admin_flotte_select_fleet_type') ?></option>
                     <?php foreach ($fleetTypes as $ft): ?>
                         <option value="<?= htmlspecialchars($ft['id']) ?>" <?= (isset($_POST['fleet_type']) && $_POST['fleet_type'] == $ft['id']) ? 'selected' : '' ?>>
                             <?= htmlspecialchars($ft['fleet_type']) ?>
@@ -318,29 +319,30 @@ try {
             </div>
 
             <div class="form-actions" style="margin-top:12px;">
-                <button type="submit" form="form-avion" class="btn-bleu">Signer le bon de commande</button>
-                <button type="reset" form="form-avion" class="btn btn-reset">Réinitialiser</button>
+                <button type="submit" form="form-avion" class="btn-bleu"><?= t('admin_flotte_btn_signer') ?></button>
+                <button type="reset" form="form-avion" class="btn btn-reset"><?= t('admin_flotte_btn_reinitialiser') ?></button>
             </div>
         </form>
     </section>
 
     <section style="flex:1; min-width:360px; max-width:520px;">
-        <h2>Vendre un appareil</h2>
+        <h2><?= t('admin_flotte_title_vendre') ?></h2>
 
         <?php if (isset($_GET['vente']) && $_GET['vente'] === 'ok' && isset($_GET['immat'])): ?>
-            <p style="color: green; font-weight:bold;">L'appareil <?= htmlspecialchars($_GET['immat']) ?> a été vendu avec succès. Le banquier va être content !</p>
+            <p style="color: green; font-weight:bold;"><?= str_replace('{immat}', htmlspecialchars($_GET['immat']), t('admin_flotte_success_vente')) ?></p>
         <?php endif; ?>
 
         <?php if (empty($flotte)): ?>
-            <p>Aucun appareil actif à vendre.</p>
+            <p><?= t('admin_flotte_aucun_a_vendre') ?></p>
         <?php else: ?>
-            <form id="venteForm" method="post" action="" onsubmit="return confirm('Confirmez-vous la vente de cet appareil ?');">
+            <form id="venteForm" method="post" action="" onsubmit="return confirm('<?= t('admin_flotte_confirm_vente') ?>');">
+
                 <input type="hidden" name="form_action" value="sell">
                 <label for="avionSelect" style="font-weight:bold;display:block;margin-bottom:7px;">
-                    <span style="color:#0066cc;font-size:1.15em;vertical-align:middle;">✈️</span> Choisir un appareil à vendre :
+                    <span style="color:#0066cc;font-size:1.15em;vertical-align:middle;">✈️</span> <?= t('admin_flotte_choisir_a_vendre') ?>
                 </label>
                 <select id="avionSelect" name="avion_id" class="form-input" style="width:250px;">
-                    <option value="">-- Sélectionner --</option>
+                    <option value=""><?= t('admin_flotte_select_avion') ?></option>
                     <?php foreach ($flotte as $avion): 
                         // prepare formatted values for display
                         $reste_fmt = is_null($avion['reste_a_payer']) || $avion['reste_a_payer']==='' ? '' : number_format((float)$avion['reste_a_payer'], 2, ',', ' ');
@@ -377,7 +379,7 @@ try {
                     <p id="achatModeText" style="font-style:italic;color:#555;"></p>
                     <p><strong>Revenus :</strong> <span id="detailRecettes"></span></p>
                 </div>
-                <button type="submit" id="btnVendre" class="btn-bleu" style="display:none;">Vendre</button>
+                <button type="submit" id="btnVendre" class="btn-bleu" style="display:none;"><?= t('admin_flotte_btn_vendre') ?></button>
             </form>
         <?php endif; ?>
     </section>
@@ -395,12 +397,12 @@ document.addEventListener('DOMContentLoaded', function() {
     function updatePrixAchatAndType() {
         var val = selectFleetType.value;
         if (val && fleetTypePrices[val]) {
-            prixAchatDiv.textContent = "Prix d'achat : " + fleetTypePrices[val] + ' €';
+            prixAchatDiv.textContent = "<?= t('admin_flotte_js_prix_achat') ?>" + fleetTypePrices[val] + ' €';
         } else {
             prixAchatDiv.textContent = '';
         }
         if (val && fleetTypeCategories[val]) {
-            typeDiv.textContent = 'Catégorie : ' + fleetTypeCategories[val];
+            typeDiv.textContent = "<?= t('admin_flotte_js_categorie') ?>" + fleetTypeCategories[val];
         } else {
             typeDiv.textContent = '';
         }
@@ -442,9 +444,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 var modeAchat = selected.getAttribute('data-modeachat');
                 var achatModeText = document.getElementById('achatModeText');
                 if (modeAchat === 'crédit') {
-                    achatModeText.textContent = "Cet avion a été acheté à crédit.";
+                    achatModeText.textContent = "<?= t('admin_flotte_js_achete_credit') ?>";
                 } else if (modeAchat === 'comptant') {
-                    achatModeText.textContent = "Cet avion a été acheté comptant.";
+                    achatModeText.textContent = "<?= t('admin_flotte_js_achete_comptant') ?>";
                 } else {
                     achatModeText.textContent = "";
                 }
