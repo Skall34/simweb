@@ -1119,5 +1119,85 @@ Appareils sortis de maintenance : 1
     'script_promotion_recap_intro' => 'Voici la liste des promotions effectuées cette nuit :',
     'script_promotion_recap_none' => 'Aucune promotion de grade n\'a eu lieu cette nuit.',
     'script_promotion_recap_signature' => 'Le système automatique {VA_NAME}',
+
+    // Mail achat appareil (admin_flotte.php)
+    'admin_flotte_mail_subject' => 'Nouvel achat d\'appareil',
+    'admin_flotte_mail_title' => 'Nouvel achat d\'appareil',
+    'admin_flotte_mail_immat' => 'Immatriculation',
+    'admin_flotte_mail_categorie' => 'Catégorie',
+    'admin_flotte_mail_fleet_type' => 'Fleet type',
+    'admin_flotte_mail_localisation' => 'Localisation',
+    'admin_flotte_mail_hub' => 'Hub',
+    'admin_flotte_mail_prix_achat' => 'Prix d\'achat',
+    'admin_flotte_mail_mode_achat' => 'Mode d\'achat',
+    'admin_flotte_mail_mode_credit' => 'Crédit',
+    'admin_flotte_mail_mode_comptant' => 'Comptant',
+    'admin_flotte_mail_annees_credit' => 'Années crédit',
+    'admin_flotte_mail_taux' => 'Taux',
+
+    // Script update_fret.php
+    'script_fret_mail_subject' => '[SimWeb] Rapport fret aéroports - {date}',
+    'script_fret_mail_greeting' => 'Bonjour,',
+    'script_fret_mail_intro' => 'Le traitement hebdomadaire du fret aéroports s\'est terminé.',
+    'script_fret_mail_updated' => 'Nombre d\'aéroports mis à jour',
+    'script_fret_mail_expected' => 'attendu',
+    'script_fret_mail_bounds' => 'Bornes utilisées',
+    'script_fret_mail_coherence' => 'Cohérence',
+    'script_fret_mail_coherence_ok' => 'OK',
+    'script_fret_mail_coherence_error' => 'INCOHERENTE',
+    'script_fret_mail_automatic' => 'Ceci est un message automatique.',
+
+    // Script rotate_logs.php
+    'script_rotate_mail_subject' => '[SimWeb] Rapport rotation des logs - {date}',
+    'script_rotate_mail_intro' => 'Rotation des logs terminée.',
+    'script_rotate_mail_archived' => 'Fichiers archivés :',
+    'script_rotate_mail_no_archive' => 'Aucun fichier log archivé ce mois-ci.',
+    'script_rotate_mail_deleted' => 'Archives supprimées (plus d\'1 an) :',
+
+    // Détails vol (tableau_vols.php modal)
+    'vol_detail_id' => 'ID vol',
+    'vol_detail_date' => 'Date vol',
+    'vol_detail_callsign' => 'Callsign',
+    'vol_detail_immat' => 'Immat',
+    'vol_detail_depart' => 'Départ',
+    'vol_detail_destination' => 'Destination',
+    'vol_detail_fuel_depart' => 'Fuel départ',
+    'vol_detail_fuel_arrivee' => 'Fuel arrivée',
+    'vol_detail_conso' => 'Conso',
+    'vol_detail_payload' => 'Payload',
+    'vol_detail_heure_depart' => 'Heure départ',
+    'vol_detail_heure_arrivee' => 'Heure arrivée',
+    'vol_detail_block_time' => 'Block time',
+    'vol_detail_note' => 'Note du vol',
+    'vol_detail_mission' => 'Mission',
+    'vol_detail_recette' => 'Recette du vol',
+    'vol_detail_pirep' => 'Pirep',
+    'vol_detail_error_sql' => 'Erreur SQL :',
+
+    // Labels formulaires admin_flotte.php
+    'admin_flotte_label_nb_annees_credit' => 'Nombre d\'années de crédit * :',
+    'admin_flotte_label_taux' => 'Taux (%) * :',
+    'admin_flotte_label_type' => 'Type :',
+    'admin_flotte_label_localisation' => 'Localisation :',
+    'admin_flotte_label_hub' => 'Hub :',
+    'admin_flotte_label_reste_payer' => 'Reste à payer :',
+    'admin_flotte_label_date_achat' => 'Date d\'achat :',
+    'admin_flotte_label_recette_vente' => 'Recette de vente :',
+    'admin_flotte_label_revenus' => 'Revenus :',
+
+    // Erreurs stats.php
+    'stats_error_par_an' => 'Erreur stats par an:',
+    'stats_error_top_callsigns' => 'Erreur top callsigns:',
+    'stats_error_top_airports' => 'Erreur top aéroports:',
+    'stats_error_complementaires' => 'Erreur stats complémentaires:',
+
+    // Messages scripts CLI
+    'cli_error' => 'Erreur :',
+    'cli_error_sql' => 'Erreur SQL :',
+
+    // API messages
+    'api_error_no_gps' => 'Aucune trace GPS trouvée pour ce vol.',
+    'api_error_gps_fetch' => 'Erreur lors de la récupération de la trace GPS.',
+    'api_error_live_flights' => 'Erreur lors de la récupération des vols en cours.',
 ];
 ?>

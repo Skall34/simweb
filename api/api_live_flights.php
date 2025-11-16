@@ -1,5 +1,6 @@
 <?php
 require_once("../includes/db_connect.php");
+require_once("../lang.php");
 // filepath: live_flights_json.php
 
 header('Content-Type: application/json');
@@ -64,5 +65,5 @@ try {
     echo json_encode($result);
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(['error' => 'Erreur lors de la récupération des vols en cours.']);
+    echo json_encode(['error' => t('api_error_live_flights')]);
 }

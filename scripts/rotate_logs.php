@@ -97,23 +97,23 @@ logMsg('[TRACE] Fin de la rotation des logs', $logFile);
 
 // Envoi du mail récapitulatif
 if ($mailSummaryEnabled && function_exists('sendSummaryMail')) {
-    $subject = '[SimWeb] Rapport rotation des logs - ' . date('d/m/Y H:i');
-    $body = "Rotation des logs terminée.\n";
+    $subject = str_replace('{date}', date('d/m/Y H:i'), t('script_rotate_mail_subject'));
+    $body = t('script_rotate_mail_intro') . "\n";
     if (!empty($archivedFiles)) {
-        $body .= "\nFichiers archivés :\n";
+        $body .= "\n" . t('script_rotate_mail_archived') . "\n";
         foreach ($archivedFiles as $f) {
             $body .= " - $f\n";
         }
     } else {
-        $body .= "\nAucun fichier log archivé ce mois-ci.\n";
+        $body .= "\n" . t('script_rotate_mail_no_archive') . "\n";
     }
     if (!empty($deletedArchives)) {
-        $body .= "\nArchives supprimées (plus d'1 an) :\n";
+        $body .= "\n" . t('script_rotate_mail_deleted') . "\n";
         foreach ($deletedArchives as $a) {
             $body .= " - $a\n";
         }
     }
-    $body .= "\nCeci est un message automatique.";
+    $body .= "\n" . t('script_fret_mail_automatic');
     $to = VA_ADMIN_EMAIL;
     $mailResult = sendSummaryMail($subject, $body, $to);
     if ($mailResult === true || $mailResult === null) {

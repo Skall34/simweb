@@ -26,6 +26,9 @@ $mailSummaryEnabled = true; // Active l'envoi du mail récapitulatif
 require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/log_func.php';
 require_once __DIR__ . '/../includes/mail_utils.php';
+require_once __DIR__ . '/../lang.php';
+require_once __DIR__ . '/../includes/config.php';
+if (!isset($_SESSION['lang'])) $_SESSION['lang'] = VA_DEFAULT_LANGUAGE;
 $logFile = __DIR__ . '/logs/update_fret.log';
 
 $min = 1;
@@ -59,12 +62,12 @@ try {
     echo $msg . "\n";
     // Envoi du mail récapitulatif enrichi
     if ($mailSummaryEnabled && function_exists('sendSummaryMail')) {
-        $subject = "[SimWeb] Rapport fret aéroports - " . date('d/m/Y H:i');
-        $body = "Bonjour,\n\nLe traitement hebdomadaire du fret aéroports s'est terminé.";
-        $body .= "\nNombre d'aéroports mis à jour : $count_updated (attendu : $nb_aeroports)";
-        $body .= "\nBornes utilisées : min=$min, max=$max";
-        $body .= $coherent ? "\nCohérence : OK" : "\nCohérence : INCOHERENTE";
-        $body .= "\n\nCeci est un message automatique.";
+        $subject = str_replace('{date}', date('d/m/Y H:i'), t('script_fret_mail_subject'));
+        $body = t('script_fret_mail_greeting') . "\n\n" . t('script_fret_mail_intro');
+        $body .= "\n" . t('script_fret_mail_updated') . " : $count_updated (" . t('script_fret_mail_expected') . " : $nb_aeroports)";
+        $body .= "\n" . t('script_fret_mail_bounds') . " : min=$min, max=$max";
+        $body .= "\n" . t('script_fret_mail_coherence') . " : " . ($coherent ? t('script_fret_mail_coherence_ok') : t('script_fret_mail_coherence_error'));
+        $body .= "\n\n" . t('script_fret_mail_automatic');
         $to = VA_ADMIN_EMAIL;
         $mailResult = sendSummaryMail($subject, $body, $to);
         if ($mailResult === true || $mailResult === null) {
@@ -75,5 +78,5 @@ try {
     }
 } catch (PDOException $e) {
     logMsg("❌ Erreur lors de la mise à jour : " . $e->getMessage(), $logFile);
-    echo "Erreur : " . $e->getMessage() . "\n";
+    echo t('cli_error') . " " . $e->getMessage() . "\n";
 }

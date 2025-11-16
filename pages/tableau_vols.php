@@ -114,7 +114,7 @@ try {
     // --- Fin ajout ---
 
 } catch (PDOException $e) {
-    echo "<p>Erreur SQL : " . htmlspecialchars($e->getMessage()) . "</p>";
+    echo "<p>" . t('vol_detail_error_sql') . " " . htmlspecialchars($e->getMessage()) . "</p>";
     exit;
 }
 ?>
@@ -188,23 +188,23 @@ try {
             $recette_fmt = number_format($vol['cout_vol'] !== null ? (float)$vol['cout_vol'] : 0, 2, ',', ' ');
             $pirep_fmt = $pirep_complet; // On ne modifie plus le texte PIREP
             $details = [
-                'ID vol' => $vol['id_vol'],
-                'Date vol' => $date_formatee,
-                'Callsign' => $vol['callsign'],
-                'Immat' => $vol['immat'],
-                'Départ' => $vol['depart'],
-                'Destination' => $vol['destination'],
-                'Fuel départ' => $fuel_depart_fmt,
-                'Fuel arrivée' => $fuel_arrivee_fmt,
-                'Conso' => $conso_fmt,
-                'Payload' => $vol['payload'],
-                'Heure départ' => $vol['heure_depart'],
-                'Heure arrivée' => $vol['heure_arrivee'],
-                'Block time' => $vol['block_time'],
-                'Note du vol' => $vol['note_du_vol'],
-                'Mission' => $vol['mission_libelle'],
-                'Recette du vol' => $recette_fmt . ' €',
-                'Pirep' => $pirep_fmt,
+                t('vol_detail_id') => $vol['id_vol'],
+                t('vol_detail_date') => $date_formatee,
+                t('vol_detail_callsign') => $vol['callsign'],
+                t('vol_detail_immat') => $vol['immat'],
+                t('vol_detail_depart') => $vol['depart'],
+                t('vol_detail_destination') => $vol['destination'],
+                t('vol_detail_fuel_depart') => $fuel_depart_fmt,
+                t('vol_detail_fuel_arrivee') => $fuel_arrivee_fmt,
+                t('vol_detail_conso') => $conso_fmt,
+                t('vol_detail_payload') => $vol['payload'],
+                t('vol_detail_heure_depart') => $vol['heure_depart'],
+                t('vol_detail_heure_arrivee') => $vol['heure_arrivee'],
+                t('vol_detail_block_time') => $vol['block_time'],
+                t('vol_detail_note') => $vol['note_du_vol'],
+                t('vol_detail_mission') => $vol['mission_libelle'],
+                t('vol_detail_recette') => $recette_fmt . ' €',
+                t('vol_detail_pirep') => $pirep_fmt,
                 'lat_depart' => isset($aeroports[$vol['depart']]) ? $aeroports[$vol['depart']]['latitude_deg'] : null,
                 'long_depart' => isset($aeroports[$vol['depart']]) ? $aeroports[$vol['depart']]['longitude_deg'] : null,
                 'lat_destination' => isset($aeroports[$vol['destination']]) ? $aeroports[$vol['destination']]['latitude_deg'] : null,

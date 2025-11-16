@@ -33,6 +33,9 @@ $mailSummaryEnabled = true; // Active l'envoi du mail récapitulatif
 require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/log_func.php';
 require_once __DIR__ . '/../includes/mail_utils.php';
+require_once __DIR__ . '/../lang.php';
+require_once __DIR__ . '/../includes/config.php';
+if (!isset($_SESSION['lang'])) $_SESSION['lang'] = VA_DEFAULT_LANGUAGE;
 
 $logFile = __DIR__ . '/logs/maintenance.log';
 
@@ -148,5 +151,5 @@ try {
     }
 } catch (PDOException $e) {
     logMsg("Erreur lors de la maintenance : " . $e->getMessage(), $logFile);
-    echo "Erreur : " . $e->getMessage() . "\n";
+    echo t('cli_error') . " " . $e->getMessage() . "\n";
 }

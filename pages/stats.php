@@ -19,7 +19,7 @@ try {
     $stmtStats = $pdo->query($sqlStats);
     $statsParAn = $stmtStats->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
-    die("Erreur stats par an: " . $e->getMessage());
+    die(t('stats_error_par_an') . " " . $e->getMessage());
 }
 
 // 1b. Top 3 callsigns par heures de vol
@@ -49,7 +49,7 @@ try {
         }
     }
 } catch (PDOException $e) {
-    die("Erreur top callsigns: " . $e->getMessage());
+    die(t('stats_error_top_callsigns') . " " . $e->getMessage());
 }
 
 // 2. Top 20 aéroports les plus visités
@@ -66,7 +66,7 @@ try {
     $stmtTopAeroports = $pdo->query($sqlTopAeroports);
     $topAeroports = $stmtTopAeroports->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
-    die("Erreur top aéroports: " . $e->getMessage());
+    die(t('stats_error_top_airports') . " " . $e->getMessage());
 }
 
 // 3. Statistiques complémentaires
@@ -97,7 +97,7 @@ try {
         ->fetch(PDO::FETCH_ASSOC);
 
 } catch (PDOException $e) {
-    die("Erreur stats complémentaires: " . $e->getMessage());
+    die(t('stats_error_complementaires') . " " . $e->getMessage());
 }
 
 include __DIR__ . '/../includes/header.php';

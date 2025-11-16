@@ -1114,5 +1114,85 @@ Aircraft exited maintenance: 1
     'script_promotion_recap_intro' => 'Here is the list of promotions made tonight:',
     'script_promotion_recap_none' => 'No rank promotions occurred tonight.',
     'script_promotion_recap_signature' => 'The {VA_NAME} automated system',
+
+    // Mail achat appareil (admin_flotte.php)
+    'admin_flotte_mail_subject' => 'New aircraft purchase',
+    'admin_flotte_mail_title' => 'New aircraft purchase',
+    'admin_flotte_mail_immat' => 'Registration',
+    'admin_flotte_mail_categorie' => 'Category',
+    'admin_flotte_mail_fleet_type' => 'Fleet type',
+    'admin_flotte_mail_localisation' => 'Location',
+    'admin_flotte_mail_hub' => 'Hub',
+    'admin_flotte_mail_prix_achat' => 'Purchase price',
+    'admin_flotte_mail_mode_achat' => 'Purchase mode',
+    'admin_flotte_mail_mode_credit' => 'Credit',
+    'admin_flotte_mail_mode_comptant' => 'Cash',
+    'admin_flotte_mail_annees_credit' => 'Credit years',
+    'admin_flotte_mail_taux' => 'Rate',
+
+    // Script update_fret.php
+    'script_fret_mail_subject' => '[SimWeb] Airport freight report - {date}',
+    'script_fret_mail_greeting' => 'Hello,',
+    'script_fret_mail_intro' => 'The weekly airport freight processing has completed.',
+    'script_fret_mail_updated' => 'Number of airports updated',
+    'script_fret_mail_expected' => 'expected',
+    'script_fret_mail_bounds' => 'Bounds used',
+    'script_fret_mail_coherence' => 'Coherence',
+    'script_fret_mail_coherence_ok' => 'OK',
+    'script_fret_mail_coherence_error' => 'INCONSISTENT',
+    'script_fret_mail_automatic' => 'This is an automatic message.',
+
+    // Script rotate_logs.php
+    'script_rotate_mail_subject' => '[SimWeb] Log rotation report - {date}',
+    'script_rotate_mail_intro' => 'Log rotation completed.',
+    'script_rotate_mail_archived' => 'Archived files:',
+    'script_rotate_mail_no_archive' => 'No log files archived this month.',
+    'script_rotate_mail_deleted' => 'Deleted archives (older than 1 year):',
+
+    // Flight details (tableau_vols.php modal)
+    'vol_detail_id' => 'Flight ID',
+    'vol_detail_date' => 'Flight date',
+    'vol_detail_callsign' => 'Callsign',
+    'vol_detail_immat' => 'Registration',
+    'vol_detail_depart' => 'Departure',
+    'vol_detail_destination' => 'Destination',
+    'vol_detail_fuel_depart' => 'Departure fuel',
+    'vol_detail_fuel_arrivee' => 'Arrival fuel',
+    'vol_detail_conso' => 'Consumption',
+    'vol_detail_payload' => 'Payload',
+    'vol_detail_heure_depart' => 'Departure time',
+    'vol_detail_heure_arrivee' => 'Arrival time',
+    'vol_detail_block_time' => 'Block time',
+    'vol_detail_note' => 'Flight rating',
+    'vol_detail_mission' => 'Mission',
+    'vol_detail_recette' => 'Flight revenue',
+    'vol_detail_pirep' => 'Pirep',
+    'vol_detail_error_sql' => 'SQL Error:',
+
+    // Form labels admin_flotte.php
+    'admin_flotte_label_nb_annees_credit' => 'Number of credit years * :',
+    'admin_flotte_label_taux' => 'Rate (%) * :',
+    'admin_flotte_label_type' => 'Type:',
+    'admin_flotte_label_localisation' => 'Location:',
+    'admin_flotte_label_hub' => 'Hub:',
+    'admin_flotte_label_reste_payer' => 'Remaining balance:',
+    'admin_flotte_label_date_achat' => 'Purchase date:',
+    'admin_flotte_label_recette_vente' => 'Sale revenue:',
+    'admin_flotte_label_revenus' => 'Revenue:',
+
+    // Errors stats.php
+    'stats_error_par_an' => 'Error yearly stats:',
+    'stats_error_top_callsigns' => 'Error top callsigns:',
+    'stats_error_top_airports' => 'Error top airports:',
+    'stats_error_complementaires' => 'Error additional stats:',
+
+    // CLI script messages
+    'cli_error' => 'Error:',
+    'cli_error_sql' => 'SQL Error:',
+
+    // API messages
+    'api_error_no_gps' => 'No GPS trace found for this flight.',
+    'api_error_gps_fetch' => 'Error retrieving GPS trace.',
+    'api_error_live_flights' => 'Error retrieving live flights.',
 ];
 ?>

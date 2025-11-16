@@ -3,6 +3,7 @@
 
 header('Content-Type: application/json');
 require_once __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../lang.php';
 
 if (!isset($_GET['vol_id']) || !is_numeric($_GET['vol_id'])) {
     http_response_code(400);
@@ -18,15 +19,15 @@ try {
     $path = $stmt->fetchColumn();
 
     if ($path === false) {
-        echo json_encode(['error' => 'Aucune trace GPS trouvée pour ce vol.']);
+        echo json_encode(['error' => t('api_error_no_gps')]);
     } else {
         echo json_encode(['path' => $path]);
     }
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['error' => 'Erreur SQL : ' . $e->getMessage()]);
+    echo json_encode(['error' => t('cli_error_sql') . ' ' . $e->getMessage()]);
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(['error' => 'Erreur lors de la récupération de la trace GPS.']);
+    echo json_encode(['error' => t('api_error_gps_fetch')]);
 }
 ?>

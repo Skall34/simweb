@@ -1113,5 +1113,85 @@ Aeronaves que salieron de mantenimiento: 1
     'script_promotion_recap_intro' => 'Aquí está la lista de promociones realizadas esta noche:',
     'script_promotion_recap_none' => 'No hubo promociones de rango esta noche.',
     'script_promotion_recap_signature' => 'El sistema automático {VA_NAME}',
+
+    // Mail achat appareil (admin_flotte.php)
+    'admin_flotte_mail_subject' => 'Nueva compra de aeronave',
+    'admin_flotte_mail_title' => 'Nueva compra de aeronave',
+    'admin_flotte_mail_immat' => 'Matrícula',
+    'admin_flotte_mail_categorie' => 'Categoría',
+    'admin_flotte_mail_fleet_type' => 'Tipo de flota',
+    'admin_flotte_mail_localisation' => 'Ubicación',
+    'admin_flotte_mail_hub' => 'Hub',
+    'admin_flotte_mail_prix_achat' => 'Precio de compra',
+    'admin_flotte_mail_mode_achat' => 'Modo de compra',
+    'admin_flotte_mail_mode_credit' => 'Crédito',
+    'admin_flotte_mail_mode_comptant' => 'Contado',
+    'admin_flotte_mail_annees_credit' => 'Años de crédito',
+    'admin_flotte_mail_taux' => 'Tasa',
+
+    // Script update_fret.php
+    'script_fret_mail_subject' => '[SimWeb] Informe de carga aeroportuaria - {date}',
+    'script_fret_mail_greeting' => 'Hola,',
+    'script_fret_mail_intro' => 'El procesamiento semanal de carga aeroportuaria ha finalizado.',
+    'script_fret_mail_updated' => 'Número de aeropuertos actualizados',
+    'script_fret_mail_expected' => 'esperado',
+    'script_fret_mail_bounds' => 'Límites utilizados',
+    'script_fret_mail_coherence' => 'Coherencia',
+    'script_fret_mail_coherence_ok' => 'OK',
+    'script_fret_mail_coherence_error' => 'INCOHERENTE',
+    'script_fret_mail_automatic' => 'Este es un mensaje automático.',
+
+    // Script rotate_logs.php
+    'script_rotate_mail_subject' => '[SimWeb] Informe de rotación de logs - {date}',
+    'script_rotate_mail_intro' => 'Rotación de logs completada.',
+    'script_rotate_mail_archived' => 'Archivos archivados:',
+    'script_rotate_mail_no_archive' => 'Ningún archivo de log archivado este mes.',
+    'script_rotate_mail_deleted' => 'Archivos eliminados (más de 1 año):',
+
+    // Detalles de vuelo (tableau_vols.php modal)
+    'vol_detail_id' => 'ID vuelo',
+    'vol_detail_date' => 'Fecha vuelo',
+    'vol_detail_callsign' => 'Callsign',
+    'vol_detail_immat' => 'Matrícula',
+    'vol_detail_depart' => 'Salida',
+    'vol_detail_destination' => 'Destino',
+    'vol_detail_fuel_depart' => 'Combustible salida',
+    'vol_detail_fuel_arrivee' => 'Combustible llegada',
+    'vol_detail_conso' => 'Consumo',
+    'vol_detail_payload' => 'Carga',
+    'vol_detail_heure_depart' => 'Hora salida',
+    'vol_detail_heure_arrivee' => 'Hora llegada',
+    'vol_detail_block_time' => 'Block time',
+    'vol_detail_note' => 'Nota del vuelo',
+    'vol_detail_mission' => 'Misión',
+    'vol_detail_recette' => 'Ingresos del vuelo',
+    'vol_detail_pirep' => 'Pirep',
+    'vol_detail_error_sql' => 'Error SQL:',
+
+    // Etiquetas de formulario admin_flotte.php
+    'admin_flotte_label_nb_annees_credit' => 'Número de años de crédito * :',
+    'admin_flotte_label_taux' => 'Tasa (%) * :',
+    'admin_flotte_label_type' => 'Tipo:',
+    'admin_flotte_label_localisation' => 'Ubicación:',
+    'admin_flotte_label_hub' => 'Hub:',
+    'admin_flotte_label_reste_payer' => 'Saldo pendiente:',
+    'admin_flotte_label_date_achat' => 'Fecha de compra:',
+    'admin_flotte_label_recette_vente' => 'Ingresos de venta:',
+    'admin_flotte_label_revenus' => 'Ingresos:',
+
+    // Errores stats.php
+    'stats_error_par_an' => 'Error estadísticas anuales:',
+    'stats_error_top_callsigns' => 'Error top callsigns:',
+    'stats_error_top_airports' => 'Error top aeropuertos:',
+    'stats_error_complementaires' => 'Error estadísticas adicionales:',
+
+    // Mensajes de scripts CLI
+    'cli_error' => 'Error:',
+    'cli_error_sql' => 'Error SQL:',
+
+    // Mensajes API
+    'api_error_no_gps' => 'No se encontró rastro GPS para este vuelo.',
+    'api_error_gps_fetch' => 'Error al recuperar el rastro GPS.',
+    'api_error_live_flights' => 'Error al recuperar vuelos en curso.',
 ];
 ?>

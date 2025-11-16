@@ -174,19 +174,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $form_action === 'buy') {
                 $successMessage = str_replace('{immat}', htmlspecialchars($immat), t('admin_flotte_success_achat'));
 
                 // Envoi du mail récapitulatif
-                $mailSubject = "Nouvel achat d'appareil";
-                $mailBody = '<h3>Nouvel achat d\'appareil</h3>' .
+                $mailSubject = t('admin_flotte_mail_subject');
+                $mailBody = '<h3>' . t('admin_flotte_mail_title') . '</h3>' .
                     '<ul>' .
-                    '<li><strong>Immatriculation :</strong> ' . htmlspecialchars($immat) . '</li>' .
-                    '<li><strong>Catégorie :</strong> ' . htmlspecialchars($categorie) . '</li>' .
-                    '<li><strong>Fleet type :</strong> ' . htmlspecialchars($fleet_type_id) . '</li>' .
-                    '<li><strong>Localisation :</strong> ' . htmlspecialchars($localisation) . '</li>' .
-                    '<li><strong>Hub :</strong> ' . htmlspecialchars($hub) . '</li>' .
-                    '<li><strong>Prix d\'achat :</strong> ' . number_format($prix_achat, 2, ',', ' ') . ' €</li>' .
-                    '<li><strong>Mode d\'achat :</strong> ' . ($achat_mode === 'credit' ? 'Crédit' : 'Comptant') . '</li>' .
-                    ($achat_mode === 'credit' ? '<li><strong>Années crédit :</strong> ' . $nb_annees_credit . '</li><li><strong>Taux :</strong> ' . $taux_percent . '%</li>' : '') .
+                    '<li><strong>' . t('admin_flotte_mail_immat') . ' :</strong> ' . htmlspecialchars($immat) . '</li>' .
+                    '<li><strong>' . t('admin_flotte_mail_categorie') . ' :</strong> ' . htmlspecialchars($categorie) . '</li>' .
+                    '<li><strong>' . t('admin_flotte_mail_fleet_type') . ' :</strong> ' . htmlspecialchars($fleet_type_id) . '</li>' .
+                    '<li><strong>' . t('admin_flotte_mail_localisation') . ' :</strong> ' . htmlspecialchars($localisation) . '</li>' .
+                    '<li><strong>' . t('admin_flotte_mail_hub') . ' :</strong> ' . htmlspecialchars($hub) . '</li>' .
+                    '<li><strong>' . t('admin_flotte_mail_prix_achat') . ' :</strong> ' . number_format($prix_achat, 2, ',', ' ') . ' €</li>' .
+                    '<li><strong>' . t('admin_flotte_mail_mode_achat') . ' :</strong> ' . ($achat_mode === 'credit' ? t('admin_flotte_mail_mode_credit') : t('admin_flotte_mail_mode_comptant')) . '</li>' .
+                    ($achat_mode === 'credit' ? '<li><strong>' . t('admin_flotte_mail_annees_credit') . ' :</strong> ' . $nb_annees_credit . '</li><li><strong>' . t('admin_flotte_mail_taux') . ' :</strong> ' . $taux_percent . '%</li>' : '') .
                     '</ul>';
-                $to = defined('ADMIN_EMAIL') ? ADMIN_EMAIL : null;
+                $to = VA_ADMIN_EMAIL;
                 if ($to) {
                     $mailResult = sendSummaryMail($mailSubject, $mailBody, $to);
                     if ($mailResult === true) {
@@ -310,10 +310,10 @@ try {
             </label>
 
             <div id="credit-fields" class="credit-fields">
-                <label>Nombre d'années de crédit * :
+                <label><?= t('admin_flotte_label_nb_annees_credit') ?>
                     <input type="number" name="nb_annees_credit" min="1" max="50" value="<?= htmlspecialchars($_POST['nb_annees_credit'] ?? '') ?>" class="form-input">
                 </label>
-                <label>Taux (%) * :
+                <label><?= t('admin_flotte_label_taux') ?>
                     <input type="number" name="taux_percent" min="1" step="1" max="100" value="<?= htmlspecialchars($_POST['taux_percent'] ?? '') ?>" class="form-input">
                 </label>
             </div>
@@ -370,14 +370,14 @@ try {
                     <?php endforeach; ?>
                 </select>
                 <div id="detailsAvion" class="avion-details">
-                    <p><strong>Type :</strong> <span id="detailType"></span></p>
-                    <p><strong>Localisation :</strong> <span id="detailLocalisation"></span></p>
-                    <p><strong>Hub :</strong> <span id="detailHub"></span></p>
-                    <p><strong>Reste à payer :</strong> <span id="detailReste"></span></p>
-                    <p><strong>Date d'achat :</strong> <span id="detailDateAchat"></span></p>
-                    <p><strong>Recette de vente :</strong> <span id="detailPrixVentePrevu"></span></p>
+                    <p><strong><?= t('admin_flotte_label_type') ?></strong> <span id="detailType"></span></p>
+                    <p><strong><?= t('admin_flotte_label_localisation') ?></strong> <span id="detailLocalisation"></span></p>
+                    <p><strong><?= t('admin_flotte_label_hub') ?></strong> <span id="detailHub"></span></p>
+                    <p><strong><?= t('admin_flotte_label_reste_payer') ?></strong> <span id="detailReste"></span></p>
+                    <p><strong><?= t('admin_flotte_label_date_achat') ?></strong> <span id="detailDateAchat"></span></p>
+                    <p><strong><?= t('admin_flotte_label_recette_vente') ?></strong> <span id="detailPrixVentePrevu"></span></p>
                     <p id="achatModeText" class="achat-mode-text"></p>
-                    <p><strong>Revenus :</strong> <span id="detailRecettes"></span></p>
+                    <p><strong><?= t('admin_flotte_label_revenus') ?></strong> <span id="detailRecettes"></span></p>
                 </div>
                 <button type="submit" id="btnVendre" class="btn btn-vendre"><?= t('admin_flotte_btn_vendre') ?></button>
             </form>
