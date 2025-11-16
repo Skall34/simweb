@@ -37,7 +37,7 @@ if (!isset($_SESSION['user'])) {
 
             <!-- Image + Vols en cours à droite -->
             <div class="hero-right">
-                <img src="assets/images/accueil.jpg" alt="SkyWings" class="hero-image">
+                <img src="assets/images/accueil.jpg" alt="<?= VA_NAME ?>" class="hero-image">
                 <section>
                     <h2 class="text-center no-top-margin"><?= t('index_liveflights_title') ?></h2>
                     <div id="live-flights-container">
@@ -129,7 +129,7 @@ if (!isset($_SESSION['user'])) {
                 </section>
             </div>
                 <div class="col-fixed-320">
-                    <img src="assets/images/PDF.jpg" alt="SkyWings" class="hero-image">
+                    <img src="assets/images/PDF.jpg" alt="<?= VA_NAME ?>" class="hero-image">
             </div>
         </div>
 

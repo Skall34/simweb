@@ -166,6 +166,7 @@ return [
     'forgot_success_mail' => 'Se le ha enviado un correo de restablecimiento.',
     'forgot_error_mail' => 'Error al enviar el correo: ',
     'forgot_error_email_unknown' => 'Dirección de email desconocida.',
+    'forgot_error_rate_limit' => 'Demasiados intentos. Inténtelo de nuevo en :minutes minuto(s).',
     'forgot_mail_subject' => 'Restablecimiento de su contraseña {VA_NAME}',
     'forgot_mail_body' => "Hola querido piloto de {VA_NAME},\n\nPara restablecer su contraseña, haga clic en el siguiente enlace:\n {resetLink}\n\nEste enlace expira en 1 hora.",
 
@@ -609,6 +610,7 @@ return [
     'admin_lines_label_icao_dep' => 'OACI salida:',
     'admin_lines_label_icao_arr' => 'OACI llegada:',
     'admin_lines_label_type' => 'Tipo de línea:',
+    'admin_lines_label_create_return' => 'Crear también la vuelta',
     'admin_lines_type_none' => '-- Ninguno --',
     'admin_lines_btn_update' => 'Actualizar',
     'admin_lines_btn_cancel' => 'Cancelar',
@@ -1080,6 +1082,7 @@ Aeronaves que salieron de mantenimiento: 1
     'login_label_password' => 'Contraseña',
     'login_btn_submit' => 'Iniciar sesión',
     'login_error_credentials' => 'Usuario o contraseña incorrectos.',
+    'login_error_rate_limit' => 'Demasiados intentos. Inténtelo de nuevo en :minutes minuto(s).',
 
     // Encabezados de la tabla de vuelos en curso
     'liveflights_header_callsign' => 'Indicativo',

@@ -19,21 +19,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $icao_dep = strtoupper(trim($_POST['icao_dep'] ?? ''));
         $icao_arr = strtoupper(trim($_POST['icao_arr'] ?? ''));
         $type_ligne = isset($_POST['type_ligne']) ? (int)$_POST['type_ligne'] : null;
+        $create_return = isset($_POST['create_return']) && $_POST['create_return'] === '1';
+        
         if ($icao_dep === '' || $icao_arr === '') {
             $message = t('admin_lines_error_icao_required');
         } else {
             try {
-                // Check duplicate exact pair
+                // Check duplicate exact pair for outbound
                 $chk = $pdo->prepare("SELECT COUNT(*) AS c FROM LIGNES_REGULIERES WHERE icao_dep = :dep AND icao_arr = :arr");
                 $chk->execute(['dep' => $icao_dep, 'arr' => $icao_arr]);
                 $row = $chk->fetch(PDO::FETCH_ASSOC);
-                    if ($row && (int)$row['c'] > 0) {
-                        $message = t('admin_lines_error_exists', ['dep' => $icao_dep, 'arr' => $icao_arr]);
+                
+                if ($row && (int)$row['c'] > 0) {
+                    $message = t('admin_lines_error_exists', ['dep' => $icao_dep, 'arr' => $icao_arr]);
+                } else {
+                    // Insert outbound
+                    $stmt = $pdo->prepare("INSERT INTO LIGNES_REGULIERES (icao_dep, icao_arr, type_ligne, created_at, updated_at) VALUES (:dep, :arr, :type_ligne, NOW(), NOW())");
+                    $stmt->execute(['dep' => $icao_dep, 'arr' => $icao_arr, 'type_ligne' => $type_ligne]);
+                    
+                    if ($create_return) {
+                        // Check if return already exists
+                        $chkReturn = $pdo->prepare("SELECT COUNT(*) AS c FROM LIGNES_REGULIERES WHERE icao_dep = :dep AND icao_arr = :arr");
+                        $chkReturn->execute(['dep' => $icao_arr, 'arr' => $icao_dep]);
+                        $rowReturn = $chkReturn->fetch(PDO::FETCH_ASSOC);
+                        
+                        if ($rowReturn && (int)$rowReturn['c'] > 0) {
+                            $message = t('admin_lines_success_add_return_exists', ['dep' => $icao_dep, 'arr' => $icao_arr]);
+                        } else {
+                            // Insert return
+                            $stmtReturn = $pdo->prepare("INSERT INTO LIGNES_REGULIERES (icao_dep, icao_arr, type_ligne, created_at, updated_at) VALUES (:dep, :arr, :type_ligne, NOW(), NOW())");
+                            $stmtReturn->execute(['dep' => $icao_arr, 'arr' => $icao_dep, 'type_ligne' => $type_ligne]);
+                            $message = t('admin_lines_success_add_both', ['dep' => $icao_dep, 'arr' => $icao_arr]);
+                        }
                     } else {
-                        $stmt = $pdo->prepare("INSERT INTO LIGNES_REGULIERES (icao_dep, icao_arr, type_ligne, created_at, updated_at) VALUES (:dep, :arr, :type_ligne, NOW(), NOW())");
-                        $stmt->execute(['dep' => $icao_dep, 'arr' => $icao_arr, 'type_ligne' => $type_ligne]);
                         $message = t('admin_lines_success_add', ['dep' => $icao_dep, 'arr' => $icao_arr]);
                     }
+                }
             } catch (Exception $e) {
                 $message = t('admin_lines_error_add', ['error' => htmlspecialchars($e->getMessage())]);
             }
@@ -194,6 +215,14 @@ include __DIR__ . '/../includes/menu_logged.php';
                     <?php endforeach; ?>
                 </select>
             </label>
+
+            <?php if (!$edit_mode): ?>
+            <label class="admin-lines-checkbox-label">
+                <input type="checkbox" name="create_return" value="1" class="admin-lines-checkbox">
+                <span><?= t('admin_lines_label_create_return') ?></span>
+            </label>
+            <?php endif; ?>
+
             <div class="admin-lines-form-actions">
                  <div>
                      <?php if ($edit_mode): ?>

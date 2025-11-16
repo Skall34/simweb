@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../includes/rate_limit.php';
 require_once __DIR__ . '/../includes/PHPMailer/PHPMailer.php';
 require_once __DIR__ . '/../includes/PHPMailer/SMTP.php';
 require_once __DIR__ . '/../includes/PHPMailer/Exception.php';
@@ -10,6 +11,12 @@ use PHPMailer\PHPMailer\Exception;
 $msg = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Vérifier le rate limiting (3 tentatives max par 5 minutes)
+    $rateCheck = checkRateLimit($pdo, 'forgot_password', 3, 300);
+    if (!$rateCheck['allowed']) {
+        $waitMinutes = ceil($rateCheck['wait_seconds'] / 60);
+        $msg = t('forgot_error_rate_limit', ['minutes' => $waitMinutes]);
+    } else {
     $email = trim($_POST['email']);
 
     // Vérifier si l'email existe dans la table PILOTES
@@ -48,6 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $msg = t('forgot_error_email_unknown');
     }
+    } // Fin du if rate limit allowed
 }
 include __DIR__ . '/../includes/header.php';
 ?>

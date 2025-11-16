@@ -166,6 +166,7 @@ return [
     'forgot_success_mail' => 'Un email de réinitialisation vient de vous être envoyé.',
     'forgot_error_mail' => 'Erreur d\'envoi de mail : ',
     'forgot_error_email_unknown' => 'Adresse email inconnue.',
+    'forgot_error_rate_limit' => 'Trop de tentatives. Réessayez dans :minutes minute(s).',
     'forgot_mail_subject' => 'Réinitialisation de votre mot de passe {VA_NAME}',
     // Utiliser str_replace(['{resetLink}'], [$resetLink], t('forgot_mail_body')) dans le code si besoin
     'forgot_mail_body' => "Bonjour cher pilote {VA_NAME},\n\nPour réinitialiser votre mot de passe, cliquez sur le lien suivant :\n {resetLink}\n\nCe lien expire dans 1 heure.",
@@ -602,6 +603,8 @@ return [
     'admin_lines_error_icao_required' => 'Les deux codes ICAO sont requis.',
     'admin_lines_error_exists' => '⚠️ La ligne {dep} → {arr} existe déjà.',
     'admin_lines_success_add' => '✅ Ligne {dep} → {arr} ajoutée.',
+    'admin_lines_success_add_both' => '✅ Lignes aller ({dep} → {arr}) et retour ({arr} → {dep}) ajoutées.',
+    'admin_lines_success_add_return_exists' => '✅ Ligne aller ({dep} → {arr}) ajoutée. Le retour existe déjà.',
     'admin_lines_error_add' => 'Erreur lors de l\'ajout : {error}',
     'admin_lines_error_invalid_data' => 'Données invalides pour la mise à jour.',
     'admin_lines_error_exists_other' => '⚠️ Une autre ligne {dep} → {arr} existe déjà (mise à jour annulée).',
@@ -615,6 +618,7 @@ return [
     'admin_lines_label_icao_dep' => 'ICAO départ:',
     'admin_lines_label_icao_arr' => 'ICAO arrivée:',
     'admin_lines_label_type' => 'Type de ligne:',
+    'admin_lines_label_create_return' => 'Créer aussi le retour',
     'admin_lines_type_none' => '-- Aucun --',
     'admin_lines_btn_update' => 'Mettre à jour',
     'admin_lines_btn_cancel' => 'Annuler',
@@ -1086,6 +1090,7 @@ Appareils sortis de maintenance : 1
     'login_label_password' => 'Mot de passe',
     'login_btn_submit' => 'Se connecter',
     'login_error_credentials' => 'Login ou mot de passe incorrect.',
+    'login_error_rate_limit' => 'Trop de tentatives. Réessayez dans :minutes minute(s).',
 
     // Live flights table headers
     'liveflights_header_callsign' => 'Callsign',

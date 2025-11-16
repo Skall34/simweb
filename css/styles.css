@@ -1136,6 +1136,7 @@ footer {
     padding: 16px;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    max-width: 1300px;
 }
 
 .admin-lines-inline-form {
@@ -1162,6 +1163,21 @@ footer {
 
 .admin-lines-inline-form .input-uppercase {
     text-transform: uppercase;
+}
+
+.admin-lines-checkbox-label {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 8px !important;
+    cursor: pointer;
+}
+
+.admin-lines-checkbox {
+    width: auto !important;
+    height: auto !important;
+    cursor: pointer;
+    margin: 0 !important;
 }
 
 .admin-lines-form-actions {

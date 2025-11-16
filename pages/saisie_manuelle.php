@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . '/../includes/require_login.php';
-// filepath: /home/cyber/VA/skywings/admin/admin_saisie_vol.php
 require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/log_func.php';
 require_once __DIR__ . '/../includes/mail_utils.php';

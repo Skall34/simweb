@@ -2,6 +2,7 @@
 session_start();
 require 'includes/db_connect.php'; // à créer: connexion à la base
 require_once 'includes/log_func.php';
+require_once 'includes/rate_limit.php';
 
 // support optional redirect parameter (only allow internal paths to avoid open-redirects)
 function is_safe_redirect($url) {
@@ -27,6 +28,13 @@ function is_safe_redirect($url) {
 $redirect = '';
 $token = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Vérifier le rate limiting (5 tentatives max par 5 minutes)
+    $rateCheck = checkRateLimit($pdo, 'login', 5, 300);
+    if (!$rateCheck['allowed']) {
+        $waitMinutes = ceil($rateCheck['wait_seconds'] / 60);
+        $error = t('login_error_rate_limit', ['minutes' => $waitMinutes]);
+        logMsg('Rate limit exceeded for IP ' . ($_SERVER['REMOTE_ADDR'] ?? 'unknown'), __DIR__ . '/scripts/logs/login.log');
+    } else {
     $redirect = $_POST['redirect'] ?? '';
     $token = $_POST['token'] ?? '';
     $callsign = $_POST['callsign'] ?? '';
@@ -38,7 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user = $stmt->fetch();
 
     if ($user && password_verify($password, $user['password'])) {
-        // Auth OK
+        // Auth OK - Réinitialiser le rate limit
+        resetRateLimit($pdo, 'login');
     logMsg('User ' . $user['id'] . ' (' . $user['callsign'] . ') logged in successfully.', __DIR__ . '/scripts/logs/login.log');
         $_SESSION['user'] = [
             'id' => $user['id'],
@@ -96,6 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $error = t('login_error_credentials');
     }
+    } // Fin du if rate limit allowed
 }
 else {
     // GET: capture redirect and token parameters if provided

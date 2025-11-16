@@ -32,7 +32,6 @@ $test_mode = false; // Passe à true pour tester sans envoi aux pilotes
 $date_paiement = date('Y-m-01', strtotime('first day of this month -1 day'));
 
 logMsg('[SALAIRE] Début du script de paiement des salaires', __DIR__ . '/logs/paiement_salaires.log');
-$requete_pilotes = "SELECT id, email, grade_id, prenom, nom, callsign FROM PILOTES";
 
 $stmtPilotes = $pdo->query("SELECT id, email, grade_id, prenom, nom, callsign FROM PILOTES");
 $pilotes = $stmtPilotes->fetchAll(PDO::FETCH_ASSOC);
@@ -51,7 +50,6 @@ foreach ($pilotes as $index => $pilote) {
     echo "<pre>--- Début traitement pilote ---\n";
     logMsg('[TRACE] Pilote : ' . $pilote['callsign'], __DIR__ . '/logs/paiement_salaires.log');
     echo "Pilote : " . htmlspecialchars($pilote['callsign']) . "\n";
-    $requete_heures = "SELECT SUM(TIME_TO_SEC(temps_vol)) FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = " . $pilote['id'] . " AND DATE(date_vol) >= '" . $debut_mois . "' AND DATE(date_vol) < '" . $fin_mois . "'";
     
     try {
         $stmtTaux = $pdo->prepare("SELECT taux_horaire FROM GRADES WHERE id = ?");

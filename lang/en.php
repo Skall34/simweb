@@ -166,6 +166,7 @@ return [
     'forgot_success_mail' => 'A password reset email has been sent to you.',
     'forgot_error_mail' => 'Mail sending error: ',
     'forgot_error_email_unknown' => 'Unknown email address.',
+    'forgot_error_rate_limit' => 'Too many attempts. Please try again in :minutes minute(s).',
     'forgot_mail_subject' => '{VA_NAME} password reset',
     // Use str_replace(['{resetLink}'], [$resetLink], t('forgot_mail_body')) in code if needed
     'forgot_mail_body' => "Dear {VA_NAME} pilot,\n\nTo reset your password, click the following link:\n {resetLink}\n\nThis link expires in 1 hour.",
@@ -610,6 +611,7 @@ return [
     'admin_lines_label_icao_dep' => 'Departure ICAO:',
     'admin_lines_label_icao_arr' => 'Arrival ICAO:',
     'admin_lines_label_type' => 'Line type:',
+    'admin_lines_label_create_return' => 'Also create return flight',
     'admin_lines_type_none' => '-- None --',
     'admin_lines_btn_update' => 'Update',
     'admin_lines_btn_cancel' => 'Cancel',
@@ -1081,6 +1083,7 @@ Aircraft exited maintenance: 1
     'login_label_password' => 'Password',
     'login_btn_submit' => 'Log in',
     'login_error_credentials' => 'Incorrect login or password.',
+    'login_error_rate_limit' => 'Too many attempts. Please try again in :minutes minute(s).',
 
     // Live flights table headers
     'liveflights_header_callsign' => 'Callsign',

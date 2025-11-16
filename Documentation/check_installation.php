@@ -1,8 +1,8 @@
 <?php
 /**
- * ✅ Script de vérification pré-installation - SkyWings v2.0
+ * ✅ Script de vérification pré-installation - v2.0
  * 
- * Ce script vérifie que votre environnement est compatible avec SkyWings.
+ * Ce script vérifie que votre environnement est compatible avec votre VA.
  * Placez-le à la racine de votre installation et accédez-y via navigateur.
  * 
  * Exemple : http://votre-domaine.com/check_installation.php
