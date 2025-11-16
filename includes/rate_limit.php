@@ -17,22 +17,6 @@ function checkRateLimit($pdo, $action, $maxAttempts = 5, $windowSeconds = 300) {
     $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
     $now = time();
     
-    // Créer la table si elle n'existe pas
-    try {
-        $pdo->exec("CREATE TABLE IF NOT EXISTS rate_limits (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            ip VARCHAR(45) NOT NULL,
-            action VARCHAR(50) NOT NULL,
-            attempts INT DEFAULT 1,
-            first_attempt DATETIME NOT NULL,
-            last_attempt DATETIME NOT NULL,
-            INDEX idx_ip_action (ip, action),
-            INDEX idx_last_attempt (last_attempt)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
-    } catch (PDOException $e) {
-        // Table existe déjà ou erreur, continuer
-    }
-    
     // Nettoyer les anciennes entrées (plus vieilles que 24h)
     try {
         $pdo->exec("DELETE FROM rate_limits WHERE last_attempt < DATE_SUB(NOW(), INTERVAL 24 HOUR)");

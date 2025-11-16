@@ -3,6 +3,7 @@ session_start();
 require 'includes/db_connect.php'; // à créer: connexion à la base
 require_once 'includes/log_func.php';
 require_once 'includes/rate_limit.php';
+require_once 'lang.php';
 
 // support optional redirect parameter (only allow internal paths to avoid open-redirects)
 function is_safe_redirect($url) {
