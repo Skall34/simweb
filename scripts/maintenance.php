@@ -33,10 +33,7 @@ $mailSummaryEnabled = true; // Active l'envoi du mail récapitulatif
 require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/log_func.php';
 require_once __DIR__ . '/../includes/mail_utils.php';
-// Adresse mail admin centralisée
-if (!defined('ADMIN_EMAIL')) {
-    define('ADMIN_EMAIL', 'zjfk7400@gmail.com');
-}
+
 $logFile = __DIR__ . '/logs/maintenance.log';
 
 date_default_timezone_set('Europe/Paris');

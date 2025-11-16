@@ -214,7 +214,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $body .= "Payload : {$payload_fmt} Kg\n";
                         $cout_vol_fmt = number_format(floatval($cout_vol), 2, ',', ' ');
                         $body .= "Recettes du vol : {$cout_vol_fmt} €\n";
-                        $to = defined('ADMIN_EMAIL') ? ADMIN_EMAIL : 'zjfk7400@gmail.com';
+                        $to = VA_ADMIN_EMAIL;
                         $mailResult = sendSummaryMail($subject, $body, $to);
                         if ($mailResult === true || $mailResult === null) {
                             logMsg("[saisie_manuelle] Mail récapitulatif envoyé à $to", $logFile);

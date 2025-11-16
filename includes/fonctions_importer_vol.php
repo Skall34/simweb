@@ -456,14 +456,14 @@ function rejeterVol($pdo, $vol, $motif, $logFile = null) {
         $mail = new PHPMailer\PHPMailer\PHPMailer(true);
 
         $mail->isSMTP();
-        $mail->Host = 'ssl0.ovh.net';
+        $mail->Host = SMTP_HOST;
         $mail->SMTPAuth = true;
-        $mail->Username = 'admin@skywings.ovh';
-        $mail->Password = 'La6mulationCestCool!';
-        $mail->SMTPSecure = 'tls';
-        $mail->Port = 587;
-        $mail->setFrom('admin@skywings.ovh', 'Skywings');
-        $mail->addAddress('zjfk7400@gmail.com'); // Remplace par l'adresse souhaitée
+        $mail->Username = SMTP_USERNAME;
+        $mail->Password = SMTP_PASSWORD;
+        $mail->SMTPSecure = SMTP_SECURE;
+        $mail->Port = SMTP_PORT;
+        $mail->setFrom(SMTP_FROM_EMAIL, SMTP_FROM_NAME);
+        $mail->addAddress(VA_ADMIN_EMAIL);
         $mail->Subject = 'Vol rejeté';
         $mail->CharSet = 'UTF-8';
         $mail->Body = "Un vol a été rejeté :\n" .

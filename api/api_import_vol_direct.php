@@ -233,7 +233,7 @@ try {
         $body .= "\nRecettes du vol : {$cout_vol_fmt} €";
         
         $body .= "\n\nCeci est un message automatique, donc n'y réponds pas cono !";
-        $to = defined('ADMIN_EMAIL') ? ADMIN_EMAIL : 'zjfk7400@gmail.com';
+        $to = VA_ADMIN_EMAIL;
         $mailResult = sendSummaryMail($subject, $body, $to);
         if ($mailResult === true || $mailResult === null) {
             logMsg("[api_import_vol_direct] Mail récapitulatif envoyé à $to", $logFile);

@@ -22,20 +22,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $pdo->prepare("INSERT INTO password_resets (email, token, expires_at) VALUES (:email, :token, :expires)");
         $stmt->execute(['email' => $email, 'token' => $token, 'expires' => $expires]);
 
-        $resetLink = "https://www.skywings.ovh/pages/reset_password.php?token=$token";
+        $resetLink = VA_BASE_URL . "/pages/reset_password.php?token=$token";
         $subject = t('forgot_mail_subject');
         $body = t('forgot_mail_body', ['resetLink' => $resetLink]);
 
         $mailer = new PHPMailer(true);
         try {
             $mailer->isSMTP();
-            $mailer->Host = 'ssl0.ovh.net';
+            $mailer->Host = SMTP_HOST;
             $mailer->SMTPAuth = true;
-            $mailer->Username = 'admin@skywings.ovh';
-            $mailer->Password = 'La6mulationCestCool!';
-            $mailer->SMTPSecure = 'tls';
-            $mailer->Port = 587;
-            $mailer->setFrom('admin@skywings.ovh', 'Skywings');
+            $mailer->Username = SMTP_USERNAME;
+            $mailer->Password = SMTP_PASSWORD;
+            $mailer->SMTPSecure = SMTP_SECURE;
+            $mailer->Port = SMTP_PORT;
+            $mailer->setFrom(SMTP_FROM_EMAIL, SMTP_FROM_NAME);
             $mailer->addAddress($email);
             $mailer->Subject = $subject;
             $mailer->CharSet = 'UTF-8';

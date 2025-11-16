@@ -81,14 +81,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 require_once __DIR__ . '/../includes/PHPMailer/Exception.php';
                 $mail = new PHPMailer\PHPMailer\PHPMailer(true);
                 $mail->isSMTP();
-                $mail->Host = 'ssl0.ovh.net';
+                $mail->Host = SMTP_HOST;
                 $mail->SMTPAuth = true;
-                $mail->Username = 'admin@skywings.ovh';
-                $mail->Password = 'La6mulationCestCool!';
-                $mail->SMTPSecure = 'tls';
-                $mail->Port = 587;
-                $mail->setFrom('admin@skywings.ovh', 'Skywings');
-                $mail->addAddress(ADMIN_EMAIL);
+                $mail->Username = SMTP_USERNAME;
+                $mail->Password = SMTP_PASSWORD;
+                $mail->SMTPSecure = SMTP_SECURE;
+                $mail->Port = SMTP_PORT;
+                $mail->setFrom(SMTP_FROM_EMAIL, SMTP_FROM_NAME);
+                $mail->addAddress(VA_ADMIN_EMAIL);
                 $mail->Subject = 'Nouvelle inscription pilote';
                 $mail->CharSet = 'UTF-8';
                 $mail->Body = "Un nouveau pilote vient de s'inscrire :\n" .

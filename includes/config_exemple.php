@@ -8,6 +8,23 @@
  * 3. Ne modifiez PAS config_exemple.php (gardez-le comme référence)
  */
 
+// ==================== BASE DE DONNÉES ====================
+
+// Hôte de la base de données
+define('DB_HOST', 'localhost');
+
+// Nom de la base de données
+define('DB_NAME', 'nom_de_votre_base');
+
+// Utilisateur de la base de données
+define('DB_USER', 'votre_utilisateur');
+
+// Mot de passe de la base de données
+define('DB_PASS', 'votre_mot_de_passe');
+
+// Charset de la base de données
+define('DB_CHARSET', 'utf8mb4');
+
 // ==================== INFORMATIONS COMPAGNIE ====================
 
 // Nom de votre Virtual Airline
@@ -29,6 +46,14 @@ define('VA_CONTACT_EMAIL', 'contact@votre-domaine.com');
 
 // Email administrateur (notifications système)
 define('VA_ADMIN_EMAIL', 'admin@votre-domaine.com');
+
+// ==================== ADMINISTRATION ====================
+
+// Callsigns des super-administrateurs (séparés par des virgules)
+define('VA_ADMIN_CALLSIGNS', 'XXX0001,XXX0002');
+
+// URL de base du site (sans slash final)
+define('VA_BASE_URL', 'https://www.votre-domaine.com');
 
 // ==================== CONFIGURATION SMTP ====================
 

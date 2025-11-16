@@ -8,10 +8,27 @@
  * 3. Ne modifiez PAS config_exemple.php (gardez-le comme référence)
  */
 
+// ==================== BASE DE DONNÉES ====================
+
+// Hôte de la base de données
+define('DB_HOST', 'skywinjsky0707.mysql.db');
+
+// Nom de la base de données
+define('DB_NAME', 'skywinjsky0707');
+
+// Utilisateur de la base de données
+define('DB_USER', 'skywinjsky0707');
+
+// Mot de passe de la base de données
+define('DB_PASS', 'La6mulationCestCool');
+
+// Charset de la base de données
+define('DB_CHARSET', 'utf8mb4');
+
 // ==================== INFORMATIONS COMPAGNIE ====================
 
 // Nom de votre Virtual Airline
-define('VA_NAME', 'SkyWings');
+define('VA_NAME', 'SkyWings VA');
 
 // Code ICAO de votre compagnie (3-4 lettres)
 define('VA_ICAO', 'SKY');
@@ -29,6 +46,14 @@ define('VA_CONTACT_EMAIL', 'zjfk7400@gmail.com');
 
 // Email administrateur (notifications système)
 define('VA_ADMIN_EMAIL', 'zjfk7400@gmail.com');
+
+// ==================== ADMINISTRATION ====================
+
+// Callsigns des super-administrateurs (séparés par des virgules)
+define('VA_ADMIN_CALLSIGNS', 'SKY0707,SKY0034');
+
+// URL de base du site (sans slash final)
+define('VA_BASE_URL', 'https://www.skywings.ovh');
 
 // ==================== CONFIGURATION SMTP ====================
 

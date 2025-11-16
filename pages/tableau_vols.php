@@ -248,7 +248,7 @@ try {
     </table>
     </div>
     <!-- Popup modale pour détails du vol -->
-    <div id="vol-modal" class="vol-modal hidden">
+    <div id="vol-modal" class="vol-modal">
         <div class="vol-modal-content" >
             <span class="vol-modal-close" id="vol-modal-close">&times;</span>
             <h3><?= t('tableau_vols_modal_title') ?></h3>
@@ -279,7 +279,7 @@ try {
     width: 100vw;
     height: 100vh;
     background: rgba(0,0,0,0.35);
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
 }
@@ -308,108 +308,103 @@ try {
 <script>
 var map;
 
-// Synchronisation du scroll horizontal de l'en-tête
-//document.querySelector('.table-scroll-wrapper').addEventListener('scroll', function() {
-//    document.querySelector('.table-header-fixed').scrollLeft = this.scrollLeft;
-//});
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestion du popup détails vol
+    document.querySelectorAll('.vol-row').forEach(function(row) {
+        row.addEventListener('click', function() {
+            const details = this.getAttribute('data-details');
+            const detailsObj = JSON.parse(details);
+            fetch('../includes/flight_details_table.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: 'details=' + encodeURIComponent(details)
+            })
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('vol-modal-body').innerHTML = html;
+                document.getElementById('vol-modal').style.display = 'flex';
 
-// Gestion du popup détails vol
-document.querySelectorAll('.vol-row').forEach(function(row) {
-    row.addEventListener('click', function() {
-        const details = this.getAttribute('data-details');
-        const detailsObj = JSON.parse(details);
-        fetch('../includes/flight_details_table.php', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-            body: 'details=' + encodeURIComponent(details)
-        })
-        .then(response => response.text())
-        .then(html => {
-            document.getElementById('vol-modal-body').innerHTML = html;
-            document.getElementById('vol-modal').style.display = 'flex';
+                // Initialisation de la carte
+                if (window.map) {
+                    window.map.remove();
+                }
+                var mapDiv = document.getElementById('map');
+                if (!mapDiv) return;
 
-            // Initialisation de la carte
-            if (window.map) {
-                window.map.remove();
-            }
-            var mapDiv = document.getElementById('map');
-            if (!mapDiv) return;
+                // Centrage par défaut
+                var lat = 48.8566, lng = 2.3522, zoom = 8;
+                if (detailsObj.Latitude && detailsObj.Longitude) {
+                    lat = detailsObj.Latitude;
+                    lng = detailsObj.Longitude;
+                }
+                window.map = L.map(mapDiv).setView([lat, lng], zoom);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(window.map);
 
-            // Centrage par défaut
-            var lat = 48.8566, lng = 2.3522, zoom = 8;
-            if (detailsObj.Latitude && detailsObj.Longitude) {
-                lat = detailsObj.Latitude;
-                lng = detailsObj.Longitude;
-            }
-            window.map = L.map(mapDiv).setView([lat, lng], zoom);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(window.map);
-
-            // Récupération et affichage du tracé GPS
-            if (detailsObj['ID vol']) {
-                fetch('../api/api_getGPSTrace.php?vol_id=' + encodeURIComponent(detailsObj['ID vol']))
-                    .then(resp => resp.json())
-                    .then(data => {
-                        if (data.path) {
-                            let trace = [];
-                            try {
-                                trace = JSON.parse(data.path);
-                            } catch (e) {
-                                console.error('Erreur de parsing du tracé GPS:', e);
-                                return;
+                // Récupération et affichage du tracé GPS
+                if (detailsObj['ID vol']) {
+                    fetch('../api/api_getGPSTrace.php?vol_id=' + encodeURIComponent(detailsObj['ID vol']))
+                        .then(resp => resp.json())
+                        .then(data => {
+                            if (data.path) {
+                                let trace = [];
+                                try {
+                                    trace = JSON.parse(data.path);
+                                } catch (e) {
+                                    console.error('Erreur de parsing du tracé GPS:', e);
+                                    return;
+                                }
+                                if (Array.isArray(trace) && trace.length > 0) {
+                                    const latlngs = trace.map(pt => [parseFloat(pt.Lat), parseFloat(pt.Long)]);
+                                    L.polyline(latlngs, {color: 'blue', weight: 3}).addTo(window.map);
+                                    window.map.fitBounds(latlngs);
+                                }
+                            } else {
+                                console.warn('Aucun tracé GPS trouvé pour ce vol.');
+                                //trace un segment entre les aéroports de départ et d'arrivée
+                                if (detailsObj.lat_depart && detailsObj.long_depart && detailsObj.lat_destination && detailsObj.long_destination) {
+                                    const latlngs = [
+                                        [detailsObj.lat_depart, detailsObj.long_depart],
+                                        [detailsObj.lat_destination, detailsObj.long_destination]
+                                    ];
+                                    L.polyline(latlngs, {color: 'red', weight: 3, dashArray: '8, 8'}).addTo(window.map);
+                                    window.map.fitBounds(latlngs);
+                                }
                             }
-                            if (Array.isArray(trace) && trace.length > 0) {
-                                const latlngs = trace.map(pt => [parseFloat(pt.Lat), parseFloat(pt.Long)]);
-                                L.polyline(latlngs, {color: 'blue', weight: 3}).addTo(window.map);
-                                window.map.fitBounds(latlngs);
-                            }
-                        }else {
-                            console.warn('Aucun tracé GPS trouvé pour ce vol.');
-                            //trace un segment entre les aéroports de départ et d'arrivée
-                            if (detailsObj.lat_depart && detailsObj.long_depart && detailsObj.lat_destination && detailsObj.long_destination) {
-                                const latlngs = [
-                                    [detailsObj.lat_depart, detailsObj.long_depart],
-                                    [detailsObj.lat_destination, detailsObj.long_destination]
-                                ];
-                                L.polyline(latlngs, {color: 'red', weight: 3, dashArray: '8, 8'}).addTo(window.map);
-                                window.map.fitBounds(latlngs);
-                            }
-                        }
-                    })
-                    .catch(e => {
-                        console.error('Erreur lors du chargement du tracé GPS:', e);
-                    });
-            }else{
-            }
+                        })
+                        .catch(e => {
+                            console.error('Erreur lors du chargement du tracé GPS:', e);
+                        });
+                }
 
-            //ajoute un marker pour les aéroports de départ et d'arrivée
-            if (detailsObj.lat_depart && detailsObj.long_depart) {
-                L.marker([detailsObj.lat_depart, detailsObj.long_depart]).addTo(window.map)
-                    .bindPopup('Départ: ' + detailsObj['name_départ'] + ' (' + detailsObj['Départ'] + ')');
-            }
-            if (detailsObj.lat_destination && detailsObj.long_destination) {
-                L.marker([detailsObj.lat_destination, detailsObj.long_destination]).addTo(window.map)
-                    .bindPopup('Destination: ' + detailsObj['name_dest'] + ' (' + detailsObj['Destination'] + ')' );
-            }
-
-            
-        })
-        .catch((e) => {
-            console.error('Erreur lors du chargement des détails du vol.' + e);
-            document.getElementById('vol-modal-body').innerHTML = "<p><?= t('tableau_vols_modal_error') ?></p>";
-            document.getElementById('vol-modal').style.display = 'flex';
+                //ajoute un marker pour les aéroports de départ et d'arrivée
+                if (detailsObj.lat_depart && detailsObj.long_depart) {
+                    L.marker([detailsObj.lat_depart, detailsObj.long_depart]).addTo(window.map)
+                        .bindPopup('Départ: ' + detailsObj['name_départ'] + ' (' + detailsObj['Départ'] + ')');
+                }
+                if (detailsObj.lat_destination && detailsObj.long_destination) {
+                    L.marker([detailsObj.lat_destination, detailsObj.long_destination]).addTo(window.map)
+                        .bindPopup('Destination: ' + detailsObj['name_dest'] + ' (' + detailsObj['Destination'] + ')');
+                }
+            })
+            .catch((e) => {
+                console.error('Erreur lors du chargement des détails du vol.' + e);
+                document.getElementById('vol-modal-body').innerHTML = "<p><?= t('tableau_vols_modal_error') ?></p>";
+                document.getElementById('vol-modal').style.display = 'flex';
+            });
         });
     });
-});
-document.getElementById('vol-modal-close').onclick = function() {
-    document.getElementById('vol-modal').style.display = 'none';
-};
-window.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') document.getElementById('vol-modal').style.display = 'none';
-});
-document.getElementById('vol-modal').addEventListener('click', function(e) {
-    if (e.target === this) this.style.display = 'none';
+
+    document.getElementById('vol-modal-close').onclick = function() {
+        document.getElementById('vol-modal').style.display = 'none';
+    };
+    window.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') document.getElementById('vol-modal').style.display = 'none';
+    });
+    document.getElementById('vol-modal').addEventListener('click', function(e) {
+        if (e.target === this) this.style.display = 'none';
+    });
 });
 </script>
 
