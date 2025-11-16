@@ -1087,5 +1087,31 @@ Aeronaves que salieron de mantenimiento: 1
     'liveflights_header_destination' => 'Destino',
     'liveflights_header_aircraft' => 'Aeronave',
     'liveflights_error_fetch' => 'Error al recuperar los vuelos en curso: ',
+
+    // Scripts - Salarios
+    'script_salary_subject' => 'Tu salario del mes',
+    'script_salary_greeting' => 'Hola :firstname,',
+    'script_salary_hours' => 'Has realizado :hours horas de vuelo este mes.',
+    'script_salary_total' => 'Tu salario total bien merecido es de :amount.',
+    'script_salary_thanks' => 'Gracias por volar con {VA_NAME},',
+    'script_salary_team' => 'El equipo {VA_NAME}',
+    'script_salary_recap_subject' => 'Resumen de salarios pagados',
+    'script_salary_recap_greeting' => 'Hola Administrador,',
+    'script_salary_recap_intro' => 'Aquí está la lista de salarios pagados este mes (máx :max líneas):',
+    'script_salary_recap_total' => 'Suma total de salarios pagados: :total',
+    'script_salary_recap_none' => 'No se pagaron salarios este mes.',
+    'script_salary_recap_signature' => 'El sistema automático {VA_NAME}',
+
+    // Scripts - Promociones
+    'script_promotion_subject' => '¡Felicidades, has sido promovido al rango :grade!',
+    'script_promotion_greeting' => 'Hola :firstname :lastname,',
+    'script_promotion_congrats' => 'Tu nuevo rango es <strong>:grade</strong>.',
+    'script_promotion_continue' => '¡Continúa volando para progresar!',
+    'script_promotion_team' => 'El equipo {VA_NAME}',
+    'script_promotion_recap_subject' => 'Resumen de promociones de rangos',
+    'script_promotion_recap_greeting' => 'Hola Administrador,',
+    'script_promotion_recap_intro' => 'Aquí está la lista de promociones realizadas esta noche:',
+    'script_promotion_recap_none' => 'No hubo promociones de rango esta noche.',
+    'script_promotion_recap_signature' => 'El sistema automático {VA_NAME}',
 ];
 ?>

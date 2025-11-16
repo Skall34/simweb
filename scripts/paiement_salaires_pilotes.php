@@ -18,6 +18,12 @@ require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/mail_utils.php';
 require_once __DIR__ . '/../includes/log_func.php';
 require_once __DIR__ . '/../includes/fonctions_financieres.php';
+require_once __DIR__ . '/../lang.php';
+
+// Définir la langue par défaut pour les scripts (pas de session)
+if (!isset($_SESSION['lang'])) {
+    $_SESSION['lang'] = VA_DEFAULT_LANGUAGE;
+}
 
 // Mode test : si true, les mails aux pilotes sont envoyés à l'admin uniquement
 $test_mode = false; // Passe à true pour tester sans envoi aux pilotes
@@ -126,11 +132,11 @@ foreach ($pilotes as $index => $pilote) {
     logMsg($log_msg, __DIR__ . '/logs/paiement_salaires.log');
     // Log utile : mail envoyé ou erreur
     $to = $test_mode ? VA_ADMIN_EMAIL : $pilote['email'];
-    $subject = "Ton salaire du mois";
-    $message = "Bonjour " . $pilote['prenom'] . ",\n\n";
-    $message .= "Tu as effectué " . number_format($heures_mois, 2) . " heures de vol ce mois-ci.\n";
-    $message .= "Ton salaire total bien mérité est de " . number_format($montant, 2) . "€.\n\n";
-    $message .= "Merci de voler pour " . VA_NAME . ",\nL'équipe " . VA_NAME;
+    $subject = t('script_salary_subject');
+    $message = t('script_salary_greeting', ['firstname' => $pilote['prenom']]) . "\n\n";
+    $message .= t('script_salary_hours', ['hours' => number_format($heures_mois, 2)]) . "\n";
+    $message .= t('script_salary_total', ['amount' => number_format($montant, 2) . "€"]) . "\n\n";
+    $message .= t('script_salary_thanks') . "\n" . t('script_salary_team');
     try {
         if ($index === count($pilotes) - 1) {
             sleep(5);
@@ -170,11 +176,14 @@ logMsg('[SALAIRE] Fin du script de paiement des salaires', __DIR__ . '/logs/paie
 echo "Paiement des salaires terminé.";
 // Envoi du mail récapitulatif à l'administrateur
 if (!empty($recap)) {
-    $subject = "Récapitulatif des salaires versés";
+    $subject = t('script_salary_recap_subject');
     $maxLines = 50;
     $recap_limited = array_slice($recap, 0, $maxLines);
     $total_salaires_str = isset($total_salaires) ? number_format($total_salaires, 2, ',', ' ') : '0.00';
-    $body = "Bonjour Administrateur,\n\nVoici la liste des salaires versés ce mois-ci (max $maxLines lignes) :\n" . implode("", $recap_limited) . "\n\nSomme totale des salaires versés : $total_salaires_str €\n\nCordialement,\nLe système automatique " . VA_NAME;
+    $body = t('script_salary_recap_greeting') . "\n\n";
+    $body .= t('script_salary_recap_intro', ['max' => $maxLines]) . "\n" . implode("", $recap_limited) . "\n\n";
+    $body .= t('script_salary_recap_total', ['total' => $total_salaires_str . " €"]) . "\n\n";
+    $body .= t('script_salary_recap_signature');
     $mailResult = sendSummaryMail($subject, $body, VA_ADMIN_EMAIL);
     if ($mailResult === true || $mailResult === null) {
         logMsg("[TRACE] Mail récapitulatif des salaires envoyé à " . VA_ADMIN_EMAIL, __DIR__ . '/logs/paiement_salaires.log');
@@ -182,8 +191,10 @@ if (!empty($recap)) {
         logMsg("[ERREUR] Envoi mail récapitulatif des salaires à " . VA_ADMIN_EMAIL . " : $mailResult", __DIR__ . '/logs/paiement_salaires.log');
     }
 } else {
-    $subject = "Récapitulatif des salaires versés";
-    $body = "Bonjour Administrateur,\n\nAucun salaire n'a été versé ce mois-ci.\n\nCordialement,\nLe système automatique " . VA_NAME;
+    $subject = t('script_salary_recap_subject');
+    $body = t('script_salary_recap_greeting') . "\n\n";
+    $body .= t('script_salary_recap_none') . "\n\n";
+    $body .= t('script_salary_recap_signature');
     $mailResult = sendSummaryMail($subject, $body, VA_ADMIN_EMAIL);
     if ($mailResult === true || $mailResult === null) {
         logMsg("[TRACE] Mail récapitulatif (aucun salaire) envoyé à " . VA_ADMIN_EMAIL, __DIR__ . '/logs/paiement_salaires.log');

@@ -1088,5 +1088,31 @@ Aircraft exited maintenance: 1
     'liveflights_header_destination' => 'Destination',
     'liveflights_header_aircraft' => 'Aircraft',
     'liveflights_error_fetch' => 'Error retrieving live flights: ',
+
+    // Scripts - Salaries
+    'script_salary_subject' => 'Your monthly salary',
+    'script_salary_greeting' => 'Hello :firstname,',
+    'script_salary_hours' => 'You flew :hours hours this month.',
+    'script_salary_total' => 'Your well-earned total salary is :amount.',
+    'script_salary_thanks' => 'Thank you for flying with {VA_NAME},',
+    'script_salary_team' => 'The {VA_NAME} Team',
+    'script_salary_recap_subject' => 'Salary Payment Summary',
+    'script_salary_recap_greeting' => 'Hello Administrator,',
+    'script_salary_recap_intro' => 'Here is the list of salaries paid this month (max :max lines):',
+    'script_salary_recap_total' => 'Total salaries paid: :total',
+    'script_salary_recap_none' => 'No salaries were paid this month.',
+    'script_salary_recap_signature' => 'The {VA_NAME} automated system',
+
+    // Scripts - Promotions
+    'script_promotion_subject' => 'Congratulations, you have been promoted to :grade!',
+    'script_promotion_greeting' => 'Hello :firstname :lastname,',
+    'script_promotion_congrats' => 'Your new rank is <strong>:grade</strong>.',
+    'script_promotion_continue' => 'Keep flying to progress further!',
+    'script_promotion_team' => 'The {VA_NAME} Team',
+    'script_promotion_recap_subject' => 'Rank Promotion Summary',
+    'script_promotion_recap_greeting' => 'Hello Administrator,',
+    'script_promotion_recap_intro' => 'Here is the list of promotions made tonight:',
+    'script_promotion_recap_none' => 'No rank promotions occurred tonight.',
+    'script_promotion_recap_signature' => 'The {VA_NAME} automated system',
 ];
 ?>
