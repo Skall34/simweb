@@ -30,5 +30,16 @@ function t($key, $params = []) {
         $text = str_replace(':' . $param, $value, $text);
     }
     
+    // Replace {VA_NAME}, {VA_CONTACT_EMAIL}, etc. with config values
+    if (defined('VA_NAME')) {
+        $text = str_replace('{VA_NAME}', VA_NAME, $text);
+    }
+    if (defined('VA_CONTACT_EMAIL')) {
+        $text = str_replace('{VA_CONTACT_EMAIL}', VA_CONTACT_EMAIL, $text);
+    }
+    if (defined('VA_ADMIN_EMAIL')) {
+        $text = str_replace('{VA_ADMIN_EMAIL}', VA_ADMIN_EMAIL, $text);
+    }
+    
     return $text;
 }

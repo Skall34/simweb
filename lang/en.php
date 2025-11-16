@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 return [
     // --- Page : admin_variables ---
     'admin_variables_title' => 'Global Variables Administration',
@@ -166,23 +166,23 @@ return [
     'forgot_success_mail' => 'A password reset email has been sent to you.',
     'forgot_error_mail' => 'Mail sending error: ',
     'forgot_error_email_unknown' => 'Unknown email address.',
-    'forgot_mail_subject' => 'Skywings password reset',
+    'forgot_mail_subject' => '{VA_NAME} password reset',
     // Use str_replace(['{resetLink}'], [$resetLink], t('forgot_mail_body')) in code if needed
-    'forgot_mail_body' => "Dear Skywings pilot,\n\nTo reset your password, click the following link:\n {resetLink}\n\nThis link expires in 1 hour.",
+    'forgot_mail_body' => "Dear {VA_NAME} pilot,\n\nTo reset your password, click the following link:\n {resetLink}\n\nThis link expires in 1 hour.",
 
     // Register page
     'register_title' => 'Register',
     'register_error_required' => 'All fields are required.',
     'register_error_email' => 'Invalid email address.',
     'register_error_password_match' => 'Passwords do not match.',
-    'register_error_callsign_format' => 'Callsign must be in the format SKY followed by 4 digits (e.g. SKY1234).',
+    'register_error_callsign_format' => 'Callsign must be in the format XXX followed by 4 digits (e.g. XXX1234).',
     'register_error_callsign_used' => 'This callsign is already used, please choose another.',
     'register_error_email_used' => 'An account with this email already exists.',
     'register_error_insert' => 'Registration error, please try again.',
     'register_success' => 'Registration successful!',
     'register_success_login' => 'You can now log in with your callsign',
     'register_callsign' => 'Callsign:',
-    'register_callsign_placeholder' => 'Example: SKY1234',
+    'register_callsign_placeholder' => 'Example: XXX1234',
     'register_firstname' => 'First name:',
     'register_lastname' => 'Last name:',
     'register_email' => 'Email:',
@@ -191,8 +191,8 @@ return [
     'register_submit' => 'Register',
     // Index page
         'liveflights_none' => 'No flights in progress.',
-    'index_hero_title' => 'Welcome to <strong>SkyWings VA</strong>',
-    'index_hero_intro' => '<strong>SkyWings VA</strong> is a virtual airline that lets you track your flights, manage your fleet, and participate in various missions in an immersive world.',
+    'index_hero_title' => 'Welcome to <strong>{VA_NAME}</strong>',
+    'index_hero_intro' => '<strong>{VA_NAME}</strong> is a virtual airline that lets you track your flights, manage your fleet, and participate in various missions in an immersive world.',
     'index_hero_simaddon_1' => 'Once registered on our site, you will have access to <b>SimAddon</b>, a tool that lets you monitor your flights on simulator (XPlane or FS2020, or FS2024).',
     'index_hero_simaddon_2' => '<b>SimAddon</b> also lets you send your flight report at the end of your journey, directly to the site database.',
     'index_hero_steps_intro' => 'It will then be imported. Here are the steps it will follow:',
@@ -225,7 +225,7 @@ return [
     'index_table_duration' => 'Duration',
     'index_map_title' => 'Live flights map',
     
-    'site_title' => 'SkyWings VA',
+    'site_title' => '{VA_NAME}',
 
     // Header
     'welcome_user' => 'Welcome',
@@ -238,10 +238,10 @@ return [
     'forgot_password' => 'Forgot password?',
 
     // General
-    'company_name' => 'SkyWings Virtual Airline',
+    'company_name' => '{VA_NAME} Virtual Airline',
 
     // Footer
-    'footer_copyright' => 'SkyWings Virtual Airline',
+    'footer_copyright' => '{VA_NAME} Virtual Airline',
     'footer_rights' => 'All rights reserved.',
 
     // Guest menu
@@ -289,10 +289,10 @@ return [
     'admin_superadmin' => 'Super Admin',
 
     // About page
-    'about_title' => 'About SkyWings VA',
-    'about_intro' => 'SkyWings VA is a virtual airline founded by aviation enthusiasts. Our goal is to offer an immersive, realistic, and accessible experience for all virtual pilots, from beginners to experts.',
+    'about_title' => 'About {VA_NAME}',
+    'about_intro' => '{VA_NAME} is a virtual airline founded by aviation enthusiasts. Our goal is to offer an immersive, realistic, and accessible experience for all virtual pilots, from beginners to experts.',
     'about_vision_title' => 'Our vision',
-    'about_vision_text' => 'At SkyWings VA, we believe virtual flying can be both serious and fun. That’s why we developed a platform where everyone can fly at their own pace while being part of a dynamic company.',
+    'about_vision_text' => 'At {VA_NAME}, we believe virtual flying can be both serious and fun. That’s why we developed a platform where everyone can fly at their own pace while being part of a dynamic company.',
     'about_offers_title' => 'What we offer',
     'about_offers_flightlog' => 'A flight system with a detailed logbook',
     'about_offers_missions' => 'Various missions: scheduled flights, special flights, freight, humanitarian',
@@ -300,9 +300,9 @@ return [
     'about_offers_stats' => 'Personal statistics and a pilot ranking',
     'about_offers_community' => 'A friendly and welcoming community',
     'about_join_title' => 'Join the adventure',
-    'about_join_text' => 'Dreaming of flying for a serious but relaxed airline? SkyWings VA is for you. Sign up, put on your virtual uniform, and take off to our many destinations.',
+    'about_join_text' => 'Dreaming of flying for a serious but relaxed airline? {VA_NAME} is for you. Sign up, put on your virtual uniform, and take off to our many destinations.',
     'about_contact_title' => 'Contact',
-    'about_contact_text' => 'A question, a suggestion, or just want to chat with the team? Don’t hesitate to contact us at <a href="mailto:admin@skywings.ovh">admin@skywings.ovh</a>.',
+    'about_contact_text' => 'A question, a suggestion, or just want to chat with the team? Don’t hesitate to contact us at <a href="mailto:admin@{VA_NAME}.ovh">admin@{VA_NAME}.ovh</a>.',
 
     // Finances page
     'finances_title' => 'Company financial summary',
@@ -497,9 +497,9 @@ return [
     'admin_flotte_btn_vendre' => 'Sell',
 
     // --- documentation.php ---
-    'documentation_title' => 'Skywings Site Documentation',
+    'documentation_title' => '{VA_NAME} Site Documentation',
     'documentation_section_general_title' => 'General operation',
-    'documentation_section_general_intro' => 'The Skywings site manages the life of a virtual pilot company, with automated promotions, salary management, statistics, and finances.',
+    'documentation_section_general_intro' => 'The {VA_NAME} site manages the life of a virtual pilot company, with automated promotions, salary management, statistics, and finances.',
     'documentation_section_general_simulators' => 'The system works with all flight simulators, provided you have installed FSUIPC (MSFS2020, MSFS2024, P3D) or XUIPC (xPlane).',
     'documentation_section_general_acars' => 'It works with the acars you can download here',
     'documentation_section_general_wiki' => 'A very complete wiki here',
@@ -520,7 +520,7 @@ return [
     'documentation_section_missions_table_active_no' => 'No',
     'documentation_section_automations_title' => 'Automated processes',
     'documentation_section_automations_assurance_title' => 'Insurance payments:',
-    'documentation_section_automations_assurance_desc' => 'Monthly script that calculates the insurance premium Skywings must pay for owned aircraft. Deducted from the commercial balance on the 1st of each month',
+    'documentation_section_automations_assurance_desc' => 'Monthly script that calculates the insurance premium {VA_NAME} must pay for owned aircraft. Deducted from the commercial balance on the 1st of each month',
     'documentation_section_automations_recette_title' => 'Flight revenue calculation:',
     'documentation_section_automations_recette_desc' => 'For each imported flight, flight time, freight carried, aircraft used, and flight score are all taken into account. For more details, see the link below.',
     'documentation_section_automations_credit_title' => 'Credit installment payments:',
@@ -845,7 +845,7 @@ Aircraft entered maintenance: 1
 Aircraft exited maintenance: 1
  - F-ESKY
 ------------------------
-2025-07-20 02:00:01 Summary email sent to admin@skywings.com',
+2025-07-20 02:00:01 Summary email sent to admin@{VA_NAME}.com',
     
     // doc_paiement_salaires_pilotes.php
     'doc_paiement_title' => 'Script: Monthly Pilot Salary Payment',
@@ -893,19 +893,19 @@ Aircraft exited maintenance: 1
     'doc_paiement_automatisation3_suite' => 'for diagnosis.',
     'doc_paiement_exemple_title' => 'Log Example',
     'doc_paiement_exemple_log' => '2025-07-20 01:00:01 [SALARY] Salary payment script start
-2025-07-20 01:00:01 [TRACE] Number of pilots found: 9 | Callsigns: SKY001, SKY002, ...
-2025-07-20 01:00:01 [TRACE] Pilot: SKY001
+2025-07-20 01:00:01 [TRACE] Number of pilots found: 9 | Callsigns: XXX001, XXX002, ...
+2025-07-20 01:00:01 [TRACE] Pilot: XXX001
 2025-07-20 01:00:01 [TRACE] Hourly rate: 45
 2025-07-20 01:00:01 [TRACE] Total flight seconds: 10800 | Month hours: 3
 2025-07-20 01:00:01 [TRACE] Total freight (kg): 120 | Freight bonus: 240
 2025-07-20 01:00:01 [TRACE] Calculated amount: 375
 2025-07-20 01:00:01 [TRACE] Salary insertion OK
 2025-07-20 01:00:01 [TRACE] Pilot income update OK
-2025-07-20 01:00:01 [TRACE] Salary: SKY001 (John Doe) - Hours: 3.00 - Freight: 120.00kg - Freight bonus: 240.00€ - Amount: 375.00€
-2025-07-20 01:00:01 [TRACE] Salary email sent to john.doe@skywings.com
-2025-07-20 01:00:01 [TRACE] End of processing for pilot: SKY001
+2025-07-20 01:00:01 [TRACE] Salary: XXX001 (John Doe) - Hours: 3.00 - Freight: 120.00kg - Freight bonus: 240.00€ - Amount: 375.00€
+2025-07-20 01:00:01 [TRACE] Salary email sent to john.doe@{VA_NAME}.com
+2025-07-20 01:00:01 [TRACE] End of processing for pilot: XXX001
 2025-07-20 01:00:01 [TRACE] Overall expense recorded in finances_depenses: €1181897.42 for 9 pilots
-2025-07-20 01:00:01 [TRACE] Salary summary email sent to admin@skywings.com
+2025-07-20 01:00:01 [TRACE] Salary summary email sent to admin@{VA_NAME}.com
 2025-07-20 01:00:01 [SALARY] Salary payment script end',
     
     // doc_promotion_grades_pilotes.php
@@ -933,9 +933,9 @@ Aircraft exited maintenance: 1
     'doc_promotion_grades_condition' => 'Access Condition',
     'doc_promotion_exemple_title' => 'Log Example',
     'doc_promotion_exemple_log' => '2025-07-20 23:00:01 [PROMOTION] Automatic promotion script start
-2025-07-20 23:00:01 Promotion: SKY001 (John Doe) promoted to Captain grade (hours: 412.00)
-2025-07-20 23:00:01 Promotion email sent to john.doe@skywings.com
-2025-07-20 23:00:01 Summary email sent to admin@skywings.com
+2025-07-20 23:00:01 Promotion: XXX001 (John Doe) promoted to Captain grade (hours: 412.00)
+2025-07-20 23:00:01 Promotion email sent to john.doe@{VA_NAME}.com
+2025-07-20 23:00:01 Summary email sent to admin@{VA_NAME}.com
 2025-07-20 23:00:01 [PROMOTION] Automatic promotion script end',
     
     // doc_update_fret.php
@@ -957,7 +957,7 @@ Aircraft exited maintenance: 1
     'doc_fret_automatisation2_suite' => 'for diagnosis.',
     'doc_fret_exemple_title' => 'Log Example',
     'doc_fret_exemple_log' => '2025-07-18 04:00:01 Weekly processing completed: 87 airports updated (expected: 87) [CONSISTENT]
-2025-07-18 04:00:01 Summary email sent to admin@skywings.com',
+2025-07-18 04:00:01 Summary email sent to admin@{VA_NAME}.com',
     
     // doc_fonctions_importer_vol.php
     'doc_fonctions_title' => 'Script: fonctions_importer_vol.php',
@@ -1012,7 +1012,7 @@ Aircraft exited maintenance: 1
 2025-07-20 14:12:01 Finance update: immat=F-ABCD, flight_cost=16772
 2025-07-20 14:12:01 Added revenue to finances_recettes: flight_cost=16772, flight_id=123
 2025-07-20 14:12:01 Aircraft wear F-ABCD, rating=8
-2025-07-20 14:12:01 Summary email sent to admin@skywings.com',
+2025-07-20 14:12:01 Summary email sent to admin@{VA_NAME}.com',
     
     // doc_import_finances.php
     'doc_import_finances_title' => 'Script: import_finances.php',

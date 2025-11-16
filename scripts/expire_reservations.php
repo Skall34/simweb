@@ -102,7 +102,7 @@ try {
     logMsg($debugMsg, __DIR__ . '/logs/expire_reservations.log');
 
         // Log the recipient address used by sendSummaryMail
-        $recipient = defined('ADMIN_EMAIL') ? ADMIN_EMAIL : '(undefined)';
+        $recipient = VA_ADMIN_EMAIL;
         $recMsg = 'Envoi mail récapitulatif vers: ' . $recipient;
         echo $recMsg . "\n";
     logMsg($recMsg, __DIR__ . '/logs/expire_reservations.log');

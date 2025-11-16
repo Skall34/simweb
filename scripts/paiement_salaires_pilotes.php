@@ -10,7 +10,7 @@
  * - Met à jour le revenu cumulé du pilote (PILOTES.revenus)
  * - Met à jour le paiement des salaires dans BALANCE_COMMERCIALE (champ paiement_salaires)
  * - Envoie un mail au pilote avec le détail (heures, fret, bonus, total)
- * - Envoie un mail récapitulatif à l'administrateur (ADMIN_EMAIL)
+ * - Envoie un mail récapitulatif à l'administrateur (VA_ADMIN_EMAIL)
  * - Logue chaque étape dans logs/paiement_salaires.log
  */
 
@@ -125,12 +125,12 @@ foreach ($pilotes as $index => $pilote) {
     $log_msg = "[TRACE] Salaire: " . $pilote['callsign'] . " (" . $pilote['prenom'] . " " . $pilote['nom'] . ") - Heures: " . number_format($heures_mois, 2) . " - Fret: " . number_format($total_fret_kg, 2) . "kg - Bonus fret: " . number_format($bonus_fret, 2) . "€ - Montant: " . number_format($montant, 2) . "€";
     logMsg($log_msg, __DIR__ . '/logs/paiement_salaires.log');
     // Log utile : mail envoyé ou erreur
-    $to = $test_mode ? ADMIN_EMAIL : $pilote['email'];
+    $to = $test_mode ? VA_ADMIN_EMAIL : $pilote['email'];
     $subject = "Ton salaire du mois";
     $message = "Bonjour " . $pilote['prenom'] . ",\n\n";
     $message .= "Tu as effectué " . number_format($heures_mois, 2) . " heures de vol ce mois-ci.\n";
     $message .= "Ton salaire total bien mérité est de " . number_format($montant, 2) . "€.\n\n";
-    $message .= "Merci de voler pour Skywings,\nL'équipe Skywings";
+    $message .= "Merci de voler pour " . VA_NAME . ",\nL'équipe " . VA_NAME;
     try {
         if ($index === count($pilotes) - 1) {
             sleep(5);
@@ -168,26 +168,26 @@ if (!empty($recap) && isset($total_salaires) && $total_salaires > 0) {
 }
 logMsg('[SALAIRE] Fin du script de paiement des salaires', __DIR__ . '/logs/paiement_salaires.log');
 echo "Paiement des salaires terminé.";
-// Envoi du mail récapitulatif à l'administrateur SKY0707
+// Envoi du mail récapitulatif à l'administrateur
 if (!empty($recap)) {
     $subject = "Récapitulatif des salaires versés";
     $maxLines = 50;
     $recap_limited = array_slice($recap, 0, $maxLines);
     $total_salaires_str = isset($total_salaires) ? number_format($total_salaires, 2, ',', ' ') : '0.00';
-    $body = "Salut SKY0707,\n\nVoici la liste des salaires versés ce mois-ci (max $maxLines lignes) :\n" . implode("", $recap_limited) . "\n\nSomme totale des salaires versés : $total_salaires_str €\n\nCordialement,\nLe système automatique Skywings";
-    $mailResult = sendSummaryMail($subject, $body, ADMIN_EMAIL);
+    $body = "Bonjour Administrateur,\n\nVoici la liste des salaires versés ce mois-ci (max $maxLines lignes) :\n" . implode("", $recap_limited) . "\n\nSomme totale des salaires versés : $total_salaires_str €\n\nCordialement,\nLe système automatique " . VA_NAME;
+    $mailResult = sendSummaryMail($subject, $body, VA_ADMIN_EMAIL);
     if ($mailResult === true || $mailResult === null) {
-        logMsg("[TRACE] Mail récapitulatif des salaires envoyé à " . ADMIN_EMAIL, __DIR__ . '/logs/paiement_salaires.log');
+        logMsg("[TRACE] Mail récapitulatif des salaires envoyé à " . VA_ADMIN_EMAIL, __DIR__ . '/logs/paiement_salaires.log');
     } else {
-        logMsg("[ERREUR] Envoi mail récapitulatif des salaires à " . ADMIN_EMAIL . " : $mailResult", __DIR__ . '/logs/paiement_salaires.log');
+        logMsg("[ERREUR] Envoi mail récapitulatif des salaires à " . VA_ADMIN_EMAIL . " : $mailResult", __DIR__ . '/logs/paiement_salaires.log');
     }
 } else {
     $subject = "Récapitulatif des salaires versés";
-    $body = "Salut SKY0707,\n\nAucun salaire n'a été versé ce mois-ci.\n\nCordialement,\nLe système automatique Skywings";
-    $mailResult = sendSummaryMail($subject, $body, ADMIN_EMAIL);
+    $body = "Bonjour Administrateur,\n\nAucun salaire n'a été versé ce mois-ci.\n\nCordialement,\nLe système automatique " . VA_NAME;
+    $mailResult = sendSummaryMail($subject, $body, VA_ADMIN_EMAIL);
     if ($mailResult === true || $mailResult === null) {
-        logMsg("[TRACE] Mail récapitulatif (aucun salaire) envoyé à " . ADMIN_EMAIL, __DIR__ . '/logs/paiement_salaires.log');
+        logMsg("[TRACE] Mail récapitulatif (aucun salaire) envoyé à " . VA_ADMIN_EMAIL, __DIR__ . '/logs/paiement_salaires.log');
     } else {
-        logMsg("[ERREUR] Envoi mail récapitulatif (aucun salaire) à " . ADMIN_EMAIL . " : $mailResult", __DIR__ . '/logs/paiement_salaires.log');
+        logMsg("[ERREUR] Envoi mail récapitulatif (aucun salaire) à " . VA_ADMIN_EMAIL . " : $mailResult", __DIR__ . '/logs/paiement_salaires.log');
     }
 }

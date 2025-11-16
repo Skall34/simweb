@@ -138,7 +138,7 @@ try {
             $body .= "\n\n[ALERTE] Erreur de cohérence détectée pour : " . implode(', ', $erreurs_coherence);
         }
         $body .= "\n\nCeci est un message automatique.";
-        $to = ADMIN_EMAIL;
+        $to = VA_ADMIN_EMAIL;
         $mailResult = sendSummaryMail($subject, $body, $to);
         if ($mailResult === true || $mailResult === null) {
             logMsg("Mail récapitulatif envoyé à $to", $logFile);

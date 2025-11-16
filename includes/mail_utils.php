@@ -9,26 +9,27 @@
  À utiliser en fin d'exécution des scripts pour notifier l'administrateur.
 -------------------------------------------------------------
 */
+require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/PHPMailer/PHPMailer.php';
 require_once __DIR__ . '/PHPMailer/SMTP.php';
 require_once __DIR__ . '/PHPMailer/Exception.php';
 
-// Centralisation de l'adresse mail admin
-if (!defined('ADMIN_EMAIL')) {
-    define('ADMIN_EMAIL', 'zjfk7400@gmail.com');
-}
-
-function sendSummaryMail($subject, $body, $to = ADMIN_EMAIL) {
+function sendSummaryMail($subject, $body, $to = null) {
+    // Si aucun destinataire spécifié, utiliser l'admin
+    if ($to === null) {
+        $to = VA_ADMIN_EMAIL;
+    }
+    
     try {
         $mail = new PHPMailer\PHPMailer\PHPMailer(true);
         $mail->isSMTP();
-        $mail->Host = 'ssl0.ovh.net';
+        $mail->Host = SMTP_HOST;
         $mail->SMTPAuth = true;
-        $mail->Username = 'admin@skywings.ovh';
-        $mail->Password = 'La6mulationCestCool!';
-        $mail->SMTPSecure = 'tls';
-        $mail->Port = 587;
-        $mail->setFrom('admin@skywings.ovh', 'Skywings');
+        $mail->Username = SMTP_USERNAME;
+        $mail->Password = SMTP_PASSWORD;
+        $mail->SMTPSecure = SMTP_SECURE;
+        $mail->Port = SMTP_PORT;
+        $mail->setFrom(SMTP_FROM_EMAIL, SMTP_FROM_NAME);
         $mail->addAddress($to);
         $mail->Subject = $subject;
         $mail->CharSet = 'UTF-8';

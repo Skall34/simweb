@@ -66,7 +66,7 @@ foreach ($pilotes as $pilote) {
         $subject = "Félicitations, vous avez été promu au grade $grade_nom !";
         $message = "Bonjour " . htmlspecialchars($pilote['prenom']) . " " . htmlspecialchars($pilote['nom']) . ",<br><br>";
         $message .= "Votre nouveau grade est <strong>$grade_nom</strong>.<br>Continuez à voler pour progresser !<br><br>";
-        $message .= "Cordialement,<br>L'équipe Skywings";
+        $message .= "Cordialement,<br>L'équipe " . VA_NAME;
         $mailResult = sendSummaryMail($subject, $message, $to);
         if ($mailResult === true || $mailResult === null) {
             logMsg("Mail de promotion envoyé à $to", __DIR__ . '/logs/promotion_grades.log');
@@ -76,22 +76,22 @@ foreach ($pilotes as $pilote) {
     }
 }
 
-// Envoi d'un mail récapitulatif à l'administrateur SKY0707
+// Envoi d'un mail récapitulatif à l'administrateur
 if (!empty($promotions)) {
     $subject = "Récapitulatif des promotions de grades";
-    $body = "Bonjour Administrateur,<br><br>Voici la liste des promotions effectuées cette nuit :<br><pre>" . implode("", $promotions) . "</pre><br>Cordialement,<br>Le système automatique Skywings";
-    $mailResult = sendSummaryMail($subject, $body, ADMIN_EMAIL);
+    $body = "Bonjour Administrateur,<br><br>Voici la liste des promotions effectuées cette nuit :<br><pre>" . implode("", $promotions) . "</pre><br>Cordialement,<br>Le système automatique " . VA_NAME;
+    $mailResult = sendSummaryMail($subject, $body, VA_ADMIN_EMAIL);
     if ($mailResult === true || $mailResult === null) {
-        logMsg("Mail récapitulatif envoyé à " . ADMIN_EMAIL, __DIR__ . '/logs/promotion_grades.log');
+        logMsg("Mail récapitulatif envoyé à " . VA_ADMIN_EMAIL, __DIR__ . '/logs/promotion_grades.log');
     } else {
         logMsg("Erreur lors de l'envoi du mail récapitulatif : $mailResult", __DIR__ . '/logs/promotion_grades.log');
     }
 } else {
     $subject = "Récapitulatif des promotions de grades";
-    $body = "Bonjour Administrateur,<br><br>Aucune promotion de grade n'a eu lieu cette nuit.<br><br>Cordialement,<br>Le système automatique Skywings";
-    $mailResult = sendSummaryMail($subject, $body, ADMIN_EMAIL);
+    $body = "Bonjour Administrateur,<br><br>Aucune promotion de grade n'a eu lieu cette nuit.<br><br>Cordialement,<br>Le système automatique " . VA_NAME;
+    $mailResult = sendSummaryMail($subject, $body, VA_ADMIN_EMAIL);
     if ($mailResult === true || $mailResult === null) {
-        logMsg("Mail récapitulatif (aucune promotion) envoyé à " . ADMIN_EMAIL, __DIR__ . '/logs/promotion_grades.log');
+        logMsg("Mail récapitulatif (aucune promotion) envoyé à " . VA_ADMIN_EMAIL, __DIR__ . '/logs/promotion_grades.log');
     } else {
         logMsg("Erreur lors de l'envoi du mail récapitulatif (aucune promotion) : $mailResult", __DIR__ . '/logs/promotion_grades.log');
     }

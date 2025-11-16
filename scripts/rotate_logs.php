@@ -114,7 +114,7 @@ if ($mailSummaryEnabled && function_exists('sendSummaryMail')) {
         }
     }
     $body .= "\nCeci est un message automatique.";
-    $to = defined('ADMIN_EMAIL') ? ADMIN_EMAIL : 'zjfk7400@gmail.com';
+    $to = VA_ADMIN_EMAIL;
     $mailResult = sendSummaryMail($subject, $body, $to);
     if ($mailResult === true || $mailResult === null) {
         logMsg("Mail récapitulatif envoyé à $to", $logFile);
