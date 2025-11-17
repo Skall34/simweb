@@ -6,17 +6,33 @@
 
 ---
 
+## 🚀 Installation rapide (RECOMMANDÉ)
+
+### **Nouvelle méthode : Installation automatisée**
+
+Nous avons créé un **installateur web interactif** qui simplifie drastiquement l'installation !
+
+1. **Uploadez** tous les fichiers sur votre serveur web
+2. **Accédez** à `http://votre-domaine.com/install/`
+3. **Suivez** l'assistant en 5 étapes :
+   - ✅ Vérification de l'environnement
+   - ✅ Configuration de la base de données
+   - ✅ Configuration de votre VA
+   - ✅ Installation automatique
+   - ✅ Connexion avec le compte par défaut
+
+**C'est tout !** L'installateur génère automatiquement tous les fichiers de configuration et importe la base de données.
+
+➡️ **[Voir le guide rapide](../install/README.md)**
+
+---
+
 ## 📋 Table des matières
 
-1. [Prérequis](#prérequis)
-2. [Installation du serveur web](#installation-du-serveur-web)
-3. [Configuration de la base de données](#configuration-de-la-base-de-données)
-4. [Configuration de l'application](#configuration-de-lapplication)
-5. [Configuration des emails](#configuration-des-emails)
-6. [Configuration des tâches planifiées (optionnel)](#configuration-des-tâches-planifiées)
-7. [Premier lancement](#premier-lancement)
-8. [Création du compte administrateur](#création-du-compte-administrateur)
-9. [Dépannage](#dépannage)
+1. [Installation rapide](#installation-rapide-recommandé)
+2. [Installation manuelle](#installation-manuelle-avancée)
+3. [Prérequis](#prérequis)
+4. [Dépannage](#dépannage)
 
 ---
 
@@ -42,7 +58,39 @@
 
 ---
 
-## 🔍 Vérification de l'environnement (recommandé)
+---
+
+## ✅ Installation réussie - Et maintenant ?
+
+Une fois l'installateur terminé :
+
+1. **Connectez-vous** avec `ADM0001` / `admin123`
+2. **Créez votre compte admin** personnel
+3. **Supprimez ADM0001** (Menu Admin → Gestion Pilotes)
+4. **Configurez votre VA** :
+   - Logo : `assets/images/logo.png`
+   - Couleurs : `css/styles.css`
+   - Types d'appareils : Menu Admin → Types d'appareils
+   - Flotte : Menu Admin → Gestion Flotte
+   - Missions : Menu Admin → Gestion Missions
+
+5. **Scripts automatisés** (optionnel) :
+   ```bash
+   crontab -e
+   # Ajouter :
+   0 0 1 * * php /var/www/votre-site/scripts/assurance_mensuelle.php
+   0 0 1 * * php /var/www/votre-site/scripts/paiement_salaires_pilotes.php
+   ```
+
+---
+
+## 📦 Installation manuelle (avancée - non recommandée)
+
+⚠️ **Utilisez l'installateur automatique !** Cette méthode est obsolète et complexe.
+
+Si vous devez absolument installer manuellement :
+
+### Étape 1 : Vérification de l'environnement
 
 Avant de commencer l'installation, nous vous recommandons d'utiliser le script de vérification :
 

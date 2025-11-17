@@ -1,0 +1,31 @@
+# 🛡️ Sécurité - Installation
+
+## Fichier de verrouillage
+
+Ce fichier `.installed` empêche l'accès à l'installateur après une installation réussie.
+
+**Date d'installation :** <?= date('Y-m-d H:i:s') ?>
+
+---
+
+## Pour réinstaller
+
+Si vous devez réinstaller le système :
+
+1. Supprimez ce fichier : `install/.installed`
+2. Supprimez les fichiers de configuration :
+   - `includes/db_connect.php`
+   - `includes/config.php`
+3. Rechargez la page d'installation : `http://votre-domaine.com/install/`
+
+---
+
+## ⚠️ ATTENTION
+
+- Ne supprimez ce fichier que si vous savez ce que vous faites
+- Une réinstallation peut écraser vos données existantes
+- Faites toujours une sauvegarde de votre base de données avant de réinstaller
+
+---
+
+**Virtual Airline Management System v2.0**

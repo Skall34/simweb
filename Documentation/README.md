@@ -43,37 +43,49 @@ A complete web-based virtual airline management system for Microsoft Flight Simu
 
 ## 🚀 Quick Start
 
-### 1. Download & Extract
-Download the latest release and extract to your web server directory.
+### **NEW: Automated Web Installer** ⚡
 
-### 2. Check Environment (Recommended)
+The easiest way to install! Just 3 steps:
+
+1. **Upload** all files to your web server
+2. **Access** `http://your-domain.com/install/`
+3. **Follow** the interactive wizard (5 minutes max)
+
+The installer automatically:
+- ✅ Verifies your environment
+- ✅ Creates the database
+- ✅ Generates configuration files
+- ✅ Imports all data
+- ✅ Creates default admin account
+
+➡️ **[Full installation guide](install/README.md)**
+
+---
+
+### Manual Installation (Advanced)
+
+If you prefer manual setup:
+
+#### 1. Check Environment (Recommended)
 Upload and run `Documentation/check_installation.php`:
 ```
 http://your-domain.com/check_installation.php
 ```
-✅ Verify all requirements are met, then delete the file.
 
-### 2. Database Setup
+#### 2. Database Setup
 ```bash
 # Import SQL scripts in order
 mysql -u root -p < sql_database/01_Main_Database.sql
 mysql -u root -p VA_Database < sql_database/02_Airports_data.sql
 ```
-✅ Default admin account created: `ADM0001` / `admin123`
 
-### 3. Configure Database Connection
-```bash
-cp includes/db_connect_exemple.php includes/db_connect.php
-# Edit includes/db_connect.php with your credentials
-```
+#### 3. Configure Files
+Edit `includes/db_connect.php` and `includes/config.php` with your credentials.
 
-### 4. First Login
-1. Open `http://your-domain.com/`
-2. Login with: `ADM0001` / `admin123`
-3. Create your own admin account
-4. ⚠️ Delete `ADM0001` for security
+#### 4. First Login
+Login with `ADM0001` / `admin123`, create your admin account, then delete ADM0001.
 
-📖 **For detailed installation instructions, see:**
+📖 **Detailed instructions:**
 - 🇫🇷 [INSTALLATION.md](INSTALLATION.md) (Français)
 - 🇬🇧 [INSTALLATION_EN.md](INSTALLATION_EN.md) (English)
 

@@ -6,17 +6,33 @@
 
 ---
 
+## 🚀 Quick Installation (RECOMMENDED)
+
+### **New Method: Automated Installation**
+
+We've created an **interactive web installer** that dramatically simplifies installation!
+
+1. **Upload** all files to your web server
+2. **Access** `http://your-domain.com/install/`
+3. **Follow** the 5-step wizard:
+   - ✅ Environment verification
+   - ✅ Database configuration
+   - ✅ Your VA configuration
+   - ✅ Automatic installation
+   - ✅ Login with default account
+
+**That's it!** The installer automatically generates all configuration files and imports the database.
+
+➡️ **[See quick guide](../install/README.md)**
+
+---
+
 ## 📋 Table of Contents
 
-1. [Requirements](#requirements)
-2. [Web Server Installation](#web-server-installation)
-3. [Database Configuration](#database-configuration)
-4. [Application Configuration](#application-configuration)
-5. [Email Configuration](#email-configuration)
-6. [Scheduled Tasks Configuration (optional)](#scheduled-tasks-configuration)
-7. [First Launch](#first-launch)
-8. [Administrator Account Creation](#administrator-account-creation)
-9. [Troubleshooting](#troubleshooting)
+1. [Quick Installation](#quick-installation-recommended)
+2. [Manual Installation](#manual-installation-advanced)
+3. [Requirements](#requirements)
+4. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -42,7 +58,39 @@
 
 ---
 
-## 🔍 Environment Check (Recommended)
+---
+
+## ✅ Installation Successful - What's Next?
+
+Once the installer is complete:
+
+1. **Login** with `ADM0001` / `admin123`
+2. **Create your personal admin account**
+3. **Delete ADM0001** (Admin Menu → Pilot Management)
+4. **Configure your VA**:
+   - Logo: `assets/images/logo.png`
+   - Colors: `css/styles.css`
+   - Aircraft types: Admin Menu → Aircraft Types
+   - Fleet: Admin Menu → Fleet Management
+   - Missions: Admin Menu → Mission Management
+
+5. **Automated scripts** (optional):
+   ```bash
+   crontab -e
+   # Add:
+   0 0 1 * * php /var/www/your-site/scripts/assurance_mensuelle.php
+   0 0 1 * * php /var/www/your-site/scripts/paiement_salaires_pilotes.php
+   ```
+
+---
+
+## 📦 Manual Installation (Advanced - Not Recommended)
+
+⚠️ **Use the automated installer!** This method is obsolete and complex.
+
+If you absolutely must install manually:
+
+### Step 1: Environment Check
 
 Before starting installation, we recommend using the verification script:
 

@@ -1,10 +1,52 @@
 # 🚀 Guide de Démarrage Rapide - Virtual Airline System
 
-**Pour l'installation complète, consultez [INSTALLATION.md](INSTALLATION.md)**
+---
+
+## ⚡ Installation en 5 minutes !
+
+### **Installateur Web Automatique** (RECOMMANDÉ)
+
+1. **Uploadez** tous les fichiers sur votre serveur
+2. **Donnez les permissions** :
+   ```bash
+   sudo chmod -R 777 includes/ scripts/
+   sudo chown -R www-data:www-data /var/www/votre-site/
+   ```
+3. **Accédez** à `http://votre-domaine.com/install/`
+4. **Suivez** l'assistant en 5 étapes
+5. **Connectez-vous** avec `ADM0001` / `admin123`
+
+**C'est tout !** 🎉
+
+📖 **[Guide complet et détaillé](../install/README.md)**
 
 ---
 
-## ⚡ Installation en 5 minutes
+## ❓ Vous rencontrez un problème ?
+
+### Vérifications échouent (étape 1)
+```bash
+sudo chmod -R 777 includes/ scripts/
+```
+
+### Erreur de collation MariaDB
+```bash
+sudo sed -i 's/utf8mb4_0900_ai_ci/utf8mb4_unicode_ci/g' /var/www/votre-site/sql_database/01_Main_Database.sql
+```
+
+### Tables manquantes
+```bash
+sudo mysql VOTRE_BASE < /var/www/votre-site/sql_database/01_Main_Database.sql
+sudo mysql VOTRE_BASE < /var/www/votre-site/sql_database/02_Airports_data.sql
+```
+
+---
+
+## 📋 Installation manuelle (NON RECOMMANDÉE)
+
+⚠️ Utilisez l'installateur automatique ci-dessus !
+
+Si vous devez absolument installer manuellement :
 
 ### 0️⃣ Vérification (recommandé)
 
@@ -35,12 +77,7 @@ http://votre-domaine.com/check_installation.php
 
 ---
 
-### 4️⃣ Configurez la connexion
-
-```bash
-# Renommez le fichier exemple
-cp includes/db_connect_exemple.php includes/db_connect.php
-```
+### 3️⃣ Configurez la connexion
 
 **Éditez `includes/db_connect.php` :**
 ```php
