@@ -1,4 +1,4 @@
-# ❓ FAQ - SkyWings Virtual Airline
+# ❓ FAQ - Virtual Airline Management System
 
 **Questions fréquemment posées et leurs réponses**
 
@@ -6,15 +6,15 @@
 
 ## 📦 Installation
 
-### Q: Quels sont les prérequis pour installer SkyWings ?
+### Q: Quels sont les prérequis pour installer le système ?
 **R:** 
 - PHP 7.4 ou supérieur (recommandé 8.1+)
 - MySQL 5.7+ ou MariaDB 10.3+
 - Serveur web Apache ou Nginx
 - Extensions PHP : pdo_mysql, mbstring, json, curl, openssl
 
-### Q: Où puis-je héberger SkyWings ?
-**R:** SkyWings fonctionne sur :
+### Q: Où puis-je héberger le système ?
+**R:** Le système fonctionne sur :
 - Hébergement mutualisé (si PHP 7.4+ disponible)
 - VPS / Serveur dédié
 - Local (XAMPP, WAMP, MAMP)
@@ -70,7 +70,7 @@ define('VA_ADMIN_EMAIL', 'admin@votre-domaine.com');
 ```
 Le nom s'affichera automatiquement partout sur le site !
 
-> **Note avancée** : Pour personnaliser complètement (y compris dans les traductions), vous pouvez aussi rechercher/remplacer "SkyWings" par votre nom dans les fichiers `lang/fr.php`, `lang/en.php`, `lang/es.php`.
+> **Note avancée** : Pour personnaliser complètement, tous les textes sont dans les fichiers de traduction `lang/fr.php`, `lang/en.php`, `lang/es.php`.
 
 ---
 
@@ -125,7 +125,7 @@ $lang = $_SESSION['lang'] ?? 'fr';  // Changez 'fr' par 'en' ou 'es'
 **R:** Admin → Gestion Flotte → Remplir le formulaire "Acheter un nouvel appareil".
 
 ### Q: Qu'est-ce que SimAddon ?
-**R:** C'est l'addon MSFS qui enregistre automatiquement les vols depuis Flight Simulator vers SkyWings. Documentation dans `assets/acars/`.
+**R:** C'est l'addon MSFS qui enregistre automatiquement les vols depuis Flight Simulator vers le système. Documentation dans `assets/acars/`.
 
 ### Q: Les pilotes peuvent-ils enregistrer des vols manuellement ?
 **R:** Oui, via la page "Saisie manuelle" (nécessite connexion).
@@ -174,19 +174,19 @@ Ou créez une page admin pour les lancer (sécurisée).
 
 ## 💾 Base de données
 
-### Q: Puis-je utiliser un autre nom de base que "skywings" ?
+### Q: Puis-je utiliser un autre nom de base que "yourva" ?
 **R:** Oui, choisissez le nom que vous voulez lors de la création, et mettez-le dans `db_connect.php`.
 
 ### Q: Comment sauvegarder ma base de données ?
 **R:** Via PhpMyAdmin → Exporter, ou en ligne de commande :
 ```bash
-mysqldump -u user -p skywings > backup_$(date +%Y%m%d).sql
+mysqldump -u user -p yourva > backup_$(date +%Y%m%d).sql
 ```
 
 ### Q: Comment restaurer une sauvegarde ?
 **R:** 
 ```bash
-mysql -u user -p skywings < backup_20251115.sql
+mysql -u user -p yourva < backup_20251115.sql
 ```
 
 ### Q: La base est trop grosse, comment la nettoyer ?
@@ -246,7 +246,7 @@ sudo systemctl restart apache2
 - Ne commitez jamais `db_connect.php` sur Git
 
 ### Q: Les mots de passe sont-ils sécurisés ?
-**R:** Oui, SkyWings utilise `password_hash()` avec bcrypt (très sécurisé).
+**R:** Oui, le système utilise `password_hash()` avec bcrypt (très sécurisé).
 
 ### Q: Puis-je activer l'authentification 2FA ?
 **R:** Pas nativement dans v2.0, mais peut être ajouté via une extension.
@@ -262,7 +262,7 @@ sudo systemctl restart apache2
 - Utilisez un CDN pour les assets
 - Passez à PHP 8.1+ (plus rapide)
 
-### Q: Combien d'utilisateurs peut gérer SkyWings ?
+### Q: Combien d'utilisateurs peut gérer le système ?
 **R:** Testé jusqu'à 100 pilotes actifs. Au-delà, optimisations nécessaires.
 
 ---
@@ -303,11 +303,11 @@ sudo systemctl restart apache2
 
 ## 📜 Licence
 
-### Q: SkyWings est-il gratuit ?
+### Q: Le système est-il gratuit ?
 **R:** Oui, 100% gratuit et open-source (licence MIT).
 
 ### Q: Puis-je le modifier ?
-**R:** Oui, vous pouvez adapter SkyWings à vos besoins.
+**R:** Oui, vous pouvez adapter le système à vos besoins.
 
 ### Q: Puis-je le redistribuer ?
 **R:** Oui, tant que vous respectez la licence MIT (crédit à l'auteur).

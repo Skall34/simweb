@@ -1,4 +1,4 @@
-# 📝 Changelog - SkyWings Virtual Airline
+# 📋 Changelog - Virtual Airline Management System
 
 All notable changes to this project will be documented in this file.
 
@@ -142,7 +142,7 @@ Thanks to all contributors who made version 2.0 possible!
 
 - **Lead Developer**: Skall34
 - **AI Assistant**: Claude (Anthropic)
-- **Beta Testers**: SkyWings community
+- **Beta Testers**: Flight simulation community
 
 ---
 

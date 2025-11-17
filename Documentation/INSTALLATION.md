@@ -1,4 +1,4 @@
-# 📖 Guide d'Installation - SkyWings Virtual Airline
+# 📖 Guide d'Installation - Virtual Airline Management System
 
 **Version :** 2.0  
 **Date :** Novembre 2025  
@@ -42,11 +42,24 @@
 
 ---
 
+## 🔍 Vérification de l'environnement (recommandé)
+
+Avant de commencer l'installation, nous vous recommandons d'utiliser le script de vérification :
+
+1. **Uploadez** le fichier `Documentation/check_installation.php` à la racine de votre serveur
+2. **Accédez** à `http://votre-domaine.com/check_installation.php`
+3. **Vérifiez** que tous les prérequis sont OK (PHP, extensions, permissions)
+4. ⚠️ **Supprimez** ce fichier après vérification
+
+✅ Ce script vous indiquera exactement ce qui manque avant de continuer.
+
+---
+
 ## 🌐 Installation du serveur web
 
 ### Option 1 : Installation sur hébergement mutualisé
 
-1. **Téléchargez le fichier ZIP** de SkyWings
+1. **Téléchargez le fichier ZIP** du système
 2. **Décompressez** le contenu sur votre ordinateur
 3. **Uploadez tous les fichiers** via FTP dans le dossier racine de votre hébergement (généralement `/public_html` ou `/www`)
 4. **Vérifiez les permissions** :
@@ -77,54 +90,37 @@ sudo chown -R www-data:www-data /var/www/skywings
 
 #### Sur Windows (XAMPP/WAMP) :
 1. Installez **XAMPP** ou **WAMP**
-2. Décompressez le ZIP dans `C:\xampp\htdocs\skywings\` (ou équivalent)
+2. Décompressez le ZIP dans `C:\xampp\htdocs\yourva\` (ou équivalent)
 3. Démarrez Apache et MySQL depuis le panneau de contrôle
 
 ---
 
 ## 💾 Configuration de la base de données
 
-### Étape 1 : Création de la base de données
+### Import des scripts SQL
+
+**Deux fichiers SQL sont à importer dans l'ordre :**
 
 #### Via PhpMyAdmin :
 1. Connectez-vous à **PhpMyAdmin**
-2. Cliquez sur **"Nouvelle base de données"**
-3. Nom : `skywings` (ou un nom de votre choix)
-4. Interclassement : **utf8mb4_unicode_ci**
-5. Cliquez sur **"Créer"**
-
-#### Via ligne de commande MySQL :
-```sql
-mysql -u root -p
-CREATE DATABASE skywings CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'skywings_user'@'localhost' IDENTIFIED BY 'VotreMotDePasseSecurise';
-GRANT ALL PRIVILEGES ON skywings.* TO 'skywings_user'@'localhost';
-FLUSH PRIVILEGES;
-EXIT;
-```
-
-### Étape 2 : Import de la structure et des données
-
-1. **Localisez le fichier SQL** dans `sql_database/VA_mysql_db_creation.sql`
-2. **Importez-le** dans votre base de données :
-
-#### Via PhpMyAdmin :
-1. Sélectionnez votre base de données `skywings`
 2. Cliquez sur l'onglet **"Importer"**
-3. Choisissez le fichier `VA_mysql_db_creation.sql`
-4. Cliquez sur **"Exécuter"**
-5. ⏱️ Patientez (peut prendre 1-2 minutes)
+3. **Premier import** : Sélectionnez `sql_database/01_Main_Database.sql`
+   - ✅ Ce fichier crée automatiquement la base de données `VA_Database` et toutes les tables
+4. Cliquez sur **"Exécuter"** et patientez (1-2 minutes)
+5. **Deuxième import** : Sélectionnez `sql_database/02_Airports_data.sql`
+   - ✅ Ce fichier ajoute les données des aéroports
+6. Cliquez sur **"Exécuter"** et patientez (peut prendre quelques minutes)
 
 #### Via ligne de commande :
 ```bash
-mysql -u skywings_user -p skywings < sql_database/VA_mysql_db_creation.sql
+mysql -u root -p < sql_database/01_Main_Database.sql
+mysql -u root -p VA_Database < sql_database/02_Airports_data.sql
 ```
 
-### Étape 3 : Import des tables de session (authentification SimAddon)
-
-```bash
-mysql -u skywings_user -p skywings < sql_database/create_session_tokens_table.sql
-```
+✅ **La base de données est maintenant créée avec :**
+- Toutes les tables nécessaires
+- Les données des aéroports
+- Un compte administrateur par défaut : **ADM0001** (mot de passe : `admin123`)
 
 ---
 
@@ -139,8 +135,8 @@ mysql -u skywings_user -p skywings < sql_database/create_session_tokens_table.sq
 ```php
 <?php
 $host = 'localhost';          // Adresse du serveur MySQL
-$db   = 'skywings';           // Nom de votre base de données
-$user = 'skywings_user';      // Utilisateur MySQL
+$db   = 'yourva';           // Nom de votre base de données
+$user = 'yourva_user';      // Utilisateur MySQL
 $pass = 'VotreMotDePasseSecurise';  // Mot de passe MySQL
 $charset = 'utf8mb4';
 
@@ -223,7 +219,7 @@ Accédez à votre site : `http://votre-domaine.com/`
 
 ## 📧 Configuration des emails
 
-SkyWings utilise **PHPMailer** pour envoyer des emails (notifications, récapitulatifs, etc.)
+Le système utilise **PHPMailer** pour envoyer des emails (notifications, récapitulatifs, etc.)
 
 ### Étape 1 : Configuration du serveur SMTP
 
@@ -303,15 +299,15 @@ Les scripts automatiques permettent de maintenir le système à jour (assurances
 # Éditer le crontab
 sudo crontab -e
 
-# Ajouter ces lignes (ajustez le chemin /var/www/skywings) :
-0 1 1 * * /usr/bin/php /var/www/skywings/scripts/paiement_salaires_pilotes.php
-0 2 1 * * /usr/bin/php /var/www/skywings/scripts/credit_mensualite.php
-0 3 1 * * /usr/bin/php /var/www/skywings/scripts/assurance_mensuelle.php
-0 4 1 * * /usr/bin/php /var/www/skywings/scripts/maintenance.php
-0 5 1 * * /usr/bin/php /var/www/skywings/scripts/rotate_logs.php
-0 23 1 * * /usr/bin/php /var/www/skywings/scripts/promotion_grades_pilotes.php
-0 4 * * 5 /usr/bin/php /var/www/skywings/scripts/update_fret.php
-0 2 * * * /usr/bin/php /var/www/skywings/scripts/expire_reservations.php
+# Ajouter ces lignes (ajustez le chemin /var/www/yourva) :
+0 1 1 * * /usr/bin/php /var/www/yourva/scripts/paiement_salaires_pilotes.php
+0 2 1 * * /usr/bin/php /var/www/yourva/scripts/credit_mensualite.php
+0 3 1 * * /usr/bin/php /var/www/yourva/scripts/assurance_mensuelle.php
+0 4 1 * * /usr/bin/php /var/www/yourva/scripts/maintenance.php
+0 5 1 * * /usr/bin/php /var/www/yourva/scripts/rotate_logs.php
+0 23 1 * * /usr/bin/php /var/www/yourva/scripts/promotion_grades_pilotes.php
+0 4 * * 5 /usr/bin/php /var/www/yourva/scripts/update_fret.php
+0 2 * * * /usr/bin/php /var/www/yourva/scripts/expire_reservations.php
 ```
 
 ### Configuration sur Windows (Planificateur de tâches) :
@@ -321,7 +317,7 @@ sudo crontab -e
    - **Déclencheur** : Quotidien / Mensuel selon le script
    - **Action** : Démarrer un programme
    - **Programme** : `C:\xampp\php\php.exe`
-   - **Arguments** : `C:\xampp\htdocs\skywings\scripts\nom_du_script.php`
+   - **Arguments** : `C:\xampp\htdocs\yourva\scripts\nom_du_script.php`
 
 ### Configuration sur hébergement mutualisé (cPanel) :
 
@@ -344,55 +340,50 @@ http://votre-domaine.com/
 ```
 
 Vous devriez voir la page d'accueil avec :
-- Le logo SkyWings
+- Le logo de votre compagnie
 - Les vols en cours (aucun pour l'instant)
-- Un bouton "S'inscrire"
+- Un formulaire de connexion
 
-### Étape 2 : Vérifier les langues
+### Étape 2 : Connexion avec le compte administrateur par défaut
 
-Cliquez sur le sélecteur de langue en haut à droite :
-- 🇫🇷 Français
-- 🇬🇧 English
-- 🇪🇸 Español
+1. Connectez-vous avec les identifiants suivants :
+   - **Callsign** : `ADM0001`
+   - **Mot de passe** : `admin123`
 
-Vérifiez que le changement de langue fonctionne.
+2. ✅ Vous devriez maintenant voir le menu **"Admin"** en haut de la page
 
----
+### Étape 3 : Créer votre propre compte administrateur
 
-## 👤 Création du compte administrateur
+⚠️ **IMPORTANT pour la sécurité** : Le compte `ADM0001` doit être supprimé après cette étape.
 
-### Étape 1 : S'inscrire en tant que pilote
+1. Cliquez sur **"Déconnexion"**
+2. Cliquez sur **"S'inscrire"** (ou **"Register"**)
+3. Remplissez le formulaire avec **vos informations** :
+   - **Callsign** : Votre indicatif (ex: ABC0001)
+   - **Nom** et **Prénom** : Vos informations
+   - **Email** : Votre email réel
+   - **Mot de passe** : Un mot de passe sécurisé
+4. Validez l'inscription
 
-1. Cliquez sur **"S'inscrire"** (ou **"Register"**)
-2. Remplissez le formulaire :
-   - **Callsign** : SKY001 (ou ce que vous voulez)
-   - **Nom** : Votre nom
-   - **Prénom** : Votre prénom
-   - **Email** : Votre email
-   - **Mot de passe** : Choisissez un mot de passe sécurisé
-3. Validez l'inscription
+### Étape 4 : Promouvoir votre compte en administrateur
 
-### Étape 2 : Passer le compte en administrateur
+Reconnectez-vous avec le compte **ADM0001**, puis :
 
-#### Via PhpMyAdmin :
-1. Ouvrez **PhpMyAdmin**
-2. Sélectionnez votre base de données
-3. Cliquez sur la table **`PILOTES`**
-4. Trouvez votre compte (SKY001)
-5. Cliquez sur **"Modifier"**
-6. Changez le champ **`is_admin`** de `0` à `1`
-7. Enregistrez
+1. Allez dans **Admin** → **Gestion des pilotes**
+2. Trouvez votre nouveau compte dans la liste
+3. Cochez la case **"Admin"** sur votre ligne
+4. Enregistrez
 
-#### Via ligne de commande MySQL :
-```sql
-UPDATE PILOTES SET is_admin = 1 WHERE callsign = 'SKY001';
-```
+### Étape 5 : Supprimer le compte par défaut
 
-### Étape 3 : Vérifier les droits admin
+⚠️ **Critique pour la sécurité** :
 
-1. Déconnectez-vous puis reconnectez-vous
-2. Vous devriez maintenant voir le menu **"Admin"** en haut de la page
-3. Cliquez dessus pour accéder aux fonctionnalités d'administration
+1. Déconnectez-vous de `ADM0001`
+2. Reconnectez-vous avec **votre propre compte**
+3. Allez dans **Admin** → **Gestion des pilotes**
+4. **Supprimez** le compte `ADM0001`
+
+✅ Votre installation est maintenant sécurisée !
 
 ---
 
@@ -402,7 +393,7 @@ UPDATE PILOTES SET is_admin = 1 WHERE callsign = 'SKY001';
 
 Éditez le fichier `includes/header.php` :
 ```php
-<div class="nom-compagnie">SkyWings</div>  <!-- Ligne 25 environ -->
+<div class="nom-compagnie">Votre VA</div>  <!-- Ligne 25 environ -->
 ```
 
 ### Changer le logo
@@ -422,6 +413,18 @@ Remplacez le fichier `assets/images/logo.png` par votre propre logo (PNG, 150x15
 ---
 
 ## 🔍 Dépannage
+
+### 💡 Utilisez le script de diagnostic
+
+En cas de problème, utilisez le script de vérification :
+```
+http://votre-domaine.com/check_installation.php
+```
+Il vous indiquera exactement ce qui ne fonctionne pas (extensions PHP, permissions, connexion base de données, etc.).
+
+⚠️ N'oubliez pas de le supprimer après utilisation.
+
+---
 
 ### Problème : Page blanche
 
@@ -448,7 +451,7 @@ error_reporting(E_ALL);
 sudo systemctl status mysql
 
 # Tester la connexion
-mysql -u skywings_user -p skywings
+mysql -u yourva_user -p yourva
 ```
 
 ### Problème : Les emails ne partent pas
@@ -539,7 +542,7 @@ Avant de mettre en production, vérifiez que :
 
 ## 🎉 Félicitations !
 
-Votre compagnie aérienne virtuelle **SkyWings** est maintenant opérationnelle !
+Votre compagnie aérienne virtuelle est maintenant opérationnelle !
 
 Vous pouvez :
 - Créer des missions personnalisées
@@ -551,5 +554,5 @@ Vous pouvez :
 
 ---
 
-*Guide créé avec ❤️ par la communauté SkyWings*  
+*Guide créé avec ❤️ par la communauté de simulation de vol*  
 *Version 2.0 - Novembre 2025*

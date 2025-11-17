@@ -193,7 +193,8 @@ $success = [];
             $required_files = [
                 'includes/db_connect_exemple.php' => 'Fichier exemple de configuration DB',
                 'includes/config_exemple.php' => 'Fichier exemple de configuration générale',
-                'sql_database/VA_mysql_db_creation.sql' => 'Script de création de la base',
+                'sql_database/01_Main_Database.sql' => 'Script principal de création de la base',
+                'sql_database/02_Airports_data.sql' => 'Script des données aéroports',
                 'lang/fr.php' => 'Fichier de traduction français',
                 'lang/en.php' => 'Fichier de traduction anglais',
                 'lang/es.php' => 'Fichier de traduction espagnol',
@@ -370,16 +371,16 @@ $success = [];
                     <li>Éditez <code>includes/config.php</code> et personnalisez le nom de votre VA, emails, etc.</li>
                     <li>Renommez <code>includes/db_connect_exemple.php</code> en <code>includes/db_connect.php</code></li>
                     <li>Éditez <code>includes/db_connect.php</code> avec vos identifiants MySQL</li>
-                    <li>Importez <code>sql_database/VA_mysql_db_creation.sql</code> dans votre base</li>
-                    <li>Importez <code>sql_database/create_session_tokens_table.sql</code></li>
+                    <li>Importez <code>sql_database/01_Main_Database.sql</code> (crée la base + compte admin ADM0001)</li>
+                    <li>Importez <code>sql_database/02_Airports_data.sql</code> (données aéroports)</li>
                     <li>Rechargez cette page pour vérifier la connexion</li>
                 </ol>
                 <?php else: ?>
                 <p><strong>🎉 Votre environnement est prêt !</strong></p>
                 <ol>
                     <li>Accédez à votre site : <code><?= 'http://' . $_SERVER['HTTP_HOST'] . '/' ?></code></li>
-                    <li>Créez votre compte pilote</li>
-                    <li>Donnez-vous les droits admin dans la base de données</li>
+                    <li>Connectez-vous avec le compte par défaut : <code>ADM0001</code> / <code>admin123</code></li>
+                    <li>Créez votre propre compte admin et supprimez ADM0001</li>
                     <li><strong>⚠️ SUPPRIMEZ ce fichier check_installation.php</strong></li>
                     <li>Consultez <code>INSTALLATION.md</code> pour la configuration complète</li>
                 </ol>

@@ -1,10 +1,18 @@
-# 🚀 Guide de Démarrage Rapide - SkyWings
+# 🚀 Guide de Démarrage Rapide - Virtual Airline System
 
 **Pour l'installation complète, consultez [INSTALLATION.md](INSTALLATION.md)**
 
 ---
 
 ## ⚡ Installation en 5 minutes
+
+### 0️⃣ Vérification (recommandé)
+
+**Uploadez et lancez** `Documentation/check_installation.php` :
+```
+http://votre-domaine.com/check_installation.php
+```
+✅ Vérifiez que tout est OK, puis supprimez le fichier.
 
 ### 1️⃣ Préparez votre environnement
 
@@ -15,26 +23,15 @@
 
 ---
 
-### 2️⃣ Créez la base de données
-
-```sql
-CREATE DATABASE skywings CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-```
-
----
-
-### 3️⃣ Importez les données
+### 2️⃣ Importez les scripts SQL
 
 **Via PhpMyAdmin :**
-1. Sélectionnez votre base `skywings`
-2. Onglet "Importer"
-3. Choisissez `sql_database/VA_mysql_db_creation.sql`
-4. Exécutez
+1. Onglet "Importer"
+2. Importez **dans l'ordre** :
+   - `sql_database/01_Main_Database.sql` (crée la base + tables)
+   - `sql_database/02_Airports_data.sql` (données aéroports)
 
-**Puis importez aussi :**
-```bash
-sql_database/create_session_tokens_table.sql
-```
+✅ Un compte admin par défaut est créé : `ADM0001` / `admin123`
 
 ---
 
@@ -48,7 +45,7 @@ cp includes/db_connect_exemple.php includes/db_connect.php
 **Éditez `includes/db_connect.php` :**
 ```php
 $host = 'localhost';
-$db   = 'skywings';
+$db   = 'yourva';
 $user = 'votre_utilisateur';
 $pass = 'votre_mot_de_passe';
 ```
@@ -72,15 +69,13 @@ $mail->Port = 587;
 
 ---
 
-### 6️⃣ Créez votre compte admin
+### 6️⃣ Première connexion
 
 1. Accédez à `http://votre-domaine.com/`
-2. Cliquez sur "S'inscrire"
-3. Créez votre compte (ex: SKY001)
-4. Dans la base de données :
-   ```sql
-   UPDATE PILOTES SET is_admin = 1 WHERE callsign = 'SKY001';
-   ```
+2. Connectez-vous avec : `ADM0001` / `admin123`
+3. Créez votre propre compte admin via "S'inscrire"
+4. Promouvoir votre compte : Admin → Gestion des pilotes
+5. ⚠️ **Supprimez le compte `ADM0001`** pour la sécurité
 
 ---
 

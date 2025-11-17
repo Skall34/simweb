@@ -1,11 +1,11 @@
-# ✈️ SkyWings - Virtual Airline Management System
+# ✈️ Virtual Airline Management System
 
 ![Version](https://img.shields.io/badge/version-2.0-blue)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Languages](https://img.shields.io/badge/languages-FR%20%7C%20EN%20%7C%20ES-orange)
 
-**SkyWings** is a complete web-based virtual airline management system for Microsoft Flight Simulator communities. It includes flight tracking, fleet management, pilot statistics, missions, and full integration with the SimAddon client for automatic flight recording.
+A complete web-based virtual airline management system for Microsoft Flight Simulator communities. It includes flight tracking, fleet management, pilot statistics, missions, and full integration with the SimAddon client for automatic flight recording.
 
 ---
 
@@ -46,12 +46,20 @@
 ### 1. Download & Extract
 Download the latest release and extract to your web server directory.
 
+### 2. Check Environment (Recommended)
+Upload and run `Documentation/check_installation.php`:
+```
+http://your-domain.com/check_installation.php
+```
+✅ Verify all requirements are met, then delete the file.
+
 ### 2. Database Setup
 ```bash
-mysql -u root -p
-CREATE DATABASE skywings CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-mysql -u root -p skywings < sql_database/VA_mysql_db_creation.sql
+# Import SQL scripts in order
+mysql -u root -p < sql_database/01_Main_Database.sql
+mysql -u root -p VA_Database < sql_database/02_Airports_data.sql
 ```
+✅ Default admin account created: `ADM0001` / `admin123`
 
 ### 3. Configure Database Connection
 ```bash
@@ -59,10 +67,11 @@ cp includes/db_connect_exemple.php includes/db_connect.php
 # Edit includes/db_connect.php with your credentials
 ```
 
-### 4. Access & Create Admin Account
+### 4. First Login
 1. Open `http://your-domain.com/`
-2. Register as a pilot
-3. Set `is_admin = 1` in database for your account
+2. Login with: `ADM0001` / `admin123`
+3. Create your own admin account
+4. ⚠️ Delete `ADM0001` for security
 
 📖 **For detailed installation instructions, see:**
 - 🇫🇷 [INSTALLATION.md](INSTALLATION.md) (Français)
@@ -73,7 +82,7 @@ cp includes/db_connect_exemple.php includes/db_connect.php
 ## 📁 Project Structure
 
 ```
-skywings/
+yourva/
 ├── admin/              # Administration pages
 ├── api/                # API endpoints for SimAddon
 ├── assets/             # Images, ACARS documentation
@@ -119,7 +128,7 @@ Full interface translation in 3 languages:
 
 ## 🔌 SimAddon Integration
 
-**SimAddon** is the companion MSFS addon that automatically records flights to SkyWings:
+**SimAddon** is the companion MSFS addon that automatically records flights:
 - Real-time flight tracking
 - Automatic data upload (departure, arrival, duration, fuel)
 - GPS trace recording
@@ -182,7 +191,7 @@ This project is licensed under the MIT License - see [LICENSE.txt](LICENSE.txt) 
 
 ## 🙏 Credits
 
-Created with ❤️ by the SkyWings community for flight simulation enthusiasts worldwide.
+Created with ❤️ by the flight simulation community for virtual airline enthusiasts worldwide.
 
 **Special thanks to:**
 - All beta testers and contributors

@@ -1,6 +1,6 @@
-# ✅ Checklist de Distribution - SkyWings
+# ✅ Checklist de Distribution - Virtual Airline System
 
-**Avant de partager SkyWings avec la communauté, vérifiez cette checklist.**
+**Avant de partager le système avec la communauté, vérifiez cette checklist.**
 
 ---
 
@@ -106,8 +106,8 @@
 
 ### Structure du ZIP
 ```
-skywings-v2.0.zip
-├── skywings/
+va-system-v2.0.zip
+├── va-system/
 │   ├── admin/
 │   ├── api/
 │   ├── assets/
@@ -130,7 +130,7 @@ skywings-v2.0.zip
 ```
 
 ### Nom du fichier
-- [ ] Format: `skywings-v2.0.zip` ou `skywings-v2.0.0.zip`
+- [ ] Format: `va-system-v2.0.zip` ou `va-system-v2.0.0.zip`
 - [ ] Inclure le numéro de version
 - [ ] Taille raisonnable (< 100 MB)
 

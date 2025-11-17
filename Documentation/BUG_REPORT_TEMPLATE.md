@@ -1,4 +1,4 @@
-# 🐛 Rapport de Bug - SkyWings
+# 🐛 Rapport de Bug - Virtual Airline System
 
 **Merci de prendre le temps de signaler ce problème !**
 
@@ -6,7 +6,7 @@
 
 ## 📋 Informations générales
 
-**Version de SkyWings :** 2.0.0
+**Version du système :** 2.0.0
 
 **Type de problème :**
 - [ ] 🐛 Bug / Erreur
@@ -124,7 +124,7 @@
 [Extrait pertinent du log]
 ```
 
-### Logs SkyWings
+### Logs du système
 *Voir : scripts/logs/*.log*
 ```
 [Extrait pertinent si applicable]
@@ -221,6 +221,6 @@ Avant de soumettre ce rapport, vérifiez :
 
 ---
 
-**Merci de contribuer à améliorer SkyWings ! 🙏**
+**Merci de contribuer à améliorer le système ! 🙏**
 
 *Note : Plus votre rapport est détaillé, plus vite nous pourrons résoudre le problème.*
