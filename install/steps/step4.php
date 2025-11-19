@@ -114,32 +114,81 @@ try {
  * Généré automatiquement par l'installateur le " . date('Y-m-d H:i:s') . "
  */
 
-// Informations de la VA
+// ==================== BASE DE DONNÉES ====================
+
+define('DB_HOST', '" . addslashes($db['host']) . "');
+define('DB_NAME', '" . addslashes($db['name']) . "');
+define('DB_USER', '" . addslashes($db['user']) . "');
+define('DB_PASS', '" . addslashes($db['pass']) . "');
+define('DB_CHARSET', 'utf8mb4');
+
+// ==================== INFORMATIONS COMPAGNIE ====================
+
 define('VA_NAME', '" . addslashes($config['va_name']) . "');
-define('VA_EMAIL', '" . addslashes($config['va_email']) . "');
-define('VA_URL', '" . addslashes($config['va_url']) . "');
-define('VA_ADMIN_CALLSIGNS', 'ADM0001'); // Liste des callsigns administrateurs séparés par des virgules
+define('VA_ICAO', '" . addslashes($config['va_icao']) . "');
+define('VA_IATA', '" . addslashes($config['va_iata']) . "');
+define('VA_TAGLINE', '" . addslashes($config['va_tagline']) . "');
 
-// Configuration générale
-date_default_timezone_set('" . addslashes($config['timezone']) . "');
-define('SITE_TIMEZONE', '" . addslashes($config['timezone']) . "');
+// ==================== CONTACT ====================
 
-// Configuration SMTP pour l'envoi d'emails
-define('MAIL_ENABLED', " . ($config['smtp_enabled'] ? 'true' : 'false') . ");
+define('VA_CONTACT_EMAIL', '" . addslashes($config['va_email']) . "');
+define('VA_ADMIN_EMAIL', '" . addslashes($config['va_admin_email']) . "');
+
+// ==================== ADMINISTRATION ====================
+
+define('VA_ADMIN_CALLSIGNS', 'ADM0001');
+define('VA_BASE_URL', '" . addslashes($config['va_url']) . "');
+
+// ==================== CONFIGURATION SMTP ====================
+
 define('SMTP_HOST', '" . addslashes($config['smtp_host']) . "');
 define('SMTP_PORT', " . (int)$config['smtp_port'] . ");
-define('SMTP_USER', '" . addslashes($config['smtp_user']) . "');
-define('SMTP_PASS', '" . addslashes($config['smtp_pass']) . "');
 define('SMTP_SECURE', '" . addslashes($config['smtp_secure']) . "');
-define('SMTP_FROM_EMAIL', VA_EMAIL);
-define('SMTP_FROM_NAME', VA_NAME);
+define('SMTP_USERNAME', '" . addslashes($config['smtp_user']) . "');
+define('SMTP_PASSWORD', '" . addslashes($config['smtp_pass']) . "');
+define('SMTP_FROM_EMAIL', '" . addslashes($config['smtp_from_email']) . "');
+define('SMTP_FROM_NAME', '" . addslashes($config['smtp_from_name']) . "');
 
-// Sécurité
-define('SESSION_LIFETIME', 3600); // 1 heure
-define('BCRYPT_COST', 12);
+// ==================== RÉSEAUX SOCIAUX ====================
 
-// Mode debug (désactiver en production)
-define('DEBUG_MODE', false);
+define('VA_DISCORD_URL', '" . addslashes($config['va_discord_url']) . "');
+define('VA_WEBSITE_URL', '" . addslashes($config['va_website_url']) . "');
+define('VA_FORUM_URL', '" . addslashes($config['va_forum_url']) . "');
+
+// ==================== PARAMÈTRES FINANCIERS ====================
+
+define('VA_CURRENCY', '" . addslashes($config['va_currency']) . "');
+define('VA_CURRENCY_SYMBOL', '" . addslashes($config['va_currency_symbol']) . "');
+define('VA_CURRENCY_POSITION', '" . addslashes($config['va_currency_position']) . "');
+define('VA_STARTING_BALANCE', " . (int)$config['va_starting_balance'] . ");
+
+// ==================== PARAMÈTRES SYSTÈME ====================
+
+define('VA_TIMEZONE', '" . addslashes($config['timezone']) . "');
+define('VA_DEFAULT_LANGUAGE', '" . addslashes($config['va_default_language']) . "');
+define('VA_REGISTRATION_ENABLED', " . $config['va_registration_enabled'] . ");
+define('VA_MIN_FLIGHTS_FOR_PROMOTION', " . (int)$config['va_min_flights_promotion'] . ");
+
+// ==================== PARAMÈTRES SIMADDON ====================
+
+define('VA_SIMADDON_ENABLED', " . $config['va_simaddon_enabled'] . ");
+define('VA_SIMADDON_API_URL', 'https://api.simaddon.com');
+
+// ==================== MODE DEBUG ====================
+
+define('VA_DEBUG_MODE', false);
+
+// ==================== NE PAS MODIFIER ====================
+
+date_default_timezone_set(VA_TIMEZONE);
+
+if (VA_DEBUG_MODE) {
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+} else {
+    error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING);
+    ini_set('display_errors', 0);
+}
 ";
         
         $config_path = __DIR__ . '/../../includes/config.php';
@@ -291,7 +340,7 @@ define('DEBUG_MODE', false);
         <p>Récapitulatif de votre configuration :</p>
         
         <div class="summary-box">
-            <h3>Base de données</h3>
+            <h3>📦 Base de données</h3>
             <ul>
                 <li><strong>Hôte :</strong> <?= htmlspecialchars($_SESSION['install_data']['database']['host']) ?></li>
                 <li><strong>Port :</strong> <?= htmlspecialchars($_SESSION['install_data']['database']['port']) ?></li>
@@ -299,12 +348,26 @@ define('DEBUG_MODE', false);
                 <li><strong>Utilisateur :</strong> <?= htmlspecialchars($_SESSION['install_data']['database']['user']) ?></li>
             </ul>
             
-            <h3>Virtual Airline</h3>
+            <h3>✈️ Virtual Airline</h3>
             <ul>
                 <li><strong>Nom :</strong> <?= htmlspecialchars($_SESSION['install_data']['config']['va_name']) ?></li>
-                <li><strong>Email :</strong> <?= htmlspecialchars($_SESSION['install_data']['config']['va_email']) ?></li>
+                <li><strong>Code ICAO :</strong> <?= htmlspecialchars($_SESSION['install_data']['config']['va_icao']) ?></li>
+                <?php if (!empty($_SESSION['install_data']['config']['va_iata'])): ?>
+                <li><strong>Code IATA :</strong> <?= htmlspecialchars($_SESSION['install_data']['config']['va_iata']) ?></li>
+                <?php endif; ?>
+                <li><strong>Email contact :</strong> <?= htmlspecialchars($_SESSION['install_data']['config']['va_email']) ?></li>
+                <li><strong>Email admin :</strong> <?= htmlspecialchars($_SESSION['install_data']['config']['va_admin_email']) ?></li>
                 <li><strong>URL :</strong> <?= htmlspecialchars($_SESSION['install_data']['config']['va_url']) ?></li>
+            </ul>
+            
+            <h3>⚙️ Paramètres</h3>
+            <ul>
+                <li><strong>Devise :</strong> <?= htmlspecialchars($_SESSION['install_data']['config']['va_currency']) ?> (<?= htmlspecialchars($_SESSION['install_data']['config']['va_currency_symbol']) ?>)</li>
+                <li><strong>Langue :</strong> <?= htmlspecialchars($_SESSION['install_data']['config']['va_default_language']) ?></li>
                 <li><strong>Fuseau :</strong> <?= htmlspecialchars($_SESSION['install_data']['config']['timezone']) ?></li>
+                <li><strong>Balance départ :</strong> <?= number_format($_SESSION['install_data']['config']['va_starting_balance']) ?> <?= htmlspecialchars($_SESSION['install_data']['config']['va_currency_symbol']) ?></li>
+                <li><strong>Inscription :</strong> <?= $_SESSION['install_data']['config']['va_registration_enabled'] === 'true' ? 'Activée' : 'Désactivée' ?></li>
+                <li><strong>SimAddon :</strong> <?= $_SESSION['install_data']['config']['va_simaddon_enabled'] === 'true' ? 'Activé' : 'Désactivé' ?></li>
                 <li><strong>SMTP :</strong> <?= $_SESSION['install_data']['config']['smtp_enabled'] ? 'Activé' : 'Désactivé' ?></li>
             </ul>
         </div>

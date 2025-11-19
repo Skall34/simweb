@@ -103,7 +103,6 @@ include __DIR__ . '/../includes/header.php';
 include __DIR__ . '/../includes/menu_logged.php';
 ?>
 
-<?php include_once __DIR__ . '/../lang/lang.php'; ?>
 <main>
     <h2><?= t('account_title') ?></h2>
     <?php
