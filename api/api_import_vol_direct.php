@@ -219,26 +219,27 @@ try {
     // 15. Envoi du mail récapitulatif enrichi
     if ($mailSummaryEnabled && function_exists('sendSummaryMail')) {
         $subject = "[SimWeb] Rapport import vol direct ACARS - " . date('d/m/Y H:i');
-        $body = "Salut ma poule,\n\nImport d'un vol ACARS direct terminé.";
-        $body .= "\nPilote : $callsign";
-        $body .= "\nTrajet : $departure_icao -> $arrival_icao";
-        $body .= "\nImmatriculation : $immat";
-        $body .= "\nMission : $mission";
+        $body = "Bonjour,\r\n\r\nImport d'un vol ACARS direct termine.\r\n\r\n";
+        $body .= "Pilote : " . htmlspecialchars($callsign, ENT_QUOTES, 'UTF-8') . "\r\n";
+        $body .= "Trajet : " . htmlspecialchars($departure_icao, ENT_QUOTES, 'UTF-8') . " -> " . htmlspecialchars($arrival_icao, ENT_QUOTES, 'UTF-8') . "\r\n";
+        $body .= "Immatriculation : " . htmlspecialchars($immat, ENT_QUOTES, 'UTF-8') . "\r\n";
+        $body .= "Mission : " . htmlspecialchars($mission, ENT_QUOTES, 'UTF-8') . "\r\n";
         // Formater payload avec une virgule comme séparateur décimal et ajouter l'unité Kg
         $payload_fmt = number_format(floatval($payload), 2, ',', ' ');
-        $body .= "\nPayload : {$payload_fmt} Kg";
-        $body .= "\nNote : $note";
+        $body .= "Payload : {$payload_fmt} Kg\r\n";
+        $body .= "Note : " . intval($note) . "\r\n";
         // Formater le montant de la recette avec une virgule comme séparateur décimal
         $cout_vol_fmt = number_format(floatval($cout_vol), 2, ',', ' ');
-        $body .= "\nRecettes du vol : {$cout_vol_fmt} €";
+        $body .= "Recettes du vol : {$cout_vol_fmt} EUR\r\n";
         
-        $body .= "\n\nCeci est un message automatique, donc n'y réponds pas cono !";
+        $body .= "\r\n\r\nCeci est un message automatique.\r\n";
         $to = VA_ADMIN_EMAIL;
         $mailResult = sendSummaryMail($subject, $body, $to);
-        if ($mailResult === true || $mailResult === null) {
-            logMsg("[api_import_vol_direct] Mail récapitulatif envoyé à $to", $logFile);
+        if ($mailResult === true) {
+            logMsg("[api_import_vol_direct] Mail recapitulatif envoye a $to", $logFile);
         } else {
-            logMsg("[api_import_vol_direct] Erreur lors de l'envoi du mail récapitulatif : $mailResult", $logFile);
+            // Log mais ne bloque pas le traitement
+            logMsg("[api_import_vol_direct] Avertissement envoi mail : $mailResult", $logFile);
         }
     }
 

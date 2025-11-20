@@ -141,6 +141,11 @@ main {
     border-color: #f5c6cb;
 }
 
+.check-item.warning {
+    background: #fff3cd;
+    border-color: #ffc107;
+}
+
 .check-icon {
     font-size: 1.5em;
     margin-right: 15px;
@@ -153,6 +158,10 @@ main {
 
 .check-item.error .check-icon {
     color: #dc3545;
+}
+
+.check-item.warning .check-icon {
+    color: #ffc107;
 }
 
 .check-content strong {

@@ -100,10 +100,59 @@ try {
 ";
         
         $db_connect_path = __DIR__ . '/../../includes/db_connect.php';
-        if (file_put_contents($db_connect_path, $db_connect_content) === false) {
-            throw new Exception('Impossible de créer db_connect.php');
+        $db_connect_dir = dirname($db_connect_path);
+        
+        // Vérifier/créer le dossier includes/ avec gestion intelligente
+        if (!is_dir($db_connect_dir)) {
+            $logs[] = ['type' => 'info', 'message' => 'Création du dossier includes/...'];
+            $mkdir_success = @mkdir($db_connect_dir, 0755, true);
+            
+            if (!$mkdir_success) {
+                // Tentative avec permissions plus larges
+                $parent_dir = dirname($db_connect_dir);
+                $old_perms = @fileperms($parent_dir);
+                @chmod($parent_dir, 0777);
+                $mkdir_success = @mkdir($db_connect_dir, 0755, true);
+                
+                if ($mkdir_success) {
+                    @chmod($parent_dir, $old_perms); // Restaurer les permissions d'origine
+                    $logs[] = ['type' => 'success', 'message' => '✓ Dossier includes/ créé'];
+                } else {
+                    // Impossible de créer le dossier
+                    $_SESSION['install_data']['db_connect_content'] = $db_connect_content;
+                    $_SESSION['install_data']['db_connect_path'] = $db_connect_path;
+                    throw new Exception('Impossible de créer le dossier includes/. Créez-le manuellement avec : mkdir includes && chmod 755 includes');
+                }
+            } else {
+                $logs[] = ['type' => 'success', 'message' => '✓ Dossier includes/ créé'];
+            }
         }
-        $logs[] = ['type' => 'success', 'message' => '✓ Fichier db_connect.php créé'];
+        
+        // Tentative d'écriture
+        $write_success = @file_put_contents($db_connect_path, $db_connect_content);
+        
+        if ($write_success === false) {
+            // Tentative de correction des permissions du dossier
+            $logs[] = ['type' => 'info', 'message' => 'Permissions insuffisantes, tentative de correction...'];
+            @chmod($db_connect_dir, 0777);
+            $write_success = @file_put_contents($db_connect_path, $db_connect_content);
+            
+            if ($write_success !== false) {
+                // Succès après correction, on remet les permissions à 755
+                @chmod($db_connect_dir, 0755);
+                @chmod($db_connect_path, 0644);
+                $logs[] = ['type' => 'success', 'message' => '✓ Fichier db_connect.php créé (après correction permissions)'];
+            } else {
+                // Échec définitif, on stocke le contenu pour affichage manuel
+                $_SESSION['install_data']['db_connect_content'] = $db_connect_content;
+                $_SESSION['install_data']['db_connect_path'] = $db_connect_path;
+                throw new Exception('Impossible de créer db_connect.php automatiquement. Permissions insuffisantes sur le dossier includes/');
+            }
+        } else {
+            // Succès direct, on sécurise les permissions
+            @chmod($db_connect_path, 0644);
+            $logs[] = ['type' => 'success', 'message' => '✓ Fichier db_connect.php créé'];
+        }
         
         // 2. Créer le fichier config.php
         $logs[] = ['type' => 'info', 'message' => 'Génération du fichier config.php...'];
@@ -192,12 +241,87 @@ if (VA_DEBUG_MODE) {
 ";
         
         $config_path = __DIR__ . '/../../includes/config.php';
-        if (file_put_contents($config_path, $config_content) === false) {
-            throw new Exception('Impossible de créer config.php');
-        }
-        $logs[] = ['type' => 'success', 'message' => '✓ Fichier config.php créé'];
+        $config_dir = dirname($config_path);
         
-        // 3. Connexion à MySQL et création de la base de données
+        // Le dossier includes/ devrait déjà exister (créé lors de db_connect.php)
+        // Mais on vérifie quand même
+        if (!is_dir($config_dir)) {
+            $logs[] = ['type' => 'info', 'message' => 'Création du dossier includes/...'];
+            $mkdir_success = @mkdir($config_dir, 0755, true);
+            if (!$mkdir_success) {
+                $parent_dir = dirname($config_dir);
+                $old_perms = @fileperms($parent_dir);
+                @chmod($parent_dir, 0777);
+                $mkdir_success = @mkdir($config_dir, 0755, true);
+                if ($mkdir_success) {
+                    @chmod($parent_dir, $old_perms);
+                }
+            }
+        }
+        
+        // Tentative d'écriture
+        $write_success = @file_put_contents($config_path, $config_content);
+        
+        if ($write_success === false) {
+            // Tentative de correction des permissions du dossier
+            $logs[] = ['type' => 'info', 'message' => 'Permissions insuffisantes, tentative de correction...'];
+            @chmod($config_dir, 0777);
+            $write_success = @file_put_contents($config_path, $config_content);
+            
+            if ($write_success !== false) {
+                // Succès après correction, on remet les permissions à 755
+                @chmod($config_dir, 0755);
+                @chmod($config_path, 0644);
+                $logs[] = ['type' => 'success', 'message' => '✓ Fichier config.php créé (après correction permissions)'];
+            } else {
+                // Échec définitif, on stocke le contenu pour affichage manuel
+                $_SESSION['install_data']['config_content'] = $config_content;
+                $_SESSION['install_data']['config_path'] = $config_path;
+                throw new Exception('Impossible de créer config.php automatiquement. Permissions insuffisantes sur le dossier includes/');
+            }
+        } else {
+            // Succès direct, on sécurise les permissions
+            @chmod($config_path, 0644);
+            $logs[] = ['type' => 'success', 'message' => '✓ Fichier config.php créé'];
+        }
+        
+        // 3. Créer le dossier scripts/logs/ avec gestion intelligente des permissions
+        $logs[] = ['type' => 'info', 'message' => 'Création du dossier scripts/logs/...'];
+        
+        $logs_dir = __DIR__ . '/../../scripts/logs';
+        
+        if (!is_dir($logs_dir)) {
+            // Tentative de création
+            $mkdir_success = @mkdir($logs_dir, 0755, true);
+            
+            if ($mkdir_success === false) {
+                // Tentative avec permissions 0777 temporaires
+                $logs[] = ['type' => 'info', 'message' => 'Permissions insuffisantes, tentative de correction...'];
+                $parent_dir = dirname($logs_dir);
+                @chmod($parent_dir, 0777);
+                $mkdir_success = @mkdir($logs_dir, 0755, true);
+                
+                if ($mkdir_success !== false) {
+                    // Succès, on restaure les permissions
+                    @chmod($parent_dir, 0755);
+                    @chmod($logs_dir, 0755);
+                    $logs[] = ['type' => 'success', 'message' => '✓ Dossier scripts/logs/ créé (après correction permissions)'];
+                } else {
+                    // Échec, mais non bloquant
+                    $logs[] = ['type' => 'info', 'message' => '⚠ Dossier scripts/logs/ non créé automatiquement. Créez-le manuellement avec : mkdir scripts/logs && chmod 755 scripts/logs'];
+                }
+            } else {
+                // Succès direct
+                @chmod($logs_dir, 0755);
+                $logs[] = ['type' => 'success', 'message' => '✓ Dossier scripts/logs/ créé'];
+            }
+        } else {
+            // Dossier déjà existant, on vérifie/corrige les permissions
+            @chmod($logs_dir, 0755);
+            $logs[] = ['type' => 'success', 'message' => '✓ Dossier scripts/logs/ existe déjà'];
+        }
+        
+        // 4. Connexion à MySQL et création de la base de données
         $logs[] = ['type' => 'info', 'message' => 'Connexion au serveur MySQL...'];
         
         $dsn = "mysql:host={$db['host']};port={$db['port']};charset=utf8mb4";
@@ -328,6 +452,11 @@ if (VA_DEBUG_MODE) {
     } catch (Exception $e) {
         $errors[] = $e->getMessage();
         $logs[] = ['type' => 'error', 'message' => '✗ Erreur : ' . $e->getMessage()];
+        
+        // Si l'erreur concerne les permissions, proposer une solution manuelle
+        if (strpos($e->getMessage(), 'Permissions insuffisantes') !== false) {
+            $manual_install_needed = true;
+        }
     }
 }
 
@@ -416,8 +545,44 @@ if (VA_DEBUG_MODE) {
                 <p>Veuillez consulter le journal ci-dessus et corriger les problèmes.</p>
             </div>
             
+            <?php if (isset($manual_install_needed) && $manual_install_needed): ?>
+                <div class="warning-box" style="margin-top: 20px;">
+                    <h3>📝 Installation manuelle requise</h3>
+                    <p>Les permissions sur le dossier <code>includes/</code> ne permettent pas l'écriture automatique.</p>
+                    
+                    <p><strong>Solution recommandée (Linux/Raspberry Pi) :</strong></p>
+                    <ol>
+                        <li>Ouvrez un terminal SSH sur votre serveur</li>
+                        <li>Naviguez vers le dossier de l'application : <code>cd <?= htmlspecialchars(dirname(dirname(__DIR__))) ?></code></li>
+                        <li>Exécutez : <code>sudo chown -R www-data:www-data includes/</code></li>
+                        <li>Ou exécutez : <code>sudo chmod 777 includes/</code></li>
+                        <li>Cliquez sur "Réessayer" ci-dessous</li>
+                        <li>Après installation, restaurez : <code>sudo chmod 755 includes/</code></li>
+                    </ol>
+                    
+                    <p><strong>Solution alternative (copier-coller) :</strong> Créez manuellement les fichiers suivants :</p>
+                    
+                    <?php if (isset($_SESSION['install_data']['db_connect_content'])): ?>
+                        <h4>1️⃣ Fichier : <code><?= htmlspecialchars($_SESSION['install_data']['db_connect_path']) ?></code></h4>
+                        <textarea readonly style="width: 100%; height: 200px; font-family: monospace; font-size: 12px; padding: 10px;"><?= htmlspecialchars($_SESSION['install_data']['db_connect_content']) ?></textarea>
+                        <button class="btn" onclick="navigator.clipboard.writeText(this.previousElementSibling.value); alert('Contenu copié !')">📋 Copier</button>
+                    <?php endif; ?>
+                    
+                    <?php if (isset($_SESSION['install_data']['config_content'])): ?>
+                        <h4 style="margin-top: 20px;">2️⃣ Fichier : <code><?= htmlspecialchars($_SESSION['install_data']['config_path']) ?></code></h4>
+                        <textarea readonly style="width: 100%; height: 300px; font-family: monospace; font-size: 12px; padding: 10px;"><?= htmlspecialchars($_SESSION['install_data']['config_content']) ?></textarea>
+                        <button class="btn" onclick="navigator.clipboard.writeText(this.previousElementSibling.value); alert('Contenu copié !')">📋 Copier</button>
+                    <?php endif; ?>
+                    
+                    <p style="margin-top: 20px;"><strong>Après avoir créé ces fichiers, cliquez sur "Réessayer"</strong></p>
+                </div>
+            <?php endif; ?>
+            
             <div class="actions">
                 <a href="?step=2" class="btn btn-secondary">← Recommencer</a>
+                <?php if (isset($manual_install_needed) && $manual_install_needed): ?>
+                    <button type="button" class="btn btn-primary" onclick="location.reload()">🔄 Réessayer</button>
+                <?php endif; ?>
             </div>
         <?php endif; ?>
         

@@ -46,14 +46,19 @@ function sendSummaryMail($subject, $body, $to = null) {
         $mail->addAddress($to);
         $mail->Subject = $subject;
         $mail->CharSet = 'UTF-8';
+        $mail->Encoding = '8bit';
+        $mail->WordWrap = 70; // Limiter longueur des lignes
+        
         // Envoi en HTML uniquement si le corps contient des balises HTML
         if (preg_match('/<[^>]+>/', $body)) {
             $mail->isHTML(true);
             $mail->Body = $body;
             $mail->AltBody = strip_tags($body);
         } else {
+            $mail->isHTML(false);
             $mail->Body = $body;
         }
+        
         $mail->send();
         return true;
     } catch (Exception $e) {
