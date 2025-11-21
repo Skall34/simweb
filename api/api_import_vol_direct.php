@@ -243,7 +243,7 @@ try {
     }
 
     logMsg("[api_import_vol_direct] ✅ Vol traité avec succès (callsign: $callsign)", $logFile);
-    echo json_encode(['status' => 'success', 'message' => '✅ Vol inséré avec succès']);
+    echo json_encode(['status' => 'success', 'message' => 'Thank you for flying with ' + t('company_name') + '!']);
 } catch (PDOException $e) {
     logMsg("[api_import_vol_direct] ❌ Erreur DB : " . $e->getMessage(), $logFile);
     http_response_code(500); // Erreur serveur
