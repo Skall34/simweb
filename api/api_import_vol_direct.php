@@ -35,6 +35,7 @@ require_once __DIR__ . '/../includes/mail_utils.php';
 require_once __DIR__ . '/../includes/fonctions_financieres.php';
 require_once __DIR__ . '/../includes/fonctions_importer_vol.php';
 require_once __DIR__ . '/../includes/calcul_cout.php';
+require_once __DIR__ . '/../lang.php';
 
 date_default_timezone_set('Europe/Paris');
 $logFile = dirname(__DIR__) . '/scripts/logs/importer_vol_direct.log';
@@ -244,7 +245,8 @@ try {
     }
 
     logMsg("[api_import_vol_direct] ✅ Vol traité avec succès (callsign: $callsign)", $logFile);
-    echo json_encode(['status' => 'success', 'message' => 'Thank you for flying with ' + t('company_name') + '!']);
+    $compagnyName = t('company_name');
+    echo json_encode(['status' => 'success', 'message' => "Thank you for flying with $compagnyName!"]);
 } catch (PDOException $e) {
     logMsg("[api_import_vol_direct] ❌ Erreur DB : " . $e->getMessage(), $logFile);
     http_response_code(500); // Erreur serveur
