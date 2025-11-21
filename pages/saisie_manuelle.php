@@ -77,14 +77,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($stmt->fetchColumn() == 0) $erreurs[] = "Aéroport d'arrivée inconnu.";
         }
 
-        // Contrôle cohérence date/heure
+        // Contrôle cohérence date/heure (format, ordre et pas de dates futures)
         if ($form['departure_datetime'] && $form['arrival_datetime']) {
             $dt_dep = DateTime::createFromFormat('Y-m-d\TH:i', $form['departure_datetime']);
             $dt_arr = DateTime::createFromFormat('Y-m-d\TH:i', $form['arrival_datetime']);
+            $now = new DateTime();
             if (!$dt_dep || !$dt_arr) {
                 $erreurs[] = "Format date/heure invalide.";
-            } elseif ($dt_dep >= $dt_arr) {
-                $erreurs[] = "La date/heure de départ doit être antérieure à la date/heure d'arrivée.";
+            } else {
+                if ($dt_dep >= $dt_arr) {
+                    $erreurs[] = "La date/heure de départ doit être antérieure à la date/heure d'arrivée.";
+                }
+                if ($dt_dep > $now) {
+                    $erreurs[] = "La date/heure de départ ne peut pas être postérieure au moment présent.";
+                }
+                if ($dt_arr > $now) {
+                    $erreurs[] = "La date/heure d'arrivée ne peut pas être postérieure au moment présent.";
+                }
             }
         }
 

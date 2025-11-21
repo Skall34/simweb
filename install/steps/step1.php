@@ -57,9 +57,11 @@ foreach ($writable_paths as $path => $name) {
     
     $writable = is_writable($full_path);
     
-    // Message avec aide
+    // Messages informatifs (non bloquants pour includes/ et scripts/logs/)
     if (!$writable && $name === 'Dossier includes/') {
-        $message = "$name non accessible en écriture. Exécutez : chmod -R 755 includes/ && chown -R www-data:www-data includes/";
+        $message = "$name non accessible en écriture (normal). L'installateur tentera automatiquement d'ajuster les permissions.";
+    } elseif (!$writable && $name === 'Dossier scripts/logs/') {
+        $message = "$name non accessible en écriture (normal). L'installateur créera automatiquement ce dossier.";
     } elseif (!$writable) {
         $message = "$name non accessible en écriture. Exécutez : chmod -R 755 " . basename($path) . "/";
     } else {
@@ -70,9 +72,10 @@ foreach ($writable_paths as $path => $name) {
         'name' => "Permissions $name",
         'status' => $writable,
         'message' => $message,
-        'critical' => $name === 'Dossier includes/'
+        'critical' => false, // Aucune permission n'est critique grâce au système de fallback
+        'warning' => !$writable && ($name === 'Dossier includes/' || $name === 'Dossier scripts/logs/') // Avertissement seulement
     ];
-    if (!$writable && $name === 'Dossier includes/') $all_ok = false;
+    // Ne bloque plus l'installation
 }
 
 // Fichiers SQL présents
@@ -104,8 +107,11 @@ foreach ($sql_files as $path => $name) {
 
     <div class="checks-list">
         <?php foreach ($checks as $check): ?>
-            <div class="check-item <?= $check['status'] ? 'success' : 'error' ?>">
-                <span class="check-icon"><?= $check['status'] ? '✓' : '✗' ?></span>
+            <?php 
+                $class = $check['status'] ? 'success' : (isset($check['warning']) && $check['warning'] ? 'warning' : 'error');
+            ?>
+            <div class="check-item <?= $class ?>">
+                <span class="check-icon"><?= $check['status'] ? '✓' : (isset($check['warning']) && $check['warning'] ? '⚠' : '✗') ?></span>
                 <div class="check-content">
                     <strong><?= htmlspecialchars($check['name']) ?></strong>
                     <p><?= htmlspecialchars($check['message']) ?></p>

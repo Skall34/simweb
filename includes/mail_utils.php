@@ -15,8 +15,18 @@ require_once __DIR__ . '/PHPMailer/SMTP.php';
 require_once __DIR__ . '/PHPMailer/Exception.php';
 
 function sendSummaryMail($subject, $body, $to = null) {
+    // Vérifier si les constantes SMTP sont définies
+    if (!defined('SMTP_HOST') || !defined('SMTP_USERNAME') || !defined('SMTP_PASSWORD')) {
+        error_log('Mail non envoyé : configuration SMTP manquante (config.php non configuré)');
+        return 'Configuration SMTP manquante';
+    }
+    
     // Si aucun destinataire spécifié, utiliser l'admin
     if ($to === null) {
+        if (!defined('VA_ADMIN_EMAIL')) {
+            error_log('Mail non envoyé : VA_ADMIN_EMAIL non défini');
+            return 'Email administrateur non configuré';
+        }
         $to = VA_ADMIN_EMAIL;
     }
     
@@ -27,20 +37,28 @@ function sendSummaryMail($subject, $body, $to = null) {
         $mail->SMTPAuth = true;
         $mail->Username = SMTP_USERNAME;
         $mail->Password = SMTP_PASSWORD;
-        $mail->SMTPSecure = SMTP_SECURE;
-        $mail->Port = SMTP_PORT;
-        $mail->setFrom(SMTP_FROM_EMAIL, SMTP_FROM_NAME);
+        $mail->SMTPSecure = defined('SMTP_SECURE') ? SMTP_SECURE : 'tls';
+        $mail->Port = defined('SMTP_PORT') ? SMTP_PORT : 587;
+        $mail->setFrom(
+            defined('SMTP_FROM_EMAIL') ? SMTP_FROM_EMAIL : SMTP_USERNAME,
+            defined('SMTP_FROM_NAME') ? SMTP_FROM_NAME : 'Virtual Airline'
+        );
         $mail->addAddress($to);
         $mail->Subject = $subject;
         $mail->CharSet = 'UTF-8';
+        $mail->Encoding = '8bit';
+        $mail->WordWrap = 70; // Limiter longueur des lignes
+        
         // Envoi en HTML uniquement si le corps contient des balises HTML
         if (preg_match('/<[^>]+>/', $body)) {
             $mail->isHTML(true);
             $mail->Body = $body;
             $mail->AltBody = strip_tags($body);
         } else {
+            $mail->isHTML(false);
             $mail->Body = $body;
         }
+        
         $mail->send();
         return true;
     } catch (Exception $e) {

@@ -209,7 +209,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                         'Note du vol' => $flight['note_du_vol'],
                         'Mission' => $flight['mission_libelle'],
                         'Type' => $flight['fleet_type_label'] ?? '',
-                        'Recette du vol' => number_format($flight['cout_vol'], 2, ',', ' ') . ' €',
+                        'Recette du vol' => number_format(isset($flight['cout_vol']) && $flight['cout_vol'] !== null ? (float)$flight['cout_vol'] : 0.0, 2, ',', ' ') . ' €',
                         'Pirep' => $pirep_complet,
                         'lat_depart' => isset($aeroports[$flight['depart']]) ? $aeroports[$flight['depart']]['latitude_deg'] : null,
                         'long_depart' => isset($aeroports[$flight['depart']]) ? $aeroports[$flight['depart']]['longitude_deg'] : null,
@@ -234,7 +234,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                         <td class="col-5"><?php echo htmlspecialchars($flight['note_du_vol']); ?></td>
                         <td class="col-8">
                             <?php
-                                $recette = $flight['cout_vol'] !== null ? (float)$flight['cout_vol'] : 0;
+                                $recette = isset($flight['cout_vol']) && $flight['cout_vol'] !== null ? (float)$flight['cout_vol'] : 0.0;
                                 $recette_formatee = number_format($recette, 2, ',', ' ');
                                 if ($recette < 0) {
                                     echo '<span class="flash-error">' . $recette_formatee . ' €</span>';
