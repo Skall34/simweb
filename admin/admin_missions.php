@@ -2,10 +2,96 @@
 
 <?php
 require_once __DIR__ . '/../includes/require_admin.php';
+require_once __DIR__ . '/../lang.php';
 
 $message = '';
 $errors = [];
 $selectedMission = null;
+
+/**
+ * Crée une page de mission basée sur un template
+ */
+function creerPageMission($libelle, &$errorMsg = '') {
+    // Normaliser le nom : remplacer espaces et caractères spéciaux par +
+    $nomFichier = strtoupper(str_replace([' ', '/', '\\', ':', '*', '?', '"', '<', '>', '|'], '+', $libelle));
+    $cheminFichier = __DIR__ . '/../pages/missions/' . $nomFichier . '.php';
+    
+    // Debug
+    if (defined('VA_DEBUG_MODE') && VA_DEBUG_MODE) {
+        $errorMsg = "Tentative création : $cheminFichier | ";
+    }
+    
+    // Vérifier si le fichier existe déjà
+    if (file_exists($cheminFichier)) {
+        $errorMsg .= "Le fichier existe déjà";
+        return false; // Fichier existe déjà
+    }
+    
+    // Template de la page mission
+    $libelleEscaped = htmlspecialchars($libelle, ENT_QUOTES, 'UTF-8');
+    $template = <<<'TEMPLATE'
+<?php
+require_once __DIR__ . '/../../includes/require_login.php';
+require_once __DIR__ . '/../../includes/header.php';
+require_once __DIR__ . '/../../includes/menu_logged.php';
+?>
+<main>
+    <h1 style="text-align:center;color:#1a3552;margin-top:24px;margin-bottom:18px;">MISSION_LIBELLE</h1>
+    <div style="display:flex;justify-content:center;margin-bottom:24px;">
+        <!-- Ajoutez une image ici si nécessaire -->
+        <!-- <img src="/assets/images/mission_image.jpg" alt="MISSION_LIBELLE" style="max-width:600px;width:100%;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,0.08);"> -->
+    </div>
+    <section style="max-width:700px;margin:0 auto 32px auto;font-size:1.15em;line-height:1.6;background:#f7fbff;padding:24px;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+        <h2 style="color:#1a3552;">Description de la mission</h2>
+        <p>Bienvenue sur la mission <strong>MISSION_LIBELLE</strong> !</p>
+        <p>Cette page a été générée automatiquement. Vous pouvez la personnaliser en éditant le fichier :<br>
+        <code>pages/missions/MISSION_FILENAME.php</code></p>
+        
+        <!-- Ajoutez une carte Google Maps si nécessaire -->
+        <!-- <div style="text-align:center;margin:18px 0;">
+            <iframe src="https://www.google.com/maps/d/embed?mid=YOUR_MAP_ID" width="640" height="480"></iframe>
+        </div> -->
+    </section>
+    <section style="max-width:700px;margin:0 auto 32px auto;background:#fff;padding:24px;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,0.04);">
+        <h2 style="color:#1a3552;">Informations complémentaires</h2>
+        <p>Ajoutez ici des informations sur les sceneries, les liens utiles, les instructions spécifiques, etc.</p>
+        <!-- Exemple de liste de liens
+        <ul style="list-style:disc inside; padding-left:20px; font-size:1.08em;">
+            <li style="margin-bottom:10px;"><a href="#" target="_blank" style="color:#1a3552;font-weight:bold;text-decoration:underline;display:inline-block;">Lien 1</a></li>
+            <li><a href="#" target="_blank" style="color:#1a3552;font-weight:bold;text-decoration:underline;display:inline-block;">Lien 2</a></li>
+        </ul>
+        -->
+    </section>
+</main>
+<?php require_once __DIR__ . '/../../includes/footer.php'; ?>
+
+TEMPLATE;
+    
+    // Remplacer les placeholders
+    $template = str_replace('MISSION_LIBELLE', $libelleEscaped, $template);
+    $template = str_replace('MISSION_FILENAME', $nomFichier, $template);
+    
+    // Créer le dossier missions si nécessaire
+    $dossierMissions = __DIR__ . '/../pages/missions';
+    if (!is_dir($dossierMissions)) {
+        $mkdirResult = @mkdir($dossierMissions, 0755, true);
+        if (!$mkdirResult) {
+            $errorMsg .= "Impossible de créer le dossier $dossierMissions";
+            return false;
+        }
+    }
+    
+    // Écrire le fichier
+    $result = @file_put_contents($cheminFichier, $template);
+    if ($result !== false) {
+        @chmod($cheminFichier, 0644);
+        $errorMsg .= "Fichier créé avec succès : $result octets";
+        return true;
+    } else {
+        $errorMsg .= "Échec file_put_contents() - Vérifiez permissions sur pages/missions/";
+        return false;
+    }
+}
 
 // Récupérer toutes les missions pour la liste déroulante
 $missionsList = [];
@@ -59,16 +145,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute(['libelle' => $libelle]);
         if ($stmt->fetchColumn() > 0) $errors[] = t('admin_missions_error_exists');
         if (empty($errors)) {
-            $stmt = $pdo->prepare("INSERT INTO MISSIONS (libelle, majoration_mission, Active) VALUES (:libelle, :maj, :active)");
-            $stmt->execute([
-                'libelle' => $libelle,
-                'maj' => $majoration,
-                'active' => $active
-            ]);
-            $message = t('admin_missions_success_create');
-            // Rafraîchir la liste
-            $stmtAll = $pdo->query("SELECT id, libelle, majoration_mission, Active FROM MISSIONS ORDER BY libelle ASC");
-            $missionsList = $stmtAll->fetchAll(PDO::FETCH_ASSOC);
+            try {
+                $stmt = $pdo->prepare("INSERT INTO MISSIONS (libelle, majoration_mission, Active) VALUES (:libelle, :maj, :active)");
+                $stmt->execute([
+                    'libelle' => $libelle,
+                    'maj' => $majoration,
+                    'active' => $active
+                ]);
+                
+                // Créer la page de mission
+                $debugInfo = '';
+                $pageCreee = creerPageMission($libelle, $debugInfo);
+                
+                $baseMessage = function_exists('t') ? t('admin_missions_success_create') : 'Mission créée avec succès';
+                if ($pageCreee) {
+                    $message = $baseMessage . ' La page de mission a été créée avec succès.';
+                } else {
+                    $message = $baseMessage . ' Attention : la page de mission n\'a pas pu être créée automatiquement.';
+                    if (defined('VA_DEBUG_MODE') && VA_DEBUG_MODE && $debugInfo) {
+                        $message .= '<br><small>Debug : ' . htmlspecialchars($debugInfo) . '</small>';
+                    }
+                }
+                
+                // Rafraîchir la liste
+                $stmtAll = $pdo->query("SELECT id, libelle, majoration_mission, Active FROM MISSIONS ORDER BY libelle ASC");
+                $missionsList = $stmtAll->fetchAll(PDO::FETCH_ASSOC);
+            } catch (Exception $e) {
+                $errors[] = 'Erreur lors de la création : ' . $e->getMessage();
+            }
         }
     }
 }

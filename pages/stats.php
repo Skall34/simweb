@@ -113,10 +113,10 @@ include __DIR__ . '/../includes/menu_logged.php';
         <div class="stat-card"><div class="stat-label"><?= t('stats_card_active_planes') ?></div><div class="stat-value"><?= $nbAppareils ?></div></div>
         <div class="stat-card"><div class="stat-label"><?= t('stats_card_destinations') ?></div><div class="stat-value"><?= $nbDestinations ?></div></div>
         <div class="stat-card"><div class="stat-label"><?= t('stats_card_avg_flight_duration') ?></div><div class="stat-value"><?= $dureeMoyenneVols ?> <?= t('stats_card_minutes') ?></div></div>
-        <div class="stat-card"><div class="stat-label"><?= t('stats_card_most_used_plane') ?></div><div class="stat-value"><?= htmlspecialchars($appareilPlusUtilise['immat']) ?><br><span class="stat-sub">(<?= $appareilPlusUtilise['nb'] ?> <?= t('stats_card_flights') ?>)</span></div></div>
-        <div class="stat-card"><div class="stat-label"><?= t('stats_card_most_hours_plane') ?></div><div class="stat-value"><?= htmlspecialchars($appareilPlusDHeures['immat']) ?><br><span class="stat-sub">(<?= $appareilPlusDHeures['total_heures'] ?> <?= t('stats_card_hours') ?>)</span></div></div>
-        <div class="stat-card"><div class="stat-label"><?= t('stats_card_most_active_pilot') ?></div><div class="stat-value"><?= htmlspecialchars($pilotePlusActif['callsign']) ?><br><span class="stat-sub">(<?= $pilotePlusActif['heures'] ?> <?= t('stats_card_hours') ?>)</span></div></div>
-        <div class="stat-card"><div class="stat-label"><?= t('stats_card_most_frequent_route') ?></div><div class="stat-value"><?= htmlspecialchars($trajetFrequent['trajet']) ?><br><span class="stat-sub">(<?= $trajetFrequent['nb'] ?> <?= t('stats_card_flights') ?>)</span></div></div>
+        <div class="stat-card"><div class="stat-label"><?= t('stats_card_most_used_plane') ?></div><div class="stat-value"><?= $appareilPlusUtilise ? htmlspecialchars($appareilPlusUtilise['immat']) : t('stats_no_data') ?><?php if ($appareilPlusUtilise): ?><br><span class="stat-sub">(<?= $appareilPlusUtilise['nb'] ?> <?= t('stats_card_flights') ?>)</span><?php endif; ?></div></div>
+        <div class="stat-card"><div class="stat-label"><?= t('stats_card_most_hours_plane') ?></div><div class="stat-value"><?= $appareilPlusDHeures ? htmlspecialchars($appareilPlusDHeures['immat']) : t('stats_no_data') ?><?php if ($appareilPlusDHeures): ?><br><span class="stat-sub">(<?= $appareilPlusDHeures['total_heures'] ?> <?= t('stats_card_hours') ?>)</span><?php endif; ?></div></div>
+        <div class="stat-card"><div class="stat-label"><?= t('stats_card_most_active_pilot') ?></div><div class="stat-value"><?= $pilotePlusActif ? htmlspecialchars($pilotePlusActif['callsign']) : t('stats_no_data') ?><?php if ($pilotePlusActif): ?><br><span class="stat-sub">(<?= $pilotePlusActif['heures'] ?> <?= t('stats_card_hours') ?>)</span><?php endif; ?></div></div>
+        <div class="stat-card"><div class="stat-label"><?= t('stats_card_most_frequent_route') ?></div><div class="stat-value"><?= $trajetFrequent ? htmlspecialchars($trajetFrequent['trajet']) : t('stats_no_data') ?><?php if ($trajetFrequent): ?><br><span class="stat-sub">(<?= $trajetFrequent['nb'] ?> <?= t('stats_card_flights') ?>)</span><?php endif; ?></div></div>
     </div>
 
 
@@ -183,9 +183,17 @@ include __DIR__ . '/../includes/menu_logged.php';
                 $volCourt = $pdo->query("SELECT c.id, p.callsign, f.immat, c.depart, c.destination, TIMEDIFF(c.heure_arrivee, c.heure_depart) AS duree FROM CARNET_DE_VOL_GENERAL c LEFT JOIN PILOTES p ON c.pilote_id=p.id LEFT JOIN FLOTTE f ON c.appareil_id=f.id WHERE TIMEDIFF(c.heure_arrivee, c.heure_depart) > 0 ORDER BY TIMEDIFF(c.heure_arrivee, c.heure_depart) ASC LIMIT 1")->fetch();
                 $volsParMois = $pdo->query("SELECT COUNT(*)/COUNT(DISTINCT CONCAT(YEAR(date_vol),'-',MONTH(date_vol))) AS moy FROM CARNET_DE_VOL_GENERAL")->fetchColumn();
                 ?>
+                <?php if ($volLong): ?>
                 <li>🕑 <strong><?= t('stats_record_longest_flight') ?></strong><br><span class="stats-record-value"> <?= htmlspecialchars($volLong['callsign']) ?>, <?= htmlspecialchars($volLong['immat']) ?>, <?= htmlspecialchars($volLong['depart']) ?> → <?= htmlspecialchars($volLong['destination']) ?> (<?= $volLong['duree'] ?>)</span></li>
+                <?php else: ?>
+                <li>🕑 <strong><?= t('stats_record_longest_flight') ?></strong><br><span class="stats-record-value"><?= t('stats_no_data') ?></span></li>
+                <?php endif; ?>
+                <?php if ($volCourt): ?>
                 <li>⚡ <strong><?= t('stats_record_shortest_flight') ?></strong><br><span class="stats-record-value"> <?= htmlspecialchars($volCourt['callsign']) ?>, <?= htmlspecialchars($volCourt['immat']) ?>, <?= htmlspecialchars($volCourt['depart']) ?> → <?= htmlspecialchars($volCourt['destination']) ?> (<?= $volCourt['duree'] ?>)</span></li>
-                <li>📈 <strong><?= t('stats_record_avg_flights_per_month') ?></strong><br><span class="stats-record-value"> <?= number_format($volsParMois,1,',',' ') ?></span></li>
+                <?php else: ?>
+                <li>⚡ <strong><?= t('stats_record_shortest_flight') ?></strong><br><span class="stats-record-value"><?= t('stats_no_data') ?></span></li>
+                <?php endif; ?>
+                <li>📈 <strong><?= t('stats_record_avg_flights_per_month') ?></strong><br><span class="stats-record-value"> <?= $volsParMois ? number_format($volsParMois,1,',',' ') : t('stats_no_data') ?></span></li>
             </ul>
         </div>
     </div>
@@ -218,7 +226,7 @@ include __DIR__ . '/../includes/menu_logged.php';
     // Graphique état de chaque appareil (par immatriculation)
     const ctxEtat = document.getElementById('chartEtatFlotte').getContext('2d');
     const etatFlotteData = <?php
-        $flotte = $pdo->query("SELECT immat, etat FROM FLOTTE ORDER BY immat ASC")->fetchAll(PDO::FETCH_ASSOC);
+        $flotte = $pdo->query("SELECT immat, etat FROM FLOTTE WHERE actif = 1 ORDER BY immat ASC")->fetchAll(PDO::FETCH_ASSOC);
         $immats = array_column($flotte, 'immat');
         $etats = array_column($flotte, 'etat');
         echo json_encode(['immats' => $immats, 'etats' => $etats]);

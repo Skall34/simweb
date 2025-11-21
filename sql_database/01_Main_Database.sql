@@ -71,6 +71,13 @@ CREATE TABLE IF NOT EXISTS `BALANCE_COMMERCIALE` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Déchargement des données de la table `BALANCE_COMMERCIALE`
+--
+
+INSERT INTO `BALANCE_COMMERCIALE` (`id`, `balance_actuelle`, `derniere_maj`, `commentaire`) VALUES
+(1, 0.00, NOW(), 'Initialisation');
+
 -- --------------------------------------------------------
 
 --

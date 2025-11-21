@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../includes/require_admin.php';
+require_once __DIR__ . '/../lang.php';
 
 // Récupère tous les callsigns
 $stmt = $pdo->query('SELECT id, callsign FROM PILOTES ORDER BY callsign');

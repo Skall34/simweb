@@ -49,7 +49,9 @@ require_once __DIR__ . '/../lang.php';
                 if ($mission === 'Long/moyen courrier') {
                     $url = '/pages/missions/LONGSMOYENSCOURIERS.php';
                 } else {
-                    $url = '/pages/missions/' . urlencode($mission) . '.php';
+                    // Utiliser le même format que creerPageMission() : remplacer espaces et caractères spéciaux par +
+                    $nomFichier = strtoupper(str_replace([' ', '/', '\\', ':', '*', '?', '"', '<', '>', '|'], '+', $mission));
+                    $url = '/pages/missions/' . rawurlencode($nomFichier) . '.php';
                 }
                 $label = isset($missionLabels[$mission]) ? $missionLabels[$mission] : htmlspecialchars($mission);
                 if ($isInactive) {

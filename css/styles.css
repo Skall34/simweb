@@ -791,7 +791,8 @@ footer {
 
 /* Reservation page */
 .error-msg { color:#d60000; font-weight:bold; }
-.btn-secondary { margin-left:8px; }
+.btn-secondary { background: #6c757d; margin-left:8px; }
+.btn-secondary:hover { background: #5a6268; }
 
 /* Login page */
 .login-container { max-width:340px; margin:40px auto 0 auto; padding:32px 28px; background:#f7fbff; border-radius:10px; box-shadow:0 2px 12px rgba(0,0,0,0.07); }
@@ -944,15 +945,23 @@ footer {
 }
 
 /* === ADMIN FLOTTE - Layout and forms === */
-.admin-flotte-main { display: flex; gap: 40px; align-items: flex-start; }
+.admin-flotte-main { max-width: 95%; margin: 0 auto; padding: 20px; }
 .admin-flotte-section { flex: 1; min-width: 360px; max-width: 520px; }
-.message-success { color: green; font-weight: bold; }
-.message-error { color: red; font-weight: bold; }
+.message-success { padding: 15px; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 4px; color: #155724; margin-bottom: 20px; }
+.message-error { padding: 15px; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; color: #721c24; margin-bottom: 20px; }
 .radio-section { margin-bottom: 10px; }
 .prix-info { margin: 8px 0 0 0; font-weight: bold; color: #0066cc; }
 .type-info { margin: 8px 0 0 0; font-weight: bold; color: #444; }
 .credit-fields { display: none; margin-top: 10px; }
 .credit-fields.visible { display: block; }
+.admin-section { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin-bottom: 30px; }
+.admin-section h3 { margin-top: 0; color: #0066cc; }
+.admin-table { font-size: 0.9em; }
+.admin-table th { background: #f8f9fa; padding: 10px; text-align: left; border-bottom: 2px solid #dee2e6; }
+.admin-table td { padding: 10px; border-bottom: 1px solid #dee2e6; }
+.btn-link { color: #0066cc; text-decoration: none; padding: 4px 8px; }
+.btn-link:hover { text-decoration: underline; }
+.btn-danger { color: #dc3545; }
 .avion-select-label { font-weight: bold; display: block; margin-bottom: 7px; }
 .avion-icon { color: #0066cc; font-size: 1.15em; vertical-align: middle; }
 .avion-select { width: 250px; }

@@ -100,6 +100,8 @@ function mettreAJourBalanceCommerciale($commentaire = '') {
     $depenses = $pdo->query('SELECT SUM(montant) FROM finances_depenses')->fetchColumn();
     $balance = round(floatval($recettes) - floatval($depenses), 2);
     logMsg('[TRACE BALANCE] Recalcul balance : recettes=' . $recettes . ' depenses=' . $depenses . ' => balance=' . $balance, $logFile);
+    
+    // Mettre à jour la balance (la ligne id=1 existe toujours grâce au SQL d'initialisation)
     $stmt = $pdo->prepare('UPDATE BALANCE_COMMERCIALE SET balance_actuelle = :balance, derniere_maj = NOW(), commentaire = :commentaire WHERE id = 1');
     $stmt->execute(['balance' => $balance, 'commentaire' => $commentaire]);
 }

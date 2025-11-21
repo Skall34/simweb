@@ -109,7 +109,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                     <th><?= t('fleet_table_etat') ?></th>
                     <th><?= t('fleet_table_pilote') ?></th>
                     <th><?= t('fleet_table_fuel') ?></th>
-                    <th><?= t('fleet_table_compteur') ?></th>
+                    <th><?= t('fleet_table_last_use') ?></th>
                     <th><?= t('fleet_table_en_vol') ?></th>
                     <th><?= t('fleet_table_reserve') ?></th>
 
@@ -190,7 +190,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                         <td><?= htmlspecialchars($avion['etat'] ?? '') ?></td>
                         <td><?= htmlspecialchars(($avion['pilote_callsign'] ?? t('fleet_text_na')) ?: '') ?></td>
                         <td><?= htmlspecialchars($avion['fuel_restant'] ?? '') ?></td>
-                        <td><?= htmlspecialchars($avion['compteur_immo'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($dernierVol ?? '') ?></td>
                         <td><?= htmlspecialchars($avion['en_vol'] ?? '') ?></td>
                         <td><?php
                             $res = $avion['reservee'] ?? null;
