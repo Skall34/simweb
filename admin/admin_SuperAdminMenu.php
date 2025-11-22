@@ -37,8 +37,6 @@ require_once __DIR__ . '/../includes/menu_logged.php';
 
 $scripts = [
 
-    'importer_vol.php' => 'Importer les vols depuis FROM_ACARS',
-
     'maintenance.php' => 'Maintenance flotte',
 
     'assurance_mensuelle.php' => "Assurance mensuelle",
