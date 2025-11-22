@@ -1081,59 +1081,117 @@ footer {
 }
 
 .grades-table-gauche td {
-    padding: 8px;
+    padding: 4px 8px;
+    vertical-align: middle;
+    height: 36px;
 }
 
 .grades-table-gauche td input[name="nom"] {
     width: 220px;
-    padding: 4px 6px;
+    padding: 6px;
     border-radius: 3px;
     border: 1px solid #bbb;
+    height: 28px;
+    box-sizing: border-box;
 }
 
 .grades-table-gauche td input[name="taux_horaire"] {
     width: 80px;
-    padding: 4px 6px;
+    padding: 6px;
     border-radius: 3px;
     border: 1px solid #bbb;
+    height: 28px;
+    box-sizing: border-box;
 }
 
 .grades-table-gauche td input[name="description"] {
     width: 320px;
-    padding: 4px 6px;
+    padding: 6px;
     border-radius: 3px;
     border: 1px solid #bbb;
+    height: 28px;
+    box-sizing: border-box;
 }
 
 .grades-table-actions {
-    display: flex;
-    gap: 6px;
+    text-align: center;
+    white-space: nowrap;
 }
 
 .grades-table-actions .btn-save {
     background: #1a3552;
     color: #fff;
     border: none;
-    padding: 4px 10px;
+    padding: 6px 10px;
     border-radius: 3px;
     cursor: pointer;
+    height: 28px;
+    vertical-align: middle;
+    margin-right: 6px;
 }
 
-.grades-table-actions .btn-save:hover {
+.grades-table-actions .btn-save:hover:not([disabled]) {
     background: #2a4562;
+}
+
+.grades-table-actions .btn-save[disabled] {
+    background: #ccc;
+    cursor: not-allowed;
+    opacity: 0.6;
 }
 
 .grades-table-actions .btn-delete {
     background: #b00;
     color: #fff;
     border: none;
-    padding: 4px 10px;
+    padding: 6px 10px;
     border-radius: 3px;
     cursor: pointer;
+    height: 28px;
+    vertical-align: middle;
 }
 
 .grades-table-actions .btn-delete:hover {
     background: #d00;
+}
+
+/* Boutons d'ordre des grades */
+.grades-order-cell {
+    text-align: center;
+    width: 80px;
+    padding: 8px !important;
+    vertical-align: middle;
+}
+
+.grades-order-form {
+    display: block;
+    margin: 2px 0;
+}
+
+.btn-move-up,
+.btn-move-down {
+    background: #1a3552;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: background 0.2s;
+    width: 100%;
+}
+
+.btn-move-up:hover:not([disabled]),
+.btn-move-down:hover:not([disabled]) {
+    background: #2a4562;
+}
+
+.btn-move-up[disabled],
+.btn-move-down[disabled] {
+    background: #ccc !important;
+    cursor: not-allowed !important;
+    opacity: 0.5 !important;
 }
 
 /* === ADMIN LIGNES REGULIERES - Forms and filters === */

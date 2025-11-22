@@ -422,7 +422,15 @@ CREATE TABLE IF NOT EXISTS `VARIABLES_CONFIG` (
 ) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
-
+INSERT INTO VARIABLES_CONFIG (nom, valeur) VALUES
+('prix_fret_kg_helico', '5.00'),
+('prix_fret_kg_monomoteur', '5.00'),
+('prix_fret_kg_bimoteur', '5.00'),
+('prix_fret_kg_liner', '5.00'),
+('bonus_fret_kg', '2.00'),
+('prix_litre_essence', '0.88'),
+('taux_assurance', '0.0200'),
+('reservation_timeout_hours', '24');
 --
 -- Structure de la table `VOLS_REJETES`
 --

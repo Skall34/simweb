@@ -12,8 +12,10 @@ if ($action === 'add') {
     $description = trim($_POST['description'] ?? '');
     $taux_horaire = floatval(str_replace(',', '.', $_POST['taux_horaire'] ?? '0'));
     if ($nom && $description && $taux_horaire > 0) {
-        $stmt = $pdo->prepare('INSERT INTO GRADES (nom, description, taux_horaire) VALUES (?, ?, ?)');
-        $stmt->execute([$nom, $description, $taux_horaire]);
+        // Trouver le niveau max et ajouter +1
+        $maxNiveau = $pdo->query('SELECT COALESCE(MAX(niveau), 0) FROM GRADES')->fetchColumn();
+        $stmt = $pdo->prepare('INSERT INTO GRADES (nom, description, taux_horaire, niveau) VALUES (?, ?, ?, ?)');
+        $stmt->execute([$nom, $description, $taux_horaire, $maxNiveau + 1]);
         $message = t('admin_grades_success_add');
     } else {
         $message = t('admin_grades_error_required');
@@ -37,10 +39,50 @@ if ($action === 'add') {
         $stmt->execute([$id]);
         $message = t('admin_grades_success_delete');
     }
+} elseif ($action === 'move_up') {
+    $id = intval($_POST['id'] ?? 0);
+    if ($id) {
+        // Récupérer le niveau actuel
+        $stmt = $pdo->prepare('SELECT niveau FROM GRADES WHERE id=?');
+        $stmt->execute([$id]);
+        $currentNiveau = $stmt->fetchColumn();
+        
+        // Trouver le grade juste au-dessus
+        $stmt = $pdo->prepare('SELECT id, niveau FROM GRADES WHERE niveau < ? ORDER BY niveau DESC LIMIT 1');
+        $stmt->execute([$currentNiveau]);
+        $previousGrade = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($previousGrade) {
+            // Échanger les niveaux
+            $pdo->prepare('UPDATE GRADES SET niveau=? WHERE id=?')->execute([$previousGrade['niveau'], $id]);
+            $pdo->prepare('UPDATE GRADES SET niveau=? WHERE id=?')->execute([$currentNiveau, $previousGrade['id']]);
+            $message = 'Grade déplacé vers le haut';
+        }
+    }
+} elseif ($action === 'move_down') {
+    $id = intval($_POST['id'] ?? 0);
+    if ($id) {
+        // Récupérer le niveau actuel
+        $stmt = $pdo->prepare('SELECT niveau FROM GRADES WHERE id=?');
+        $stmt->execute([$id]);
+        $currentNiveau = $stmt->fetchColumn();
+        
+        // Trouver le grade juste en dessous
+        $stmt = $pdo->prepare('SELECT id, niveau FROM GRADES WHERE niveau > ? ORDER BY niveau ASC LIMIT 1');
+        $stmt->execute([$currentNiveau]);
+        $nextGrade = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($nextGrade) {
+            // Échanger les niveaux
+            $pdo->prepare('UPDATE GRADES SET niveau=? WHERE id=?')->execute([$nextGrade['niveau'], $id]);
+            $pdo->prepare('UPDATE GRADES SET niveau=? WHERE id=?')->execute([$currentNiveau, $nextGrade['id']]);
+            $message = 'Grade déplacé vers le bas';
+        }
+    }
 }
 
 // Récupération des grades
-$stmt = $pdo->query('SELECT id, nom, description, taux_horaire FROM GRADES ORDER BY taux_horaire ASC');
+$stmt = $pdo->query('SELECT id, nom, description, taux_horaire, niveau FROM GRADES ORDER BY niveau ASC');
 $grades = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <main>
@@ -61,6 +103,7 @@ $grades = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <table class="grades-table-gauche">
             <thead>
                 <tr>
+                    <th>Ordre</th>
                     <th><?= t('admin_grades_col_grade') ?></th>
                     <th><?= t('admin_grades_col_taux') ?></th>
                     <th><?= t('admin_grades_col_condition') ?></th>
@@ -68,15 +111,25 @@ $grades = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($grades as $grade): ?>
+                <?php foreach ($grades as $index => $grade): ?>
                     <tr>
-                        <form method="post" style="display:contents;">
+                        <td class="grades-order-cell">
+                            <form method="post" class="grades-order-form">
+                                <input type="hidden" name="id" value="<?= $grade['id'] ?>">
+                                <button type="submit" name="action" value="move_up" class="btn-move-up" <?= $index === 0 ? 'disabled' : '' ?> title="Monter">▲</button>
+                            </form>
+                            <form method="post" class="grades-order-form">
+                                <input type="hidden" name="id" value="<?= $grade['id'] ?>">
+                                <button type="submit" name="action" value="move_down" class="btn-move-down" <?= $index === count($grades) - 1 ? 'disabled' : '' ?> title="Descendre">▼</button>
+                            </form>
+                        </td>
+                        <form method="post" style="display:contents;" class="grade-edit-form" data-grade-id="<?= $grade['id'] ?>">
                             <input type="hidden" name="id" value="<?= $grade['id'] ?>">
-                            <td><input type="text" name="nom" value="<?= htmlspecialchars($grade['nom']) ?>"></td>
-                            <td><input type="number" step="0.01" name="taux_horaire" value="<?= htmlspecialchars($grade['taux_horaire']) ?>"></td>
-                            <td><input type="text" name="description" value="<?= htmlspecialchars($grade['description']) ?>"></td>
+                            <td><input type="text" name="nom" class="grade-input" value="<?= htmlspecialchars($grade['nom']) ?>" data-initial="<?= htmlspecialchars($grade['nom']) ?>"></td>
+                            <td><input type="number" step="0.01" name="taux_horaire" class="grade-input" value="<?= htmlspecialchars($grade['taux_horaire']) ?>" data-initial="<?= htmlspecialchars($grade['taux_horaire']) ?>"></td>
+                            <td><input type="text" name="description" class="grade-input" value="<?= htmlspecialchars($grade['description']) ?>" data-initial="<?= htmlspecialchars($grade['description']) ?>"></td>
                             <td class="grades-table-actions">
-                                <button type="submit" name="action" value="edit" class="btn-save"><?= t('admin_grades_btn_save') ?></button>
+                                <button type="submit" name="action" value="edit" class="btn-save" disabled>Modifier</button>
                                 <button type="submit" name="action" value="delete" class="btn-delete" onclick="return confirm('<?= t('admin_grades_confirm_delete') ?>')"><?= t('admin_grades_btn_delete') ?></button>
                             </td>
                         </form>
@@ -89,3 +142,37 @@ $grades = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <?php
 include __DIR__ . '/../includes/footer.php';
 ?>
+<script>
+// Activer/désactiver le bouton Modifier selon les changements
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Script grades chargé');
+    document.querySelectorAll('.grade-edit-form').forEach(function(form) {
+        // Avec display:contents, les éléments sont dans le parent (tr)
+        const row = form.closest('tr');
+        const inputs = row.querySelectorAll('.grade-input');
+        const btnSave = row.querySelector('button[name="action"][value="edit"]');
+        
+        console.log('Row:', row, 'Inputs:', inputs.length, 'Btn:', btnSave);
+        
+        if (!btnSave) {
+            console.error('Bouton Modifier non trouvé');
+            return;
+        }
+        
+        inputs.forEach(function(input) {
+            input.addEventListener('input', function() {
+                let hasChanges = false;
+                inputs.forEach(function(inp) {
+                    const initialValue = inp.getAttribute('data-initial');
+                    const currentValue = inp.value;
+                    if (currentValue !== initialValue) {
+                        hasChanges = true;
+                    }
+                });
+                console.log('Changements:', hasChanges);
+                btnSave.disabled = !hasChanges;
+            });
+        });
+    });
+});
+</script>
