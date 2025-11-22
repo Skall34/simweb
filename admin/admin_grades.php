@@ -94,6 +94,7 @@ $stmt = $pdo->query('
         COALESCE(SUM(TIME_TO_SEC(c.temps_vol)), 0) as total_secondes
     FROM PILOTES p
     LEFT JOIN CARNET_DE_VOL_GENERAL c ON p.id = c.pilote_id
+    WHERE p.actif = 1
     GROUP BY p.id, p.nom, p.prenom
     ORDER BY total_secondes DESC
 ');
