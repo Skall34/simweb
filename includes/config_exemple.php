@@ -50,7 +50,7 @@ define('VA_ADMIN_EMAIL', 'admin@votre-domaine.com');
 // ==================== ADMINISTRATION ====================
 
 // Callsigns des super-administrateurs (séparés par des virgules)
-define('VA_ADMIN_CALLSIGNS', 'XXX0001,XXX0002');
+define('VA_SUPER_ADMIN_CALLSIGNS', 'XXX0001,XXX0002');
 
 // URL de base du site (sans slash final)
 define('VA_BASE_URL', 'https://www.votre-domaine.com');

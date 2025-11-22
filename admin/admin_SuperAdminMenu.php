@@ -25,7 +25,7 @@ require_once __DIR__ . '/../includes/log_func.php';
 
 // Vérification de l'utilisateur (super-admins list)
 $callsign = $_SESSION['user']['callsign'] ?? ($_SESSION['callsign'] ?? null);
-if (! $callsign || !in_array($callsign, explode(',', VA_ADMIN_CALLSIGNS))) {
+if (! $callsign || !in_array($callsign, explode(',', VA_SUPER_ADMIN_CALLSIGNS))) {
     header('Location: /index.php');
     exit;
 }

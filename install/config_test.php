@@ -26,7 +26,7 @@ define('VA_ADMIN_EMAIL', 'admin@testva.com');
 
 // ==================== ADMINISTRATION ====================
 
-define('VA_ADMIN_CALLSIGNS', 'ADM0001');
+define('VA_SUPER_ADMIN_CALLSIGNS', 'ADM0001');
 define('VA_BASE_URL', 'https://www.testva.com');
 
 // ==================== CONFIGURATION SMTP ====================

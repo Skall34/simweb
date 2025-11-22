@@ -185,7 +185,7 @@ define('VA_ADMIN_EMAIL', '" . addslashes($config['va_admin_email']) . "');
 
 // ==================== ADMINISTRATION ====================
 
-define('VA_ADMIN_CALLSIGNS', 'ADM0001');
+define('VA_SUPER_ADMIN_CALLSIGNS', 'ADM0001');
 define('VA_BASE_URL', '" . addslashes($config['va_url']) . "');
 
 // ==================== CONFIGURATION SMTP ====================
@@ -506,8 +506,9 @@ if (VA_DEBUG_MODE) {
             <ul>
                 <li>Assurez-vous d'avoir sauvegardé toute base de données existante</li>
                 <li>L'installation va créer les tables et importer les données</li>
-                <li>Un compte administrateur par défaut sera créé : <strong>ADM0001</strong> / <strong>admin123</strong></li>
-                <li>Vous devrez supprimer ce compte après avoir créé votre propre compte admin</li>
+                <li>Un compte super-administrateur par défaut sera créé : <strong>ADM0001</strong> / <strong>admin123</strong></li>
+                <li>Ce compte aura tous les droits et sera défini dans le fichier config.php</li>
+                <li>Vous devrez supprimer ce compte après avoir créé votre propre compte super admin</li>
             </ul>
         </div>
         

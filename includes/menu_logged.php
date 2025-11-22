@@ -99,7 +99,7 @@ require_once __DIR__ . '/../lang.php';
                     <a href="/admin/admin_lignes_regulieres.php"><?= t('admin_lines') ?></a>
                     <a href="/admin/admin_message_accueil.php"><?= t('admin_welcomemsg') ?></a>
                 </div>
-                <?php if (isset($_SESSION['user']['callsign']) && in_array($_SESSION['user']['callsign'], explode(',', VA_ADMIN_CALLSIGNS))): ?>
+                <?php if (isset($_SESSION['user']['callsign']) && in_array($_SESSION['user']['callsign'], explode(',', VA_SUPER_ADMIN_CALLSIGNS))): ?>
                     <a href="/admin/admin_SuperAdminMenu.php" style="color: #c00; font-weight: bold; margin-left: 10px;"><?= t('admin_superadmin') ?></a>
                 <?php endif; ?>
             </div>
