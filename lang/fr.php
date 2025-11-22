@@ -598,6 +598,10 @@ return [
     'admin_grades_btn_save' => 'Enregistrer',
     'admin_grades_btn_delete' => 'Supprimer',
     'admin_grades_confirm_delete' => 'Supprimer ce grade ?',
+    'admin_grades_pilots_hours_title' => 'Heures de vol des pilotes',
+    'admin_grades_pilots_hours_col_pilot' => 'Pilote',
+    'admin_grades_pilots_hours_col_hours' => 'Heures de vol',
+    'admin_grades_pilots_hours_no_data' => 'Aucun pilote trouvé dans la base de données.',
 
     // --- admin_lignes_regulieres.php ---
     'admin_lines_title' => 'Administration des Lignes régulières (:count)',

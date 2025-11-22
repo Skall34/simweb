@@ -593,6 +593,10 @@ return [
     'admin_grades_btn_save' => 'Save',
     'admin_grades_btn_delete' => 'Delete',
     'admin_grades_confirm_delete' => 'Delete this grade?',
+    'admin_grades_pilots_hours_title' => 'Pilots flight hours',
+    'admin_grades_pilots_hours_col_pilot' => 'Pilot',
+    'admin_grades_pilots_hours_col_hours' => 'Flight hours',
+    'admin_grades_pilots_hours_no_data' => 'No pilots found in the database.',
 
     // --- admin_lignes_regulieres.php ---
         'admin_lines_title' => 'Regular Routes Administration (:count)',

@@ -978,7 +978,7 @@ footer {
 
 /* === ADMIN GRADES - Layout and forms === */
 .admin-grades-container {
-    max-width: 1100px;
+    max-width: 1600px;
     margin: 40px 0;
     background: #fff;
     padding: 32px;
@@ -1058,8 +1058,23 @@ footer {
     background: #2a4562;
 }
 
+.grades-tables-row {
+    display: flex;
+    gap: 80px;
+    align-items: flex-start;
+    margin-top: 24px;
+}
+
+.grades-table-section {
+    flex: 1 1 auto;
+    min-width: 700px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border-radius: 8px;
+    padding: 16px;
+}
+
 .grades-table-gauche {
-    min-width: 1000px;
     width: 100%;
     border-collapse: collapse;
     font-size: 1.08em;
@@ -1192,6 +1207,67 @@ footer {
     background: #ccc !important;
     cursor: not-allowed !important;
     opacity: 0.5 !important;
+}
+
+/* === Tableau des heures de vol des pilotes === */
+.pilots-hours-section {
+    flex: 0 0 400px;
+    min-width: 350px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.pilots-hours-section h3 {
+    color: #1a3552;
+    margin: 0 0 16px 0;
+    font-size: 1.3em;
+}
+
+.pilots-hours-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95em;
+}
+
+.pilots-hours-table thead tr {
+    background: #1a3552;
+    color: white;
+}
+
+.pilots-hours-table th {
+    padding: 10px;
+    text-align: left;
+    font-weight: 600;
+}
+
+.pilots-hours-table tbody tr {
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.pilots-hours-table tbody tr:hover {
+    background: #f5f5f5;
+}
+
+.pilots-hours-table td {
+    padding: 8px 10px;
+    vertical-align: middle;
+}
+
+.pilots-hours-table td:last-child {
+    text-align: right;
+    font-weight: 600;
+    color: #1a3552;
+}
+
+.no-data-message {
+    color: #666;
+    font-style: italic;
+    padding: 20px;
+    text-align: center;
+    background: #f9f9f9;
+    border-radius: 6px;
 }
 
 /* === ADMIN LIGNES REGULIERES - Forms and filters === */

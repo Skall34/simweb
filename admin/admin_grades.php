@@ -84,6 +84,20 @@ if ($action === 'add') {
 // Récupération des grades
 $stmt = $pdo->query('SELECT id, nom, description, taux_horaire, niveau FROM GRADES ORDER BY niveau ASC');
 $grades = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Récupération des pilotes avec leurs heures de vol
+$stmt = $pdo->query('
+    SELECT 
+        p.id, 
+        p.nom, 
+        p.prenom,
+        COALESCE(SUM(TIME_TO_SEC(c.temps_vol)), 0) as total_secondes
+    FROM PILOTES p
+    LEFT JOIN CARNET_DE_VOL_GENERAL c ON p.id = c.pilote_id
+    GROUP BY p.id, p.nom, p.prenom
+    ORDER BY total_secondes DESC
+');
+$pilotes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <main>
     <div class="container admin-grades-container">
@@ -100,7 +114,10 @@ $grades = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <input type="number" step="0.01" name="taux_horaire" placeholder="<?= t('admin_grades_placeholder_taux') ?>" required>
             <button type="submit"><?= t('admin_grades_btn_add') ?></button>
         </form>
-        <table class="grades-table-gauche">
+        
+        <div class="grades-tables-row">
+            <div class="grades-table-section">
+                <table class="grades-table-gauche">
             <thead>
                 <tr>
                     <th>Ordre</th>
@@ -137,6 +154,35 @@ $grades = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <?php endforeach; ?>
             </tbody>
         </table>
+            </div>
+
+            <div class="pilots-hours-section">
+                <h3><?= t('admin_grades_pilots_hours_title') ?></h3>
+                <?php if (empty($pilotes)): ?>
+                    <p class="no-data-message"><?= t('admin_grades_pilots_hours_no_data') ?></p>
+                <?php else: ?>
+                    <table class="pilots-hours-table">
+                        <thead>
+                            <tr>
+                                <th><?= t('admin_grades_pilots_hours_col_pilot') ?></th>
+                                <th><?= t('admin_grades_pilots_hours_col_hours') ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($pilotes as $pilote): ?>
+                                <?php 
+                                    $heures = $pilote['total_secondes'] / 3600;
+                                ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($pilote['prenom'] . ' ' . $pilote['nom']) ?></td>
+                                    <td><?= number_format($heures, 2, ',', ' ') ?> h</td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php endif; ?>
+            </div>
+        </div>
     </div>
 </main>
 <?php

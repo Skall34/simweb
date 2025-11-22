@@ -592,6 +592,10 @@ return [
     'admin_grades_btn_save' => 'Guardar',
     'admin_grades_btn_delete' => 'Eliminar',
     'admin_grades_confirm_delete' => '¿Eliminar este rango?',
+    'admin_grades_pilots_hours_title' => 'Horas de vuelo de los pilotos',
+    'admin_grades_pilots_hours_col_pilot' => 'Piloto',
+    'admin_grades_pilots_hours_col_hours' => 'Horas de vuelo',
+    'admin_grades_pilots_hours_no_data' => 'No se encontraron pilotos en la base de datos.',
 
     // --- admin_lignes_regulieres.php ---
     'admin_lines_title' => 'Administración de Líneas Regulares (:count)',
