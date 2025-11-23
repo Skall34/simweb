@@ -47,6 +47,30 @@ return [
     'admin_fleet_type_success_delete' => '✅ Fleet type deleted.',
     'admin_fleet_type_error_delete' => 'Error during deletion: ',
 
+    // --- Page : admin_type_ligne ---
+    'admin_type_ligne_edit_title' => 'Edit a route type',
+    'admin_type_ligne_add_title' => 'Add a route type',
+    'admin_type_ligne_label_name' => 'Route type name *',
+    'admin_type_ligne_update_button' => 'Update',
+    'admin_type_ligne_cancel_button' => 'Cancel',
+    'admin_type_ligne_reset_button' => 'Reset',
+    'admin_type_ligne_add_button' => 'Add',
+    'admin_type_ligne_existing_title' => 'Existing route types',
+    'admin_type_ligne_col_name' => 'Name',
+    'admin_type_ligne_col_actions' => 'Actions',
+    'admin_type_ligne_edit_link' => 'Edit',
+    'admin_type_ligne_delete_link' => 'Delete',
+    'admin_type_ligne_confirm_delete' => 'Confirm deletion?',
+    'admin_type_ligne_error_required' => "The 'Label' field is required.",
+    'admin_type_ligne_error_exists' => 'This route type already exists.',
+    'admin_type_ligne_success_add' => '✅ New route type added: {label}',
+    'admin_type_ligne_error_invalid_id' => 'Invalid ID for update or deletion.',
+    'admin_type_ligne_error_exists_other' => 'Another route type with this name already exists.',
+    'admin_type_ligne_success_update' => '✅ Route type updated.',
+    'admin_type_ligne_error_delete_attached' => '❌ Cannot delete: {count} regular route(s) use this type. Please modify these routes first.',
+    'admin_type_ligne_success_delete' => '✅ Route type deleted.',
+    'admin_type_ligne_error_delete' => 'Error deleting: ',
+
     // --- Page : admin_airports ---
     'admin_airports_title' => 'Airports Administration',
     'admin_airports_ident_label' => 'Ident (ICAO code) *:',
@@ -285,6 +309,7 @@ return [
     'admin_pilots' => 'Pilots Administration',
     'admin_grades' => 'Grades Administration',
     'admin_variables' => 'Variables Administration',
+    'admin_type_ligne' => 'Line Types Administration',
     'admin_lines' => 'Regular Lines Administration',
     'admin_welcomemsg' => 'Welcome message',
     'admin_superadmin' => 'Super Admin',
@@ -599,7 +624,7 @@ return [
     'admin_grades_pilots_hours_no_data' => 'No pilots found in the database.',
 
     // --- admin_lignes_regulieres.php ---
-        'admin_lines_title' => 'Regular Routes Administration (:count)',
+    'admin_lines_title' => 'Regular Routes Administration (:count)',
     'admin_lines_error_icao_required' => 'Both ICAO codes are required.',
     'admin_lines_error_exists' => '⚠️ Line {dep} → {arr} already exists.',
     'admin_lines_success_add' => '✅ Line {dep} → {arr} added.',

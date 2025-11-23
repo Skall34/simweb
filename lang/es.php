@@ -47,6 +47,30 @@ return [
     'admin_fleet_type_success_delete' => '✅ Tipo de flota eliminado.',
     'admin_fleet_type_error_delete' => 'Error durante la eliminación: ',
 
+    // --- Page : admin_type_ligne ---
+    'admin_type_ligne_edit_title' => 'Modificar un tipo de línea',
+    'admin_type_ligne_add_title' => 'Añadir un tipo de línea',
+    'admin_type_ligne_label_name' => 'Nombre del tipo de línea *',
+    'admin_type_ligne_update_button' => 'Actualizar',
+    'admin_type_ligne_cancel_button' => 'Cancelar',
+    'admin_type_ligne_reset_button' => 'Reiniciar',
+    'admin_type_ligne_add_button' => 'Añadir',
+    'admin_type_ligne_existing_title' => 'Tipos de línea existentes',
+    'admin_type_ligne_col_name' => 'Nombre',
+    'admin_type_ligne_col_actions' => 'Acciones',
+    'admin_type_ligne_edit_link' => 'Editar',
+    'admin_type_ligne_delete_link' => 'Eliminar',
+    'admin_type_ligne_confirm_delete' => '¿Confirmar eliminación?',
+    'admin_type_ligne_error_required' => "El campo 'Label' es obligatorio.",
+    'admin_type_ligne_error_exists' => 'Este tipo de línea ya existe.',
+    'admin_type_ligne_success_add' => '✅ Nuevo tipo de línea añadido: {label}',
+    'admin_type_ligne_error_invalid_id' => 'ID inválido para actualizar o eliminar.',
+    'admin_type_ligne_error_exists_other' => 'Otro tipo de línea con este nombre ya existe.',
+    'admin_type_ligne_success_update' => '✅ Tipo de línea actualizado.',
+    'admin_type_ligne_error_delete_attached' => '❌ No se puede eliminar: {count} línea(s) regular(es) usan este tipo. Modifique primero estas líneas.',
+    'admin_type_ligne_success_delete' => '✅ Tipo de línea eliminado.',
+    'admin_type_ligne_error_delete' => 'Error al eliminar: ',
+
     // --- Page : admin_airports ---
     'admin_airports_title' => 'Administración de Aeropuertos',
     'admin_airports_ident_label' => 'Ident (código OACI) *:',
@@ -285,6 +309,7 @@ return [
     'admin_grades' => 'Administración de rangos',
     'admin_variables' => 'Administración de variables',
     'admin_lines' => 'Administración de líneas regulares',
+    'admin_type_ligne' => 'Administración de tipos de líneas',
     'admin_welcomemsg' => 'Mensaje de bienvenida',
     'admin_superadmin' => 'Super Admin',
 

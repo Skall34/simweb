@@ -47,6 +47,30 @@ return [
     'admin_fleet_type_success_delete' => '✅ Fleet type supprimé.',
     'admin_fleet_type_error_delete' => 'Erreur lors de la suppression : ',
 
+    // --- Page : admin_type_ligne ---
+    'admin_type_ligne_edit_title' => 'Modifier un type de ligne',
+    'admin_type_ligne_add_title' => 'Ajouter un type de ligne',
+    'admin_type_ligne_label_name' => 'Nom du type de ligne *',
+    'admin_type_ligne_update_button' => 'Mettre à jour',
+    'admin_type_ligne_cancel_button' => 'Annuler',
+    'admin_type_ligne_reset_button' => 'Réinitialiser',
+    'admin_type_ligne_add_button' => 'Ajouter',
+    'admin_type_ligne_existing_title' => 'Types de ligne existants',
+    'admin_type_ligne_col_name' => 'Nom',
+    'admin_type_ligne_col_actions' => 'Actions',
+    'admin_type_ligne_edit_link' => 'Éditer',
+    'admin_type_ligne_delete_link' => 'Supprimer',
+    'admin_type_ligne_confirm_delete' => 'Confirmer la suppression ?',
+    'admin_type_ligne_error_required' => "Le champ 'Label' est obligatoire.",
+    'admin_type_ligne_error_exists' => 'Ce type de ligne existe déjà.',
+    'admin_type_ligne_success_add' => '✅ Nouveau type de ligne ajouté : {label}',
+    'admin_type_ligne_error_invalid_id' => 'Identifiant invalide pour la mise à jour ou suppression.',
+    'admin_type_ligne_error_exists_other' => 'Un autre type de ligne avec ce nom existe déjà.',
+    'admin_type_ligne_success_update' => '✅ Type de ligne mis à jour.',
+    'admin_type_ligne_error_delete_attached' => '❌ Suppression impossible : {count} ligne(s) régulière(s) utilisent ce type. Veuillez d\'abord modifier ces lignes.',
+    'admin_type_ligne_success_delete' => '✅ Type de ligne supprimé.',
+    'admin_type_ligne_error_delete' => 'Erreur lors de la suppression : ',
+
     // --- Page : admin_airports ---
     'admin_airports_title' => 'Administration des Aéroports',
     'admin_airports_ident_label' => 'Ident (code ICAO) * :',
@@ -286,6 +310,7 @@ return [
     'admin_grades' => 'Administration des grades',
     'admin_variables' => 'Administration des variables',
     'admin_lines' => 'Administration des lignes régulières',
+    'admin_type_ligne' => 'Administration des types de lignes',
     'admin_welcomemsg' => 'Message d\'accueil',
     'admin_superadmin' => 'Super Admin',
 
