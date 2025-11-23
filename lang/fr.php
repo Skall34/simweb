@@ -12,6 +12,22 @@ return [
     'admin_variables_label_reservation_timeout_hours' => "Durée de validité d'une réservation (heures)",
     'admin_variables_update_success' => 'Variables mises à jour avec succès.',
     'admin_variables_save_button' => 'Enregistrer',
+
+    // --- Page : install ---
+    'install_title' => 'Installation - Virtual Airline System',
+    'install_subtitle' => 'Configuration automatisée en 5 étapes',
+    'install_step1_label' => 'Vérifications',
+    'install_step2_label' => 'Base de données',
+    'install_step3_label' => 'Configuration VA',
+    'install_step4_label' => 'Installation',
+    'install_step5_label' => 'Terminé',
+    'install_error_step_not_found' => 'Erreur : Étape introuvable',
+    'install_progress_verifications' => 'Vérifications',
+    'install_progress_database' => 'Base de données',
+    'install_progress_config' => 'Configuration VA',
+    'install_progress_install' => 'Installation',
+    'install_progress_done' => 'Terminé',
+    
     // --- Page : fleet_type ---
     'admin_fleet_type_edit_title' => 'Modifier un fleet type',
     'admin_fleet_type_add_title' => 'Ajouter un fleet type',
@@ -215,7 +231,7 @@ return [
     'register_password_confirm' => 'Confirmer mot de passe :',
     'register_submit' => 'S\'inscrire',
     // Index page
-        'liveflights_none' => 'Aucun vol en cours.',
+    'liveflights_none' => 'Aucun vol en cours.',
     'index_hero_title' => 'Bienvenue sur <strong>{VA_NAME}</strong>',
     'index_hero_intro' => '<strong>{VA_NAME}</strong> est une compagnie aérienne virtuelle qui vous permet de suivre vos vols, de gérer votre flotte, et de participer à des missions variées dans un univers immersif.',
     'index_hero_simaddon_1' => 'Une fois inscrit sur notre site, vous aurez accès à <b>SimAddon</b>, un logiciel qui va vous permettre de monitorer vos vols sur simulateur (XPlane ou FS2020, ou FS2024).',
@@ -249,6 +265,19 @@ return [
     'index_table_arr' => 'Destination',
     'index_table_duration' => 'Durée',
     'index_map_title' => 'Carte des vols en cours',
+    'index_adm_setup_title' => 'Finalisation de la configuration',
+    'index_adm_setup_intro' => 'Quelques étapes restent à compléter pour finaliser la création de votre compagnie :',
+    'index_adm_setup_complete' => 'Toutes les tâches sont terminées !',
+    'index_adm_setup_delete_adm' => 'N\'oubliez pas de supprimer le compte ADM0001 depuis la gestion des pilotes.',
+    'index_adm_task1_title' => 'Créer votre compte administrateur',
+    'index_adm_task1_desc' => 'Déconnectez-vous, faites une inscription qui sera le futur compte Admin. Reconnectez-vous en ADM0001 / admin123, allez dans la gestion des pilotes et passez le nouveau compte en Admin.',
+    'index_adm_task1_link' => 'Gestion des pilotes',
+    'index_adm_task2_title' => 'Créer au moins un type d\'appareil',
+    'index_adm_task2_desc' => 'Définissez les types d\'appareils de votre flotte (avion, hélico, etc.).',
+    'index_adm_task2_link' => 'Aller aux types de flotte',
+    'index_adm_task3_title' => 'Acheter au moins un appareil',
+    'index_adm_task3_desc' => 'Ajoutez votre premier appareil à la flotte.',
+    'index_adm_task3_link' => 'Aller à la gestion de la flotte',
     
     'site_title' => '{VA_NAME}',
 

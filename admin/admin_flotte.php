@@ -18,7 +18,7 @@ if ($action === 'liberer' && isset($_GET['id'])) {
         $stmt = $pdo->prepare("UPDATE FLOTTE SET en_vol = 0, reservee = 0 WHERE id = :id");
         $stmt->execute(['id' => $avion_id]);
         $_SESSION['flash_message'] = "Avion libéré avec succès";
-        header('Location: admin_flotte_v2.php');
+        header('Location: admin_flotte.php');
         exit;
     } catch (PDOException $e) {
         $errorMessage = "Erreur lors de la libération : " . htmlspecialchars($e->getMessage());
@@ -70,7 +70,7 @@ if ($action === 'vendre' && isset($_POST['avion_id'])) {
 
         $_SESSION['flash_message'] = "Avion $immat_vendue vendu avec succès pour " . number_format($recette_vente, 0, ',', ' ') . " €";
         logMsg("[VENTE] Vente terminée pour immat=$immat_vendue", $logFile);
-        header('Location: admin_flotte_v2.php');
+        header('Location: admin_flotte.php');
         exit;
     } catch (PDOException $e) {
         $errorMessage = "Erreur lors de la vente : " . htmlspecialchars($e->getMessage());
@@ -178,7 +178,7 @@ if ($action === 'acheter' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                     sendSummaryMail($mailSubject, $mailBody, VA_ADMIN_EMAIL);
                 }
 
-                header('Location: admin_flotte_v2.php');
+                header('Location: admin_flotte.php');
                 exit;
             }
         } catch (PDOException $e) {
@@ -279,7 +279,7 @@ include __DIR__ . '/../includes/menu_logged.php';
 
             <div class="form-actions">
                 <button type="submit" class="btn btn-small"><?= t('admin_flotte_btn_signer') ?></button>
-                <button type="button" class="btn btn-reset btn-small" onclick="window.location.href='admin_flotte_v2.php';">Réinitialiser</button>
+                <button type="button" class="btn btn-reset btn-small" onclick="window.location.href='admin_flotte.php';">Réinitialiser</button>
             </div>
         </form>
     </div>

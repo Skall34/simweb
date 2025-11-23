@@ -54,6 +54,57 @@ if (!isset($_SESSION['user'])) {
             echo '<div class="welcome-msg">' . t('index_welcome') . ' ' . $callsign . ' 👋</div>';
         }
 
+        // Checklist pour le compte ADM0001
+        if ($callsign === 'ADM0001') {
+            // Vérifier les étapes complétées
+            $hasFleetType = $pdo->query('SELECT COUNT(*) FROM FLEET_TYPE')->fetchColumn() > 0;
+            $hasFleet = $pdo->query('SELECT COUNT(*) FROM FLOTTE')->fetchColumn() > 0;
+            $hasOtherAdmin = $pdo->query('SELECT COUNT(*) FROM PILOTES WHERE admin = 1 AND callsign != "ADM0001"')->fetchColumn() > 0;
+
+            $allDone = $hasFleetType && $hasFleet && $hasOtherAdmin;
+
+            echo '<div style="background:#fff3cd;border:2px solid #ff8c00;border-radius:12px;padding:20px;margin:20px auto;max-width:800px;box-shadow:0 4px 8px rgba(0,0,0,0.1);">';
+            echo '<h3 style="color:#856404;margin-top:0;text-align:center;">⚠️ ' . t('index_adm_setup_title') . '</h3>';
+            echo '<p style="text-align:center;margin-bottom:20px;">' . t('index_adm_setup_intro') . '</p>';
+            
+            if ($allDone) {
+                echo '<div style="background:#d4edda;border:1px solid #c3e6cb;border-radius:8px;padding:15px;margin:15px 0;text-align:center;color:#155724;">';
+                echo '<strong>✅ ' . t('index_adm_setup_complete') . '</strong><br>';
+                echo t('index_adm_setup_delete_adm');
+                echo '</div>';
+            } else {
+                echo '<ul style="list-style:none;padding:0;">';
+                
+                // Tâche 1: Créer un autre compte admin
+                echo '<li style="padding:10px;margin:8px 0;border-left:4px solid ' . ($hasOtherAdmin ? '#28a745' : '#ffc107') . ';background:' . ($hasOtherAdmin ? '#f1f9f4' : '#fffbf0') . ';border-radius:4px;">';
+                echo '<span style="font-size:20px;margin-right:10px;">' . ($hasOtherAdmin ? '✓' : '○') . '</span>';
+                echo '<strong>' . t('index_adm_task1_title') . '</strong><br>';
+                echo '<span style="color:#666;">' . t('index_adm_task1_desc') . '</span> ';
+                echo '<a href="admin/admin_gestion_pilotes.php" style="color:#0066cc;text-decoration:underline;">' . t('index_adm_task1_link') . '</a>';
+                echo '</li>';
+                
+                // Tâche 2: Créer un fleet type
+                echo '<li style="padding:10px;margin:8px 0;border-left:4px solid ' . ($hasFleetType ? '#28a745' : '#ffc107') . ';background:' . ($hasFleetType ? '#f1f9f4' : '#fffbf0') . ';border-radius:4px;">';
+                echo '<span style="font-size:20px;margin-right:10px;">' . ($hasFleetType ? '✓' : '○') . '</span>';
+                echo '<strong>' . t('index_adm_task2_title') . '</strong><br>';
+                echo '<span style="color:#666;">' . t('index_adm_task2_desc') . '</span> ';
+                echo '<a href="admin/admin_fleet_type.php" style="color:#0066cc;text-decoration:underline;">' . t('index_adm_task2_link') . '</a>';
+                echo '</li>';
+                
+                // Tâche 3: Acheter un appareil
+                echo '<li style="padding:10px;margin:8px 0;border-left:4px solid ' . ($hasFleet ? '#28a745' : '#ffc107') . ';background:' . ($hasFleet ? '#f1f9f4' : '#fffbf0') . ';border-radius:4px;">';
+                echo '<span style="font-size:20px;margin-right:10px;">' . ($hasFleet ? '✓' : '○') . '</span>';
+                echo '<strong>' . t('index_adm_task3_title') . '</strong><br>';
+                echo '<span style="color:#666;">' . t('index_adm_task3_desc') . '</span> ';
+                echo '<a href="admin/admin_flotte.php" style="color:#0066cc;text-decoration:underline;">' . t('index_adm_task3_link') . '</a>';
+                echo '</li>';
+                
+                echo '</ul>';
+            }
+            
+            echo '</div>';
+        }
+
         // Message d'accueil administrable (3 lignes max)
         $stmtMsg = $pdo->prepare("SELECT valeur FROM VARIABLES_CONFIG WHERE nom = 'message_accueil'");
         $stmtMsg->execute();

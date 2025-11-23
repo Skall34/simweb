@@ -12,6 +12,22 @@ return [
     'admin_variables_label_reservation_timeout_hours' => 'Reservation validity duration (hours)',
     'admin_variables_update_success' => 'Variables updated successfully.',
     'admin_variables_save_button' => 'Save',
+
+    // --- Page : install/index.php ---
+    'install_title' => 'Installation - Virtual Airline System',
+    'install_subtitle' => 'Automated setup in 5 steps',
+    'install_step1_label' => 'Checks',
+    'install_step2_label' => 'Database',
+    'install_step3_label' => 'VA Configuration',
+    'install_step4_label' => 'Installation',
+    'install_step5_label' => 'Finished',
+    'install_error_step_not_found' => 'Error: Step not found',
+    'install_progress_verifications' => 'Checks',
+    'install_progress_database' => 'Database',
+    'install_progress_config' => 'VA Configuration',
+    'install_progress_install' => 'Installation',
+    'install_progress_done' => 'Finished',
+    
     // --- Page : fleet_type ---
     'admin_fleet_type_edit_title' => 'Edit a fleet type',
     'admin_fleet_type_add_title' => 'Add a fleet type',
@@ -249,6 +265,19 @@ return [
     'index_table_arr' => 'Destination',
     'index_table_duration' => 'Duration',
     'index_map_title' => 'Live flights map',
+    'index_adm_setup_title' => 'Setup finalization',
+    'index_adm_setup_intro' => 'A few steps remain to complete your airline setup:',
+    'index_adm_setup_complete' => 'All tasks are completed!',
+    'index_adm_setup_delete_adm' => 'Don\'t forget to delete the ADM0001 account from pilot management.',
+    'index_adm_task1_title' => 'Create your admin account',
+    'index_adm_task1_desc' => 'Log out, register a new account that will be the future Admin account. Log back in as ADM0001 / admin123, go to pilot management and set the new account as Admin.',
+    'index_adm_task1_link' => 'Pilot management',
+    'index_adm_task2_title' => 'Create at least one aircraft type',
+    'index_adm_task2_desc' => 'Define the aircraft types for your fleet (plane, helicopter, etc.).',
+    'index_adm_task2_link' => 'Go to fleet types',
+    'index_adm_task3_title' => 'Purchase at least one aircraft',
+    'index_adm_task3_desc' => 'Add your first aircraft to the fleet.',
+    'index_adm_task3_link' => 'Go to fleet management',
     
     'site_title' => '{VA_NAME}',
 

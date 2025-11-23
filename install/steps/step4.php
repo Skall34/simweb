@@ -342,7 +342,10 @@ if (VA_DEBUG_MODE) {
         // 5. Importer le script SQL principal
         $logs[] = ['type' => 'info', 'message' => 'Import du script 01_Main_Database.sql...'];
         
-        $sql_file1 = realpath(__DIR__ . '/../../sql_database/01_Main_Database.sql');
+        $sql_file1 = realpath(__DIR__ . '/../sql_database/01_Main_Database.sql');
+        if (!$sql_file1 || !file_exists($sql_file1)) {
+            throw new Exception("Fichier SQL principal introuvable : 01_Main_Database.sql");
+        }
         $sql_content1 = file_get_contents($sql_file1);
         
         // Remplacer le nom de la base par celui choisi par l'utilisateur
@@ -393,7 +396,10 @@ if (VA_DEBUG_MODE) {
         // 6. Importer le script des aéroports
         $logs[] = ['type' => 'info', 'message' => 'Import du script 02_Airports_data.sql...'];
         
-        $sql_file2 = realpath(__DIR__ . '/../../sql_database/02_Airports_data.sql');
+        $sql_file2 = realpath(__DIR__ . '/../sql_database/02_Airports_data.sql');
+        if (!$sql_file2 || !file_exists($sql_file2)) {
+            throw new Exception("Fichier SQL aéroports introuvable : 02_Airports_data.sql");
+        }
         $sql_content2 = file_get_contents($sql_file2);
         
         // Remplacer le nom de la base
@@ -440,7 +446,7 @@ if (VA_DEBUG_MODE) {
         // 7. Créer le fichier .installed pour bloquer l'accès
         $logs[] = ['type' => 'info', 'message' => 'Sécurisation de l\'installateur...'];
         
-        file_put_contents(__DIR__ . '/.installed', date('Y-m-d H:i:s'));
+        file_put_contents(__DIR__ . '/../.installed', date('Y-m-d H:i:s'));
         
         $logs[] = ['type' => 'success', 'message' => '✓ Installateur verrouillé'];
         

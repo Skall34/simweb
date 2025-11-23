@@ -1,32 +1,14 @@
 <?php
 /**
- * Étape 5 : Installation terminée
+ * Étape 5 : Installation terminée + Checklist de démarrage
  */
+
+
 ?>
 
 <div class="step-content final-step">
     <div class="success-icon">🎉</div>
     
-    <h2>Installation terminée !</h2>
-    <p class="lead">Votre Virtual Airline est maintenant prête à l'emploi.</p>
-
-    <div class="info-box">
-        <h3>🔐 Informations de connexion</h3>
-        <div class="credentials-box">
-            <p><strong>Identifiant :</strong> <code>ADM0001</code></p>
-            <p><strong>Mot de passe :</strong> <code>admin123</code></p>
-        </div>
-        
-        <div class="warning-box">
-            <strong>⚠️ IMPORTANT - Sécurité :</strong>
-            <ol>
-                <li>Connectez-vous immédiatement avec le compte ADM0001</li>
-                <li>Créez votre propre compte administrateur</li>
-                <li><strong>Supprimez le compte ADM0001</strong> (Menu Admin → Gestion Pilotes)</li>
-            </ol>
-        </div>
-    </div>
-
     <div class="next-steps-box">
         <h3>📋 Prochaines étapes</h3>
         <ol>
@@ -63,23 +45,21 @@
     </div>
 
     <div class="security-note">
-        <h4>🔒 Note de sécurité</h4>
-        <p>L'installateur a été automatiquement verrouillé. Si vous devez réinstaller :</p>
+        <h4>🔒 Sécurité</h4>
+        <p>L'installateur est maintenant <strong>verrouillé</strong> et ne pourra plus être réexécuté.</p>
+        <p><strong>Si vous devez réinstaller à l'avenir :</strong></p>
         <ol>
-            <li>Supprimez le fichier <code>install/.installed</code></li>
-            <li>Supprimez les fichiers <code>includes/db_connect.php</code> et <code>includes/config.php</code></li>
-            <li>Rechargez cette page</li>
+            <li>Supprimez <code>install/.installed</code></li>
+            <li>Supprimez <code>includes/db_connect.php</code> et <code>includes/config.php</code></li>
+            <li>Supprimez la base de données existante</li>
+            <li>Relancez l'installateur : <code>http://votre-site/install/</code></li>
         </ol>
     </div>
 
     <div class="actions center">
-        <a href="../index.php" class="btn btn-primary btn-large">Accéder à ma Virtual Airline →</a>
+        <a href="/index.php" class="btn btn-primary btn-large"><?= "Aller à l'accueil de votre nouvelle VA" ?></a>
     </div>
 
-    <div class="footer-note">
-        <p>Merci d'avoir installé Virtual Airline Management System ! ✈️</p>
-        <p>Bon vols et bonne gestion de votre compagnie aérienne virtuelle.</p>
-    </div>
 </div>
 
 <style>
@@ -164,5 +144,116 @@
     margin-top: 40px;
     color: #666;
     font-size: 0.95em;
+}
+
+/* Checklist styles */
+.checklist-box {
+    background: #f8f9fa;
+    border: 2px solid #1a3552;
+    border-radius: 8px;
+    padding: 25px;
+    margin: 30px 0;
+    text-align: left;
+}
+
+.checklist-box h3 {
+    color: #1a3552;
+    margin-top: 0;
+    text-align: center;
+}
+
+.checklist-intro {
+    text-align: center;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.checklist {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+.checklist li {
+    display: flex;
+    align-items: flex-start;
+    padding: 15px;
+    margin-bottom: 15px;
+    background: #fff;
+    border-radius: 6px;
+    border-left: 4px solid #ddd;
+    transition: all 0.3s ease;
+}
+
+.checklist li.done {
+    border-left-color: #28a745;
+    background: #f1f9f4;
+}
+
+.checklist li.todo {
+    border-left-color: #ffc107;
+    background: #fffbf0;
+}
+
+.checklist .checkbox {
+    font-size: 24px;
+    font-weight: bold;
+    margin-right: 15px;
+    min-width: 30px;
+}
+
+.checklist li.done .checkbox {
+    color: #28a745;
+}
+
+.checklist li.todo .checkbox {
+    color: #ffc107;
+}
+
+.task-content {
+    flex: 1;
+}
+
+.task-content strong {
+    color: #1a3552;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.task-content small {
+    color: #666;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.task-link {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95em;
+}
+
+.task-link:hover {
+    text-decoration: underline;
+}
+
+.all-done-message {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+    padding: 15px;
+    border-radius: 6px;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.pending-message {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    color: #856404;
+    padding: 15px;
+    border-radius: 6px;
+    text-align: center;
+    margin-top: 20px;
 }
 </style>

@@ -12,6 +12,22 @@ return [
     'admin_variables_label_reservation_timeout_hours' => 'Duración de validez de una reserva (horas)',
     'admin_variables_update_success' => 'Variables actualizadas con éxito.',
     'admin_variables_save_button' => 'Guardar',
+
+    // --- Page : install ---
+    'install_title' => 'Instalación - Virtual Airline System',
+    'install_subtitle' => 'Configuración automática en 5 pasos',
+    'install_step1_label' => 'Verificaciones',
+    'install_step2_label' => 'Base de datos',
+    'install_step3_label' => 'Configuración VA',
+    'install_step4_label' => 'Instalación',
+    'install_step5_label' => 'Terminado',
+    'install_error_step_not_found' => 'Error: Paso no encontrado',
+    'install_progress_verifications' => 'Verificaciones',
+    'install_progress_database' => 'Base de datos',
+    'install_progress_config' => 'Configuración VA',
+    'install_progress_install' => 'Instalación',
+    'install_progress_done' => 'Terminado',
+    
     // --- Page : fleet_type ---
     'admin_fleet_type_edit_title' => 'Editar un tipo de flota',
     'admin_fleet_type_add_title' => 'Añadir un tipo de flota',
@@ -248,6 +264,19 @@ return [
     'index_table_arr' => 'Destino',
     'index_table_duration' => 'Duración',
     'index_map_title' => 'Mapa de vuelos en curso',
+    'index_adm_setup_title' => 'Finalización de la configuración',
+    'index_adm_setup_intro' => 'Quedan algunos pasos para completar la creación de su aerolínea:',
+    'index_adm_setup_complete' => '¡Todas las tareas están completadas!',
+    'index_adm_setup_delete_adm' => 'No olvide eliminar la cuenta ADM0001 desde la gestión de pilotos.',
+    'index_adm_task1_title' => 'Crear su cuenta de administrador',
+    'index_adm_task1_desc' => 'Cierre sesión, regístrese con una nueva cuenta que será la futura cuenta Admin. Vuelva a iniciar sesión como ADM0001 / admin123, vaya a la gestión de pilotos y configure la nueva cuenta como Admin.',
+    'index_adm_task1_link' => 'Gestión de pilotos',
+    'index_adm_task2_title' => 'Crear al menos un tipo de aeronave',
+    'index_adm_task2_desc' => 'Defina los tipos de aeronaves de su flota (avión, helicóptero, etc.).',
+    'index_adm_task2_link' => 'Ir a tipos de flota',
+    'index_adm_task3_title' => 'Comprar al menos una aeronave',
+    'index_adm_task3_desc' => 'Agregue su primera aeronave a la flota.',
+    'index_adm_task3_link' => 'Ir a la gestión de la flota',
     
     'site_title' => '{VA_NAME}',
 

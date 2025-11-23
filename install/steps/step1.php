@@ -3,6 +3,73 @@
  * Étape 1 : Vérifications préalables
  */
 
+// Vérification bloquante : db_connect.php ou .installed
+$installedFileExists = file_exists(__DIR__ . '/../.installed');
+$dbConnectExists = file_exists(__DIR__ . '/../../includes/db_connect.php');
+if ($dbConnectExists || $installedFileExists) {
+    ?>
+    <!DOCTYPE html>
+    <html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Installation bloquée</title>
+        <link rel="stylesheet" href="../style.css">
+    </head>
+    <body>
+        <div class="warning-box">
+            <div class="warning-icon">⚠️</div>
+            <div class="warning-title">
+                <?php if ($installedFileExists): ?>
+                    Installation déjà effectuée
+                <?php else: ?>
+                    Fichier de configuration détecté
+                <?php endif; ?>
+            </div>
+            <div class="warning-content">
+                <?php if ($installedFileExists): ?>
+                    <p><strong>L'installateur ne peut pas être exécuté car votre site semble déjà installé.</strong></p>
+                <?php else: ?>
+                    <p><strong>L'installateur ne peut pas être exécuté car le fichier <code>includes/db_connect.php</code> est présent.</strong></p>
+                <?php endif; ?>
+                <ul class="file-list">
+                    <?php if ($installedFileExists): ?>
+                        <li class="file-found">✗ <code>install/.installed</code> - Fichier de verrouillage présent</li>
+                    <?php endif; ?>
+                    <?php if ($dbConnectExists): ?>
+                        <li class="file-found">✗ <code>includes/db_connect.php</code> - Configuration DB présente</li>
+                    <?php endif; ?>
+                </ul>
+                <p><strong>Que faire ?</strong></p>
+                <ul>
+                    <?php if ($dbConnectExists): ?>
+                        <li>Supprimez le fichier <code>includes/db_connect.php</code> puis <strong>rechargez cette page</strong></li>
+                    <?php endif; ?>
+                    <?php if ($installedFileExists): ?>
+                        <li>Si votre site fonctionne, <strong>accédez à la page d'accueil</strong></li>
+                        <li>Si vous devez <strong>réinstaller</strong>, supprimez les fichiers détectés ci-dessus</li>
+                    <?php endif; ?>
+                </ul>
+                <p style="margin-top: 20px; padding: 15px; background: #e7f3ff; border-left: 4px solid #0066cc;">
+                    <strong>💡 Conseil :</strong> Si vous avez copié <code>db_connect.php</code> par erreur lors d'un transfert FTP, supprimez-le simplement via votre client FTP. Ce fichier ne doit jamais être versionné ou transféré manuellement.
+                </p>
+            </div>
+            <div class="actions">
+                <?php if ($dbConnectExists): ?>
+                    <a href="/install/index.php" class="btn btn-primary">Recharger la page</a>
+                <?php endif; ?>
+                <?php if ($installedFileExists): ?>
+                    <a href="../../index.php" class="btn btn-primary">Accéder au site</a>
+                    <a href="../../INSTALLATION.md" class="btn btn-secondary" target="_blank">Voir la documentation</a>
+                <?php endif; ?>
+            </div>
+        </div>
+    </body>
+    </html>
+    <?php
+    exit();
+}
+
 $checks = [];
 $all_ok = true;
 
@@ -17,71 +84,10 @@ $checks[] = [
 ];
 if (!$php_ok) $all_ok = false;
 
-// Extensions PHP requises
-$required_extensions = [
-    'pdo' => 'PDO',
-    'pdo_mysql' => 'PDO MySQL',
-    'mbstring' => 'Multibyte String',
-    'json' => 'JSON',
-    'session' => 'Session'
-];
-
-foreach ($required_extensions as $ext => $name) {
-    $loaded = extension_loaded($ext);
-    $checks[] = [
-        'name' => "Extension $name",
-        'status' => $loaded,
-        'message' => $loaded ? "$name activée ✓" : "$name manquante",
-        'critical' => true
-    ];
-    if (!$loaded) $all_ok = false;
-}
-
-// Permissions d'écriture (et création si nécessaire)
-$writable_paths = [
-    '../../includes' => 'Dossier includes/',
-    '../../scripts/logs' => 'Dossier scripts/logs/',
-    '../..' => 'Racine du site'
-];
-
-foreach ($writable_paths as $path => $name) {
-    $full_path = realpath(__DIR__ . '/' . $path);
-    if (!$full_path) {
-        $full_path = __DIR__ . '/' . $path;
-    }
-    
-    // Créer le dossier s'il n'existe pas
-    if (!file_exists($full_path) && $path !== '../..') {
-        @mkdir($full_path, 0755, true);
-    }
-    
-    $writable = is_writable($full_path);
-    
-    // Messages informatifs (non bloquants pour includes/ et scripts/logs/)
-    if (!$writable && $name === 'Dossier includes/') {
-        $message = "$name non accessible en écriture (normal). L'installateur tentera automatiquement d'ajuster les permissions.";
-    } elseif (!$writable && $name === 'Dossier scripts/logs/') {
-        $message = "$name non accessible en écriture (normal). L'installateur créera automatiquement ce dossier.";
-    } elseif (!$writable) {
-        $message = "$name non accessible en écriture. Exécutez : chmod -R 755 " . basename($path) . "/";
-    } else {
-        $message = "$name accessible en écriture ✓";
-    }
-    
-    $checks[] = [
-        'name' => "Permissions $name",
-        'status' => $writable,
-        'message' => $message,
-        'critical' => false, // Aucune permission n'est critique grâce au système de fallback
-        'warning' => !$writable && ($name === 'Dossier includes/' || $name === 'Dossier scripts/logs/') // Avertissement seulement
-    ];
-    // Ne bloque plus l'installation
-}
-
-// Fichiers SQL présents
+// ...existing code...
 $sql_files = [
-    '../../sql_database/01_Main_Database.sql' => 'Script base de données principale',
-    '../../sql_database/02_Airports_data.sql' => 'Script données aéroports'
+    '../sql_database/01_Main_Database.sql' => 'Script base de données principale',
+    '../sql_database/02_Airports_data.sql' => 'Script données aéroports'
 ];
 
 foreach ($sql_files as $path => $name) {

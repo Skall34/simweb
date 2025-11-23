@@ -215,6 +215,12 @@ CREATE TABLE IF NOT EXISTS `GRADES` (
 -- --------------------------------------------------------
 
 --
+-- Données initiales pour la table `GRADES`
+--
+
+INSERT INTO `GRADES` (`id`, `nom`, `description`, `niveau`, `taux_horaire`) VALUES
+(1, 'Cadet', 'Grade de départ pour les nouveaux pilotes', 1, 10.00);
+--
 -- Structure de la table `LIGNES_REGULIERES`
 --
 

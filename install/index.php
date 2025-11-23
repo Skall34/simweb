@@ -7,10 +7,10 @@
  */
 
 // Vérifier si l'installation est déjà faite
-if (file_exists(__DIR__ . '/.installed') || file_exists(__DIR__ . '/../includes/db_connect.php')) {
-    header('Location: ../index.php');
-    exit('Installation déjà effectuée. Si vous devez réinstaller, supprimez le fichier .installed et includes/db_connect.php');
-}
+// UNIQUEMENT avec le fichier .installed créé à la toute fin
+
+
+
 
 session_start();
 
