@@ -156,15 +156,14 @@ if (isset($_GET['edit'])) {
             </select>
 
             <label><?= t('admin_fleet_type_label_hourly_cost') ?></label>
-            <input type="number" id="cout_horaire" name="cout_horaire" step="0.01" class="form-input input-250" required value="<?= htmlspecialchars($current['cout_horaire']) ?>">
+            <input type="number" id="cout_horaire" name="cout_horaire" step="100" class="form-input input-250" required value="<?= htmlspecialchars($current['cout_horaire']) ?>">
 
             <label><?= t('admin_fleet_type_label_plane_cost') ?></label>
-            <input type="number" id="cout_appareil" name="cout_appareil" step="0.01" class="form-input input-250" required value="<?= htmlspecialchars($current['cout_appareil']) ?>">
+            <input type="number" id="cout_appareil" name="cout_appareil" step="100" class="form-input input-250" required value="<?= htmlspecialchars($current['cout_appareil']) ?>">
 
             <div class="form-actions">
                 <?php if ($edit_mode): ?>
                     <button type="submit" name="action" value="update" class="btn btn-small"><?= t('admin_fleet_type_update_button') ?></button>
-                    <a href="admin_fleet_type.php" class="btn btn-small" style="margin-left:8px;"><?= t('admin_fleet_type_cancel_button') ?></a>
                     <button type="button" class="btn btn-reset btn-small" onclick="window.location.href='admin_fleet_type.php';"><?= t('admin_fleet_type_reset_button') ?></button>
                 <?php else: ?>
                     <button type="submit" name="action" value="add" class="btn btn-small"><?= t('admin_fleet_type_add_button') ?></button>
@@ -219,11 +218,11 @@ if (isset($_GET['edit'])) {
                 <table class="table-skywings" style="width:100%; white-space:nowrap; word-break:keep-all;">
                     <thead>
                         <tr>
-                            <th class="fleet_type">Nom</th>
-                            <th class="type">Catégorie</th>
-                            <th class="cout_horaire">Coût horaire (€)</th>
-                            <th class="prix">Prix (€)</th>
-                            <th>Actions</th>
+                            <th class="fleet_type"><?= t('admin_fleet_type_col_name') ?></th>
+                            <th class="type"><?= t('admin_fleet_type_col_category') ?></th>
+                            <th class="cout_horaire"><?= t('admin_fleet_type_col_hourly_cost') ?></th>
+                            <th class="prix"><?= t('admin_fleet_type_col_plane_cost') ?></th>
+                            <th><?= t('admin_fleet_type_col_actions') ?></th>
                         </tr>
                     </thead>
                     <tbody>

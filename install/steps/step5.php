@@ -10,54 +10,54 @@
     <div class="success-icon">🎉</div>
     
     <div class="next-steps-box">
-        <h3>📋 Prochaines étapes</h3>
+        <h3><?= t('install_step5_next_steps_title') ?></h3>
         <ol>
             <li>
-                <strong>Connexion</strong><br>
-                <small>Connectez-vous avec ADM0001 / admin123</small>
+                <strong><?= t('install_step5_login') ?></strong><br>
+                <small><?= t('install_step5_login_info') ?></small>
             </li>
             <li>
-                <strong>Configuration VA</strong><br>
-                <small>Personnalisez le nom, logo, et paramètres dans le menu admin</small>
+                <strong><?= t('install_step5_configure') ?></strong><br>
+                <small><?= t('install_step5_configure_info') ?></small>
             </li>
             <li>
-                <strong>Gestion de la flotte</strong><br>
-                <small>Ajoutez vos types d'appareils et votre flotte</small>
+                <strong><?= t('install_step5_manage_fleet') ?></strong><br>
+                <small><?= t('install_step5_manage_fleet_info') ?></small>
             </li>
             <li>
-                <strong>Création de missions</strong><br>
-                <small>Définissez vos missions et routes</small>
+                <strong><?= t('install_step5_create_missions') ?></strong><br>
+                <small><?= t('install_step5_create_missions_info') ?></small>
             </li>
             <li>
-                <strong>Inscription pilotes</strong><br>
-                <small>Ouvrez les inscriptions et accueillez vos pilotes</small>
+                <strong><?= t('install_step5_register_pilots') ?></strong><br>
+                <small><?= t('install_step5_register_pilots_info') ?></small>
             </li>
         </ol>
     </div>
 
     <div class="resources-box">
-        <h3>📚 Ressources utiles</h3>
+        <h3><?= t('install_step5_resources_title') ?></h3>
         <ul>
-            <li><strong>Documentation :</strong> Consultez le dossier <code>Documentation/</code></li>
-            <li><strong>ACARS :</strong> Téléchargez l'addon dans <code>assets/acars/</code></li>
-            <li><strong>Support :</strong> Consultez la FAQ et les guides d'utilisation</li>
+            <li><?= t('install_step5_resources_docs') ?></li>
+            <li><?= t('install_step5_resources_acars') ?></li>
+            <li><?= t('install_step5_resources_support') ?></li>
         </ul>
     </div>
 
     <div class="security-note">
-        <h4>🔒 Sécurité</h4>
-        <p>L'installateur est maintenant <strong>verrouillé</strong> et ne pourra plus être réexécuté.</p>
-        <p><strong>Si vous devez réinstaller à l'avenir :</strong></p>
+        <h4><?= t('install_step5_security_title') ?></h4>
+        <p><?= t('install_step5_security_text') ?></p>
+        <p><strong><?= t('install_step5_reinstall_info') ?></strong></p>
         <ol>
-            <li>Supprimez <code>install/.installed</code></li>
-            <li>Supprimez <code>includes/db_connect.php</code> et <code>includes/config.php</code></li>
-            <li>Supprimez la base de données existante</li>
-            <li>Relancez l'installateur : <code>http://votre-site/install/</code></li>
+            <li><?= t('install_step5_remove_installed') ?></li>
+            <li><?= t('install_step5_remove_db_files') ?></li>
+            <li><?= t('install_step5_remove_db') ?></li>
+            <li><?= t('install_step5_restart_installer') ?></li>
         </ol>
     </div>
 
     <div class="actions center">
-        <a href="/index.php" class="btn btn-primary btn-large"><?= "Aller à l'accueil de votre nouvelle VA" ?></a>
+        <a href="/index.php" class="btn btn-primary btn-large"><?= t('install_step5_btn_go_home') ?></a>
     </div>
 
 </div>
@@ -255,5 +255,13 @@
     border-radius: 6px;
     text-align: center;
     margin-top: 20px;
+}
+
+/* Slight horizontal offset so text isn't glued to the left edge */
+.next-steps-box,
+.resources-box,
+.security-note {
+    padding-left: 18px;
+    padding-right: 18px;
 }
 </style>

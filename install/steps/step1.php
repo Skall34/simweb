@@ -13,7 +13,7 @@ if ($dbConnectExists || $installedFileExists) {
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Installation bloquée</title>
+        <title><?php echo t('install_blocked_title'); ?></title>
         <link rel="stylesheet" href="../style.css">
     </head>
     <body>
@@ -21,46 +21,46 @@ if ($dbConnectExists || $installedFileExists) {
             <div class="warning-icon">⚠️</div>
             <div class="warning-title">
                 <?php if ($installedFileExists): ?>
-                    Installation déjà effectuée
+                    <?php echo t('install_blocked_subtitle_installed'); ?>
                 <?php else: ?>
-                    Fichier de configuration détecté
+                    <?php echo t('install_blocked_subtitle_config'); ?>
                 <?php endif; ?>
             </div>
             <div class="warning-content">
                 <?php if ($installedFileExists): ?>
-                    <p><strong>L'installateur ne peut pas être exécuté car votre site semble déjà installé.</strong></p>
+                    <p><strong><?php echo t('install_blocked_text_installed'); ?></strong></p>
                 <?php else: ?>
-                    <p><strong>L'installateur ne peut pas être exécuté car le fichier <code>includes/db_connect.php</code> est présent.</strong></p>
+                    <p><strong><?php echo t('install_blocked_text_config'); ?></strong></p>
                 <?php endif; ?>
                 <ul class="file-list">
                     <?php if ($installedFileExists): ?>
-                        <li class="file-found">✗ <code>install/.installed</code> - Fichier de verrouillage présent</li>
+                        <li class="file-found"><?php echo t('install_blocked_file_installed'); ?></li>
                     <?php endif; ?>
                     <?php if ($dbConnectExists): ?>
-                        <li class="file-found">✗ <code>includes/db_connect.php</code> - Configuration DB présente</li>
+                        <li class="file-found"><?php echo t('install_blocked_file_config'); ?></li>
                     <?php endif; ?>
                 </ul>
-                <p><strong>Que faire ?</strong></p>
+                <p><strong><?php echo t('install_blocked_what_to_do'); ?></strong></p>
                 <ul>
                     <?php if ($dbConnectExists): ?>
-                        <li>Supprimez le fichier <code>includes/db_connect.php</code> puis <strong>rechargez cette page</strong></li>
+                        <li><?php echo t('install_blocked_action_delete_config'); ?></li>
                     <?php endif; ?>
                     <?php if ($installedFileExists): ?>
-                        <li>Si votre site fonctionne, <strong>accédez à la page d'accueil</strong></li>
-                        <li>Si vous devez <strong>réinstaller</strong>, supprimez les fichiers détectés ci-dessus</li>
+                        <li><?php echo t('install_blocked_action_go_home'); ?></li>
+                        <li><?php echo t('install_blocked_action_reinstall'); ?></li>
                     <?php endif; ?>
                 </ul>
                 <p style="margin-top: 20px; padding: 15px; background: #e7f3ff; border-left: 4px solid #0066cc;">
-                    <strong>💡 Conseil :</strong> Si vous avez copié <code>db_connect.php</code> par erreur lors d'un transfert FTP, supprimez-le simplement via votre client FTP. Ce fichier ne doit jamais être versionné ou transféré manuellement.
+                    <strong><?php echo t('install_blocked_tip'); ?></strong>
                 </p>
             </div>
             <div class="actions">
                 <?php if ($dbConnectExists): ?>
-                    <a href="/install/index.php" class="btn btn-primary">Recharger la page</a>
+                    <a href="/install/index.php" class="btn btn-primary"><?php echo t('install_blocked_btn_reload'); ?></a>
                 <?php endif; ?>
                 <?php if ($installedFileExists): ?>
-                    <a href="../../index.php" class="btn btn-primary">Accéder au site</a>
-                    <a href="../../INSTALLATION.md" class="btn btn-secondary" target="_blank">Voir la documentation</a>
+                    <a href="../../index.php" class="btn btn-primary"><?php echo t('install_blocked_btn_go_home'); ?></a>
+                    <a href="../../INSTALLATION.md" class="btn btn-secondary" target="_blank"><?php echo t('install_blocked_btn_documentation'); ?></a>
                 <?php endif; ?>
             </div>
         </div>
@@ -77,29 +77,30 @@ $all_ok = true;
 $php_version = phpversion();
 $php_ok = version_compare($php_version, '7.4.0', '>=');
 $checks[] = [
-    'name' => 'Version PHP',
+    'name' => t('install_check_php_version'),
     'status' => $php_ok,
-    'message' => $php_ok ? "PHP $php_version ✓" : "PHP $php_version (minimum 7.4 requis)",
+    'message' => $php_ok ? t('install_check_php_ok', ['version' => $php_version]) : t('install_check_php_min', ['version' => $php_version]),
     'critical' => true
 ];
 if (!$php_ok) $all_ok = false;
 
 // ...existing code...
 $sql_files = [
-    '../sql_database/01_Main_Database.sql' => 'Script base de données principale',
-    '../sql_database/02_Airports_data.sql' => 'Script données aéroports'
+    '../sql_database/01_Main_Database.sql' => 'install_check_sql_main',
+    '../sql_database/02_Airports_data.sql' => 'install_check_sql_airports'
 ];
 
-foreach ($sql_files as $path => $name) {
+foreach ($sql_files as $path => $name_key) {
     $full_path = realpath(__DIR__ . '/' . $path);
     if (!$full_path) {
         $full_path = __DIR__ . '/' . $path;
     }
     $exists = file_exists($full_path);
+    $name = t($name_key);
     $checks[] = [
         'name' => $name,
         'status' => $exists,
-        'message' => $exists ? "$name trouvé ✓" : "$name introuvable",
+        'message' => $exists ? t('install_check_sql_found', ['name' => $name]) : t('install_check_sql_missing', ['name' => $name]),
         'critical' => true
     ];
     if (!$exists) $all_ok = false;
@@ -108,8 +109,8 @@ foreach ($sql_files as $path => $name) {
 ?>
 
 <div class="step-content">
-    <h2>🔍 Vérifications préalables</h2>
-    <p>Contrôle de l'environnement d'installation...</p>
+    <h2><?php echo t('install_step1_title'); ?></h2>
+    <p><?php echo t('install_step1_subtitle'); ?></p>
 
     <div class="checks-list">
         <?php foreach ($checks as $check): ?>
@@ -128,28 +129,28 @@ foreach ($sql_files as $path => $name) {
 
     <?php if ($all_ok): ?>
         <div class="success-box">
-            <h3>✓ Toutes les vérifications sont passées avec succès !</h3>
-            <p>Votre environnement est prêt pour l'installation.</p>
+            <h3><?php echo t('install_step1_success_title'); ?></h3>
+            <p><?php echo t('install_step1_success_text'); ?></p>
         </div>
         
         <div class="actions">
-            <a href="?step=2" class="btn btn-primary">Continuer →</a>
+            <a href="?step=2" class="btn btn-primary"><?php echo t('install_step1_btn_continue'); ?></a>
         </div>
     <?php else: ?>
         <div class="error-box">
-            <h3>⚠ Certaines vérifications ont échoué</h3>
-            <p>Veuillez corriger les erreurs ci-dessus avant de continuer.</p>
-            <p><strong>Actions recommandées :</strong></p>
+            <h3><?php echo t('install_step1_error_title'); ?></h3>
+            <p><?php echo t('install_step1_error_text'); ?></p>
+            <p><strong><?php echo t('install_step1_error_recommendations'); ?></strong></p>
             <ul>
-                <li>Vérifiez votre version de PHP (minimum 7.4, recommandé 8.1+)</li>
-                <li>Activez les extensions PHP manquantes dans php.ini</li>
-                <li>Donnez les permissions d'écriture : <code>chmod 755 includes/</code></li>
-                <li>Vérifiez la présence des fichiers SQL dans sql_database/</li>
+                <li><?php echo t('install_step1_error_php'); ?></li>
+                <li><?php echo t('install_step1_error_extensions'); ?></li>
+                <li><?php echo t('install_step1_error_permissions'); ?></li>
+                <li><?php echo t('install_step1_error_sql'); ?></li>
             </ul>
         </div>
         
         <div class="actions">
-            <a href="?step=1" class="btn btn-secondary">Revérifier</a>
+            <a href="?step=1" class="btn btn-secondary"><?php echo t('install_step1_btn_recheck'); ?></a>
         </div>
     <?php endif; ?>
 </div>

@@ -29,6 +29,10 @@ function t($key, $params = []) {
     foreach ($params as $param => $value) {
         $text = str_replace(':' . $param, $value, $text);
     }
+    // Also support placeholders with braces {param}
+    foreach ($params as $param => $value) {
+        $text = str_replace('{' . $param . '}', $value, $text);
+    }
     
     // Replace {VA_NAME}, {VA_CONTACT_EMAIL}, etc. with config values
     if (defined('VA_NAME')) {

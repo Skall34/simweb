@@ -215,12 +215,9 @@ define('VA_STARTING_BALANCE', " . (int)$config['va_starting_balance'] . ");
 
 define('VA_TIMEZONE', '" . addslashes($config['timezone']) . "');
 define('VA_DEFAULT_LANGUAGE', '" . addslashes($config['va_default_language']) . "');
-define('VA_REGISTRATION_ENABLED', " . $config['va_registration_enabled'] . ");
-define('VA_MIN_FLIGHTS_FOR_PROMOTION', " . (int)$config['va_min_flights_promotion'] . ");
 
 // ==================== PARAMÈTRES SIMADDON ====================
 
-define('VA_SIMADDON_ENABLED', " . $config['va_simaddon_enabled'] . ");
 define('VA_SIMADDON_API_URL', 'https://api.simaddon.com');
 
 // ==================== MODE DEBUG ====================
@@ -392,6 +389,19 @@ if (VA_DEBUG_MODE) {
         }
         
         $logs[] = ['type' => 'success', 'message' => '✓ Tables principales créées (compte ADM0001 inclus)'];
+
+        // Si une balance de départ est spécifiée, insérer en base dans BALANCE_COMMERCIALE
+        $starting_balance = isset($config['va_starting_balance']) ? (int)$config['va_starting_balance'] : 0;
+        if ($starting_balance !== 0) {
+            try {
+                $logs[] = ['type' => 'info', 'message' => 'Insertion du solde initial en base...'];
+                $stmtBal = $pdo->prepare("INSERT INTO BALANCE_COMMERCIALE (balance_actuelle, commentaire, derniere_maj) VALUES (:bal,'Solde initial', NOW())");
+                $stmtBal->execute(['bal' => $starting_balance]);
+                $logs[] = ['type' => 'success', 'message' => '✓ Solde initial inséré (' . number_format($starting_balance, 0, ',', ' ') . ')'];
+            } catch (PDOException $e) {
+                $logs[] = ['type' => 'info', 'message' => 'Impossible d\'insérer le solde initial : ' . $e->getMessage()];
+            }
+        }
         
         // 6. Importer le script des aéroports
         $logs[] = ['type' => 'info', 'message' => 'Import du script 02_Airports_data.sql...'];
@@ -469,67 +479,67 @@ if (VA_DEBUG_MODE) {
 ?>
 
 <div class="step-content">
-    <h2>🚀 Installation</h2>
+    <h2><?= t('install_step4_title') ?></h2>
     
     <?php if (!$success && empty($logs)): ?>
-        <p>Récapitulatif de votre configuration :</p>
+        <p><?= t('install_step4_summary_intro') ?></p>
         
         <div class="summary-box">
-            <h3>📦 Base de données</h3>
+            <h3><?= t('install_step4_summary_db_title') ?></h3>
             <ul>
-                <li><strong>Hôte :</strong> <?= htmlspecialchars($_SESSION['install_data']['database']['host']) ?></li>
-                <li><strong>Port :</strong> <?= htmlspecialchars($_SESSION['install_data']['database']['port']) ?></li>
-                <li><strong>Base :</strong> <?= htmlspecialchars($_SESSION['install_data']['database']['name']) ?></li>
-                <li><strong>Utilisateur :</strong> <?= htmlspecialchars($_SESSION['install_data']['database']['user']) ?></li>
+                <li><strong><?= t('install_step4_label_db_host') ?></strong> <?= htmlspecialchars($_SESSION['install_data']['database']['host']) ?></li>
+                <li><strong><?= t('install_step4_label_db_port') ?></strong> <?= htmlspecialchars($_SESSION['install_data']['database']['port']) ?></li>
+                <li><strong><?= t('install_step4_label_db_name') ?></strong> <?= htmlspecialchars($_SESSION['install_data']['database']['name']) ?></li>
+                <li><strong><?= t('install_step4_label_db_user') ?></strong> <?= htmlspecialchars($_SESSION['install_data']['database']['user']) ?></li>
             </ul>
             
-            <h3>✈️ Virtual Airline</h3>
+            <h3><?= t('install_step4_summary_va_title') ?></h3>
             <ul>
-                <li><strong>Nom :</strong> <?= htmlspecialchars($_SESSION['install_data']['config']['va_name']) ?></li>
-                <li><strong>Code ICAO :</strong> <?= htmlspecialchars($_SESSION['install_data']['config']['va_icao']) ?></li>
+                <li><strong><?= t('install_step3_label_va_name') ?></strong> <?= htmlspecialchars($_SESSION['install_data']['config']['va_name']) ?></li>
+                <li><strong><?= t('install_step3_label_va_icao') ?></strong> <?= htmlspecialchars($_SESSION['install_data']['config']['va_icao']) ?></li>
                 <?php if (!empty($_SESSION['install_data']['config']['va_iata'])): ?>
-                <li><strong>Code IATA :</strong> <?= htmlspecialchars($_SESSION['install_data']['config']['va_iata']) ?></li>
+                <li><strong><?= t('install_step3_label_va_iata') ?></strong> <?= htmlspecialchars($_SESSION['install_data']['config']['va_iata']) ?></li>
                 <?php endif; ?>
-                <li><strong>Email contact :</strong> <?= htmlspecialchars($_SESSION['install_data']['config']['va_email']) ?></li>
-                <li><strong>Email admin :</strong> <?= htmlspecialchars($_SESSION['install_data']['config']['va_admin_email']) ?></li>
-                <li><strong>URL :</strong> <?= htmlspecialchars($_SESSION['install_data']['config']['va_url']) ?></li>
+                <li><strong><?= t('install_step3_label_va_email') ?></strong> <?= htmlspecialchars($_SESSION['install_data']['config']['va_email']) ?></li>
+                <li><strong><?= t('install_step3_label_va_admin_email') ?></strong> <?= htmlspecialchars($_SESSION['install_data']['config']['va_admin_email']) ?></li>
+                <li><strong><?= t('install_step3_label_va_url') ?></strong> <?= htmlspecialchars($_SESSION['install_data']['config']['va_url']) ?></li>
             </ul>
             
-            <h3>⚙️ Paramètres</h3>
+            <h3><?= t('install_step4_summary_params_title') ?></h3>
             <ul>
-                <li><strong>Devise :</strong> <?= htmlspecialchars($_SESSION['install_data']['config']['va_currency']) ?> (<?= htmlspecialchars($_SESSION['install_data']['config']['va_currency_symbol']) ?>)</li>
-                <li><strong>Langue :</strong> <?= htmlspecialchars($_SESSION['install_data']['config']['va_default_language']) ?></li>
-                <li><strong>Fuseau :</strong> <?= htmlspecialchars($_SESSION['install_data']['config']['timezone']) ?></li>
-                <li><strong>Balance départ :</strong> <?= number_format($_SESSION['install_data']['config']['va_starting_balance']) ?> <?= htmlspecialchars($_SESSION['install_data']['config']['va_currency_symbol']) ?></li>
-                <li><strong>Inscription :</strong> <?= $_SESSION['install_data']['config']['va_registration_enabled'] === 'true' ? 'Activée' : 'Désactivée' ?></li>
-                <li><strong>SimAddon :</strong> <?= $_SESSION['install_data']['config']['va_simaddon_enabled'] === 'true' ? 'Activé' : 'Désactivé' ?></li>
-                <li><strong>SMTP :</strong> <?= $_SESSION['install_data']['config']['smtp_enabled'] ? 'Activé' : 'Désactivé' ?></li>
+                <li><strong><?= t('install_step3_label_va_currency') ?></strong> <?= htmlspecialchars($_SESSION['install_data']['config']['va_currency']) ?> (<?= htmlspecialchars($_SESSION['install_data']['config']['va_currency_symbol']) ?>)</li>
+                <li><strong><?= t('install_step3_label_va_default_language') ?></strong> <?= htmlspecialchars($_SESSION['install_data']['config']['va_default_language']) ?></li>
+                <li><strong><?= t('install_step3_label_va_timezone') ?></strong> <?= htmlspecialchars($_SESSION['install_data']['config']['timezone']) ?></li>
+                <li><strong><?= t('install_step3_label_va_starting_balance') ?></strong> <?= number_format($_SESSION['install_data']['config']['va_starting_balance']) ?> <?= htmlspecialchars($_SESSION['install_data']['config']['va_currency_symbol']) ?></li>
+                <li><strong><?= t('install_step3_label_va_registration_enabled') ?></strong> <?= $_SESSION['install_data']['config']['va_registration_enabled'] === 'true' ? t('fleet_text_yes') : t('fleet_text_no') ?></li>
+                <li><strong><?= t('install_step3_label_va_simaddon_enabled') ?></strong> <?= $_SESSION['install_data']['config']['va_simaddon_enabled'] === 'true' ? t('fleet_text_yes') : t('fleet_text_no') ?></li>
+                <li><strong><?= t('install_step3_label_smtp_enabled') ?></strong> <?= !empty($_SESSION['install_data']['config']['smtp_enabled']) ? t('fleet_text_yes') : t('fleet_text_no') ?></li>
             </ul>
         </div>
         
         <div class="warning-box">
-            <h4>⚠️ Avant de continuer :</h4>
+            <h4><?= t('install_step4_warning_title') ?></h4>
             <ul>
-                <li>Assurez-vous d'avoir sauvegardé toute base de données existante</li>
-                <li>L'installation va créer les tables et importer les données</li>
-                <li>Un compte super-administrateur par défaut sera créé : <strong>ADM0001</strong> / <strong>admin123</strong></li>
-                <li>Ce compte aura tous les droits et sera défini dans le fichier config.php</li>
-                <li>Vous devrez supprimer ce compte après avoir créé votre propre compte super admin</li>
+                <li><?= t('install_step4_warning_save_db') ?></li>
+                <li><?= t('install_step4_warning_tables_import') ?></li>
+                <li><?= t('install_step4_warning_admin_account') ?></li>
+                <li><?= t('install_step4_warning_admin_account_details') ?></li>
+                <li><?= t('install_step4_warning_delete_admin') ?></li>
             </ul>
         </div>
         
         <form method="POST">
             <input type="hidden" name="execute" value="1">
             <div class="actions">
-                <a href="?step=3" class="btn btn-secondary">← Retour</a>
-                <button type="submit" class="btn btn-primary btn-large">Lancer l'installation</button>
+                <a href="?step=3" class="btn btn-secondary"><?= t('install_step4_btn_back') ?></a>
+                <button type="submit" class="btn btn-primary btn-large"><?= t('install_step4_btn_execute') ?></button>
             </div>
         </form>
         
     <?php else: ?>
         
         <div class="logs-box">
-            <h3>Journal d'installation</h3>
+            <h3><?= t('install_step4_logs_title') ?></h3>
             <?php foreach ($logs as $log): ?>
                 <div class="log-entry log-<?= $log['type'] ?>">
                     <?= htmlspecialchars($log['message']) ?>
@@ -539,56 +549,56 @@ if (VA_DEBUG_MODE) {
         
         <?php if ($success): ?>
             <div class="success-box">
-                <h3>✓ Installation terminée avec succès !</h3>
-                <p>Votre Virtual Airline est maintenant opérationnelle.</p>
+                <h3><?= t('install_step4_success_title') ?></h3>
+                <p><?= t('install_step4_success_text') ?></p>
             </div>
             
             <div class="actions">
-                <a href="?step=5" class="btn btn-primary btn-large">Terminer →</a>
+                <a href="?step=5" class="btn btn-primary btn-large"><?= t('install_step4_btn_finish') ?></a>
             </div>
         <?php else: ?>
             <div class="error-box">
-                <h3>❌ L'installation a rencontré des erreurs</h3>
-                <p>Veuillez consulter le journal ci-dessus et corriger les problèmes.</p>
+                <h3><?= t('install_step4_error_title') ?></h3>
+                <p><?= t('install_step4_error_text') ?></p>
             </div>
             
             <?php if (isset($manual_install_needed) && $manual_install_needed): ?>
                 <div class="warning-box" style="margin-top: 20px;">
-                    <h3>📝 Installation manuelle requise</h3>
-                    <p>Les permissions sur le dossier <code>includes/</code> ne permettent pas l'écriture automatique.</p>
+                    <h3><?= t('install_step4_manual_title') ?></h3>
+                    <p><?= t('install_step4_manual_text') ?></p>
                     
-                    <p><strong>Solution recommandée (Linux/Raspberry Pi) :</strong></p>
+                    <p><strong><?= t('install_step4_manual_recommended_title') ?></strong></p>
                     <ol>
-                        <li>Ouvrez un terminal SSH sur votre serveur</li>
-                        <li>Naviguez vers le dossier de l'application : <code>cd <?= htmlspecialchars(dirname(dirname(__DIR__))) ?></code></li>
-                        <li>Exécutez : <code>sudo chown -R www-data:www-data includes/</code></li>
-                        <li>Ou exécutez : <code>sudo chmod 777 includes/</code></li>
-                        <li>Cliquez sur "Réessayer" ci-dessous</li>
-                        <li>Après installation, restaurez : <code>sudo chmod 755 includes/</code></li>
+                        <li><?= t('install_step4_manual_step_cd') ?></li>
+                        <li><?= t('install_step4_manual_step_cd2') ?> : <code><?= htmlspecialchars(dirname(dirname(__DIR__))) ?></code></li>
+                        <li><?= t('install_step4_manual_step_chown') ?></li>
+                        <li><?= t('install_step4_manual_step_chmod') ?></li>
+                        <li><?= t('install_step4_btn_execute') ?></li>
+                        <li><?= t('install_step4_manual_after') ?></li>
                     </ol>
                     
-                    <p><strong>Solution alternative (copier-coller) :</strong> Créez manuellement les fichiers suivants :</p>
+                    <p><strong><?= t('install_step4_manual_copy_heading') ?></strong> <?= t('install_step4_manual_file_label') ?></p>
                     
                     <?php if (isset($_SESSION['install_data']['db_connect_content'])): ?>
-                        <h4>1️⃣ Fichier : <code><?= htmlspecialchars($_SESSION['install_data']['db_connect_path']) ?></code></h4>
+                        <h4>1️⃣ <?= t('install_step4_manual_file_label') ?> <code><?= htmlspecialchars($_SESSION['install_data']['db_connect_path']) ?></code></h4>
                         <textarea readonly style="width: 100%; height: 200px; font-family: monospace; font-size: 12px; padding: 10px;"><?= htmlspecialchars($_SESSION['install_data']['db_connect_content']) ?></textarea>
-                        <button class="btn" onclick="navigator.clipboard.writeText(this.previousElementSibling.value); alert('Contenu copié !')">📋 Copier</button>
+                        <button class="btn" onclick="navigator.clipboard.writeText(this.previousElementSibling.value); alert('Contenu copié !')"><?= t('install_copy_button') ?></button>
                     <?php endif; ?>
                     
                     <?php if (isset($_SESSION['install_data']['config_content'])): ?>
-                        <h4 style="margin-top: 20px;">2️⃣ Fichier : <code><?= htmlspecialchars($_SESSION['install_data']['config_path']) ?></code></h4>
+                        <h4 style="margin-top: 20px;">2️⃣ <?= t('install_step4_manual_file_label') ?> <code><?= htmlspecialchars($_SESSION['install_data']['config_path']) ?></code></h4>
                         <textarea readonly style="width: 100%; height: 300px; font-family: monospace; font-size: 12px; padding: 10px;"><?= htmlspecialchars($_SESSION['install_data']['config_content']) ?></textarea>
-                        <button class="btn" onclick="navigator.clipboard.writeText(this.previousElementSibling.value); alert('Contenu copié !')">📋 Copier</button>
+                        <button class="btn" onclick="navigator.clipboard.writeText(this.previousElementSibling.value); alert('Contenu copié !')"><?= t('install_copy_button') ?></button>
                     <?php endif; ?>
                     
-                    <p style="margin-top: 20px;"><strong>Après avoir créé ces fichiers, cliquez sur "Réessayer"</strong></p>
+                    <p style="margin-top: 20px;"><strong><?= t('install_step4_manual_after') ?></strong></p>
                 </div>
             <?php endif; ?>
             
             <div class="actions">
-                <a href="?step=2" class="btn btn-secondary">← Recommencer</a>
+                <a href="?step=2" class="btn btn-secondary"><?= t('install_step2_btn_back') ?></a>
                 <?php if (isset($manual_install_needed) && $manual_install_needed): ?>
-                    <button type="button" class="btn btn-primary" onclick="location.reload()">🔄 Réessayer</button>
+                    <button type="button" class="btn btn-primary" onclick="location.reload()"><?= t('install_step4_btn_execute') ?></button>
                 <?php endif; ?>
             </div>
         <?php endif; ?>

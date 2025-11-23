@@ -23,17 +23,15 @@ require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/require_login.php';
 require_once __DIR__ . '/../includes/log_func.php';
 
+require_once __DIR__ . '/../includes/header.php';
+require_once __DIR__ . '/../includes/menu_logged.php';
+
 // Vérification de l'utilisateur (super-admins list)
 $callsign = $_SESSION['user']['callsign'] ?? ($_SESSION['callsign'] ?? null);
 if (! $callsign || !in_array($callsign, explode(',', VA_SUPER_ADMIN_CALLSIGNS))) {
     header('Location: /index.php');
     exit;
 }
-
-require_once __DIR__ . '/../includes/header.php';
-require_once __DIR__ . '/../includes/menu_logged.php';
-
-
 
 $scripts = [
 

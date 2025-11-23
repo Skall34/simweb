@@ -112,7 +112,7 @@ $pilotes = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <input type="hidden" name="action" value="add">
             <input type="text" name="nom" placeholder="<?= t('admin_grades_placeholder_nom') ?>" required>
             <input type="text" name="description" placeholder="<?= t('admin_grades_placeholder_description') ?>" required>
-            <input type="number" step="0.01" name="taux_horaire" placeholder="<?= t('admin_grades_placeholder_taux') ?>" required>
+            <input type="number" step="10" name="taux_horaire" placeholder="<?= t('admin_grades_placeholder_taux') ?>" required>
             <button type="submit"><?= t('admin_grades_btn_add') ?></button>
         </form>
         
@@ -144,7 +144,7 @@ $pilotes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <form method="post" style="display:contents;" class="grade-edit-form" data-grade-id="<?= $grade['id'] ?>">
                             <input type="hidden" name="id" value="<?= $grade['id'] ?>">
                             <td><input type="text" name="nom" class="grade-input" value="<?= htmlspecialchars($grade['nom']) ?>" data-initial="<?= htmlspecialchars($grade['nom']) ?>"></td>
-                            <td><input type="number" step="0.01" name="taux_horaire" class="grade-input" value="<?= htmlspecialchars($grade['taux_horaire']) ?>" data-initial="<?= htmlspecialchars($grade['taux_horaire']) ?>"></td>
+                            <td><input type="number" step="10" name="taux_horaire" class="grade-input" value="<?= htmlspecialchars($grade['taux_horaire']) ?>" data-initial="<?= htmlspecialchars($grade['taux_horaire']) ?>"></td>
                             <td><input type="text" name="description" class="grade-input" value="<?= htmlspecialchars($grade['description']) ?>" data-initial="<?= htmlspecialchars($grade['description']) ?>"></td>
                             <td class="grades-table-actions">
                                 <button type="submit" name="action" value="edit" class="btn-save" disabled>Modifier</button>
