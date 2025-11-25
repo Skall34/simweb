@@ -138,8 +138,8 @@ return [
     'install_step3_label_va_currency_position' => 'Position du symbole',
     'install_step3_currency_position_before' => 'Avant (€100)',
     'install_step3_currency_position_after' => 'Après (100€)',
-    'install_step3_label_va_starting_balance' => 'Balance de départ des pilotes',
-    'install_step3_help_va_starting_balance' => 'Montant accordé aux nouveaux pilotes à leur inscription',
+    'install_step3_label_va_starting_balance' => 'Balance de départ de la compagnie',
+    'install_step3_help_va_starting_balance' => 'Montant accordé à la compagnie à sa création',
     'install_step3_section_system' => '⚙️ Système & Pilotes (optionnel)',
     'install_step3_label_va_registration_enabled' => 'Autoriser l\'inscription de nouveaux pilotes',
     'install_step3_help_va_registration_enabled' => 'Si décoché, seul un admin pourra créer des comptes pilotes',
@@ -523,10 +523,10 @@ return [
     'forgot_password' => 'Mot de passe oublié ?',
 
     // General
-    'company_name' => '{VA_NAME} Virtual Airline',
+    'company_name' => '{VA_NAME}',
 
     // Footer
-    'footer_copyright' => '{VA_NAME} Virtual Airline',
+    'footer_copyright' => '{VA_NAME} &copy;{year}. Propulsé par JFK & PB',
     'footer_rights' => 'Tous droits réservés.',
 
     // Guest menu
@@ -573,6 +573,12 @@ return [
     'admin_type_ligne' => 'Administration des types de lignes',
     'admin_welcomemsg' => 'Message d\'accueil',
     'admin_superadmin' => 'Super Admin',
+
+    // --- Page : admin_config.php ---
+    'admin_config_title' => 'Édition du fichier config.ini',
+    'admin_config_saved_success' => 'Configuration enregistrée avec succès. N\'oubliez pas de vous déconnecter et reconnecter pour appliquer les changements.',
+    'admin_config_save_button' => 'Enregistrer',
+    'admin_config_write_error' => 'Erreur : impossible d\'écrire le fichier config.ini (vérifiez les permissions).',
 
     // About page
     'about_title' => 'À propos de {VA_NAME}',
@@ -974,6 +980,25 @@ return [
     'admin_flotte_btn_signer' => 'Signer le bon de commande',
     'admin_flotte_btn_reinitialiser' => 'Réinitialiser',
     'admin_flotte_confirm_vente' => 'Confirmez-vous la vente de cet appareil ?',
+
+    // admin_flotte - UI labels
+    'admin_flotte_title_buy_section' => 'Acheter un nouvel appareil',
+    'admin_flotte_title_flotte_active' => 'Flotte active ({count})',
+    'admin_flotte_no_aircraft' => 'Aucun avion en flotte.',
+    'admin_flotte_col_immat' => 'Immat',
+    'admin_flotte_col_type' => 'Type',
+    'admin_flotte_col_categorie' => 'Catégorie',
+    'admin_flotte_col_localisation' => 'Localisation',
+    'admin_flotte_col_hub' => 'Hub',
+    'admin_flotte_col_reste_a_payer' => 'Reste à payer',
+    'admin_flotte_col_recettes' => 'Recettes',
+    'admin_flotte_col_mode_achat' => 'Mode achat',
+    'admin_flotte_col_actions' => 'Actions',
+    'admin_flotte_action_liberer' => '🔓 Libérer',
+    'admin_flotte_action_liberer_title' => 'Réinitialise en_vol et réservation',
+    'admin_flotte_action_vendre' => '💰 Vendre',
+    'admin_flotte_mode_credit' => '💳 Crédit',
+    'admin_flotte_mode_comptant' => '💰 Comptant',
 
     // === DOC SCRIPTS - Common ===
     'doc_back_link' => '← Retour à la documentation',

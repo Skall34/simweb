@@ -524,10 +524,11 @@ return [
     'forgot_password' => '¿Contraseña olvidada?',
 
     // General
-    'company_name' => '{VA_NAME} Virtual Airline',
+    'company_name' => '{VA_NAME}',
 
     // Footer
-    'footer_copyright' => '{VA_NAME} Virtual Airline',
+    
+    'footer_copyright' => '{VA_NAME} &copy;{year}. Propulsado por JFK & PB',
     'footer_rights' => 'Todos los derechos reservados.',
 
     // Guest menu
@@ -574,6 +575,12 @@ return [
     'admin_type_ligne' => 'Administración de tipos de líneas',
     'admin_welcomemsg' => 'Mensaje de bienvenida',
     'admin_superadmin' => 'Super Admin',
+
+    // --- Page : admin_config.php ---
+    'admin_config_title' => 'Editar config.ini',
+    'admin_config_saved_success' => 'Configuración guardada con éxito. No olvide desconectarse y volver a conectarse para aplicar los cambios.',
+    'admin_config_save_button' => 'Guardar',
+    'admin_config_write_error' => 'Error: imposible escribir config.ini (verifique permisos).',
 
     // About page
     'about_title' => 'Acerca de {VA_NAME}',
@@ -968,6 +975,25 @@ return [
     'admin_flotte_btn_signer' => 'Firmar la orden de compra',
     'admin_flotte_btn_reinitialiser' => 'Reiniciar',
     'admin_flotte_confirm_vente' => '¿Confirma la venta de esta aeronave?',
+
+    // admin_flotte - UI labels
+    'admin_flotte_title_buy_section' => 'Comprar un nuevo avión',
+    'admin_flotte_title_flotte_active' => 'Flota activa ({count})',
+    'admin_flotte_no_aircraft' => 'No hay aeronaves en la flota.',
+    'admin_flotte_col_immat' => 'Matr.',
+    'admin_flotte_col_type' => 'Tipo',
+    'admin_flotte_col_categorie' => 'Categoría',
+    'admin_flotte_col_localisation' => 'Localización',
+    'admin_flotte_col_hub' => 'Hub',
+    'admin_flotte_col_reste_a_payer' => 'Restante por pagar',
+    'admin_flotte_col_recettes' => 'Ingresos',
+    'admin_flotte_col_mode_achat' => 'Modo de compra',
+    'admin_flotte_col_actions' => 'Acciones',
+    'admin_flotte_action_liberer' => '🔓 Liberar',
+    'admin_flotte_action_liberer_title' => 'Restablecer en_vol y reserva',
+    'admin_flotte_action_vendre' => '💰 Vender',
+    'admin_flotte_mode_credit' => '💳 Crédito',
+    'admin_flotte_mode_comptant' => '💰 Contado',
 
     // === DOC SCRIPTS - Common ===
     'doc_back_link' => '← Volver a la documentación',

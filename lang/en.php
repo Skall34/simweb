@@ -525,10 +525,10 @@ return [
     'forgot_password' => 'Forgot password?',
 
     // General
-    'company_name' => '{VA_NAME} Virtual Airline',
+    'company_name' => '{VA_NAME}',
 
     // Footer
-    'footer_copyright' => '{VA_NAME} Virtual Airline',
+    'footer_copyright' => '{VA_NAME} &copy;{year}. Powered by JFK & PB',
     'footer_rights' => 'All rights reserved.',
 
     // Guest menu
@@ -575,6 +575,12 @@ return [
     'admin_lines' => 'Regular Lines Administration',
     'admin_welcomemsg' => 'Welcome message',
     'admin_superadmin' => 'Super Admin',
+
+    // --- Page : admin_config.php ---
+    'admin_config_title' => 'Edit config.ini',
+    'admin_config_saved_success' => 'Configuration saved successfully. Don\'t forget to log out and log back in to apply the changes.',
+    'admin_config_save_button' => 'Save',
+    'admin_config_write_error' => 'Error: cannot write config.ini (check permissions).',
 
     // About page
     'about_title' => 'About {VA_NAME}',
@@ -969,6 +975,25 @@ return [
     'admin_flotte_btn_signer' => 'Sign purchase order',
     'admin_flotte_btn_reinitialiser' => 'Reset',
     'admin_flotte_confirm_vente' => 'Confirm the sale of this aircraft?',
+
+    // admin_flotte - UI labels
+    'admin_flotte_title_buy_section' => 'Buy a new aircraft',
+    'admin_flotte_title_flotte_active' => 'Active fleet ({count})',
+    'admin_flotte_no_aircraft' => 'No aircraft in fleet.',
+    'admin_flotte_col_immat' => 'Reg.',
+    'admin_flotte_col_type' => 'Type',
+    'admin_flotte_col_categorie' => 'Category',
+    'admin_flotte_col_localisation' => 'Location',
+    'admin_flotte_col_hub' => 'Hub',
+    'admin_flotte_col_reste_a_payer' => 'Remaining due',
+    'admin_flotte_col_recettes' => 'Revenue',
+    'admin_flotte_col_mode_achat' => 'Purchase mode',
+    'admin_flotte_col_actions' => 'Actions',
+    'admin_flotte_action_liberer' => '🔓 Release',
+    'admin_flotte_action_liberer_title' => 'Reset en_vol and reservation',
+    'admin_flotte_action_vendre' => '💰 Sell',
+    'admin_flotte_mode_credit' => '💳 Credit',
+    'admin_flotte_mode_comptant' => '💰 Cash',
 
     // === DOC SCRIPTS - Common ===
     'doc_back_link' => '← Back to documentation',

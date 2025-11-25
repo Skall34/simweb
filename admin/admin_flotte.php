@@ -225,7 +225,7 @@ include __DIR__ . '/../includes/menu_logged.php';
 
 <main style="display:flex; flex-direction:row; align-items:flex-start; gap:40px;">
     <div style="flex:1; min-width:280px; max-width:370px;">
-        <h2>Acheter un nouvel appareil</h2>
+        <h2><?= t('admin_flotte_title_buy_section') ?></h2>
 
         <?php if ($successMessage): ?>
             <div style="background:#e6f9e6;color:#0b6623;padding:10px 12px;border-radius:8px;font-weight:600;font-size:0.95em;margin-bottom:10px;">
@@ -288,20 +288,20 @@ include __DIR__ . '/../includes/menu_logged.php';
     <aside style="min-width:900px;max-width:1800px;margin-left:40px;margin-right:auto;background:#f7fbff;border-radius:16px;box-shadow:0 2px 8px rgba(0,0,0,0.04);padding:18px 16px 12px 16px;align-self:flex-start;">
         <h3 style="margin-top:0;margin-bottom:12px;font-size:1.1em;color:#0066cc;">Flotte active (<?= count($flotte) ?> avion<?= count($flotte) > 1 ? 's' : '' ?>)</h3>
         <?php if (empty($flotte)): ?>
-            <p>Aucun avion en flotte.</p>
+            <p><?= t('admin_flotte_no_aircraft') ?></p>
         <?php else: ?>
             <table class="table-skywings" style="width:100%;">
                 <thead>
                     <tr>
-                        <th>Immat</th>
-                        <th>Type</th>
-                        <th>Catégorie</th>
-                        <th>Localisation</th>
-                        <th>Hub</th>
-                        <th>Reste à payer</th>
-                        <th>Recettes</th>
-                        <th>Mode achat</th>
-                        <th>Actions</th>
+                        <th><?= t('admin_flotte_col_immat') ?></th>
+                        <th><?= t('admin_flotte_col_type') ?></th>
+                        <th><?= t('admin_flotte_col_categorie') ?></th>
+                        <th><?= t('admin_flotte_col_localisation') ?></th>
+                        <th><?= t('admin_flotte_col_hub') ?></th>
+                        <th><?= t('admin_flotte_col_reste_a_payer') ?></th>
+                        <th><?= t('admin_flotte_col_recettes') ?></th>
+                        <th><?= t('admin_flotte_col_mode_achat') ?></th>
+                        <th><?= t('admin_flotte_col_actions') ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -321,16 +321,16 @@ include __DIR__ . '/../includes/menu_logged.php';
                                 <td><?= htmlspecialchars($avion['hub'] ?? '-') ?></td>
                                 <td><?= $avion['reste_a_payer'] > 0 ? number_format($avion['reste_a_payer'], 2, ',', ' ') . ' €' : '-' ?></td>
                                 <td><?= number_format($avion['recettes'] ?? 0, 2, ',', ' ') ?> €</td>
-                                <td><?= $avion['mode_achat'] === 'credit' ? '💳 Crédit' : '💰 Comptant' ?></td>
+                                          <td><?= $avion['mode_achat'] === 'credit' ? t('admin_flotte_mode_credit') : t('admin_flotte_mode_comptant') ?></td>
                                 <td style="white-space: nowrap;">
-                                    <a href="?action=liberer&id=<?= $avion['id'] ?>" 
-                                       title="Réinitialise en_vol et réservation"
-                                       onclick="return confirm('Libérer l\'avion <?= htmlspecialchars($avion['immat']) ?> ?\n\nCela va :\n- Mettre en_vol à 0\n- Retirer la réservation')">
-                                       🔓 Libérer</a>
+                                                <a href="?action=liberer&id=<?= $avion['id'] ?>" 
+                                                    title="<?= t('admin_flotte_action_liberer_title') ?>"
+                                                    onclick="return confirm('Libérer l\'avion <?= htmlspecialchars($avion['immat']) ?> ?\n\nCela va :\n- Mettre en_vol à 0\n- Retirer la réservation')">
+                                                    <?= t('admin_flotte_action_liberer') ?></a>
                                     &nbsp;|&nbsp;
-                                    <a href="#" 
+                                                <a href="#" 
                                        onclick="return confirmVente(<?= $avion['id'] ?>, '<?= htmlspecialchars($avion['immat']) ?>', '<?= htmlspecialchars($avion['type_nom']) ?>', '<?= htmlspecialchars($avion['categorie']) ?>', <?= $avion['reste_a_payer'] ?? 0 ?>, <?= $avion['recettes'] ?? 0 ?>, <?= $prix_vente ?>, '<?= $avion['mode_achat'] ?>')"
-                                       style="color: #dc3545;">💰 Vendre</a>
+                                                    style="color: #dc3545;"><?= t('admin_flotte_action_vendre') ?></a>
                                 </td>
                             </tr>
                     <?php endforeach; ?>

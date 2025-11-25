@@ -44,6 +44,10 @@ function t($key, $params = []) {
     if (defined('VA_ADMIN_EMAIL')) {
         $text = str_replace('{VA_ADMIN_EMAIL}', VA_ADMIN_EMAIL, $text);
     }
+    // Auto-replace common dynamic placeholders
+    // {year} : current year
+    $text = str_replace('{year}', date('Y'), $text);
+    $text = str_replace('{YEAR}', date('Y'), $text);
     
     return $text;
 }

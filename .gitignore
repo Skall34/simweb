@@ -1,6 +1,4 @@
-includes/db_connect.php
-includes/config_RASP.php
-includes/config_OVH.php
+config.ini
 includes/config_exemple.php
 scripts/uploads/*.csv
 scripts/*.csv

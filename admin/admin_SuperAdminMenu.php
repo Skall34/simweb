@@ -20,9 +20,9 @@ Page d'administration réservée à l'utilisateur SKY0707. Permet de lancer les 
 
 session_start();
 require_once __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/require_login.php';
 require_once __DIR__ . '/../includes/log_func.php';
-
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/menu_logged.php';
 
@@ -33,6 +33,7 @@ if (! $callsign || !in_array($callsign, explode(',', VA_SUPER_ADMIN_CALLSIGNS)))
     exit;
 }
 
+/*
 $scripts = [
 
     'maintenance.php' => 'Maintenance flotte',
@@ -148,115 +149,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['csv_script']) && isse
     }
 
 }
-
+*/
 ?>
 
 <main>
 
     <h2>Super Administration</h2>
 
-    <form method="post" style="margin-bottom:2em;" id="form-admin-sky0707">
+    <p>Bienvenue dans le menu de super administration. Sélectionnez une action à effectuer :</p>
 
-        <label for="script">Choisir un script à exécuter :</label>
-
-        <select name="script" id="script">
-
-            <?php foreach ($scripts as $file => $label): ?>
-
-                <option value="<?= htmlspecialchars($file) ?>"><?= htmlspecialchars($label) ?></option>
-
-            <?php endforeach; ?>
-
-        </select>
-
-        <button type="submit" class="btn" id="btn-executer">Exécuter</button>
-
-    </form>
-
-
-
-    <h3>Raccourcis</h3>
-
-    <p>
-
-        <a href="/pages/reserver_ligne.php">Réserver une ligne</a>
-
-        &nbsp;|&nbsp;
-
-        <a href="/admin/admin_lignes_regulieres.php">Gestion des lignes régulières</a>
-
-       
-
-    </p>
-
-
-
-    <h3>Import CSV</h3>
-
-    <?php foreach ($csvScripts as $csvFile => $csvLabel): ?>
-
-        <form method="post" enctype="multipart/form-data" style="margin-bottom:2em;">
-
-            <input type="hidden" name="csv_script" value="<?= htmlspecialchars($csvFile) ?>">
-
-            <label><?= htmlspecialchars($csvLabel) ?> :
-
-                <input type="file" name="csv_file" accept=".csv" required>
-
-            </label>
-
-            <?php if ($csvFile === 'import_from_acars.php'): ?>
-
-                <label style="margin-left:15px;">
-
-                    <input type="checkbox" name="dryrun" value="1"> Mode simulation (dry-run)
-
-                </label>
-
-            <?php endif; ?>
-
-            <button type="submit" class="btn">Lancer l'import</button>
-
-        </form>
-
-    <?php endforeach; ?>
-
-
-
-    <script>
-
-    const form = document.getElementById('form-admin-sky0707');
-
-    const btn = document.getElementById('btn-executer');
-
-    form.addEventListener('submit', function() {
-
-        document.body.style.cursor = 'wait';
-
-        btn.disabled = true;
-
-        btn.textContent = 'Exécution...';
-
-    });
-
-    window.addEventListener('pageshow', function() {
-
-        document.body.style.cursor = 'default';
-
-        btn.disabled = false;
-
-        btn.textContent = 'Exécuter';
-
-    });
-
-    </script>
-
-    <?php if ($result): ?>
-
-        <?= $result ?>
-
-    <?php endif; ?>
-
+    <a href="admin_config.php" class="button">Administrer la compagnie</a>
 </main>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
