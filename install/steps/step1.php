@@ -3,10 +3,10 @@
  * Étape 1 : Vérifications préalables
  */
 
-// Vérification bloquante : db_connect.php ou .installed
-$installedFileExists = file_exists(__DIR__ . '/../.installed');
-$dbConnectExists = file_exists(__DIR__ . '/../../includes/db_connect.php');
-if ($dbConnectExists || $installedFileExists) {
+// Vérification bloquante : config.ini à la racine ou .installed
+ $installedFileExists = file_exists(__DIR__ . '/../.installed');
+ $configIniExists = file_exists(__DIR__ . '/../../config.ini');
+ if ($configIniExists || $installedFileExists) {
     ?>
     <!DOCTYPE html>
     <html lang="fr">
@@ -36,13 +36,13 @@ if ($dbConnectExists || $installedFileExists) {
                     <?php if ($installedFileExists): ?>
                         <li class="file-found"><?php echo t('install_blocked_file_installed'); ?></li>
                     <?php endif; ?>
-                    <?php if ($dbConnectExists): ?>
-                        <li class="file-found"><?php echo t('install_blocked_file_config'); ?></li>
-                    <?php endif; ?>
+                        <?php if ($configIniExists): ?>
+                            <li class="file-found"><?php echo t('install_blocked_file_config'); ?></li>
+                        <?php endif; ?>
                 </ul>
                 <p><strong><?php echo t('install_blocked_what_to_do'); ?></strong></p>
                 <ul>
-                    <?php if ($dbConnectExists): ?>
+                    <?php if ($configIniExists): ?>
                         <li><?php echo t('install_blocked_action_delete_config'); ?></li>
                     <?php endif; ?>
                     <?php if ($installedFileExists): ?>
@@ -55,7 +55,7 @@ if ($dbConnectExists || $installedFileExists) {
                 </p>
             </div>
             <div class="actions">
-                <?php if ($dbConnectExists): ?>
+                <?php if ($configIniExists): ?>
                     <a href="/install/index.php" class="btn btn-primary"><?php echo t('install_blocked_btn_reload'); ?></a>
                 <?php endif; ?>
                 <?php if ($installedFileExists): ?>

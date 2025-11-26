@@ -67,95 +67,74 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['execute'])) {
     $config = $_SESSION['install_data']['config'];
     
     try {
-        // 1. Créer le fichier db_connect.php
-        $logs[] = ['type' => 'info', 'message' => 'Génération du fichier db_connect.php...'];
-        
-        $db_connect_content = "<?php
-/**
- * Configuration de la base de données
- * Généré automatiquement par l'installateur le " . date('Y-m-d H:i:s') . "
- */
+        // 1. Ne plus créer db_connect.php : l'installateur écrit uniquement un fichier config.ini à la racine
+        $logs[] = ['type' => 'info', 'message' => 'Génération du fichier config.ini à la racine...'];
 
-define('DB_HOST', '" . addslashes($db['host']) . "');
-define('DB_PORT', '" . addslashes($db['port']) . "');
-define('DB_NAME', '" . addslashes($db['name']) . "');
-define('DB_USER', '" . addslashes($db['user']) . "');
-define('DB_PASS', '" . addslashes($db['pass']) . "');
-define('DB_CHARSET', 'utf8mb4');
+        // Préparer le contenu INI
+        $config_ini_content = "[database]\n";
+        $config_ini_content .= "host = \"" . addslashes($db['host']) . "\"\n";
+        $config_ini_content .= "port = \"" . addslashes($db['port']) . "\"\n";
+        $config_ini_content .= "name = \"" . addslashes($db['name']) . "\"\n";
+        $config_ini_content .= "user = \"" . addslashes($db['user']) . "\"\n";
+        $config_ini_content .= "pass = \"" . addslashes($db['pass']) . "\"\n";
+        $config_ini_content .= "charset = \"utf8mb4\"\n\n";
 
-try {
-    \$pdo = new PDO(
-        'mysql:host=' . DB_HOST . ';port=' . DB_PORT . ';dbname=' . DB_NAME . ';charset=' . DB_CHARSET,
-        DB_USER,
-        DB_PASS,
-        [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES => false
-        ]
-    );
-} catch (PDOException \$e) {
-    die('Erreur de connexion à la base de données : ' . \$e->getMessage());
-}
-";
-        
-        $db_connect_path = __DIR__ . '/../../includes/db_connect.php';
-        $db_connect_dir = dirname($db_connect_path);
-        
-        // Vérifier/créer le dossier includes/ avec gestion intelligente
-        if (!is_dir($db_connect_dir)) {
-            $logs[] = ['type' => 'info', 'message' => 'Création du dossier includes/...'];
-            $mkdir_success = @mkdir($db_connect_dir, 0755, true);
-            
-            if (!$mkdir_success) {
-                // Tentative avec permissions plus larges
-                $parent_dir = dirname($db_connect_dir);
-                $old_perms = @fileperms($parent_dir);
-                @chmod($parent_dir, 0777);
-                $mkdir_success = @mkdir($db_connect_dir, 0755, true);
-                
-                if ($mkdir_success) {
-                    @chmod($parent_dir, $old_perms); // Restaurer les permissions d'origine
-                    $logs[] = ['type' => 'success', 'message' => '✓ Dossier includes/ créé'];
-                } else {
-                    // Impossible de créer le dossier
-                    $_SESSION['install_data']['db_connect_content'] = $db_connect_content;
-                    $_SESSION['install_data']['db_connect_path'] = $db_connect_path;
-                    throw new Exception('Impossible de créer le dossier includes/. Créez-le manuellement avec : mkdir includes && chmod 755 includes');
-                }
-            } else {
-                $logs[] = ['type' => 'success', 'message' => '✓ Dossier includes/ créé'];
-            }
-        }
-        
-        // Tentative d'écriture
-        $write_success = @file_put_contents($db_connect_path, $db_connect_content);
-        
+        $config_ini_content .= "[va]\n";
+        $config_ini_content .= "name = \"" . addslashes($config['va_name']) . "\"\n";
+        $config_ini_content .= "icao = \"" . addslashes($config['va_icao']) . "\"\n";
+        $config_ini_content .= "iata = \"" . addslashes($config['va_iata']) . "\"\n";
+        $config_ini_content .= "tagline = \"" . addslashes($config['va_tagline']) . "\"\n";
+        $config_ini_content .= "contact_email = \"" . addslashes($config['va_email']) . "\"\n";
+        $config_ini_content .= "admin_email = \"" . addslashes($config['va_admin_email']) . "\"\n";
+        $config_ini_content .= "base_url = \"" . addslashes($config['va_url']) . "\"\n\n";
+
+        $config_ini_content .= "[smtp]\n";
+        $config_ini_content .= "host = \"" . addslashes($config['smtp_host']) . "\"\n";
+        $config_ini_content .= "port = " . (int)$config['smtp_port'] . "\n";
+        $config_ini_content .= "secure = \"" . addslashes($config['smtp_secure']) . "\"\n";
+        $config_ini_content .= "username = \"" . addslashes($config['smtp_user']) . "\"\n";
+        $config_ini_content .= "password = \"" . addslashes($config['smtp_pass']) . "\"\n";
+        $config_ini_content .= "from_email = \"" . addslashes($config['smtp_from_email']) . "\"\n";
+        $config_ini_content .= "from_name = \"" . addslashes($config['smtp_from_name']) . "\"\n\n";
+
+        $config_ini_content .= "[finance]\n";
+        $config_ini_content .= "currency = \"" . addslashes($config['va_currency']) . "\"\n";
+        $config_ini_content .= "currency_symbol = \"" . addslashes($config['va_currency_symbol']) . "\"\n";
+        $config_ini_content .= "starting_balance = " . (int)$config['va_starting_balance'] . "\n\n";
+
+        $config_ini_content .= "[system]\n";
+        $config_ini_content .= "timezone = \"" . addslashes($config['timezone']) . "\"\n";
+        $config_ini_content .= "default_language = \"" . addslashes($config['va_default_language']) . "\"\n";
+        $config_ini_content .= "debug_mode = false\n";
+
+        $config_ini_path = __DIR__ . '/../../config.ini';
+        $config_ini_dir = dirname($config_ini_path);
+
+        // Tentative d'écriture directe du fichier config.ini
+        $write_success = @file_put_contents($config_ini_path, $config_ini_content);
+
         if ($write_success === false) {
-            // Tentative de correction des permissions du dossier
-            $logs[] = ['type' => 'info', 'message' => 'Permissions insuffisantes, tentative de correction...'];
-            @chmod($db_connect_dir, 0777);
-            $write_success = @file_put_contents($db_connect_path, $db_connect_content);
-            
+            // Tentative de correction des permissions du dossier racine
+            $logs[] = ['type' => 'info', 'message' => 'Permissions insuffisantes pour écrire config.ini, tentative de correction...'];
+            @chmod($config_ini_dir, 0777);
+            $write_success = @file_put_contents($config_ini_path, $config_ini_content);
+
             if ($write_success !== false) {
-                // Succès après correction, on remet les permissions à 755
-                @chmod($db_connect_dir, 0755);
-                @chmod($db_connect_path, 0644);
-                $logs[] = ['type' => 'success', 'message' => '✓ Fichier db_connect.php créé (après correction permissions)'];
+                @chmod($config_ini_path, 0644);
+                $logs[] = ['type' => 'success', 'message' => '✓ Fichier config.ini créé (après correction permissions)'];
             } else {
-                // Échec définitif, on stocke le contenu pour affichage manuel
-                $_SESSION['install_data']['db_connect_content'] = $db_connect_content;
-                $_SESSION['install_data']['db_connect_path'] = $db_connect_path;
-                throw new Exception('Impossible de créer db_connect.php automatiquement. Permissions insuffisantes sur le dossier includes/');
+                // Échec définitif : stocker le contenu pour copie manuelle
+                $_SESSION['install_data']['config_ini_content'] = $config_ini_content;
+                $_SESSION['install_data']['config_ini_path'] = $config_ini_path;
+                throw new Exception('Impossible de créer config.ini automatiquement. Veuillez créer manuellement le fichier config.ini à la racine du projet.');
             }
         } else {
-            // Succès direct, on sécurise les permissions
-            @chmod($db_connect_path, 0644);
-            $logs[] = ['type' => 'success', 'message' => '✓ Fichier db_connect.php créé'];
+            @chmod($config_ini_path, 0644);
+            $logs[] = ['type' => 'success', 'message' => '✓ Fichier config.ini créé'];
         }
-        
-        // 2. Créer le fichier config.php
-        $logs[] = ['type' => 'info', 'message' => 'Génération du fichier config.php...'];
+
+        // Poursuivre l'installation (création des dossiers/tables, etc.)
+        $logs[] = ['type' => 'info', 'message' => 'Poursuite de l\'installation...'];
         
         $config_content = "<?php
 /**
@@ -579,15 +558,9 @@ if (VA_DEBUG_MODE) {
                     
                     <p><strong><?= t('install_step4_manual_copy_heading') ?></strong> <?= t('install_step4_manual_file_label') ?></p>
                     
-                    <?php if (isset($_SESSION['install_data']['db_connect_content'])): ?>
-                        <h4>1️⃣ <?= t('install_step4_manual_file_label') ?> <code><?= htmlspecialchars($_SESSION['install_data']['db_connect_path']) ?></code></h4>
-                        <textarea readonly style="width: 100%; height: 200px; font-family: monospace; font-size: 12px; padding: 10px;"><?= htmlspecialchars($_SESSION['install_data']['db_connect_content']) ?></textarea>
-                        <button class="btn" onclick="navigator.clipboard.writeText(this.previousElementSibling.value); alert('Contenu copié !')"><?= t('install_copy_button') ?></button>
-                    <?php endif; ?>
-                    
-                    <?php if (isset($_SESSION['install_data']['config_content'])): ?>
-                        <h4 style="margin-top: 20px;">2️⃣ <?= t('install_step4_manual_file_label') ?> <code><?= htmlspecialchars($_SESSION['install_data']['config_path']) ?></code></h4>
-                        <textarea readonly style="width: 100%; height: 300px; font-family: monospace; font-size: 12px; padding: 10px;"><?= htmlspecialchars($_SESSION['install_data']['config_content']) ?></textarea>
+                    <?php if (isset($_SESSION['install_data']['config_ini_content'])): ?>
+                        <h4><?= t('install_step4_manual_file_label') ?> <code><?= htmlspecialchars($_SESSION['install_data']['config_ini_path']) ?></code></h4>
+                        <textarea readonly style="width: 100%; height: 400px; font-family: monospace; font-size: 12px; padding: 10px;"><?= htmlspecialchars($_SESSION['install_data']['config_ini_content']) ?></textarea>
                         <button class="btn" onclick="navigator.clipboard.writeText(this.previousElementSibling.value); alert('Contenu copié !')"><?= t('install_copy_button') ?></button>
                     <?php endif; ?>
                     

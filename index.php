@@ -63,9 +63,7 @@ if (!isset($_SESSION['user'])) {
 
             $allDone = $hasFleetType && $hasFleet && $hasOtherAdmin;
 
-            echo '<div style="background:#fff3cd;border:2px solid #ff8c00;border-radius:12px;padding:20px;margin:20px auto;max-width:800px;box-shadow:0 4px 8px rgba(0,0,0,0.1);">';
-            echo '<h3 style="color:#856404;margin-top:0;text-align:center;">⚠️ ' . t('index_adm_setup_title') . '</h3>';
-            echo '<p style="text-align:center;margin-bottom:20px;">' . t('index_adm_setup_intro') . '</p>';
+
             
             if ($allDone) {
                 echo '<div style="background:#d4edda;border:1px solid #c3e6cb;border-radius:8px;padding:15px;margin:15px 0;text-align:center;color:#155724;">';
@@ -74,7 +72,10 @@ if (!isset($_SESSION['user'])) {
                 echo '</div>';
             } else {
                 echo '<ul style="list-style:none;padding:0;">';
+                echo '<div style="background:#fff3cd;border:2px solid #ff8c00;border-radius:12px;padding:20px;margin:20px auto;max-width:800px;box-shadow:0 4px 8px rgba(0,0,0,0.1);">';
+                echo '<h3 style="color:#856404;margin-top:0;text-align:center;">⚠️ ' . t('index_adm_setup_title') . '</h3>';
                 
+                echo '<p style="text-align:center;margin-bottom:20px;">' . t('index_adm_setup_intro') . '</p>';                
                 // Tâche 1: Créer un autre compte admin
                 echo '<li style="padding:10px;margin:8px 0;border-left:4px solid ' . ($hasOtherAdmin ? '#28a745' : '#ffc107') . ';background:' . ($hasOtherAdmin ? '#f1f9f4' : '#fffbf0') . ';border-radius:4px;">';
                 echo '<span style="font-size:20px;margin-right:10px;">' . ($hasOtherAdmin ? '✓' : '○') . '</span>';
