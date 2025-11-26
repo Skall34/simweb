@@ -70,42 +70,75 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['execute'])) {
         // 1. Ne plus créer db_connect.php : l'installateur écrit uniquement un fichier config.ini à la racine
         $logs[] = ['type' => 'info', 'message' => 'Génération du fichier config.ini à la racine...'];
 
-        // Préparer le contenu INI
-        $config_ini_content = "[database]\n";
-        $config_ini_content .= "host = \"" . addslashes($db['host']) . "\"\n";
-        $config_ini_content .= "port = \"" . addslashes($db['port']) . "\"\n";
-        $config_ini_content .= "name = \"" . addslashes($db['name']) . "\"\n";
-        $config_ini_content .= "user = \"" . addslashes($db['user']) . "\"\n";
-        $config_ini_content .= "pass = \"" . addslashes($db['pass']) . "\"\n";
-        $config_ini_content .= "charset = \"utf8mb4\"\n\n";
+        // Préparer le contenu INI (modèle: config.ini fourni en contexte)
+        $config_ini_content = "; Configuration de la Virtual Airline\n";
+        $config_ini_content .= "; Ce fichier contient toutes les constantes utilisées par l'application\n";
+        $config_ini_content .= "; Généré automatiquement par l'installateur\n\n";
 
-        $config_ini_content .= "[va]\n";
-        $config_ini_content .= "name = \"" . addslashes($config['va_name']) . "\"\n";
-        $config_ini_content .= "icao = \"" . addslashes($config['va_icao']) . "\"\n";
-        $config_ini_content .= "iata = \"" . addslashes($config['va_iata']) . "\"\n";
-        $config_ini_content .= "tagline = \"" . addslashes($config['va_tagline']) . "\"\n";
-        $config_ini_content .= "contact_email = \"" . addslashes($config['va_email']) . "\"\n";
-        $config_ini_content .= "admin_email = \"" . addslashes($config['va_admin_email']) . "\"\n";
-        $config_ini_content .= "base_url = \"" . addslashes($config['va_url']) . "\"\n\n";
+        $config_ini_content .= "; ==================== BASE DE DONNÉES ====================\n\n";
+        $config_ini_content .= "[database]\n";
+        $config_ini_content .= "host = '" . addslashes($db['host']) . "'\n";
+        if (!empty($db['port'])) {
+            $config_ini_content .= "port = '" . addslashes($db['port']) . "'\n";
+        }
+        $config_ini_content .= "name = '" . addslashes($db['name']) . "'\n";
+        $config_ini_content .= "user = '" . addslashes($db['user']) . "'\n";
+        // préférer 'password' comme clé standard
+        $config_ini_content .= "password = '" . addslashes($db['pass']) . "'\n";
+        $config_ini_content .= "charset = 'utf8mb4'\n\n";
 
+        $config_ini_content .= "; ==================== INFORMATIONS COMPAGNIE ====================\n\n";
+        $config_ini_content .= "[company]\n";
+        $config_ini_content .= "name = '" . addslashes($config['va_name']) . "'\n";
+        $config_ini_content .= "icao = '" . addslashes($config['va_icao']) . "'\n";
+        $config_ini_content .= "iata = '" . addslashes($config['va_iata']) . "'\n";
+        $config_ini_content .= "tagline = '" . addslashes($config['va_tagline']) . "'\n\n";
+
+        $config_ini_content .= "; ==================== CONTACT ====================\n\n";
+        $config_ini_content .= "[contact]\n";
+        $config_ini_content .= "contact_email = '" . addslashes($config['va_email']) . "'\n";
+        $config_ini_content .= "admin_email = '" . addslashes($config['va_admin_email']) . "'\n\n";
+
+        $config_ini_content .= "; ==================== ADMINISTRATION ====================\n\n";
+        $config_ini_content .= "[admin]\n";
+        // si super_admin_callsigns fourni, l'utiliser, sinon valeur par défaut
+        $super_calls = isset($config['va_super_admin_callsigns']) ? $config['va_super_admin_callsigns'] : (isset($config['va_super_admin']) ? $config['va_super_admin'] : 'ADM0001');
+        $config_ini_content .= "super_admin_callsigns = '" . addslashes($super_calls) . "'\n";
+        $config_ini_content .= "base_url = '" . addslashes($config['va_url']) . "'\n\n";
+
+        $config_ini_content .= "; ==================== CONFIGURATION SMTP ====================\n\n";
         $config_ini_content .= "[smtp]\n";
-        $config_ini_content .= "host = \"" . addslashes($config['smtp_host']) . "\"\n";
-        $config_ini_content .= "port = " . (int)$config['smtp_port'] . "\n";
-        $config_ini_content .= "secure = \"" . addslashes($config['smtp_secure']) . "\"\n";
-        $config_ini_content .= "username = \"" . addslashes($config['smtp_user']) . "\"\n";
-        $config_ini_content .= "password = \"" . addslashes($config['smtp_pass']) . "\"\n";
-        $config_ini_content .= "from_email = \"" . addslashes($config['smtp_from_email']) . "\"\n";
-        $config_ini_content .= "from_name = \"" . addslashes($config['smtp_from_name']) . "\"\n\n";
+        $config_ini_content .= "host = '" . addslashes($config['smtp_host']) . "'\n";
+        $config_ini_content .= "port = '" . addslashes($config['smtp_port']) . "'\n";
+        $config_ini_content .= "secure = '" . addslashes($config['smtp_secure']) . "'\n";
+        $config_ini_content .= "username = '" . addslashes($config['smtp_user']) . "'\n";
+        $config_ini_content .= "password = '" . addslashes($config['smtp_pass']) . "'\n";
+        $config_ini_content .= "from_email = '" . addslashes($config['smtp_from_email']) . "'\n";
+        $config_ini_content .= "from_name = '" . addslashes($config['smtp_from_name']) . "'\n\n";
 
-        $config_ini_content .= "[finance]\n";
-        $config_ini_content .= "currency = \"" . addslashes($config['va_currency']) . "\"\n";
-        $config_ini_content .= "currency_symbol = \"" . addslashes($config['va_currency_symbol']) . "\"\n";
-        $config_ini_content .= "starting_balance = " . (int)$config['va_starting_balance'] . "\n\n";
+        $config_ini_content .= "; ==================== RÉSEAUX SOCIAUX ====================\n\n";
+        $config_ini_content .= "[social]\n";
+        $config_ini_content .= "discord_url = '" . addslashes(isset($config['va_discord_url']) ? $config['va_discord_url'] : '') . "'\n";
+        $config_ini_content .= "website_url = '" . addslashes(isset($config['va_website_url']) ? $config['va_website_url'] : $config['va_url']) . "'\n";
+        $config_ini_content .= "forum_url = '" . addslashes(isset($config['va_forum_url']) ? $config['va_forum_url'] : '') . "'\n\n";
 
+        $config_ini_content .= "; ==================== PARAMÈTRES FINANCIERS ====================\n\n";
+        $config_ini_content .= "[financial]\n";
+        $config_ini_content .= "currency = '" . addslashes($config['va_currency']) . "'\n";
+        $config_ini_content .= "currency_symbol = '" . addslashes($config['va_currency_symbol']) . "'\n";
+        // ajouter currency_position si disponible
+        $config_ini_content .= "currency_position = '" . addslashes(isset($config['va_currency_position']) ? $config['va_currency_position'] : (isset($config['currency_position']) ? $config['currency_position'] : 'after')) . "'\n";
+        $config_ini_content .= "starting_balance = '" . (int)$config['va_starting_balance'] . "'\n\n";
+
+        $config_ini_content .= "; ==================== PARAMÈTRES SYSTÈME ====================\n\n";
         $config_ini_content .= "[system]\n";
-        $config_ini_content .= "timezone = \"" . addslashes($config['timezone']) . "\"\n";
-        $config_ini_content .= "default_language = \"" . addslashes($config['va_default_language']) . "\"\n";
-        $config_ini_content .= "debug_mode = false\n";
+        $config_ini_content .= "timezone = '" . addslashes($config['timezone']) . "'\n";
+        $config_ini_content .= "default_language = '" . addslashes($config['va_default_language']) . "'\n\n";
+
+        $config_ini_content .= "; ==================== MODE DEBUG ====================\n\n";
+        $debug_val = isset($config['debug_mode']) ? ($config['debug_mode'] === 'true' ? 'true' : 'false') : 'false';
+        $config_ini_content .= "[debug]\n";
+        $config_ini_content .= "debug_mode = '" . $debug_val . "'\n";
 
         $config_ini_path = __DIR__ . '/../../config.ini';
         $config_ini_dir = dirname($config_ini_path);
@@ -471,7 +504,7 @@ if (VA_DEBUG_MODE) {
                 <li><strong><?= t('install_step4_label_db_name') ?></strong> <?= htmlspecialchars($_SESSION['install_data']['database']['name']) ?></li>
                 <li><strong><?= t('install_step4_label_db_user') ?></strong> <?= htmlspecialchars($_SESSION['install_data']['database']['user']) ?></li>
             </ul>
-            
+            <br>
             <h3><?= t('install_step4_summary_va_title') ?></h3>
             <ul>
                 <li><strong><?= t('install_step3_label_va_name') ?></strong> <?= htmlspecialchars($_SESSION['install_data']['config']['va_name']) ?></li>
@@ -483,15 +516,13 @@ if (VA_DEBUG_MODE) {
                 <li><strong><?= t('install_step3_label_va_admin_email') ?></strong> <?= htmlspecialchars($_SESSION['install_data']['config']['va_admin_email']) ?></li>
                 <li><strong><?= t('install_step3_label_va_url') ?></strong> <?= htmlspecialchars($_SESSION['install_data']['config']['va_url']) ?></li>
             </ul>
-            
+            <br>
             <h3><?= t('install_step4_summary_params_title') ?></h3>
             <ul>
                 <li><strong><?= t('install_step3_label_va_currency') ?></strong> <?= htmlspecialchars($_SESSION['install_data']['config']['va_currency']) ?> (<?= htmlspecialchars($_SESSION['install_data']['config']['va_currency_symbol']) ?>)</li>
                 <li><strong><?= t('install_step3_label_va_default_language') ?></strong> <?= htmlspecialchars($_SESSION['install_data']['config']['va_default_language']) ?></li>
                 <li><strong><?= t('install_step3_label_va_timezone') ?></strong> <?= htmlspecialchars($_SESSION['install_data']['config']['timezone']) ?></li>
                 <li><strong><?= t('install_step3_label_va_starting_balance') ?></strong> <?= number_format($_SESSION['install_data']['config']['va_starting_balance']) ?> <?= htmlspecialchars($_SESSION['install_data']['config']['va_currency_symbol']) ?></li>
-                <li><strong><?= t('install_step3_label_va_registration_enabled') ?></strong> <?= $_SESSION['install_data']['config']['va_registration_enabled'] === 'true' ? t('fleet_text_yes') : t('fleet_text_no') ?></li>
-                <li><strong><?= t('install_step3_label_va_simaddon_enabled') ?></strong> <?= $_SESSION['install_data']['config']['va_simaddon_enabled'] === 'true' ? t('fleet_text_yes') : t('fleet_text_no') ?></li>
                 <li><strong><?= t('install_step3_label_smtp_enabled') ?></strong> <?= !empty($_SESSION['install_data']['config']['smtp_enabled']) ? t('fleet_text_yes') : t('fleet_text_no') ?></li>
             </ul>
         </div>

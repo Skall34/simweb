@@ -75,13 +75,6 @@ define('VA_STARTING_BALANCE', (float)($config['financial']['starting_balance'] ?
 
 define('VA_TIMEZONE', $config['system']['timezone'] ?? 'UTC');
 define('VA_DEFAULT_LANGUAGE', $config['system']['default_language'] ?? 'en');
-define('VA_REGISTRATION_ENABLED', filter_var($config['system']['registration_enabled'] ?? true, FILTER_VALIDATE_BOOLEAN));
-define('VA_MIN_FLIGHTS_FOR_PROMOTION', (int)($config['system']['min_flights_for_promotion'] ?? 10));
-
-// ==================== PARAMÈTRES SIMADDON ====================
-
-define('VA_SIMADDON_ENABLED', filter_var($config['simaddon']['enabled'] ?? false, FILTER_VALIDATE_BOOLEAN));
-define('VA_SIMADDON_API_URL', $config['simaddon']['api_url'] ?? '');
 
 // ==================== MODE DEBUG ====================
 

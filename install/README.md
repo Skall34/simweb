@@ -2,11 +2,24 @@
 
 ## ⚠️ IMPORTANT - Lisez attentivement
 
-Cette installation automatisée va :
-- ✅ Créer votre base de données
-- ✅ Importer toutes les tables
-- ✅ Générer les fichiers de configuration
-- ✅ Créer le compte administrateur par défaut
+## Prérequis
+
+- **PHP** 7.4 ou supérieur (8.1+ recommandé)
+- **MySQL** 5.7+ ou **MariaDB** 10.2+
+- **Extensions PHP** : PDO, pdo_mysql, mbstring, json
+- **Serveur web** : Apache
+
+---
+
+## L'assistant d'installation va :
+
+✅ Vérifier votre environnement PHP et MySQL<br>
+✅ Créer automatiquement la base de données<br>
+✅ Importer toutes les tables nécessaires<br>
+✅ Générer les fichiers de configuration<br>
+✅ Créer le compte administrateur par défaut<br>
+
+**Aucun fichier à éditer manuellement !**
 
 **Durée totale : 5-10 minutes** ⏱️
 
@@ -16,136 +29,38 @@ Cette installation automatisée va :
 
 **IMPORTANT** : Vous devez uploader **l'intégralité du projet**, pas juste le dossier `install/` !
 
-### Via Git (recommandé)
-```bash
-cd /var/www/votre-site/
-sudo git clone https://github.com/votre-compte/simweb.git .
-```
-
 ### Via FTP/SCP
 Uploadez **TOUS** ces dossiers et fichiers (liste complète) :
 
 **📁 Dossiers obligatoires :**
-```
-votre-site/
-├── admin/            ← Pages d'administration
-├── api/              ← API pour SimAddon (OBLIGATOIRE)
-├── assets/           ← Images, documents ACARS
-├── css/              ← Feuilles de style (OBLIGATOIRE)
-├── Documentation/    ← Documentation complète
-├── includes/         ← Configuration PHP (OBLIGATOIRE)
-├── install/          ← L'installateur web
-├── lang/             ← Traductions FR/EN/ES (OBLIGATOIRE)
-├── pages/            ← Pages du site (OBLIGATOIRE)
-├── scripts/          ← Scripts automatisés (OBLIGATOIRE)
-├── sql_database/     ← Scripts SQL (OBLIGATOIRE)
-└── tools/            ← Outils de développement (optionnel)
-```
+
+votre-site/<br>
+├── admin/            ← Pages d'administration<br>
+├── api/              ← API pour SimAddon (OBLIGATOIRE)<br>
+├── assets/           ← Images, documents ACARS<br>
+├── css/              ← Feuilles de style (OBLIGATOIRE)<br>
+├── Documentation/    ← Documentation complète<br>
+├── includes/         ← Configuration PHP (OBLIGATOIRE)<br>
+├── install/          ← L'installateur web (OBLIGATOIRE)<br>
+├──├── sql_database   ← Fichiers de création de la base de données (OBLIGATOIRE)<br>
+├──├── steps          ← Les 5 étapes de l'installeur lui-même<br>
+├── lang/             ← Traductions FR/EN/ES (OBLIGATOIRE)<br>
+├── pages/            ← Pages du site (OBLIGATOIRE)<br>
+├── scripts/          ← Scripts automatisés (OBLIGATOIRE)<br>
 
 **📄 Fichiers obligatoires à la racine :**
-```
-├── .htaccess         ← Configuration Apache
-├── index.php         ← Page d'accueil
-├── lang.php          ← Gestion des langues
-├── live_flights.php  ← Vols en cours
-├── login.php         ← Connexion
-├── logout.php        ← Déconnexion
-└── LICENSE.txt       ← Licence MIT
-```
+
+├── index.php         ← Page d'accueil<br>
+├── lang.php          ← Gestion des langues<br>
+├── live_flights.php  ← Vols en cours<br>
+├── login.php         ← Connexion<br>
+├── logout.php        ← Déconnexion<br>
+└── LICENSE.txt       ← Licence MIT<br>
+
 
 **⚠️ IMPORTANT : Si un seul dossier manque, l'installation échouera !**
 
-### ✅ Vérification automatique après upload
-
-**Méthode 1 : Script de vérification complet**
-```bash
-cd /var/www/votre-site/
-bash install/check_files.sh
-```
-✓ Vérifie tous les dossiers et fichiers  
-✓ Affiche ce qui manque en rouge  
-✓ Vous dit si vous pouvez continuer  
-
-**Méthode 2 : Vérification manuelle rapide**
-```bash
-cd /var/www/votre-site/
-
-# Vérifier les dossiers critiques
-ls -d admin api assets css includes install lang pages scripts sql_database 2>/dev/null | wc -l
-# Doit afficher : 10
-
-# Vérifier les fichiers SQL
-ls sql_database/*.sql 2>/dev/null | wc -l  
-# Doit afficher : 2
-
-# Si les chiffres ne correspondent pas, des fichiers manquent !
-```
-
----
-
-## 🔐 Étape 2 : Permissions (Linux/Raspberry/VPS uniquement)
-
-```bash
-# Allez dans le dossier de votre site
-cd /var/www/votre-site/
-
-# Permissions 777 temporaires pour l'installation
-sudo chmod -R 777 includes/ scripts/
-sudo chown -R www-data:www-data /var/www/votre-site/
-
-# IMPORTANT : Ces permissions seront sécurisées après l'installation
-```
-
-**Sur Windows/XAMPP** : Les permissions sont automatiquement OK, passez à l'étape suivante.
-
----
-
-## 🗄️ Étape 3 : Préparez MySQL
-
-### Sur Raspberry/Debian/Ubuntu
-Créez un utilisateur MySQL avec droits complets :
-
-```bash
-sudo mysql
-```
-
-```sql
-CREATE USER 'va_user'@'localhost' IDENTIFIED BY 'VotreMotDePasseSecurise';
-GRANT ALL PRIVILEGES ON *.* TO 'va_user'@'localhost' WITH GRANT OPTION;
-FLUSH PRIVILEGES;
-EXIT;
-```
-
-**Notez bien ces informations, vous en aurez besoin !**
-- Utilisateur : `va_user`
-- Mot de passe : `VotreMotDePasseSecurise`
-- Hôte : `localhost`
-
-### Sur Windows/XAMPP
-Utilisez généralement :
-- Utilisateur : `root`
-- Mot de passe : (vide ou celui que vous avez défini)
-- Hôte : `localhost`
-
----
-
-## 🧹 Étape 4 : Nettoyage (si réinstallation)
-
-**Seulement si vous réinstallez** :
-
-```bash
-# Supprimez les anciennes configurations
-rm /var/www/votre-site/includes/db_connect.php
-rm /var/www/votre-site/includes/config.php
-rm /var/www/votre-site/install/.installed
-
-# Supprimez l'ancienne base de données
-sudo mysql -e "DROP DATABASE IF EXISTS nom_ancienne_base;"
-```
-
----
-
-## 🎯 Étape 5 : Lancez l'installateur
+## 🧹 Étape 2 : Connectez-vous sur adresse_de_votre_site/install
 
 1. **Ouvrez votre navigateur** : `http://votre-ip-ou-domaine/install/`
 
@@ -153,11 +68,9 @@ sudo mysql -e "DROP DATABASE IF EXISTS nom_ancienne_base;"
    - Si rouge : corrigez les permissions avec les commandes affichées
 
 3. **Étape 2 - Base de données** :
-   - Hôte : `localhost` (ou `127.0.0.1`)
-   - Port : `3306`
+   - Hôte : **renseignez les informations de la base de données**
+   - Port : **renseignez le port**
    - Nom de la base : **choisissez un nom** (ex: `ma_va`, `skyairlines`, etc.)
-   - Utilisateur : celui créé à l'étape 3 (`va_user`)
-   - Mot de passe : celui créé à l'étape 3
 
 4. **Étape 3 - Configuration VA** :
    - Nom de votre Virtual Airline
@@ -182,21 +95,30 @@ sudo mysql -e "DROP DATABASE IF EXISTS nom_ancienne_base;"
    - **Mot de passe** : `admin123`
 
 3. **IMMÉDIATEMENT après connexion** :
-   - Créez votre propre compte administrateur
-   - Supprimez le compte `ADM0001` (Menu Admin → Gestion Pilotes)
+   - 3 petites choses restent à faire pour finaliser la création de votre compagnie
+   - Modifiez le mot de passe du compte `ADM0001` (Menu Mon Compte)
+      - Déconnectez vous du site et enregistrez un nouveau pilote, qui sera l'administrateur du site. ADM0001 étant un SUPER ADMIN, qui à en plus les droits de configuration du site.
+      - Reconnectez vous en `ADM0001` et allez via le menu admin/Administration des pilotes, et passez le nouveau pilote en Admin
+   - Créer un premier Type d'appareil
+   - Acheter un premier appareil
 
----
 
-## 🔒 Sécurisation post-installation
+
+## 🧹 Nettoyage (si réinstallation)
+
+**Seulement si vous réinstallez** :
 
 ```bash
-# Remettez les permissions normales
-cd /var/www/votre-site/
-sudo chmod -R 755 includes/ scripts/
-sudo chmod 644 includes/db_connect.php includes/config.php
+# Supprimez les anciennes configurations
+rm /var/www/votre-site/config.ini
+rm /var/www/votre-site/install/.installed
 
-# L'installateur est automatiquement verrouillé
+# Supprimez l'ancienne base de données
+sudo mysql -e "DROP DATABASE IF EXISTS nom_ancienne_base;"
 ```
+
+
+# 🔒L'installateur est automatiquement verrouillé
 
 ---
 
@@ -232,38 +154,18 @@ Vérifiez les logs Apache :
 sudo tail -50 /var/log/apache2/error.log
 ```
 
----
-
 ## 📚 Support
 
 - Documentation complète : `/Documentation/INSTALLATION.md`
 - FAQ : `/Documentation/FAQ.md`
 - GitHub Issues : https://github.com/Skall34/simweb/issues
-
 ---
 
 **Bon vols ! ✈️**
 
 ---
 
-## Prérequis
 
-- **PHP** 7.4 ou supérieur (8.1+ recommandé)
-- **MySQL** 5.7+ ou **MariaDB** 10.2+
-- **Extensions PHP** : PDO, pdo_mysql, mbstring, json
-- **Serveur web** : Apache ou Nginx
-
----
-
-## L'assistant d'installation va :
-
-✅ Vérifier votre environnement PHP et MySQL  
-✅ Créer automatiquement la base de données  
-✅ Importer toutes les tables nécessaires  
-✅ Générer les fichiers de configuration  
-✅ Créer le compte administrateur par défaut  
-
-**Aucun fichier à éditer manuellement !**
 
 ---
 

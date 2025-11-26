@@ -14,6 +14,54 @@ if (file_exists($config_path)) {
 
 $message = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // If user requested a backup download, prepare and send the backup file
+    if (isset($_POST['download_backup'])) {
+        // Build backup content from current $config (fallback if file missing)
+        $ini_lines = [];
+        $ini_lines[] = "; Backup generated via admin_config.php - " . date('Y-m-d H:i:s');
+        foreach ($config as $section => $pairs) {
+            $ini_lines[] = "\n[{$section}]";
+            foreach ($pairs as $k => $v) {
+                if (is_bool($v)) {
+                    $val = $v ? 'true' : 'false';
+                } elseif (is_numeric($v) && (string)(int)$v === (string)$v) {
+                    $val = $v;
+                } else {
+                    $val = str_replace('"', '\\"', (string)$v);
+                    $val = '"' . $val . '"';
+                }
+                $ini_lines[] = "{$k} = {$val}";
+            }
+        }
+        $content = implode("\n", $ini_lines) . "\n";
+
+        // Ensure backups dir exists
+        $backup_dir = __DIR__ . '/../backups';
+        if (!is_dir($backup_dir)) @mkdir($backup_dir, 0755, true);
+        $timestamp = date('Ymd_His');
+        $backup_filename = "config.ini." . $timestamp . ".bak";
+        $backup_path = $backup_dir . '/' . $backup_filename;
+        // Save backup file
+        @file_put_contents($backup_path, $content);
+
+        // Send as download (prefer saved file if present)
+        if (file_exists($backup_path)) {
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/octet-stream');
+            header('Content-Disposition: attachment; filename="' . basename($backup_filename) . '"');
+            header('Content-Length: ' . filesize($backup_path));
+            readfile($backup_path);
+            exit;
+        } else {
+            // Fallback: stream generated content
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/octet-stream');
+            header('Content-Disposition: attachment; filename="config.ini.backup"');
+            header('Content-Length: ' . strlen($content));
+            echo $content;
+            exit;
+        }
+    }
     // On reconstruit la config en partant de celle lue
     $new = $config;
 
@@ -70,10 +118,32 @@ function cfg_val($cfg, $section, $key, $default = '') {
     return $default;
 }
 
+// Helper: humanize a config key for label display (avoid adding config keys to lang files)
+function humanize_key($key) {
+    // Replace common prefixes
+    $k = $key;
+    // Remove section-like prefixes (e.g. va_)
+    $k = preg_replace('/^va_/', '', $k);
+    // Replace underscores/dots/hyphens with spaces
+    $k = str_replace(['_', '.', '-'], ' ', $k);
+    // Lowercase then uppercase words
+    $k = trim($k);
+    $k = strtolower($k);
+    $k = preg_replace('/\s+/', ' ', $k);
+    $k = ucwords($k);
+    return $k;
+}
+
 ?>
 <main>
     <div class="container" style="max-width:900px;margin:24px auto;background:#fff;padding:28px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.06);">
         <h2 style="color:#1a3552;margin-bottom:18px;"><?= t('admin_config_title') ?></h2>
+        <div style="margin-bottom:12px;color:#856404;background:#fff3cd;padding:10px 14px;border-radius:6px;">
+            <?= htmlspecialchars(t('admin_config_warning')) ?>
+        </div>
+        <div style="margin-bottom:18px;color:#856404;background:#fff8e1;padding:8px 14px;border-radius:6px;font-size:0.95em;">
+            <?= htmlspecialchars(t('admin_config_warning_backup')) ?>
+        </div>
         <?php if ($message): ?>
             <div style="margin-bottom:18px;color:#155724;background:#d4edda;padding:10px 16px;border-radius:6px;">
                 <?= htmlspecialchars($message) ?>
@@ -87,7 +157,7 @@ function cfg_val($cfg, $section, $key, $default = '') {
                     <div style="display:flex;flex-wrap:wrap;gap:16px;">
                         <?php foreach ($pairs as $k => $v): ?>
                             <label style="display:flex;flex-direction:column;font-weight:600;color:#1a3552;min-width:260px;">
-                                <?= htmlspecialchars($k) ?>
+                                <?= htmlspecialchars(humanize_key($k)) ?>
                                 <?php
                                     $name = $section . '__' . $k;
                                     if (is_bool($v)):
@@ -107,8 +177,9 @@ function cfg_val($cfg, $section, $key, $default = '') {
                 </fieldset>
             <?php endforeach; ?>
 
-            <div>
+            <div style="display:flex;gap:12px;align-items:center;">
                 <button type="submit" name="save" class="btn btn-primary" style="padding:10px 16px;"><?= t('admin_config_save_button') ?></button>
+                <button type="submit" name="download_backup" class="btn btn-secondary" style="padding:10px 12px;"><?= t('admin_config_backup_button') ?></button>
             </div>
         </form>
     </div>

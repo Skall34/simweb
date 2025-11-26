@@ -49,10 +49,10 @@
         <p><?= t('install_step5_security_text') ?></p>
         <p><strong><?= t('install_step5_reinstall_info') ?></strong></p>
         <ol>
-            <li><?= t('install_step5_remove_installed') ?></li>
-            <li><?= t('install_step5_remove_db_files') ?></li>
-            <li><?= t('install_step5_remove_db') ?></li>
-            <li><?= t('install_step5_restart_installer') ?></li>
+            &nbsp;&nbsp;<li><?= t('install_step5_remove_installed') ?></li>
+            &nbsp;&nbsp;<li><?= t('install_step5_remove_db_files') ?></li>
+            &nbsp;&nbsp;<li><?= t('install_step5_remove_db') ?></li>
+            &nbsp;&nbsp;<li><?= t('install_step5_restart_installer') ?></li>
         </ol>
     </div>
 
