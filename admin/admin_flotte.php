@@ -17,11 +17,11 @@ if ($action === 'liberer' && isset($_GET['id'])) {
     try {
         $stmt = $pdo->prepare("UPDATE FLOTTE SET en_vol = 0, reservee = 0 WHERE id = :id");
         $stmt->execute(['id' => $avion_id]);
-        $_SESSION['flash_message'] = "Avion libéré avec succès";
+        $_SESSION['flash_message'] = t('admin_flotte_success_liberer');
         header('Location: admin_flotte.php');
         exit;
     } catch (PDOException $e) {
-        $errorMessage = "Erreur lors de la libération : " . htmlspecialchars($e->getMessage());
+        $errorMessage = t('admin_flotte_error_liberer') . htmlspecialchars($e->getMessage());
     }
 }
 
@@ -68,12 +68,12 @@ if ($action === 'vendre' && isset($_POST['avion_id'])) {
         mettreAJourRecettes($recette_vente, null, $immat_vendue, $callsign_vendeur, 'vente', $commentaire_finance);
         logMsg("Vente enregistrée dans finances_recettes pour immat=$immat_vendue, montant=$recette_vente", $logFile);
 
-        $_SESSION['flash_message'] = "Avion $immat_vendue vendu avec succès pour " . number_format($recette_vente, 0, ',', ' ') . " €";
+        $_SESSION['flash_message'] = str_replace('{immat}', htmlspecialchars($immat_vendue), t('admin_flotte_success_vente')) . ' ' . number_format($recette_vente, 0, ',', ' ') . ' €';
         logMsg("[VENTE] Vente terminée pour immat=$immat_vendue", $logFile);
         header('Location: admin_flotte.php');
         exit;
     } catch (PDOException $e) {
-        $errorMessage = "Erreur lors de la vente : " . htmlspecialchars($e->getMessage());
+        $errorMessage = t('admin_flotte_error_vente') . htmlspecialchars($e->getMessage());
         logMsg("[ERREUR] Vente échouée pour avion_id=$avion_id : " . $e->getMessage(), $logFile);
     }
 }
@@ -250,9 +250,9 @@ include __DIR__ . '/../includes/menu_logged.php';
                 </label>
             </div>
 
-            <label>Fleet type * :</label>
+            <label><?= t('admin_flotte_label_type') ?> *</label>
             <select name="fleet_type" id="fleetTypeSelect" required class="fleet-filter-select input-250">
-                <option value="">-- Sélectionner --</option>
+                <option value=""><?= t('admin_flotte_select_fleet_type') ?></option>
                 <?php foreach ($fleetTypes as $ft): ?>
                     <option value="<?= $ft['id'] ?>" data-prix="<?= number_format($ft['cout_appareil'], 2, ',', ' ') ?>" data-categorie="<?= htmlspecialchars($ft['type']) ?>">
                         <?= htmlspecialchars($ft['fleet_type']) ?> (<?= htmlspecialchars($ft['type']) ?>) - <?= number_format($ft['cout_appareil'], 2, ',', ' ') ?> €
@@ -260,13 +260,13 @@ include __DIR__ . '/../includes/menu_logged.php';
                 <?php endforeach; ?>
             </select>
 
-            <label>Immatriculation * :</label>
+            <label><?= t('admin_flotte_label_immat') ?></label>
             <input type="text" name="immat" maxlength="10" required class="form-input input-250">
 
-            <label>Localisation (ICAO) :</label>
+            <label><?= t('admin_flotte_label_localisation') ?></label>
             <input type="text" name="localisation" maxlength="4" pattern="[A-Z0-9]{0,4}" class="form-input input-250">
 
-            <label>Hub (ICAO) :</label>
+            <label><?= t('admin_flotte_label_hub') ?></label>
             <input type="text" name="hub" maxlength="4" pattern="[A-Z0-9]{0,4}" class="form-input input-250">
 
             <div id="credit-fields" class="credit-fields">
@@ -279,14 +279,14 @@ include __DIR__ . '/../includes/menu_logged.php';
 
             <div class="form-actions">
                 <button type="submit" class="btn btn-small"><?= t('admin_flotte_btn_signer') ?></button>
-                <button type="button" class="btn btn-reset btn-small" onclick="window.location.href='admin_flotte.php';">Réinitialiser</button>
+                <button type="button" class="btn btn-reset btn-small" onclick="window.location.href='admin_flotte.php';"><?= t('admin_flotte_btn_reinitialiser') ?></button>
             </div>
         </form>
     </div>
 
     <!-- SECTION LISTE FLOTTE -->
     <aside style="min-width:900px;max-width:1800px;margin-left:40px;margin-right:auto;background:#f7fbff;border-radius:16px;box-shadow:0 2px 8px rgba(0,0,0,0.04);padding:18px 16px 12px 16px;align-self:flex-start;">
-        <h3 style="margin-top:0;margin-bottom:12px;font-size:1.1em;color:#0066cc;">Flotte active (<?= count($flotte) ?> avion<?= count($flotte) > 1 ? 's' : '' ?>)</h3>
+        <h3 style="margin-top:0;margin-bottom:12px;font-size:1.1em;color:#0066cc;"><?= t('admin_flotte_title_flotte_active', ['count' => count($flotte)]) ?></h3>
         <?php if (empty($flotte)): ?>
             <p><?= t('admin_flotte_no_aircraft') ?></p>
         <?php else: ?>
@@ -325,7 +325,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                                 <td style="white-space: nowrap;">
                                                 <a href="?action=liberer&id=<?= $avion['id'] ?>" 
                                                     title="<?= t('admin_flotte_action_liberer_title') ?>"
-                                                    onclick="return confirm('Libérer l\'avion <?= htmlspecialchars($avion['immat']) ?> ?\n\nCela va :\n- Mettre en_vol à 0\n- Retirer la réservation')">
+                                                    onclick="return confirmLiberer(<?= $avion['id'] ?>, '<?= htmlspecialchars($avion['immat']) ?>')">
                                                     <?= t('admin_flotte_action_liberer') ?></a>
                                     &nbsp;|&nbsp;
                                                 <a href="#" 
@@ -347,6 +347,22 @@ include __DIR__ . '/../includes/menu_logged.php';
 </form>
 
 <script>
+var sim_i18n = <?= json_encode([
+    'confirm_liberer' => t('admin_flotte_confirm_liberer'),
+    'confirm_vente' => t('admin_flotte_js_confirm_vente'),
+    'prix_vente_label' => t('admin_flotte_js_prix_vente'),
+    'mode_credit' => t('admin_flotte_mode_credit'),
+    'mode_comptant' => t('admin_flotte_mode_comptant'),
+]) ?>;
+
+function confirmLiberer(id, immat) {
+    var msg = sim_i18n.confirm_liberer.replace('{immat}', immat);
+    if (confirm(msg)) {
+        window.location.href = '?action=liberer&id=' + encodeURIComponent(id);
+    }
+    return false;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Gestion des champs crédit
     const creditRadio = document.querySelector('input[name="achat_mode"][value="credit"]');
@@ -372,23 +388,24 @@ function confirmVente(id, immat, type, categorie, reste, recettes, prixVente, mo
     const resteFormate = reste > 0 ? new Intl.NumberFormat('fr-FR', {style: 'currency', currency: 'EUR'}).format(reste) : 'Aucun';
     const recettesFormate = new Intl.NumberFormat('fr-FR', {style: 'currency', currency: 'EUR'}).format(recettes);
     const prixVenteFormate = new Intl.NumberFormat('fr-FR', {style: 'currency', currency: 'EUR'}).format(prixVente);
-    const modeTexte = modeAchat === 'credit' ? 'Crédit' : 'Comptant';
-    
+    const modeTexte = modeAchat === 'credit' ? sim_i18n.mode_credit : sim_i18n.mode_comptant;
+
     let explication = '';
     if (modeAchat === 'credit') {
         explication = '\n(90% du reste à payer)';
     } else {
         explication = '\n(70% du prix neuf - décote d\'occasion)';
     }
-    
-    const message = `Confirmer la vente de l'avion ${immat} ?\n\n` +
+
+    const titleLine = sim_i18n.confirm_vente.replace('{immat}', immat);
+    const message = titleLine + '\n\n' +
         `Type : ${type} (${categorie})\n` +
         `Mode d'achat : ${modeTexte}\n` +
         `Reste à payer : ${resteFormate}\n` +
         `Recettes générées : ${recettesFormate}\n` +
         `\n═══════════════════════════\n` +
-        `Prix de vente : ${prixVenteFormate}${explication}`;
-    
+        sim_i18n.prix_vente_label + ' ' + prixVenteFormate + explication;
+
     if (confirm(message)) {
         document.getElementById('venteAvionId').value = id;
         document.getElementById('venteForm').submit();

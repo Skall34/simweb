@@ -233,9 +233,9 @@ if (isset($_GET['edit'])) {
                             <td class="cout_horaire" style="text-align:right;"><?= number_format((float)$ft['cout_horaire'], 2, ',', ' ') ?></td>
                             <td class="prix" style="text-align:right;font-weight:bold;"><?= number_format((float)$ft['cout_appareil'], 0, '', ' ') ?></td>
                             <td>
-                                <a href="admin_fleet_type.php?edit=<?= (int)$ft['id'] ?>">Éditer</a>
+                                <a href="admin_fleet_type.php?edit=<?= (int)$ft['id'] ?>"><?= t('admin_fleet_type_edit_link') ?></a>
                                 &nbsp;|&nbsp;
-                                <a href="#" onclick="if(confirm('Confirmer la suppression ?')){ document.getElementById('delete-form-<?= (int)$ft['id'] ?>').submit(); } return false;">Supprimer</a>
+                                <a href="#" onclick="if(confirm('<?= t('admin_fleet_type_confirm_delete') ?>')){ document.getElementById('delete-form-<?= (int)$ft['id'] ?>').submit(); } return false;"><?= t('admin_fleet_type_delete_link') ?></a>
                                 <form id="delete-form-<?= (int)$ft['id'] ?>" method="post" style="display:none;">
                                     <input type="hidden" name="id" value="<?= (int)$ft['id'] ?>">
                                     <input type="hidden" name="action" value="delete">

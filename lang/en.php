@@ -975,6 +975,8 @@ return [
     'admin_flotte_btn_signer' => 'Sign purchase order',
     'admin_flotte_btn_reinitialiser' => 'Reset',
     'admin_flotte_confirm_vente' => 'Confirm the sale of this aircraft?',
+    'admin_flotte_js_expl_credit' => '(90% of the remaining due)',
+    'admin_flotte_js_expl_comptant' => '(70% of the new price - depreciation)',
 
     // admin_flotte - UI labels
     'admin_flotte_title_buy_section' => 'Buy a new aircraft',
@@ -994,6 +996,12 @@ return [
     'admin_flotte_action_vendre' => '💰 Sell',
     'admin_flotte_mode_credit' => '💳 Credit',
     'admin_flotte_mode_comptant' => '💰 Cash',
+    'admin_flotte_success_liberer' => 'Aircraft released successfully',
+    'admin_flotte_error_liberer' => 'Error while releasing: ',
+    'admin_flotte_label_immat' => 'Registration * :',
+    'admin_flotte_confirm_liberer' => "Release aircraft {immat} ?\n\nThis will:\n- Set en_vol to 0\n- Remove reservation",
+    'admin_flotte_js_confirm_vente' => 'Confirm the sale of aircraft {immat} ?',
+    'admin_flotte_js_prix_vente' => 'Sale price: ',
 
     // === DOC SCRIPTS - Common ===
     'doc_back_link' => '← Back to documentation',

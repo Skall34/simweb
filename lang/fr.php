@@ -980,6 +980,8 @@ return [
     'admin_flotte_btn_signer' => 'Signer le bon de commande',
     'admin_flotte_btn_reinitialiser' => 'Réinitialiser',
     'admin_flotte_confirm_vente' => 'Confirmez-vous la vente de cet appareil ?',
+    'admin_flotte_js_expl_credit' => '(90% du reste à payer)',
+    'admin_flotte_js_expl_comptant' => '(70% du prix neuf - décote d\'occasion)',
 
     // admin_flotte - UI labels
     'admin_flotte_title_buy_section' => 'Acheter un nouvel appareil',
@@ -999,6 +1001,12 @@ return [
     'admin_flotte_action_vendre' => '💰 Vendre',
     'admin_flotte_mode_credit' => '💳 Crédit',
     'admin_flotte_mode_comptant' => '💰 Comptant',
+    'admin_flotte_success_liberer' => 'Avion libéré avec succès',
+    'admin_flotte_error_liberer' => 'Erreur lors de la libération : ',
+    'admin_flotte_label_immat' => 'Immatriculation * :',
+    'admin_flotte_confirm_liberer' => "Libérer l'avion {immat} ?\n\nCela va :\n- Mettre en_vol à 0\n- Retirer la réservation",
+    'admin_flotte_js_confirm_vente' => 'Confirmer la vente de l\'avion {immat} ?',
+    'admin_flotte_js_prix_vente' => 'Prix de vente : ',
 
     // === DOC SCRIPTS - Common ===
     'doc_back_link' => '← Retour à la documentation',

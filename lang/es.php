@@ -994,6 +994,16 @@ return [
     'admin_flotte_action_vendre' => '💰 Vender',
     'admin_flotte_mode_credit' => '💳 Crédito',
     'admin_flotte_mode_comptant' => '💰 Contado',
+    'admin_flotte_success_liberer' => 'Avión liberado con éxito',
+    'admin_flotte_error_liberer' => 'Error al liberar: ',
+    'admin_flotte_label_immat' => 'Matrícula * :',
+    'admin_flotte_confirm_liberer' => '¿Liberar el avión {immat} ?\n\nEsto va a :\n- Poner en_vol a 0\n- Quitar la reserva',
+    'admin_flotte_js_confirm_vente' => '¿Confirmar la venta del avión {immat} ?',
+    'admin_flotte_js_prix_vente' => 'Precio de venta: ',
+
+    // Explanations for sale modes (JS)
+    'admin_flotte_js_expl_credit' => '(90% del saldo pendiente)',
+    'admin_flotte_js_expl_comptant' => '(70% del precio nuevo - depreciación)',
 
     // === DOC SCRIPTS - Common ===
     'doc_back_link' => '← Volver a la documentación',
