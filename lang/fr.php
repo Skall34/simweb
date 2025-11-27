@@ -1530,5 +1530,7 @@ Appareils sortis de maintenance : 1
     'api_error_no_gps' => 'Aucune trace GPS trouvée pour ce vol.',
     'api_error_gps_fetch' => 'Erreur lors de la récupération de la trace GPS.',
     'api_error_live_flights' => 'Erreur lors de la récupération des vols en cours.',
+    // Flights page
+    'flights_map_title' => 'Ma carte',
 ];
 ?>

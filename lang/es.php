@@ -1527,5 +1527,7 @@ Aeronaves que salieron de mantenimiento: 1
     'api_error_no_gps' => 'No se encontró rastro GPS para este vuelo.',
     'api_error_gps_fetch' => 'Error al recuperar el rastro GPS.',
     'api_error_live_flights' => 'Error al recuperar vuelos en curso.',
+    // Flights page
+    'flights_map_title' => 'Mi mapa',
 ];
 ?>

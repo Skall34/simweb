@@ -116,14 +116,41 @@ if (count($icaos) > 0) {
 }
 // --- Fin ajout ---
 
+// Compter le nombre de visites par aéroport (départ + arrivée)
+$airport_counts = [];
+foreach ($flights as $vol) {
+    if (!empty($vol['depart'])) $airport_counts[$vol['depart']] = ($airport_counts[$vol['depart']] ?? 0) + 1;
+    if (!empty($vol['destination'])) $airport_counts[$vol['destination']] = ($airport_counts[$vol['destination']] ?? 0) + 1;
+}
+
+// Si le pilote n'a aucun vol (donc $aeroports vide), charger un jeu d'aéroports de secours
+$map_fallback_used = false;
+if (empty($aeroports)) {
+    $map_fallback_used = true;
+    try {
+        $stmtAll = $pdo->query("SELECT ident, latitude_deg, longitude_deg, municipality FROM AEROPORTS WHERE latitude_deg IS NOT NULL AND longitude_deg IS NOT NULL LIMIT 200");
+        while ($row = $stmtAll->fetch(PDO::FETCH_ASSOC)) {
+            $aeroports[$row['ident']] = [
+                'latitude_deg' => $row['latitude_deg'],
+                'longitude_deg' => $row['longitude_deg'],
+                'municipality' => $row['municipality'] ?: ''
+            ];
+            // fallback counts = 0 (aucune visite pour le pilote)
+            $airport_counts[$row['ident']] = $airport_counts[$row['ident']] ?? 0;
+        }
+    } catch (PDOException $e) {
+        // ignore error, carte restera vide
+    }
+}
+
 
 include __DIR__ . '/../includes/header.php';
 include __DIR__ . '/../includes/menu_logged.php';
 ?>
 
 <main>
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <h2><?= t('flights_title') ?> (<?= $totalFlights ?>)</h2>
     <form method="get" action="flights.php" class="filters-form">
         <label for="immat"><?= t('flights_filter_immat') ?>:</label>
@@ -267,6 +294,11 @@ include __DIR__ . '/../includes/menu_logged.php';
             </div>
         </div>
     <?php endif; ?>
+        <!-- Carte regroupant tous les aéroports visités -->
+        <div style="margin-top:24px;padding:12px;background:#fff;border-radius:8px;box-shadow:0 1px 6px rgba(0,0,0,0.04);">
+            <h3 style="margin:6px 0 12px;"><?= t('flights_map_title') ?></h3>
+            <div id="flights-map" style="width:100%;height:420px;border:1px solid #e6e6e6;border-radius:6px;"></div>
+        </div>
 </main>
 
 <script>
@@ -274,6 +306,59 @@ var map;
 
 // Synchronisation du scroll horizontal de l'en-tête (modèle tableau_vols.php)
 document.addEventListener('DOMContentLoaded', function() {
+    // Data for the page map (airports and visit counts)
+    var airports = <?= json_encode($aeroports, JSON_HEX_TAG) ?> || {};
+    var airportCounts = <?= json_encode($airport_counts ?? [], JSON_HEX_TAG) ?> || {};
+
+    // Initialize the flights page map showing all visited airports (with debug logs)
+    try {
+        console.log('flights: airports=', airports);
+        console.log('flights: airportCounts=', airportCounts);
+        if (!window.L || typeof L.map !== 'function') {
+            console.error('Leaflet not available (L missing)');
+            return;
+        }
+
+        var hasCoords = false;
+        var bounds = [];
+        var flightsMapDiv = document.getElementById('flights-map');
+        if (!flightsMapDiv) {
+            console.error('flights-map element not found');
+            return;
+        }
+
+        var flightsMap = L.map('flights-map');
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(flightsMap);
+
+        Object.keys(airports).forEach(function(icao) {
+            var a = airports[icao];
+            if (!a) return;
+            // Support different key names that might come from DB
+            var latVal = a.latitude_deg ?? a.lat ?? a.latitude ?? null;
+            var lngVal = a.longitude_deg ?? a.lon ?? a.lng ?? a.longitude ?? null;
+            if (!latVal || !lngVal) return;
+            var lat = parseFloat(latVal);
+            var lng = parseFloat(lngVal);
+            if (isNaN(lat) || isNaN(lng)) return;
+            hasCoords = true;
+            var visits = airportCounts[icao] || 0;
+            var popup = '<strong>' + icao + '</strong>' + (a.municipality ? ('<br>' + a.municipality) : '') + '<br>Visites: ' + visits;
+            L.marker([lat, lng]).addTo(flightsMap).bindPopup(popup);
+            bounds.push([lat, lng]);
+        });
+
+        if (hasCoords && bounds.length) {
+            flightsMap.fitBounds(bounds, {padding: [40, 40]});
+        } else {
+            // Default view if no coords
+            flightsMap.setView([48.8566, 2.3522], 5);
+            // leave the div as-is (don't clear innerHTML) so devs can inspect it
+        }
+    } catch (e) {
+        console.error('Erreur initialisation carte:', e);
+    }
     var scrollWrapper = document.querySelector('.table-scroll-wrapper');
     var headerTable = document.querySelector('.table-header-fixed');
     //if (scrollWrapper && headerTable) {

@@ -1525,5 +1525,7 @@ Aircraft exited maintenance: 1
     'api_error_no_gps' => 'No GPS trace found for this flight.',
     'api_error_gps_fetch' => 'Error retrieving GPS trace.',
     'api_error_live_flights' => 'Error retrieving live flights.',
+    // Flights page
+    'flights_map_title' => 'My map',
 ];
 ?>
