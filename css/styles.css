@@ -1280,7 +1280,9 @@ footer {
     padding: 16px;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    max-width: 1300px;
+    max-width: 1700px; /* increased to accommodate the extra form field (distance) */
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .admin-lines-inline-form {

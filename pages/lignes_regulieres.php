@@ -122,18 +122,20 @@ include __DIR__ . '/../includes/menu_logged.php';
                 <th><?= t('lignes_table_dep') ?></th>
                 <th><?= t('lignes_table_arr') ?></th>
                 <th><?= t('lignes_table_type') ?></th>
+                <th><?= t('lignes_table_distance') ?></th>
                 <th></th>
             </tr>
         </thead>
         <tbody>
             <?php if (count($lines) === 0): ?>
-                <tr><td colspan="4"><?= t('lignes_no_results') ?></td></tr>
+                <tr><td colspan="5"><?= t('lignes_no_results') ?></td></tr>
             <?php else: ?>
                 <?php foreach ($lines as $line): ?>
                     <tr>
                         <td><?= htmlspecialchars($line['icao_dep']) ?></td>
                         <td><?= htmlspecialchars($line['icao_arr']) ?></td>
                         <td><?= htmlspecialchars($line['type_label'] ?? '') ?></td>
+                        <td><?= is_null($line['distance']) ? '' : htmlspecialchars((int)$line['distance']) ?></td>
                         <td>
                             <a href="reserver_ligne.php?ligne_id=<?= urlencode($line['id']) ?>"><?= t('lignes_reserver_link') ?></a>
                         </td>

@@ -15,8 +15,28 @@ $action = $_POST['action'] ?? ($_GET['action'] ?? '');
 if ($action === 'liberer' && isset($_GET['id'])) {
     $avion_id = intval($_GET['id']);
     try {
+        // Récupérer l'immatriculation avant la mise à jour
+        $stmtImmat = $pdo->prepare("SELECT immat FROM FLOTTE WHERE id = :id LIMIT 1");
+        $stmtImmat->execute(['id' => $avion_id]);
+        $rowImmat = $stmtImmat->fetch(PDO::FETCH_ASSOC);
+        $immat_to_free = $rowImmat['immat'] ?? null;
+
         $stmt = $pdo->prepare("UPDATE FLOTTE SET en_vol = 0, reservee = 0 WHERE id = :id");
         $stmt->execute(['id' => $avion_id]);
+
+        // Si une immatriculation est trouvée, supprimer l'éventuelle entrée dans Live_FLIGHTS
+        if (!empty($immat_to_free)) {
+            $logFile = dirname(__DIR__) . '/scripts/logs/admin_flotte.log';
+            try {
+                $del = $pdo->prepare("DELETE FROM Live_FLIGHTS WHERE Avion = :immat");
+                $del->execute(['immat' => $immat_to_free]);
+                // Journaliser la suppression (même si aucune ligne n'a été trouvée)
+                logMsg("Live_FLIGHTS supprimé pour immat={$immat_to_free}", $logFile);
+            } catch (PDOException $e) {
+                // Ne pas empêcher la libération si la suppression Live_FLIGHTS échoue
+                logMsg("Échec suppression Live_FLIGHTS pour immat={$immat_to_free} : " . $e->getMessage(), $logFile);
+            }
+        }
         $_SESSION['flash_message'] = t('admin_flotte_success_liberer');
         header('Location: admin_flotte.php');
         exit;

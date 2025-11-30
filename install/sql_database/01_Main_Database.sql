@@ -230,6 +230,7 @@ CREATE TABLE IF NOT EXISTS `LIGNES_REGULIERES` (
   `icao_dep` varchar(8) COLLATE utf8mb4_general_ci NOT NULL,
   `icao_arr` varchar(8) COLLATE utf8mb4_general_ci NOT NULL,
   `type_ligne` int NOT NULL DEFAULT '1',
+  `distance` decimal(7,2) DEFAULT NULL COMMENT 'distance in nautical miles',
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),

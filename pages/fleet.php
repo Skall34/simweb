@@ -142,11 +142,11 @@ include __DIR__ . '/../includes/menu_logged.php';
                         t('fleet_detail_localisation') => $avion['localisation'],
                         t('fleet_detail_hub') => $avion['hub'],
                         t('fleet_detail_statut') => $avion['status'],
-                        t('fleet_detail_etat') => $avion['etat'],
+                        t('fleet_detail_etat') => $avion['etat']. ' %',
                         t('fleet_detail_last_user') => $avion['pilote_callsign'] ?? t('fleet_text_na'),
                         t('fleet_detail_fuel') => $avion['fuel_restant'],
                         t('fleet_detail_compteur') => $avion['compteur_immo'],
-                        t('fleet_detail_en_vol') => $avion['en_vol'],
+                        t('fleet_detail_en_vol') => (isset($avion['en_vol']) && (int)$avion['en_vol'] === 1) ? t('fleet_text_yes') : t('fleet_text_no'),
                         t('fleet_detail_reserve') => (isset($avion['reservee']) && (int)$avion['reservee'] === 1) ? t('fleet_text_yes') : t('fleet_text_no'),
                         t('fleet_detail_last_flight') => $dernierVol,
                         t('fleet_detail_date_achat') => (!empty($avion['date_achat'] ?? '') && preg_match('/^\d{4}-\d{2}-\d{2}$/', $avion['date_achat'] ?? '')) ? (implode('-', array_reverse(explode('-', $avion['date_achat']))) ) : ($avion['date_achat'] ?? ''),
@@ -187,11 +187,13 @@ include __DIR__ . '/../includes/menu_logged.php';
                             }
                             ?>
                         </td>
-                        <td><?= htmlspecialchars($avion['etat'] ?? '') ?></td>
+                        <td><?= htmlspecialchars(($avion['etat'] ?? '') . ' %') ?></td>
                         <td><?= htmlspecialchars(($avion['pilote_callsign'] ?? t('fleet_text_na')) ?: '') ?></td>
                         <td><?= htmlspecialchars($avion['fuel_restant'] ?? '') ?></td>
                         <td><?= htmlspecialchars($dernierVol ?? '') ?></td>
-                        <td><?= htmlspecialchars($avion['en_vol'] ?? '') ?></td>
+                        <td>
+                            <?= (isset($avion['en_vol']) && (int)$avion['en_vol'] === 1) ? t('fleet_text_yes') : t('fleet_text_no') ?>
+                        </td>
                         <td><?php
                             $res = $avion['reservee'] ?? null;
                             if ($res === null || $res === '') {
