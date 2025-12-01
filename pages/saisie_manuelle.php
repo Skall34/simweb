@@ -149,31 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                     $erreurs = array_merge($erreurs, $erreurs_proc);
                 } else {
-                    // Insertion en base (FROM_ACARS processed = 1)
-                    $stmt = $pdo->prepare("INSERT INTO FROM_ACARS (
-                        horodateur, callsign, immatriculation, departure_icao, departure_fuel, departure_time,
-                        arrival_icao, arrival_fuel, arrival_time, payload, commentaire, note_du_vol, mission, processed, created_at
-                    ) VALUES (
-                        :horodateur, :callsign, :immat, :dep_icao, :dep_fuel, :dep_time,
-                        :arr_icao, :arr_fuel, :arr_time, :payload, :commentaire, :note, :mission, 1, NOW()
-                    )");
-
-                    $stmt->execute([
-                        'horodateur'   => $horodateur,
-                        'callsign'     => $callsign,
-                        'immat'        => $immat,
-                        'dep_icao'     => $departure_icao,
-                        'dep_fuel'     => $departure_fuel,
-                        'dep_time'     => $departure_time,
-                        'arr_icao'     => $arrival_icao,
-                        'arr_fuel'     => $arrival_fuel,
-                        'arr_time'     => $arrival_time,
-                        'payload'      => $payload,
-                        'commentaire'  => $commentaire,
-                        'note'         => $note,
-                        'mission'      => $mission
-                    ]);
-
+                   
                     // Traitement métier (fret, coûts, carnet, flotte, finances, usure)
                     if ($payload > 0 && function_exists('deduireFretDepart')) {
                         $fret_transporte = deduireFretDepart($departure_icao, $payload, $logFile);
