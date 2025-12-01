@@ -679,9 +679,8 @@ return [
     'lignes_statut_in_flight' => 'En vuelo',
     'lignes_statut_reserved' => 'Reservado',
     'lignes_reservations_empty' => 'No hay reservas en curso.',
-    'lignes_map_title' => 'Mapa de líneas regulares',
-    'lignes_map_note' => 'Use los controles de Google Maps para hacer zoom y ver detalles.',
-
+    'lignes_map_title' => 'Mapa de líneas regulares. Introduce un ICAO de salida para mostrar las rutas asociadas.',
+   
     // --- Pages : Fleet ---
     'fleet_title' => 'Lista de la flota',
     'fleet_count' => 'Tenemos {count} aeronaves activas',

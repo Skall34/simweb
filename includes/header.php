@@ -19,6 +19,8 @@ require_once __DIR__ . '/../lang.php';
     <title><?= t('site_title'); ?></title>
     <link rel="stylesheet" href="/css/styles.css">
     <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-16x16.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 </head>
 <body>
 <header>
