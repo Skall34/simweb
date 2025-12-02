@@ -15,17 +15,17 @@ require_once __DIR__ . '/PHPMailer/SMTP.php';
 require_once __DIR__ . '/PHPMailer/Exception.php';
 
 function sendSummaryMail($subject, $body, $to = null) {
-    // Vérifier si les constantes SMTP sont définies
+    // Verifier si les constantes SMTP sont definies
     if (!defined('SMTP_HOST') || !defined('SMTP_USERNAME') || !defined('SMTP_PASSWORD')) {
-        error_log('Mail non envoyé : configuration SMTP manquante (config.php non configuré)');
+        error_log('Mail non envoye : configuration SMTP manquante (config.php non configure)');
         return 'Configuration SMTP manquante';
     }
     
-    // Si aucun destinataire spécifié, utiliser l'admin
+    // Si aucun destinataire specifie, utiliser l'admin
     if ($to === null) {
         if (!defined('VA_ADMIN_EMAIL')) {
-            error_log('Mail non envoyé : VA_ADMIN_EMAIL non défini');
-            return 'Email administrateur non configuré';
+            error_log('Mail non envoye : VA_ADMIN_EMAIL non defini');
+            return 'Email administrateur non configure';
         }
         $to = VA_ADMIN_EMAIL;
     }
@@ -46,23 +46,27 @@ function sendSummaryMail($subject, $body, $to = null) {
         $mail->addAddress($to);
         $mail->Subject = $subject;
         $mail->CharSet = 'UTF-8';
-        $mail->Encoding = '8bit';
-        $mail->WordWrap = 70; // Limiter longueur des lignes
         
         // Envoi en HTML uniquement si le corps contient des balises HTML
         if (preg_match('/<[^>]+>/', $body)) {
             $mail->isHTML(true);
+            $mail->Encoding = 'base64';
             $mail->Body = $body;
-            $mail->AltBody = strip_tags($body);
+            // AltBody sans balises ni espaces multiples
+            $altBody = strip_tags($body);
+            $altBody = preg_replace('/\s+/', ' ', $altBody);
+            $mail->AltBody = trim($altBody);
         } else {
+            // Texte brut : encodage quoted-printable comme l'API qui fonctionne
             $mail->isHTML(false);
+            $mail->Encoding = 'quoted-printable';
             $mail->Body = $body;
         }
         
         $mail->send();
         return true;
     } catch (Exception $e) {
-        error_log('Erreur lors de l\'envoi du mail récapitulatif : ' . $e->getMessage());
+        error_log('Erreur lors de l\'envoi du mail recapitulatif : ' . $e->getMessage());
         return $e->getMessage();
     }
 }

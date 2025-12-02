@@ -142,7 +142,7 @@ foreach ($pilotes as $index => $pilote) {
         }
         $mailResult = sendSummaryMail($subject, $message, $to);
         if ($mailResult === true || $mailResult === null) {
-            logMsg("[TRACE] Mail de salaire envoyé à $to", __DIR__ . '/logs/paiement_salaires.log');
+            logMsg("[TRACE] Mail de salaire envoye a $to", __DIR__ . '/logs/paiement_salaires.log');
         } else {
             logMsg("[ERREUR] Envoi mail salaire à $to : $mailResult", __DIR__ . '/logs/paiement_salaires.log');
         }
@@ -173,7 +173,7 @@ if (!empty($recap) && isset($total_salaires) && $total_salaires > 0) {
 }
 logMsg('[SALAIRE] Fin du script de paiement des salaires', __DIR__ . '/logs/paiement_salaires.log');
 echo "Paiement des salaires terminé.";
-// Envoi du mail récapitulatif à l'administrateur
+// Envoi du mail recapitulatif a l'administrateur
 if (!empty($recap)) {
     $subject = t('script_salary_recap_subject');
     $maxLines = 50;
@@ -185,9 +185,9 @@ if (!empty($recap)) {
     $body .= t('script_salary_recap_signature');
     $mailResult = sendSummaryMail($subject, $body, VA_ADMIN_EMAIL);
     if ($mailResult === true || $mailResult === null) {
-        logMsg("[TRACE] Mail récapitulatif des salaires envoyé à " . VA_ADMIN_EMAIL, __DIR__ . '/logs/paiement_salaires.log');
+        logMsg("[TRACE] Mail recapitulatif des salaires envoye a " . VA_ADMIN_EMAIL, __DIR__ . '/logs/paiement_salaires.log');
     } else {
-        logMsg("[ERREUR] Envoi mail récapitulatif des salaires à " . VA_ADMIN_EMAIL . " : $mailResult", __DIR__ . '/logs/paiement_salaires.log');
+        logMsg("[ERREUR] Envoi mail recapitulatif des salaires a " . VA_ADMIN_EMAIL . " : $mailResult", __DIR__ . '/logs/paiement_salaires.log');
     }
 } else {
     $subject = t('script_salary_recap_subject');
@@ -196,8 +196,8 @@ if (!empty($recap)) {
     $body .= t('script_salary_recap_signature');
     $mailResult = sendSummaryMail($subject, $body, VA_ADMIN_EMAIL);
     if ($mailResult === true || $mailResult === null) {
-        logMsg("[TRACE] Mail récapitulatif (aucun salaire) envoyé à " . VA_ADMIN_EMAIL, __DIR__ . '/logs/paiement_salaires.log');
+        logMsg("[TRACE] Mail recapitulatif (aucun salaire) envoye a " . VA_ADMIN_EMAIL, __DIR__ . '/logs/paiement_salaires.log');
     } else {
-        logMsg("[ERREUR] Envoi mail récapitulatif (aucun salaire) à " . VA_ADMIN_EMAIL . " : $mailResult", __DIR__ . '/logs/paiement_salaires.log');
+        logMsg("[ERREUR] Envoi mail recapitulatif (aucun salaire) a " . VA_ADMIN_EMAIL . " : $mailResult", __DIR__ . '/logs/paiement_salaires.log');
     }
 }

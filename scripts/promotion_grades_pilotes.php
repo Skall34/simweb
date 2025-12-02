@@ -77,14 +77,14 @@ foreach ($pilotes as $pilote) {
         $message .= t('script_promotion_team');
         $mailResult = sendSummaryMail($subject, $message, $to);
         if ($mailResult === true || $mailResult === null) {
-            logMsg("Mail de promotion envoyé à $to", __DIR__ . '/logs/promotion_grades.log');
+            logMsg("Mail de promotion envoye a $to", __DIR__ . '/logs/promotion_grades.log');
         } else {
-            logMsg("Erreur lors de l'envoi du mail de promotion à $to : $mailResult", __DIR__ . '/logs/promotion_grades.log');
+            logMsg("Erreur lors de l'envoi du mail de promotion a $to : $mailResult", __DIR__ . '/logs/promotion_grades.log');
         }
     }
 }
 
-// Envoi d'un mail récapitulatif à l'administrateur
+// Envoi d'un mail recapitulatif a l'administrateur
 if (!empty($promotions)) {
     $subject = t('script_promotion_recap_subject');
     $body = t('script_promotion_recap_greeting') . "<br><br>";
@@ -92,9 +92,9 @@ if (!empty($promotions)) {
     $body .= t('script_promotion_recap_signature');
     $mailResult = sendSummaryMail($subject, $body, VA_ADMIN_EMAIL);
     if ($mailResult === true || $mailResult === null) {
-        logMsg("Mail récapitulatif envoyé à " . VA_ADMIN_EMAIL, __DIR__ . '/logs/promotion_grades.log');
+        logMsg("Mail recapitulatif envoye a " . VA_ADMIN_EMAIL, __DIR__ . '/logs/promotion_grades.log');
     } else {
-        logMsg("Erreur lors de l'envoi du mail récapitulatif : $mailResult", __DIR__ . '/logs/promotion_grades.log');
+        logMsg("Erreur lors de l'envoi du mail recapitulatif : $mailResult", __DIR__ . '/logs/promotion_grades.log');
     }
 } else {
     $subject = t('script_promotion_recap_subject');

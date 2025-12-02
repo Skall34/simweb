@@ -60,7 +60,7 @@ try {
     }
     logMsg($msg, $logFile);
     echo $msg . "\n";
-    // Envoi du mail récapitulatif enrichi
+    // Envoi du mail recapitulatif enrichi
     if ($mailSummaryEnabled && function_exists('sendSummaryMail')) {
         $subject = str_replace('{date}', date('d/m/Y H:i'), t('script_fret_mail_subject'));
         $body = t('script_fret_mail_greeting') . "\n\n" . t('script_fret_mail_intro');
@@ -71,9 +71,9 @@ try {
         $to = VA_ADMIN_EMAIL;
         $mailResult = sendSummaryMail($subject, $body, $to);
         if ($mailResult === true || $mailResult === null) {
-            logMsg("Mail récapitulatif envoyé à $to", $logFile);
+            logMsg("Mail recapitulatif envoye a $to", $logFile);
         } else {
-            logMsg("Erreur lors de l'envoi du mail récapitulatif : $mailResult", $logFile);
+            logMsg("Erreur lors de l'envoi du mail recapitulatif : $mailResult", $logFile);
         }
     }
 } catch (PDOException $e) {

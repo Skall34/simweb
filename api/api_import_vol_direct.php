@@ -217,14 +217,18 @@ try {
     deduireUsure($immat, $note, $logFile);
     logMsg("[api_import_vol_direct] Usure avion $immat, note=$note", $logFile);
     
-    // 15. Envoi du mail récapitulatif enrichi
+    // 15. Envoi du mail recapitulatif enrichi
     if ($mailSummaryEnabled && function_exists('sendSummaryMail')) {
         $subject = "[SimWeb] Rapport import vol direct ACARS - " . date('d/m/Y H:i');
         $body = "Bonjour,\r\n\r\nImport d'un vol ACARS direct termine.\r\n\r\n";
-        $body .= "Pilote : " . htmlspecialchars($callsign, ENT_QUOTES, 'UTF-8') . "\r\n";
-        $body .= "Trajet : " . htmlspecialchars($departure_icao, ENT_QUOTES, 'UTF-8') . " -> " . htmlspecialchars($arrival_icao, ENT_QUOTES, 'UTF-8') . "\r\n";
-        $body .= "Immatriculation : " . htmlspecialchars($immat, ENT_QUOTES, 'UTF-8') . "\r\n";
-        $body .= "Mission : " . htmlspecialchars($mission, ENT_QUOTES, 'UTF-8') . "\r\n";
+        // Nettoyer les caracteres speciaux pour eviter problemes SMTP
+        $callsign_clean = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $callsign);
+        $immat_clean = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $immat);
+        $mission_clean = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $mission);
+        $body .= "Pilote : " . $callsign_clean . "\r\n";
+        $body .= "Trajet : " . $departure_icao . " -> " . $arrival_icao . "\r\n";
+        $body .= "Immatriculation : " . $immat_clean . "\r\n";
+        $body .= "Mission : " . $mission_clean . "\r\n";
         // Formater payload avec une virgule comme séparateur décimal et ajouter l'unité Kg
         $payload_fmt = number_format(floatval($payload), 2, ',', ' ');
         $body .= "Payload : {$payload_fmt} Kg\r\n";

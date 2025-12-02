@@ -96,7 +96,7 @@ foreach (glob($logDir . "logs_*.zip") as $zip) {
 }
 logMsg('[TRACE] Fin de la rotation des logs', $logFile);
 
-// Envoi du mail récapitulatif
+// Envoi du mail recapitulatif
 if ($mailSummaryEnabled && function_exists('sendSummaryMail')) {
     $subject = str_replace('{date}', date('d/m/Y H:i'), t('script_rotate_mail_subject'));
     $body = t('script_rotate_mail_intro') . "\n";
@@ -118,9 +118,9 @@ if ($mailSummaryEnabled && function_exists('sendSummaryMail')) {
     $to = VA_ADMIN_EMAIL;
     $mailResult = sendSummaryMail($subject, $body, $to);
     if ($mailResult === true || $mailResult === null) {
-        logMsg("Mail récapitulatif envoyé à $to", $logFile);
+        logMsg("Mail recapitulatif envoye a $to", $logFile);
     } else {
-        logMsg("Erreur lors de l'envoi du mail récapitulatif : $mailResult", $logFile);
+        logMsg("Erreur lors de l'envoi du mail recapitulatif : $mailResult", $logFile);
     }
 }
 ?>

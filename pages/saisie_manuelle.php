@@ -187,13 +187,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                     if (function_exists('deduireUsure')) deduireUsure($immat, $note, $logFile);
 
-                    // Mail récapitulatif (si activé)
+                    // Mail recapitulatif (si active)
                     if ($mailSummaryEnabled && function_exists('sendSummaryMail')) {
                         $subject = "[SimWeb] Rapport import vol manuel - " . date('d/m/Y H:i');
-                        $body = "Import manuel d'un vol terminé.\n\n";
-                        $body .= "Pilote : $callsign\n";
+                        $body = "Import manuel d'un vol termine.\n\n";
+                        // Nettoyer les caracteres speciaux pour eviter problemes SMTP
+                        $callsign_clean = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $callsign);
+                        $immat_clean = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $immat);
+                        $body .= "Pilote : $callsign_clean\n";
                         $body .= "Trajet : $departure_icao -> $arrival_icao\n";
-                        $body .= "Immatriculation : $immat\n";
+                        $body .= "Immatriculation : $immat_clean\n";
                         $payload_fmt = number_format(floatval($payload), 2, ',', ' ');
                         $body .= "Payload : {$payload_fmt} Kg\n";
                         $cout_vol_fmt = number_format(floatval($cout_vol), 2, ',', ' ');
@@ -201,9 +204,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $to = VA_ADMIN_EMAIL;
                         $mailResult = sendSummaryMail($subject, $body, $to);
                         if ($mailResult === true || $mailResult === null) {
-                            logMsg("[saisie_manuelle] Mail récapitulatif envoyé à $to", $logFile);
+                            logMsg("[saisie_manuelle] Mail recapitulatif envoye a $to", $logFile);
                         } else {
-                            logMsg("[saisie_manuelle] Erreur lors de l'envoi du mail récapitulatif : $mailResult", $logFile);
+                            logMsg("[saisie_manuelle] Erreur lors de l'envoi du mail recapitulatif : $mailResult", $logFile);
                         }
                     }
 

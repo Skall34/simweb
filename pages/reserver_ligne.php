@@ -90,25 +90,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             $pdo->commit();
             $message = t('reserver_ligne_success');
-            // send notification mail to admin
+            // send notification mail to admin (texte brut comme l'API)
             try {
                 $callsign = $_SESSION['user']['callsign'] ?? '';
-                $subject = "Nouvelle réservation : " . $immat . " (" . htmlspecialchars($ligne['icao_dep']) . "→" . htmlspecialchars($ligne['icao_arr']) . ")";
-                $body = "<h3>Nouvelle réservation</h3>" .
-                        "<ul>" .
-                        "<li><strong>Pilote :</strong> " . htmlspecialchars($callsign) . " (id: " . intval($pilote_id) . ")</li>" .
-                        "<li><strong>Ligne :</strong> " . htmlspecialchars($ligne['icao_dep']) . " → " . htmlspecialchars($ligne['icao_arr']) . " (id: " . intval($ligne_id) . ")</li>" .
-                        "<li><strong>Appareil :</strong> " . htmlspecialchars($immat) . "</li>" .
-                        "<li><strong>Date :</strong> " . date('Y-m-d H:i:s') . "</li>" .
-                        "</ul>";
+                // Nettoyer les caracteres speciaux pour eviter problemes SMTP
+                $callsign_clean = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $callsign);
+                $immat_clean = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $immat);
+                $subject = "[SimWeb] Nouvelle reservation : " . $immat_clean . " (" . $ligne['icao_dep'] . " -> " . $ligne['icao_arr'] . ")";
+                $body = "Bonjour,\r\n\r\nUne nouvelle reservation a ete effectuee.\r\n\r\n";
+                $body .= "Pilote : " . $callsign_clean . " (id: " . $pilote_id . ")\r\n";
+                $body .= "Ligne : " . $ligne['icao_dep'] . " -> " . $ligne['icao_arr'] . " (id: " . $ligne_id . ")\r\n";
+                $body .= "Appareil : " . $immat_clean . "\r\n";
+                $body .= "Date : " . date('Y-m-d H:i:s') . "\r\n";
+                $body .= "\r\n\r\nCeci est un message automatique.\r\n";
                 $mailResult = sendSummaryMail($subject, $body);
                 if ($mailResult !== true) {
-                    logMsg('Envoi mail réservation échoué: ' . $mailResult, __DIR__ . '/../scripts/logs/reservations.log');
+                    logMsg('Envoi mail reservation echoue: ' . $mailResult, __DIR__ . '/../scripts/logs/reservations.log');
                 } else {
-                    logMsg('Mail de réservation envoyé pour immat=' . $immat, __DIR__ . '/../scripts/logs/reservations.log');
+                    logMsg('Mail de reservation envoye pour immat=' . $immat, __DIR__ . '/../scripts/logs/reservations.log');
                 }
             } catch (Exception $e) {
-                logMsg('Exception envoi mail réservation: ' . $e->getMessage(), __DIR__ . '/../scripts/logs/reservations.log');
+                logMsg('Exception envoi mail reservation: ' . $e->getMessage(), __DIR__ . '/../scripts/logs/reservations.log');
             }
             // set a session flash and redirige vers la liste pour afficher le message de confirmation
             $_SESSION['flash_reserved'] = 1;
