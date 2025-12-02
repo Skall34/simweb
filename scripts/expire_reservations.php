@@ -44,51 +44,50 @@ try {
     $expiredCount = count($rows);
     echo "Expired " . $expiredCount . " reservations (threshold: $threshold)\n";
 
-    // Envoi d'un mail récapitulatif à l'administrateur
-    $subject = "[SimWeb] Expiration de réservations - $expiredCount expirées";
-    // construire le détail si nécessaire
-    $detailsHtml = '';
+    // Envoi d'un mail récapitulatif à l'administrateur (texte brut comme l'API)
+    $subject = "[SimWeb] Expiration de reservations - $expiredCount expirees";
+    $body = "Bonjour,\r\n\r\nLe script d'expiration des reservations a ete execute.\r\n\r\n";
+    $body .= "Nombre de reservations expirees : $expiredCount\r\n";
+    $body .= "Seuil utilise : $threshold\r\n";
+    
     if ($expiredCount > 0) {
+        $body .= "\r\nDetails des reservations expirees :\r\n";
+        $body .= "----------------------------------------\r\n";
         // prepare statements for lookup
         $stmtPilote = $pdo->prepare('SELECT callsign, nom, prenom FROM PILOTES WHERE id = ?');
         $stmtLigne = $pdo->prepare('SELECT icao_dep, icao_arr FROM LIGNES_REGULIERES WHERE id = ?');
-        $detailsHtml .= '<table border="1" cellpadding="6" style="border-collapse:collapse;margin-top:8px;">';
-        $detailsHtml .= '<thead><tr><th>Immat.</th><th>Pilote (id / callsign)</th><th>Ligne</th><th>Date réservation</th></tr></thead><tbody>';
+        
         foreach ($expiredDetails as $d) {
-            $immat = htmlspecialchars($d['immat'] ?? '');
+            $immat = $d['immat'] ?? 'N/A';
             $piloteInfo = 'N/A';
             if (!empty($d['pilote_id'])) {
                 $stmtPilote->execute([$d['pilote_id']]);
                 $p = $stmtPilote->fetch(PDO::FETCH_ASSOC);
                 if ($p) {
-                    $piloteInfo = htmlspecialchars($d['pilote_id'] . ' / ' . ($p['callsign'] ?? ($p['nom'] . ' ' . $p['prenom'] ?? '')));
+                    $cs = $p['callsign'] ?? ($p['nom'] . ' ' . $p['prenom']);
+                    $piloteInfo = $d['pilote_id'] . ' / ' . $cs;
                 } else {
-                    $piloteInfo = htmlspecialchars($d['pilote_id']);
+                    $piloteInfo = $d['pilote_id'];
                 }
             }
             $ligneLabel = 'N/A';
             if (!empty($d['ligne_id'])) {
                 $stmtLigne->execute([$d['ligne_id']]);
                 $lr = $stmtLigne->fetch(PDO::FETCH_ASSOC);
-                if ($lr) $ligneLabel = htmlspecialchars(($lr['icao_dep'] ?? '---') . ' → ' . ($lr['icao_arr'] ?? '---'));
+                if ($lr) $ligneLabel = $lr['icao_dep'] . ' -> ' . $lr['icao_arr'];
             }
             $dateResRaw = $d['date_reservation'] ?? '';
             try {
                 $dtres = new DateTime($dateResRaw);
-                $dateRes = htmlspecialchars($dtres->format('d-m-Y H:i'));
+                $dateRes = $dtres->format('d/m/Y H:i');
             } catch (Exception $e) {
-                $dateRes = htmlspecialchars($dateResRaw);
+                $dateRes = $dateResRaw;
             }
-            $detailsHtml .= "<tr><td>$immat</td><td>$piloteInfo</td><td>$ligneLabel</td><td>$dateRes</td></tr>";
+            $body .= "- Immat: $immat | Pilote: $piloteInfo | Ligne: $ligneLabel | Date: $dateRes\r\n";
         }
-        $detailsHtml .= '</tbody></table>';
     }
-
-    $body = "Bonjour,<br><br>Le script d'expiration des réservations a été exécuté.<br>Nombre de réservations expirées : <strong>$expiredCount</strong>.<br><br>Seuil utilisé : $threshold";
-    if ($detailsHtml !== '') {
-        $body .= "<br><br>Détails des réservations expirées :<br>" . $detailsHtml;
-    }
-    $body .= "<br><br>Cordialement,<br>SimWeb";
+    
+    $body .= "\r\n\r\nCeci est un message automatique.\r\n";
 
     // Only send a summary email if at least one reservation was expired.
     if ($expiredCount <= 0) {
