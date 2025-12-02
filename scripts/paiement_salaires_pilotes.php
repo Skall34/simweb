@@ -14,6 +14,7 @@
  * - Logue chaque étape dans logs/paiement_salaires.log
  */
 
+require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/mail_utils.php';
 require_once __DIR__ . '/../includes/log_func.php';

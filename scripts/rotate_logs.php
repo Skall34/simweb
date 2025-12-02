@@ -25,6 +25,7 @@
  - Automatisé avec GitHub Copilot
 -------------------------------------------------------------
 */
+require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/log_func.php';
 require_once __DIR__ . '/../includes/mail_utils.php';
 

@@ -13,6 +13,7 @@
  *   - Log des promotions dans le fichier dédié
  *   - Envoi d'un mail récapitulatif à l'administrateur
  */
+require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/mail_utils.php';
 require_once __DIR__ . '/../includes/log_func.php';

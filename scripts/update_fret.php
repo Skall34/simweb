@@ -23,11 +23,11 @@
 -------------------------------------------------------------
 */
 $mailSummaryEnabled = true; // Active l'envoi du mail récapitulatif
+require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/log_func.php';
 require_once __DIR__ . '/../includes/mail_utils.php';
 require_once __DIR__ . '/../lang.php';
-require_once __DIR__ . '/../includes/config.php';
 if (!isset($_SESSION['lang'])) $_SESSION['lang'] = VA_DEFAULT_LANGUAGE;
 $logFile = __DIR__ . '/logs/update_fret.log';
 
