@@ -42,81 +42,32 @@ try {
     }
 
     $expiredCount = count($rows);
+    $timestamp = date('Y-m-d H:i:s');
     echo "Expired " . $expiredCount . " reservations (threshold: $threshold)\n";
-
-    // Envoi d'un mail recapitulatif a l'administrateur (texte brut comme l'API)
-    $subject = "[SimWeb] Expiration de reservations - $expiredCount expirees";
-    $body = "Bonjour,\r\n\r\nLe script d'expiration des reservations a ete execute.\r\n\r\n";
-    $body .= "Nombre de reservations expirees : $expiredCount\r\n";
-    $body .= "Seuil utilise : $threshold\r\n";
-    
-    if ($expiredCount > 0) {
-        $body .= "\r\nDetails des reservations expirees :\r\n";
-        $body .= "----------------------------------------\r\n";
-        // prepare statements for lookup
-        $stmtPilote = $pdo->prepare('SELECT callsign, nom, prenom FROM PILOTES WHERE id = ?');
-        $stmtLigne = $pdo->prepare('SELECT icao_dep, icao_arr FROM LIGNES_REGULIERES WHERE id = ?');
-        
-        foreach ($expiredDetails as $d) {
-            $immat = $d['immat'] ?? 'N/A';
-            $piloteInfo = 'N/A';
-            if (!empty($d['pilote_id'])) {
-                $stmtPilote->execute([$d['pilote_id']]);
-                $p = $stmtPilote->fetch(PDO::FETCH_ASSOC);
-                if ($p) {
-                    $cs = $p['callsign'] ?? ($p['nom'] . ' ' . $p['prenom']);
-                    // Nettoyer les caractères spéciaux pour éviter les problèmes SMTP
-                    $cs = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $cs);
-                    $piloteInfo = $d['pilote_id'] . ' / ' . $cs;
-                } else {
-                    $piloteInfo = $d['pilote_id'];
-                }
-            }
-            $ligneLabel = 'N/A';
-            if (!empty($d['ligne_id'])) {
-                $stmtLigne->execute([$d['ligne_id']]);
-                $lr = $stmtLigne->fetch(PDO::FETCH_ASSOC);
-                if ($lr) $ligneLabel = $lr['icao_dep'] . ' -> ' . $lr['icao_arr'];
-            }
-            $dateResRaw = $d['date_reservation'] ?? '';
-            try {
-                $dtres = new DateTime($dateResRaw);
-                $dateRes = $dtres->format('d/m/Y H:i');
-            } catch (Exception $e) {
-                $dateRes = $dateResRaw;
-            }
-            $body .= "- Immat: $immat | Pilote: $piloteInfo | Ligne: $ligneLabel | Date: $dateRes\r\n";
-        }
-    }
-    
-    $body .= "\r\n\r\nCeci est un message automatique.\r\n";
+    logMsg("[$timestamp] Script execution - Threshold: $threshold - Expired count: $expiredCount", __DIR__ . '/logs/expire_reservations.log');
 
     // Only send a summary email if at least one reservation was expired.
     if ($expiredCount <= 0) {
-        echo "Aucune reservation expiree - aucun mail envoye.\n";
-    // logMsg('Aucune réservation expirée; pas d\'envoi de mail récapitulatif.', __DIR__ . '/logs/expire_reservations.log');
+        echo "Aucune reservation expiree.\n";
+        logMsg("[$timestamp] Aucune reservation expiree pour ce run", __DIR__ . '/logs/expire_reservations.log');
     } else {
-        // Diagnostic: log expired reservation IDs to help trace why mail may not be received
+        // Log detaille de chaque reservation expiree
         $expiredIds = array_map(function($x){ return $x['id']; }, $expiredDetails);
         $idsStr = implode(',', $expiredIds);
-        $debugMsg = 'Reservations expirées ids=[' . $idsStr . '] count=' . $expiredCount;
-        echo $debugMsg . "\n";
-    logMsg($debugMsg, __DIR__ . '/logs/expire_reservations.log');
-
-        // Log the recipient address used by sendSummaryMail
-        $recipient = VA_ADMIN_EMAIL;
-        $recMsg = 'Envoi mail recapitulatif vers: ' . $recipient;
-        echo $recMsg . "\n";
-    logMsg($recMsg, __DIR__ . '/logs/expire_reservations.log');
-
-        $mailResult = sendSummaryMail($subject, $body);
-        if ($mailResult !== true) {
-            logMsg('Erreur envoi mail expiration reservations: ' . print_r($mailResult, true), __DIR__ . '/logs/expire_reservations.log');
-            echo "Erreur envoi mail: " . print_r($mailResult, true) . "\n";
-        } else {
-            logMsg('Mail recapitulatif envoye (' . $expiredCount . ' expirees)', __DIR__ . '/logs/expire_reservations.log');
-            echo "Mail recapitulatif envoye.\n";
+        
+        // Log avec details pour chaque reservation
+        foreach ($expiredDetails as $d) {
+            $resId = $d['id'];
+            $immat = $d['immat'] ?? 'N/A';
+            $piloteId = $d['pilote_id'] ?? 'N/A';
+            $ligneId = $d['ligne_id'] ?? 'N/A';
+            $dateRes = $d['date_reservation'] ?? 'N/A';
+            logMsg("[$timestamp] Expired: ID=$resId | Immat=$immat | Pilote=$piloteId | Ligne=$ligneId | Reserved=$dateRes", __DIR__ . '/logs/expire_reservations.log');
         }
+        
+        $debugMsg = "[$timestamp] Total expirees: $expiredCount | IDs: [$idsStr] | Rapport quotidien sera envoye a minuit.";
+        echo $debugMsg . "\n";
+        logMsg($debugMsg, __DIR__ . '/logs/expire_reservations.log');
     }
 } catch (Exception $e) {
     echo "Error: " . $e->getMessage() . "\n";

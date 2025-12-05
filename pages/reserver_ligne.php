@@ -103,14 +103,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $body .= "Appareil : " . $immat_clean . "\r\n";
                 $body .= "Date : " . date('Y-m-d H:i:s') . "\r\n";
                 $body .= "\r\n\r\nCeci est un message automatique.\r\n";
+                
+                $timestamp = date('Y-m-d H:i:s');
+                logMsg("[$timestamp] Envoi mail reservation - Pilote: $callsign_clean - Ligne: {$ligne['icao_dep']}->{$ligne['icao_arr']} - Immat: $immat_clean", __DIR__ . '/../scripts/logs/reservations.log');
+                
                 $mailResult = sendSummaryMail($subject, $body);
                 if ($mailResult !== true) {
-                    logMsg('Envoi mail reservation echoue: ' . $mailResult, __DIR__ . '/../scripts/logs/reservations.log');
+                    logMsg("[$timestamp] ERREUR: Echec envoi mail reservation: $mailResult", __DIR__ . '/../scripts/logs/reservations.log');
                 } else {
-                    logMsg('Mail de reservation envoye pour immat=' . $immat, __DIR__ . '/../scripts/logs/reservations.log');
+                    logMsg("[$timestamp] SUCCESS: Mail reservation envoye avec succes", __DIR__ . '/../scripts/logs/reservations.log');
                 }
             } catch (Exception $e) {
-                logMsg('Exception envoi mail reservation: ' . $e->getMessage(), __DIR__ . '/../scripts/logs/reservations.log');
+                logMsg("[$timestamp] EXCEPTION: Erreur mail reservation: " . $e->getMessage(), __DIR__ . '/../scripts/logs/reservations.log');
             }
             // set a session flash and redirige vers la liste pour afficher le message de confirmation
             $_SESSION['flash_reserved'] = 1;

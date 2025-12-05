@@ -1542,5 +1542,90 @@ Appareils sortis de maintenance : 1
     'api_error_live_flights' => 'Erreur lors de la récupération des vols en cours.',
     // Flights page
     'flights_map_title' => 'Ma carte',
+
+    // ==================== EMAILS SCRIPTS ====================
+    
+    // Script: expire_reservations.php
+    'mail_expire_subject' => '[{VA_NAME}] Expiration de reservations - {count} expirees',
+    'mail_expire_body_greeting' => 'Bonjour,',
+    'mail_expire_body_intro' => 'Le script d\'expiration des reservations a ete execute.',
+    'mail_expire_body_count' => 'Nombre de reservations expirees : {count}',
+    'mail_expire_body_threshold' => 'Seuil utilise : {threshold}',
+    'mail_expire_body_details_title' => 'Details des reservations expirees :',
+    'mail_expire_body_separator' => '----------------------------------------',
+    'mail_expire_body_detail_line' => '- Immat: {immat} | Pilote: {pilote} | Ligne: {ligne} | Date: {date}',
+    'mail_expire_body_signature' => 'Ceci est un message automatique.',
+    'mail_expire_none' => 'Aucune reservation expiree - aucun mail envoye.',
+    
+    // Script: update_fret.php
+    'mail_fret_subject' => '[{VA_NAME}] Mise a jour du fret - {date}',
+    'mail_fret_greeting' => 'Bonjour,',
+    'mail_fret_intro' => 'La mise a jour automatique du fret s\'est terminee.',
+    'mail_fret_updated' => 'Aeroports mis a jour : {updated}',
+    'mail_fret_expected' => 'Attendus : {expected}',
+    'mail_fret_bounds' => 'Limites : min={min}, max={max}',
+    'mail_fret_coherence' => 'Coherence : {status}',
+    'mail_fret_coherence_ok' => 'OK',
+    'mail_fret_coherence_error' => 'ERREUR',
+    'mail_fret_signature' => 'Ceci est un message automatique.',
+    
+    // Script: rotate_logs.php
+    'mail_logs_subject' => '[{VA_NAME}] Rotation des logs - {date}',
+    'mail_logs_intro' => 'La rotation des logs s\'est terminee.',
+    'mail_logs_archived_title' => 'Fichiers archives :',
+    'mail_logs_no_archive' => 'Aucun fichier a archiver.',
+    'mail_logs_deleted_title' => 'Archives supprimees :',
+    'mail_logs_signature' => 'Ceci est un message automatique.',
+    
+    // Script: maintenance.php
+    'mail_maintenance_subject' => '[{VA_NAME}] Rapport maintenance flotte - {date}',
+    'mail_maintenance_greeting' => 'Bonjour,',
+    'mail_maintenance_intro' => 'La maintenance automatique de la flotte s\'est terminee avec succes.',
+    'mail_maintenance_in' => 'Appareils entres en maintenance : {count}',
+    'mail_maintenance_out' => 'Appareils sortis de maintenance : {count}',
+    'mail_maintenance_signature' => 'Ceci est un message automatique.',
+    
+    // Script: credit_mensualite.php
+    'mail_credit_subject' => '[{VA_NAME}] Rapport mensualites credit - {date}',
+    'mail_credit_greeting' => 'Bonjour,',
+    'mail_credit_intro' => 'Le traitement des mensualites credit s\'est termine avec succes.',
+    'mail_credit_updated' => 'Appareils mis a jour : {count}',
+    'mail_credit_alert' => '[ALERTE] Erreur de coherence detectee pour : {list}',
+    'mail_credit_signature' => 'Ceci est un message automatique.',
+    
+    // Script: assurance_mensuelle.php
+    'mail_insurance_subject' => '[{VA_NAME}] Rapport assurance mensuelle - {date}',
+    'mail_insurance_greeting' => 'Bonjour,',
+    'mail_insurance_intro' => 'Le traitement d\'assurance mensuelle s\'est termine.',
+    'mail_insurance_amount' => 'Montant preleve : {amount} {currency}',
+    'mail_insurance_base' => 'Base de calcul : {base} {currency} ({percent})',
+    'mail_insurance_balance' => 'Balance avant : {balance} {currency}',
+    'mail_insurance_signature' => 'Ceci est un message automatique.',
+    
+    // Script: promotion_grades_pilotes.php
+    'mail_promotion_subject' => 'Felicitations ! Promotion au grade de {grade}',
+    'mail_promotion_greeting' => 'Bonjour {firstname} {lastname},',
+    'mail_promotion_congrats' => 'Nous avons le plaisir de vous informer que vous avez ete promu(e) au grade de {grade} !',
+    'mail_promotion_continue' => 'Continuez ainsi et bons vols !',
+    'mail_promotion_team' => 'L\'equipe {VA_NAME}',
+    'mail_promotion_recap_subject' => '[{VA_NAME}] Rapport promotions pilotes',
+    'mail_promotion_recap_greeting' => 'Bonjour,',
+    'mail_promotion_recap_intro' => 'Voici le recapitulatif des promotions effectuees :',
+    'mail_promotion_recap_none' => 'Aucune promotion effectuee.',
+    'mail_promotion_recap_signature' => 'Cordialement,',
+    
+    // Script: paiement_salaires_pilotes.php
+    'mail_salary_subject' => 'Versement de votre salaire mensuel',
+    'mail_salary_greeting' => 'Bonjour {firstname},',
+    'mail_salary_hours' => 'Heures de vol ce mois-ci : {hours} heures',
+    'mail_salary_total' => 'Montant verse : {amount}',
+    'mail_salary_thanks' => 'Merci pour votre travail !',
+    'mail_salary_team' => 'L\'equipe {VA_NAME}',
+    'mail_salary_recap_subject' => '[{VA_NAME}] Rapport paiement salaires',
+    'mail_salary_recap_greeting' => 'Bonjour,',
+    'mail_salary_recap_intro' => 'Voici le recapitulatif des salaires verses (limite {max} premieres lignes) :',
+    'mail_salary_recap_total' => 'Total verse : {total}',
+    'mail_salary_recap_none' => 'Aucun salaire verse ce mois-ci.',
+    'mail_salary_recap_signature' => 'Cordialement,',
 ];
 ?>

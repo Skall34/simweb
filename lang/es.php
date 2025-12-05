@@ -1539,5 +1539,90 @@ Aeronaves que salieron de mantenimiento: 1
     'api_error_live_flights' => 'Error al recuperar vuelos en curso.',
     // Flights page
     'flights_map_title' => 'Mi mapa',
+
+    // === Traducciones de correos para scripts ===
+    
+    // expire_reservations.php emails
+    'mail_expire_subject' => 'Informe de vencimiento de reservas',
+    'mail_expire_body_greeting' => 'Hola,',
+    'mail_expire_body_intro' => 'El script ha procesado {count} reserva(s) vencida(s).',
+    'mail_expire_body_count' => 'Número de reservas vencidas: {count}',
+    'mail_expire_body_threshold' => 'Umbral de vencimiento: {threshold} horas',
+    'mail_expire_body_details_title' => 'Reservas vencidas:',
+    'mail_expire_body_separator' => '---',
+    'mail_expire_body_detail_line' => '- ID reserva {id} | Indicativo: {cs} | Línea: {dep} → {arr} | Matrícula: {immat} | Reservado el: {date}',
+    'mail_expire_body_signature' => 'Este es un mensaje automático de {VA_NAME}.',
+    'mail_expire_none' => 'No se encontraron reservas vencidas.',
+
+    // update_fret.php emails
+    'mail_fret_subject' => '[SimWeb] Informe de carga aeroportuaria - {date}',
+    'mail_fret_greeting' => 'Hola,',
+    'mail_fret_intro' => 'El procesamiento semanal de carga aeroportuaria ha finalizado.',
+    'mail_fret_updated' => 'Número de aeropuertos actualizados',
+    'mail_fret_expected' => 'esperados',
+    'mail_fret_bounds' => 'Límites utilizados',
+    'mail_fret_coherence' => 'Coherencia',
+    'mail_fret_coherence_ok' => 'OK',
+    'mail_fret_coherence_error' => 'INCOHERENTE',
+    'mail_fret_signature' => 'Este es un mensaje automático.',
+
+    // rotate_logs.php emails
+    'mail_logs_subject' => '[SimWeb] Informe de rotación de registros - {date}',
+    'mail_logs_intro' => 'Rotación de registros completada.',
+    'mail_logs_archived_title' => 'Archivos archivados:',
+    'mail_logs_no_archive' => 'No se archivaron registros este mes.',
+    'mail_logs_deleted_title' => 'Archivos eliminados (más de 1 año):',
+    'mail_logs_signature' => 'Este es un mensaje automático de {VA_NAME}.',
+
+    // maintenance.php emails
+    'mail_maintenance_subject' => '[SimWeb] Informe de mantenimiento de flota - {date}',
+    'mail_maintenance_greeting' => 'Hola,',
+    'mail_maintenance_intro' => 'El script nocturno de mantenimiento de flota ha finalizado.',
+    'mail_maintenance_in' => 'Aeronaves que entraron en mantenimiento',
+    'mail_maintenance_out' => 'Aeronaves que salieron de mantenimiento',
+    'mail_maintenance_signature' => 'Este es un mensaje automático de {VA_NAME}.',
+
+    // credit_mensualite.php emails
+    'mail_credit_subject' => '[SimWeb] Informe de cuotas de crédito - {date}',
+    'mail_credit_greeting' => 'Hola,',
+    'mail_credit_intro' => 'El procesamiento mensual de cuotas de crédito ha finalizado.',
+    'mail_credit_updated' => 'Aeronaves actualizadas: {count}',
+    'mail_credit_alert' => 'Se detectaron alertas durante el procesamiento (consulte los registros para más detalles).',
+    'mail_credit_signature' => 'Este es un mensaje automático de {VA_NAME}.',
+
+    // assurance_mensuelle.php emails
+    'mail_insurance_subject' => '[SimWeb] Informe de seguro mensual - {date}',
+    'mail_insurance_greeting' => 'Hola,',
+    'mail_insurance_intro' => 'El procesamiento mensual de seguro ha finalizado.',
+    'mail_insurance_amount' => 'Monto deducido: {amount} {currency}',
+    'mail_insurance_base' => 'Base de cálculo (saldo comercial): {balance} {currency}',
+    'mail_insurance_balance' => 'Nuevo saldo: {new_balance} {currency}',
+    'mail_insurance_signature' => 'Este es un mensaje automático de {VA_NAME}.',
+
+    // promotion_grades_pilotes.php emails
+    'mail_promotion_subject' => '¡Felicitaciones, has sido ascendido a {grade}!',
+    'mail_promotion_greeting' => 'Hola {firstname} {lastname},',
+    'mail_promotion_congrats' => 'Tu nuevo rango es {grade}.',
+    'mail_promotion_continue' => '¡Sigue volando para progresar aún más!',
+    'mail_promotion_team' => 'El equipo de {VA_NAME}',
+    'mail_promotion_recap_subject' => 'Informe de ascensos de rango',
+    'mail_promotion_recap_greeting' => 'Hola Administrador,',
+    'mail_promotion_recap_intro' => 'Aquí está la lista de ascensos realizados esta noche:',
+    'mail_promotion_recap_none' => 'No hubo ascensos de rango esta noche.',
+    'mail_promotion_recap_signature' => 'Este es un mensaje automático de {VA_NAME}.',
+
+    // paiement_salaires_pilotes.php emails
+    'mail_salary_subject' => 'Tu salario mensual',
+    'mail_salary_greeting' => 'Hola {firstname},',
+    'mail_salary_hours' => 'Volaste {hours} horas este mes.',
+    'mail_salary_total' => 'Tu salario total bien merecido es {amount} {currency}.',
+    'mail_salary_thanks' => 'Gracias por volar con {VA_NAME},',
+    'mail_salary_team' => 'El equipo de {VA_NAME}',
+    'mail_salary_recap_subject' => 'Informe de pago de salarios',
+    'mail_salary_recap_greeting' => 'Hola Administrador,',
+    'mail_salary_recap_intro' => 'Aquí está la lista de salarios pagados este mes (máximo {max} líneas):',
+    'mail_salary_recap_total' => 'Total de salarios pagados: {total} {currency}',
+    'mail_salary_recap_none' => 'No se pagaron salarios este mes.',
+    'mail_salary_recap_signature' => 'Este es un mensaje automático de {VA_NAME}.',
 ];
 ?>
