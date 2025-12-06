@@ -240,10 +240,22 @@ try {
         $body .= "\r\n\r\nCeci est un message automatique.\r\n";
         $to = VA_ADMIN_EMAIL;
         $mailResult = sendSummaryMail($subject, $body, $to);
-        if ($mailResult === true) {
+        if (is_array($mailResult)) {
+            // Nouveau format avec retry log
+            if ($mailResult['success']) {
+                logMsg("[api_import_vol_direct] Mail recapitulatif envoye a $to apres {$mailResult['attempts']} tentative(s)", $logFile);
+            } else {
+                logMsg("[api_import_vol_direct] ERREUR envoi mail apres {$mailResult['attempts']} tentatives: {$mailResult['error']}", $logFile);
+            }
+            // Enregistrer tous les logs de retry
+            foreach ($mailResult['log'] as $logLine) {
+                logMsg("[api_import_vol_direct] RETRY: $logLine", $logFile);
+            }
+        } elseif ($mailResult === true) {
+            // Ancien format (true = succes premier coup)
             logMsg("[api_import_vol_direct] Mail recapitulatif envoye a $to", $logFile);
         } else {
-            // Log mais ne bloque pas le traitement
+            // Ancien format (string = erreur)
             logMsg("[api_import_vol_direct] Avertissement envoi mail : $mailResult", $logFile);
         }
     }

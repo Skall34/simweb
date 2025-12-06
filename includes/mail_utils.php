@@ -32,11 +32,14 @@ function sendSummaryMail($subject, $body, $to = null, $maxRetries = 5) {
     
     $lastError = '';
     $delaySeconds = 3; // Delai initial entre les tentatives
+    $retryLog = []; // Historique des tentatives pour logging
     
     for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
         try {
             if ($attempt > 1) {
-                error_log("Retry $attempt/$maxRetries apres attente de {$delaySeconds}s");
+                $msg = "Retry $attempt/$maxRetries apres attente de {$delaySeconds}s";
+                error_log($msg);
+                $retryLog[] = $msg;
             }
             
             $mail = new PHPMailer\PHPMailer\PHPMailer(true);
@@ -73,12 +76,17 @@ function sendSummaryMail($subject, $body, $to = null, $maxRetries = 5) {
             
             $mail->send();
             if ($attempt > 1) {
-                error_log("SUCCESS: Mail envoye avec succes apres $attempt tentatives (to: $to)");
+                $msg = "SUCCESS: Mail envoye avec succes apres $attempt tentatives (to: $to)";
+                error_log($msg);
+                $retryLog[] = $msg;
             }
-            return true;
+            // Retourner true avec les infos de retry si necessaire
+            return ($attempt > 1) ? ['success' => true, 'attempts' => $attempt, 'log' => $retryLog] : true;
         } catch (Exception $e) {
             $lastError = $e->getMessage();
-            error_log("FAILED: Tentative $attempt/$maxRetries echouee (to: $to) : " . $lastError);
+            $msg = "FAILED: Tentative $attempt/$maxRetries echouee (to: $to) : " . $lastError;
+            error_log($msg);
+            $retryLog[] = $msg;
             
             // Si ce n'est pas la derniere tentative, attendre avant de reessayer
             if ($attempt < $maxRetries) {
@@ -90,6 +98,8 @@ function sendSummaryMail($subject, $body, $to = null, $maxRetries = 5) {
     }
     
     // Toutes les tentatives ont echoue
-    error_log("FATAL: Echec definitif envoi mail apres $maxRetries tentatives (to: $to) : $lastError");
-    return $lastError;
+    $msg = "FATAL: Echec definitif envoi mail apres $maxRetries tentatives (to: $to) : $lastError";
+    error_log($msg);
+    $retryLog[] = $msg;
+    return ['success' => false, 'error' => $lastError, 'attempts' => $maxRetries, 'log' => $retryLog];
 }

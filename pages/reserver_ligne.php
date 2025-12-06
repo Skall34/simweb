@@ -108,9 +108,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 logMsg("[$timestamp] Envoi mail reservation - Pilote: $callsign_clean - Ligne: {$ligne['icao_dep']}->{$ligne['icao_arr']} - Immat: $immat_clean", __DIR__ . '/../scripts/logs/reservations.log');
                 
                 $mailResult = sendSummaryMail($subject, $body);
-                if ($mailResult !== true) {
+                if (is_array($mailResult)) {
+                    // Nouveau format avec retry log
+                    if ($mailResult['success']) {
+                        logMsg("[$timestamp] SUCCESS: Mail reservation envoye avec succes apres {$mailResult['attempts']} tentative(s)", __DIR__ . '/../scripts/logs/reservations.log');
+                    } else {
+                        logMsg("[$timestamp] ERREUR: Echec envoi mail reservation: {$mailResult['error']}", __DIR__ . '/../scripts/logs/reservations.log');
+                    }
+                    // Enregistrer tous les logs de retry
+                    foreach ($mailResult['log'] as $logLine) {
+                        logMsg("[$timestamp] RETRY: $logLine", __DIR__ . '/../scripts/logs/reservations.log');
+                    }
+                } elseif ($mailResult !== true) {
+                    // Ancien format (string = erreur)
                     logMsg("[$timestamp] ERREUR: Echec envoi mail reservation: $mailResult", __DIR__ . '/../scripts/logs/reservations.log');
                 } else {
+                    // Ancien format (true = succes premier coup)
                     logMsg("[$timestamp] SUCCESS: Mail reservation envoye avec succes", __DIR__ . '/../scripts/logs/reservations.log');
                 }
             } catch (Exception $e) {
