@@ -14,7 +14,7 @@ require_once __DIR__ . '/PHPMailer/PHPMailer.php';
 require_once __DIR__ . '/PHPMailer/SMTP.php';
 require_once __DIR__ . '/PHPMailer/Exception.php';
 
-function sendSummaryMail($subject, $body, $to = null, $maxRetries = 5) {
+function sendSummaryMail($subject, $body, $to = null, $maxRetries = 5, $options = []) {
     // Verifier si les constantes SMTP sont definies
     if (!defined('SMTP_HOST') || !defined('SMTP_USERNAME') || !defined('SMTP_PASSWORD')) {
         error_log('Mail non envoye : configuration SMTP manquante (config.php non configure)');
@@ -33,6 +33,45 @@ function sendSummaryMail($subject, $body, $to = null, $maxRetries = 5) {
     $lastError = '';
     $delaySeconds = 3; // Delai initial entre les tentatives
     $retryLog = []; // Historique des tentatives pour logging
+    $startTime = microtime(true);
+    
+    // Options de retry
+    $initialDelaySeconds = isset($options['initialDelaySeconds']) ? intval($options['initialDelaySeconds']) : 0;
+    $baseDelaySeconds = isset($options['baseDelaySeconds']) ? intval($options['baseDelaySeconds']) : 3;
+    $maxDelaySeconds = isset($options['maxDelaySeconds']) ? intval($options['maxDelaySeconds']) : 10;
+    $jitterSeconds = isset($options['jitterSeconds']) ? intval($options['jitterSeconds']) : 3;
+    $enableLock = isset($options['enableLock']) ? (bool)$options['enableLock'] : true;
+    $lockFilePath = isset($options['lockFile']) ? $options['lockFile'] : (sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'simweb_mail.lock');
+    $lockHandle = null;
+    
+    // Appliquer le delai de base
+    $delaySeconds = max($baseDelaySeconds, 1);
+    
+    // Attente initiale (ex: decaler l'envoi apres minuit)
+    if ($initialDelaySeconds > 0) {
+        $msg = "INFO: Attente initiale avant envoi: {$initialDelaySeconds}s";
+        error_log($msg);
+        $retryLog[] = $msg;
+        sleep($initialDelaySeconds);
+    }
+    
+    // Verrou fichier pour serialiser les envois
+    if ($enableLock) {
+        $lockHandle = @fopen($lockFilePath, 'c');
+        if ($lockHandle) {
+            if (@flock($lockHandle, LOCK_EX)) {
+                $retryLog[] = "INFO: Verrou d'envoi acquis";
+            } else {
+                $msg = "WARN: Impossible d'obtenir le verrou d'envoi ($lockFilePath)";
+                error_log($msg);
+                $retryLog[] = $msg;
+            }
+        } else {
+            $msg = "WARN: Ouverture du fichier de verrou echouee ($lockFilePath)";
+            error_log($msg);
+            $retryLog[] = $msg;
+        }
+    }
     
     for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
         try {
@@ -80,8 +119,21 @@ function sendSummaryMail($subject, $body, $to = null, $maxRetries = 5) {
                 error_log($msg);
                 $retryLog[] = $msg;
             }
+            
+            // Liberer le verrou si acquis
+            if ($lockHandle) {
+                @flock($lockHandle, LOCK_UN);
+                @fclose($lockHandle);
+                $retryLog[] = "INFO: Verrou d'envoi libere";
+            }
+            
             // Retourner true avec les infos de retry si necessaire
-            return ($attempt > 1) ? ['success' => true, 'attempts' => $attempt, 'log' => $retryLog] : true;
+            $totalElapsed = round((microtime(true) - $startTime), 3);
+            if ($attempt > 1) {
+                $retryLog[] = "SUMMARY: Tentatives={$attempt}, DureeTotale={$totalElapsed}s";
+                return ['success' => true, 'attempts' => $attempt, 'log' => $retryLog, 'elapsed' => $totalElapsed];
+            }
+            return true;
         } catch (Exception $e) {
             $lastError = $e->getMessage();
             $msg = "FAILED: Tentative $attempt/$maxRetries echouee (to: $to) : " . $lastError;
@@ -90,9 +142,12 @@ function sendSummaryMail($subject, $body, $to = null, $maxRetries = 5) {
             
             // Si ce n'est pas la derniere tentative, attendre avant de reessayer
             if ($attempt < $maxRetries) {
-                sleep($delaySeconds);
-                // Augmenter progressivement le delai (backoff exponentiel)
-                $delaySeconds = min($delaySeconds + 2, 10); // Max 10 secondes
+                $jitter = ($jitterSeconds > 0) ? rand(0, $jitterSeconds) : 0;
+                $wait = $delaySeconds + $jitter;
+                $retryLog[] = "INFO: Attente avant retry: {$wait}s (base={$delaySeconds}s, jitter={$jitter}s)";
+                sleep($wait);
+                // Augmenter progressivement le delai (backoff progressif avec plafond)
+                $delaySeconds = min($delaySeconds + 2, $maxDelaySeconds);
             }
         }
     }
@@ -101,5 +156,15 @@ function sendSummaryMail($subject, $body, $to = null, $maxRetries = 5) {
     $msg = "FATAL: Echec definitif envoi mail apres $maxRetries tentatives (to: $to) : $lastError";
     error_log($msg);
     $retryLog[] = $msg;
-    return ['success' => false, 'error' => $lastError, 'attempts' => $maxRetries, 'log' => $retryLog];
+    $totalElapsed = round((microtime(true) - $startTime), 3);
+    $retryLog[] = "SUMMARY: Tentatives={$maxRetries}, DureeTotale={$totalElapsed}s";
+    
+    // Liberer le verrou si acquis
+    if ($lockHandle) {
+        @flock($lockHandle, LOCK_UN);
+        @fclose($lockHandle);
+        $retryLog[] = "INFO: Verrou d'envoi libere";
+    }
+    
+    return ['success' => false, 'error' => $lastError, 'attempts' => $maxRetries, 'log' => $retryLog, 'elapsed' => $totalElapsed];
 }
