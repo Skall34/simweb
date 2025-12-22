@@ -1,228 +1,214 @@
-# ✈️ Virtual Airline Management System
+# 📚 Documentation - Virtual Airline Management System
 
-![Version](https://img.shields.io/badge/version-2.0-blue)
-![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple)
-![License](https://img.shields.io/badge/license-MIT-green)
-![Languages](https://img.shields.io/badge/languages-FR%20%7C%20EN%20%7C%20ES-orange)
-
-A complete web-based virtual airline management system for Microsoft Flight Simulator communities. It includes flight tracking, fleet management, pilot statistics, missions, and full integration with the SimAddon client for automatic flight recording.
+Bienvenue dans la documentation complète de votre système de gestion de compagnie aérienne virtuelle !
 
 ---
 
-## 🌟 Features
+## 🗂️ Structure de la Documentation
 
-### For Pilots
-- ✈️ **Automatic Flight Recording** via SimAddon (MSFS addon)
-- 📊 **Personal Statistics** (hours, grades, salaries)
-- 🗺️ **Custom Missions** (special flights, freight, humanitarian)
-- 🛩️ **Aircraft Reservation** system
-- 📈 **Grade Progression** based on flight hours
-- 💰 **Virtual Economy** (salaries, aircraft purchases)
-- 🌍 **Multi-language** (French, English, Spanish)
+Cette documentation est organisée en **3 guides principaux** selon vos besoins :
 
-### For Administrators
-- 🏢 **Fleet Management** (purchase, sell, maintenance)
-- 👥 **Pilot Management** (grades, activation, statistics)
-- 🎯 **Mission Creation** (routes, special events)
-- 📧 **Email Notifications** (promotions, reports)
-- 💵 **Financial Dashboard** (income, expenses, balance)
-- ⚙️ **Automated Scripts** (insurance, salaries, maintenance)
-- 🔧 **Configuration Panel** (variables, airports, aircraft types)
+### 1. 👥 [Guide Utilisateur](USER_GUIDE.md)
+**Pour les pilotes et administrateurs**
+
+Apprenez à utiliser le système au quotidien :
+- ✈️ Créer un compte et voler
+- 🎮 Configurer et utiliser SimAddon (addon MSFS)
+- 📊 Suivre vos statistiques et progression
+- 👔 Gérer la compagnie (interface admin)
+- 💰 Comprendre le système financier
+- ❓ FAQ et résolution de problèmes
+
+**👉 [Lire le Guide Utilisateur →](USER_GUIDE.md)**
 
 ---
 
-## 📋 Requirements
+### 2. 🛠️ [Guide d'Installation](INSTALLATION_GUIDE.md)
+**Pour installer votre propre compagnie virtuelle**
 
-- **PHP 7.4+** (recommended 8.1+)
-- **MySQL 5.7+** or MariaDB 10.3+
-- **Apache** or Nginx with mod_rewrite
-- **PHPMailer** (included)
-- **SSL Certificate** (recommended for production)
+Instructions complètes pour déployer le système :
+- 📋 Prérequis serveur (PHP 7.4+, MySQL 5.7+)
+- 🚀 **Méthode 1** : Installation automatique (installateur web)
+- 🔧 **Méthode 2** : Installation manuelle (ligne de commande)
+- ⚙️ Configuration serveur (Apache/Nginx, SMTP, CRON)
+- 🔒 Sécurisation (SSL, permissions, backups)
+- 🆘 Dépannage et solutions aux problèmes courants
 
----
-
-## 🚀 Quick Start
-
-### **NEW: Automated Web Installer** ⚡
-
-The easiest way to install! Just 3 steps:
-
-1. **Upload** all files to your web server
-2. **Access** `http://your-domain.com/install/`
-3. **Follow** the interactive wizard (5 minutes max)
-
-The installer automatically:
-- ✅ Verifies your environment
-- ✅ Creates the database
-- ✅ Generates configuration files
-- ✅ Imports all data
-- ✅ Creates default admin account
-
-➡️ **[Full installation guide](install/README.md)**
+**👉 [Lire le Guide d'Installation →](INSTALLATION_GUIDE.md)**
 
 ---
 
-### Manual Installation (Advanced)
+### 3. 🔬 [Documentation Technique](TECHNICAL_DOCUMENTATION.md)
+**Pour les développeurs et contributeurs**
 
-If you prefer manual setup:
+Référence technique complète du système :
+- 🏗️ Architecture et stack technologique
+- 🗄️ Schéma de base de données (22 tables détaillées)
+- 🔌 API REST (15 endpoints SimAddon)
+- 🔐 Système d'authentification
+- 💸 Moteur de calcul financier
+- 🤖 Scripts automatisés (CRON)
+- 🐛 Debugging et performance
+- 🔒 Sécurité et bonnes pratiques
 
-#### 1. Check Environment (Recommended)
-Upload and run `Documentation/check_installation.php`:
-```
-http://your-domain.com/check_installation.php
-```
-
-#### 2. Database Setup
-```bash
-# Import SQL scripts in order
-mysql -u root -p < sql_database/01_Main_Database.sql
-mysql -u root -p VA_Database < sql_database/02_Airports_data.sql
-```
-
-#### 3. Configure Files
-Edit `includes/db_connect.php` and `includes/config.php` with your credentials.
-
-#### 4. First Login
-Login with `ADM0001` / `admin123`, create your admin account, then delete ADM0001.
-
-📖 **Detailed instructions:**
-- 🇫🇷 [INSTALLATION.md](INSTALLATION.md) (Français)
-- 🇬🇧 [INSTALLATION_EN.md](INSTALLATION_EN.md) (English)
+**👉 [Lire la Documentation Technique →](TECHNICAL_DOCUMENTATION.md)**
 
 ---
 
-## 📁 Project Structure
+## ⚡ Démarrage Rapide
 
-```
-yourva/
-├── admin/              # Administration pages
-├── api/                # API endpoints for SimAddon
-├── assets/             # Images, ACARS documentation
-├── css/                # Stylesheets
-├── includes/           # PHP utilities, database, authentication
-├── lang/               # Translations (fr.php, en.php, es.php)
-├── pages/              # Public pages (flights, stats, missions...)
-├── scripts/            # Automated maintenance scripts
-├── sql_database/       # Database creation & structure
-└── tools/              # Development utilities
-```
+### Nouveau Pilote ?
 
----
+1. **Créer un compte** sur le site de votre compagnie
+2. **Installer SimAddon** pour Microsoft Flight Simulator
+3. **Configurer votre token** (Mon Compte → Token SimAddon)
+4. **Voler et enregistrer** vos vols automatiquement !
 
-## 🔄 Automated Scripts
+📖 **Guide complet** : [USER_GUIDE.md](USER_GUIDE.md)
 
-SkyWings includes automated scripts for realistic airline operations:
+### Nouveau Administrateur ?
 
-| Script | Frequency | Function |
-|--------|-----------|----------|
-| `assurance_mensuelle.php` | Monthly | Charges insurance on all aircraft |
-| `credit_mensualite.php` | Monthly | Processes loan payments |
-| `paiement_salaires_pilotes.php` | Monthly | Pays pilot salaries |
-| `promotion_grades_pilotes.php` | Monthly | Promotes pilots based on hours |
-| `maintenance.php` | Monthly | Applies wear to aircraft |
-| `update_fret.php` | Weekly | Adds freight to airports |
-| `expire_reservations.php` | Daily | Cancels expired reservations |
+1. **Installer le système** sur votre serveur
+2. **Configurer base de données** et variables
+3. **Créer votre flotte** d'avions
+4. **Inviter des pilotes** à rejoindre la VA
 
-Configure with cron (Linux) or Task Scheduler (Windows) - see installation guide.
+📖 **Guide complet** : [INSTALLATION_GUIDE.md](INSTALLATION_GUIDE.md)
+
+### Développeur ?
+
+1. **Cloner le repository** GitHub
+2. **Analyser l'architecture** et la base de données
+3. **Comprendre l'API** SimAddon
+4. **Contribuer** au projet !
+
+📖 **Guide complet** : [TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATION.md)
 
 ---
 
-## 🌐 Multi-Language Support
+## 🎯 Fonctionnalités Principales
 
-Full interface translation in 3 languages:
-- 🇫🇷 **French** (Français)
-- 🇬🇧 **English**
-- 🇪🇸 **Spanish** (Español)
+### Pour les Pilotes ✈️
 
-**944 translation keys** covering all pages and features.
+- **Enregistrement automatique** des vols via SimAddon (addon MSFS)
+- **Suivi de progression** : heures, grades, salaires
+- **Système de réservation** d'avions
+- **Missions spéciales** avec majorations de revenus
+- **Statistiques détaillées** et historique complet
+- **Multi-langue** : Français, Anglais, Espagnol
 
----
+### Pour les Administrateurs 👔
 
-## 🔌 SimAddon Integration
+- **Gestion de flotte** : achats, ventes, maintenance
+- **Gestion des pilotes** : activation, promotions, salaires
+- **Création de missions** et lignes régulières
+- **Tableau de bord financier** complet
+- **87 aéroports** pré-chargés avec système de fret
+- **Configuration flexible** via variables métier
 
-**SimAddon** is the companion MSFS addon that automatically records flights:
-- Real-time flight tracking
-- Automatic data upload (departure, arrival, duration, fuel)
-- GPS trace recording
-- Token-based authentication
+### Technique 🔧
 
-Documentation: `assets/acars/DocumentationUtilisateurSimAddon.pdf`
-
----
-
-## 🛠️ Configuration
-
-### Email Setup
-Edit `includes/mail_utils.php`:
-```php
-define('ADMIN_EMAIL', 'admin@your-domain.com');
-$mail->Host = 'smtp.your-host.com';
-$mail->Username = 'admin@your-domain.com';
-$mail->Password = 'your-password';
-```
-
-### Customization
-- **Company name**: `includes/header.php`
-- **Logo**: `assets/images/logo.png`
-- **Colors**: `css/styles.css`
+- **API REST** complète (15 endpoints)
+- **Token d'authentification** sécurisé
+- **Scripts automatisés** (assurances, salaires, promotions)
+- **Trace GPS** des vols
+- **Système de notes** ACARS (1-10)
+- **Gestion crédit** avions avec intérêts
 
 ---
 
-## 📚 Documentation
+## 📦 Stack Technique
 
-- **User Guide**: Available in-app under "Documentation" menu
-- **Admin Guide**: Access via Admin panel
-- **API Reference**: See `api/` folder for SimAddon integration
-- **Script Documentation**: Detailed docs in `pages/doc_scripts/`
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Please:
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push and create a Pull Request
+| Composant | Technologie |
+|-----------|-------------|
+| **Backend** | PHP 7.4+ |
+| **Base de données** | MySQL 5.7+ / MariaDB 10.3+ |
+| **Serveur web** | Apache 2.4+ / Nginx 1.18+ |
+| **Email** | PHPMailer 6.x |
+| **Frontend** | HTML5, CSS3, JavaScript (vanilla) |
+| **Addon** | SimAddon (C# pour MSFS) |
 
 ---
 
-## 🐛 Support
+## 📂 Autres Ressources
 
-- **Issues**: [GitHub Issues](https://github.com/Skall34/simweb/issues)
-- **Discord**: [Join our community](https://discord.gg/K52UfAnSdk)
-- **Email**: Contact via the in-app contact form
+### Documentation Complémentaire
 
----
+- **[CHANGELOG.md](CHANGELOG.md)** : Historique des versions et modifications
+- **[FAQ.md](FAQ.md)** : Questions fréquentes (technique)
+- **[BUG_REPORT_TEMPLATE.md](BUG_REPORT_TEMPLATE.md)** : Template pour signaler des bugs
+- **[DISTRIBUTION_CHECKLIST.md](DISTRIBUTION_CHECKLIST.md)** : Checklist avant release
+- **[check_installation.php](check_installation.php)** : Script de vérification installation
 
-## 📜 License
+### Anciennes Documentations
 
-This project is licensed under the MIT License - see [LICENSE.txt](LICENSE.txt) for details.
-
----
-
-## 🙏 Credits
-
-Created with ❤️ by the flight simulation community for virtual airline enthusiasts worldwide.
-
-**Special thanks to:**
-- All beta testers and contributors
-- The MSFS community
-- PHPMailer developers
+Les anciennes versions de la documentation sont archivées dans **[archive/](archive/)** pour référence historique.
 
 ---
 
-## 🎯 Roadmap
+## 🆘 Support & Aide
 
-- [ ] Mobile-responsive design improvements
-- [ ] REST API for third-party integrations
-- [ ] Advanced statistics and analytics
-- [ ] Multiplayer events system
-- [ ] Real-time flight map with WebSocket
-- [ ] Integration with real-world weather data
+### Problème d'utilisation ?
+📖 Consultez le **[Guide Utilisateur](USER_GUIDE.md)** section FAQ
+
+### Problème d'installation ?
+📖 Consultez le **[Guide d'Installation](INSTALLATION_GUIDE.md)** section Dépannage
+
+### Bug ou erreur technique ?
+🐛 Ouvrez une issue sur **[GitHub](https://github.com/Skall34/simweb/issues)**
+
+### Question générale ?
+💬 Rejoignez le **[Discord](https://discord.gg/K52UfAnSdk)**
 
 ---
 
-**Happy flying! ✈️**
+## 🤝 Contribuer
 
-*For detailed installation instructions, refer to INSTALLATION.md (French) or INSTALLATION_EN.md (English)*
+Contributions bienvenues ! Pour contribuer :
+
+1. **Fork** le repository
+2. **Créer une branche** : `git checkout -b feature/ma-fonctionnalite`
+3. **Commiter** : `git commit -m "Ajout fonctionnalité X"`
+4. **Push** : `git push origin feature/ma-fonctionnalite`
+5. **Pull Request** sur GitHub
+
+📖 Consultez [TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATION.md) pour comprendre l'architecture.
+
+---
+
+## 📜 Licence
+
+Ce projet est sous licence **GNU General Public License v3.0**.
+
+Voir [LICENSE.txt](../LICENSE.txt) pour plus de détails.
+
+---
+
+## 👏 Crédits
+
+Développé avec ❤️ par la communauté Virtual Airlines.
+
+**Remerciements spéciaux :**
+- Tous les pilotes testeurs
+- Contributeurs GitHub
+- Communauté Discord
+
+---
+
+## 🚀 Versions
+
+**Version actuelle :** 2.0 (Décembre 2025)
+
+**Nouveautés v2.0 :**
+- ✅ Documentation complète restructurée
+- ✅ Guide utilisateur exhaustif
+- ✅ Guide d'installation détaillé
+- ✅ Documentation technique approfondie
+
+Voir [CHANGELOG.md](CHANGELOG.md) pour l'historique complet.
+
+---
+
+**Bon vol ! ✈️**
+
+*Documentation mise à jour le 22 décembre 2025*
