@@ -197,9 +197,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $body .= "Pilote : $callsign_clean\n";
                         $body .= "Trajet : $departure_icao -> $arrival_icao\n";
                         $body .= "Immatriculation : $immat_clean\n";
-                        $payload_fmt = number_format(floatval($payload), 2, ',', ' ');
+                        $payload_fmt = number_format(floatval($payload), 2, ',', '');
                         $body .= "Payload : {$payload_fmt} Kg\n";
-                        $cout_vol_fmt = number_format(floatval($cout_vol), 2, ',', ' ');
+                        $cout_vol_fmt = number_format(floatval($cout_vol), 2, ',', '');
                         $body .= "Recettes du vol : {$cout_vol_fmt} €\n";
                         $to = VA_ADMIN_EMAIL;
                         $mailResult = sendSummaryMail($subject, $body, $to);

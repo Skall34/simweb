@@ -230,11 +230,11 @@ try {
         $body .= "Immatriculation : " . $immat_clean . "\r\n";
         $body .= "Mission : " . $mission_clean . "\r\n";
         // Formater payload avec une virgule comme séparateur décimal et ajouter l'unité Kg
-        $payload_fmt = number_format(floatval($payload), 2, ',', ' ');
+        $payload_fmt = number_format(floatval($payload), 2, ',', '');
         $body .= "Payload : {$payload_fmt} Kg\r\n";
         $body .= "Note : " . intval($note) . "\r\n";
         // Formater le montant de la recette avec une virgule comme séparateur décimal
-        $cout_vol_fmt = number_format(floatval($cout_vol), 2, ',', ' ');
+        $cout_vol_fmt = number_format(floatval($cout_vol), 2, ',', '');
         $body .= "Recettes du vol : {$cout_vol_fmt} EUR\r\n";
         
         $body .= "\r\n\r\nCeci est un message automatique.\r\n";
