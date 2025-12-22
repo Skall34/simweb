@@ -103,7 +103,8 @@ function detecterDoublonVol($pdo, $callsign, $depart, $dest, $fuelDep, $fuelArr,
     }
     $pilote_id = $pilote['id'];
 
-    $sql = "SELECT COUNT(*) FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = :pilote_id AND depart = :depart AND destination = :dest AND fuel_depart = :fuelDep AND fuel_arrivee = :fuelArr AND payload = :payload AND note_du_vol = :note AND mission_id = (
+    // Note retirée des critères : elle peut varier selon l'évaluation ACARS
+    $sql = "SELECT COUNT(*) FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = :pilote_id AND depart = :depart AND destination = :dest AND fuel_depart = :fuelDep AND fuel_arrivee = :fuelArr AND payload = :payload AND mission_id = (
         SELECT id FROM MISSIONS WHERE libelle = :mission LIMIT 1
     )";
     $stmt = $pdo->prepare($sql);
@@ -114,7 +115,6 @@ function detecterDoublonVol($pdo, $callsign, $depart, $dest, $fuelDep, $fuelArr,
         'fuelDep' => $fuelDep,
         'fuelArr' => $fuelArr,
         'payload' => $payload,
-        'note' => $note,
         'mission' => $mission
     ]);
     logMsg("[detecterDoublonVol] : sql=$sql", $logFile);
