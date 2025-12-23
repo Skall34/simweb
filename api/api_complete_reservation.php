@@ -1,11 +1,35 @@
 <?php
+/*
+-------------------------------------------------------------
+ Script : api_complete_reservation.php
+ Emplacement : api/
+
+ Description :
+ API REST permettant de marquer une réservation comme terminée (vol fini).
+ Met à jour le statut de la réservation et libère l'appareil.
+
+ Paramètres GET/POST/JSON :
+ - reservation_id : ID de la réservation (optionnel si pilote_id/callsign fourni)
+ - pilote_id : ID du pilote (optionnel si reservation_id/callsign fourni)
+ - callsign : Callsign du pilote (optionnel si reservation_id/pilote_id fourni)
+ - immat : Immatriculation de l'appareil (optionnel, affine la recherche)
+ - debug : Active le mode debug avec détails d'erreur (optionnel)
+
+ Réponse JSON :
+ - {status: 'ok', completed: true/false, consumed: true/false} : Résultat de l'opération
+ - {status: 'error', message: '...'} : Erreur lors du traitement
+
+ Utilisation :
+ - Appelé à la fin d'un vol pour libérer la réservation et l'appareil.
+ - Gère les transactions pour garantir la cohérence des données.
+
+ Auteur :
+ - Équipe de développement SimWeb
+-------------------------------------------------------------
+*/
 require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/log_func.php';
 header('Content-Type: application/json');
-
-// API to mark a reservation as completed (flight finished)
-// Accepts GET or POST parameters: reservation_id OR pilote_id OR callsign
-// Optional: immat
 
 // Accept both GET and POST (and allow JSON body via php://input where applicable)
 $input = array_merge($_GET, $_POST);

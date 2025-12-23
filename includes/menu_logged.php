@@ -1,11 +1,36 @@
-
 <?php
+/*
+-------------------------------------------------------------
+ Script : menu_logged.php
+ Emplacement : includes/
+
+ Description :
+ Menu de navigation principal pour les utilisateurs connectés.
+ Affiche les liens vers toutes les fonctionnalités de l'application :
+ - Tableau de bord, vols, flotte, réservations, statistiques, finances
+ - Sous-menu dynamique des missions actives/inactives
+ - Sous-menu "Plus" avec documentation, types de flotte, pilotes, etc.
+ - Menu administration (visible uniquement pour les administrateurs)
+
+ Fonctionnalités :
+ - Chargement dynamique des missions depuis la base de données
+ - Affichage conditionnel du menu admin selon les droits utilisateur
+ - Gestion des missions actives/inactives avec style différencié
+ - Internationalisation complète via les clés de traduction
+
+ Utilisation :
+ - À inclure après header.php pour les utilisateurs authentifiés.
+ - Nécessite une session active et une connexion à la base de données.
+
+ Auteur :
+ - Équipe de développement SimWeb
+-------------------------------------------------------------
+*/
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/../lang.php';
-
 
 ?>
 

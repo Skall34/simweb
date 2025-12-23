@@ -2,7 +2,7 @@
 /*
 -------------------------------------------------------------
  Script : fonctions_importer_vol.php
- Emplacement : scripts/
+ Emplacement : includes/
 
  Description :
  Ce fichier regroupe les fonctions utilitaires pour l'import et le traitement des vols dans la compagnie aérienne virtuelle.

@@ -1,8 +1,34 @@
 <?php
+/*
+-------------------------------------------------------------
+ Script : api_live_flights.php
+ Emplacement : api/
+
+ Description :
+ API REST retournant les positions en temps réel des vols en cours.
+ Récupère les coordonnées des avions et des aéroports de départ/arrivée pour affichage sur carte.
+
+ Paramètres : Aucun
+
+ Réponse JSON :
+ - [{callsign, latitude, longitude, lat_dep, long_dep, lat_arr, long_arr}, ...] : Tableau des vols actifs
+ - {error: '...'} : Erreur lors de la récupération (HTTP 500)
+
+ Fonctionnalités :
+ - Filtre les vols avec coordonnées valides (latitude/longitude numériques).
+ - Enrichit les données avec les coordonnées des aéroports de départ et d'arrivée.
+ - Gère les cas où les aéroports ne sont pas trouvés (null).
+
+ Utilisation :
+ - Utilisé pour afficher les vols en direct sur la carte des vols actifs.
+ - Appelé en polling régulier depuis live_flights.php.
+
+ Auteur :
+ - Équipe de développement SimWeb
+-------------------------------------------------------------
+*/
 require_once("../includes/db_connect.php");
 require_once("../lang.php");
-// filepath: live_flights_json.php
-
 header('Content-Type: application/json');
 
 // Exemple : on suppose qu'il existe une table FLIGHTS_EN_COURS avec latitude, longitude, callsign

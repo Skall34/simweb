@@ -1,15 +1,36 @@
 <?php
+/*
+-------------------------------------------------------------
+ Script : api_consume_reservation.php
+ Emplacement : api/
+
+ Description :
+ API REST permettant de consommer une réservation au démarrage d'un vol ACARS.
+ Change le statut de 'reserved' à 'in_flight' et marque l'appareil comme réservé.
+
+ Paramètres GET/POST/JSON :
+ - reservation_id : ID de la réservation (optionnel si pilote_id/callsign fourni)
+ - pilote_id : ID du pilote (optionnel si reservation_id/callsign fourni)
+ - callsign : Callsign du pilote (optionnel si reservation_id/pilote_id fourni)
+ - immat : Immatriculation de l'appareil (optionnel, affine la recherche)
+ - acars_cle : Clé ACARS du vol (optionnel, stockée pour traçabilité)
+
+ Réponse JSON :
+ - {status: 'ok', consumed: true, reservation: {...}} : Réservation consommée avec succès
+ - {status: 'ok', consumed: false} : Aucune réservation trouvée
+ - {status: 'error', message: '...'} : Erreur lors du traitement
+
+ Utilisation :
+ - Appelé au démarrage d'un vol ACARS pour activer la réservation.
+ - Gère les transactions pour éviter les doubles réservations.
+
+ Auteur :
+ - Équipe de développement SimWeb
+-------------------------------------------------------------
+*/
 require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/log_func.php';
-//require_once __DIR__ . '/../includes/api_auth.php';
 header('Content-Type: application/json');
-
-// Vérification optionnelle de la clé API (retrocompatible : si pas configurée, passthrough)
-//require_api_key($pdo);
-
-// API to consume a reservation when ACARS starts the flight
-// Accepts GET or POST parameters: reservation_id OR pilote_id OR callsign
-// Optional: immat, acars_cle
 
 // Accept both GET and POST (and allow JSON body via php://input where applicable)
 $input = array_merge($_GET, $_POST);

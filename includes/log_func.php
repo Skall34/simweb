@@ -1,7 +1,31 @@
 <?php
-// includes/log_func.php
-// Fonction de log harmonisée pour tous les scripts
+/*
+-------------------------------------------------------------
+ Script : log_func.php
+ Emplacement : includes/
 
+ Description :
+ Fonction de logging harmonisée pour tous les scripts de l'application.
+ Permet d'enregistrer des messages horodatés dans des fichiers de log.
+
+ Utilisation :
+ - logMsg("Message") : Log dans scripts/logs/general.log
+ - logMsg("Message", "expire_reservations") : Log dans scripts/logs/expire_reservations.log
+ - logMsg("Message", "/chemin/complet/fichier.log") : Log dans le fichier spécifié
+
+ Auteur :
+ - Équipe de développement SimWeb
+-------------------------------------------------------------
+*/
+
+/**
+ * Enregistre un message horodaté dans un fichier de log.
+ *
+ * @param string $msg Le message à enregistrer dans le log
+ * @param string|null $logFile Le fichier de log (nom court, chemin relatif ou absolu). 
+ *                             null = scripts/logs/general.log par défaut
+ * @return void
+ */
 function logMsg($msg, $logFile = null) {
     // Ensure logs directory exists
     $defaultLogDir = __DIR__ . '/../scripts/logs';

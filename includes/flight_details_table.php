@@ -1,6 +1,26 @@
 
 <?php
-// filepath: includes/flight_detail_table.php
+/*
+-------------------------------------------------------------
+ Script : flight_details_table.php
+ Emplacement : includes/
+
+ Description :
+ Génère un tableau HTML formaté affichant les détails complets d'un vol.
+ Reçoit les données en POST au format JSON et retourne du HTML structuré.
+
+ Utilisation :
+ - Appelé via POST avec un paramètre 'details' contenant un objet JSON.
+ - Utilisé pour l'affichage des détails de vol dans les modals ou popups.
+ - Valide les données reçues avant génération du tableau.
+
+ Format attendu :
+ - POST['details'] : JSON contenant les champs du vol (Date vol, Immat, Départ, etc.)
+
+ Auteur :
+ - Équipe de développement SimWeb
+-------------------------------------------------------------
+*/
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' || empty($_POST['details'])) {
     http_response_code(400);

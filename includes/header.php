@@ -1,4 +1,28 @@
 <?php
+/*
+-------------------------------------------------------------
+ Script : header.php
+ Emplacement : includes/
+
+ Description :
+ En-tête HTML principal de l'application avec gestion de la sécurité,
+ du logo, du formulaire de connexion et du sélecteur de langue.
+
+ Fonctionnalités :
+ - Headers de sécurité HTTP (X-Frame-Options, X-Content-Type-Options, etc.)
+ - Affichage du logo et nom de la compagnie
+ - Formulaire de connexion pour les visiteurs
+ - Message de bienvenue et déconnexion pour les utilisateurs connectés
+ - Sélecteur de langue (FR/EN/ES)
+
+ Utilisation :
+ - À inclure au début de chaque page : require_once __DIR__ . '/includes/header.php';
+ - Doit être suivi de menu_guest.php ou menu_logged.php selon l'état de connexion.
+
+ Auteur :
+ - Équipe de développement SimWeb
+-------------------------------------------------------------
+*/
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }

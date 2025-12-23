@@ -2,7 +2,7 @@
 /*
 -------------------------------------------------------------
  Script : calcul_cout.php
- Emplacement : scripts/
+ Emplacement : includes/
 
  Description :
  Librairie de fonctions pour le calcul des coûts et revenus des vols.

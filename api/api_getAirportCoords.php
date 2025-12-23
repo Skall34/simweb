@@ -1,8 +1,30 @@
 <?php
-require_once __DIR__ . '/../includes/db_connect.php';
+/*
+-------------------------------------------------------------
+ Script : api_getAirportCoords.php
+ Emplacement : api/
 
-// Endpoint to fetch airport coordinates by ICAO
-// Returns JSON: {ok: true, icao: string, lat: float, lon: float} or {ok: false, error: string}
+ Description :
+ API REST permettant de récupérer les coordonnées géographiques d'un aéroport par son code ICAO.
+
+ Paramètres GET :
+ - icao : Code ICAO de l'aéroport (obligatoire)
+
+ Réponse JSON :
+ - {ok: true, icao: 'XXXX', lat: float, lon: float} : Coordonnées trouvées
+ - {ok: false, error: 'Airport not found'} : Aéroport non trouvé (HTTP 404)
+ - {ok: false, error: 'ICAO code required'} : Paramètre manquant (HTTP 400)
+ - {ok: false, error: '...'} : Erreur serveur (HTTP 500)
+
+ Utilisation :
+ - Utilisé pour afficher les aéroports sur une carte.
+ - Appelé par les interfaces web et clients ACARS.
+
+ Auteur :
+ - Équipe de développement SimWeb
+-------------------------------------------------------------
+*/
+require_once __DIR__ . '/../includes/db_connect.php';
 
 $icao = strtoupper(trim($_GET['icao'] ?? ''));
 

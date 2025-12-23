@@ -1,12 +1,44 @@
 <?php
+/*
+-------------------------------------------------------------
+ Script : api_update_status.php
+ Emplacement : api/
 
-// Connexion BDD
+ Description :
+ API REST permettant de mettre à jour le statut de vol d'un pilote en temps réel.
+ Gère l'insertion/suppression dans Live_FLIGHTS et la mise à jour du statut en_vol de la flotte.
+
+ Paramètres POST (obligatoires) :
+ - callsign : Callsign du pilote
+ - plane : Immatriculation de l'appareil
+ - departure_icao : Code ICAO de départ
+ - flying : Statut de vol (1 = en vol, 0 = au sol)
+ - latitude : Latitude actuelle
+ - longitude : Longitude actuelle
+
+ Paramètres POST (optionnels) :
+ - arrival_icao : Code ICAO d'arrivée
+
+ Réponse JSON :
+ - {status: 'success', message: '✅ ...'} : Mise à jour réussie
+ - {status: 'error', message: 'Méthode non autorisée'} : Méthode HTTP invalide (HTTP 405)
+ - {status: 'error', message: 'Champ requis manquant...'} : Paramètre manquant (HTTP 400)
+ - {status: 'error', message: '❌ Erreur SQL : ...'} : Erreur serveur (HTTP 500)
+
+ Fonctionnement :
+ - Si flying=1 : INSERT ou UPDATE dans Live_FLIGHTS + en_vol=1 dans FLOTTE
+ - Si flying=0 : DELETE de Live_FLIGHTS + en_vol=0 dans FLOTTE
+
+ Utilisation :
+ - Appelé en continu par SimAddon pour tracker les positions des avions.
+ - Permet l'affichage en temps réel sur la carte des vols.
+
+ Auteur :
+ - Équipe de développement SimWeb
+-------------------------------------------------------------
+*/
 require_once __DIR__ . '/../includes/db_connect.php';
-
-// Réponse en JSON
 header('Content-Type: application/json');
-
-file_put_contents('/tmp/acars_post.txt', print_r($_POST, true), FILE_APPEND);
 
 // Refuser toute méthode autre que POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

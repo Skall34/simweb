@@ -1,6 +1,31 @@
 <?php
-// api/api_check_session.php
-// Retourne JSON { authenticated: true|false, user: { id, callsign } }
+/*
+-------------------------------------------------------------
+ Script : api_check_session.php
+ Emplacement : api/
+
+ Description :
+ API REST permettant de vérifier l'authentification d'un utilisateur via token.
+ Valide les tokens stockés en cookie ou passés en paramètre GET.
+
+ Paramètres GET (optionnels) :
+ - token : Token d'authentification SimAddon
+
+ Cookies :
+ - simaddon_token : Token d'authentification stocké en cookie
+
+ Réponse JSON :
+ - {authenticated: true, user: {id, callsign}} : Utilisateur authentifié
+ - {authenticated: false, user: null} : Non authentifié (HTTP 401)
+
+ Utilisation :
+ - Appelé pour vérifier l'état de connexion depuis SimAddon ou autres clients.
+ - Retourne HTTP 401 si non authentifié.
+
+ Auteur :
+ - Équipe de développement SimWeb
+-------------------------------------------------------------
+*/
 header('Content-Type: application/json');
 
 $authenticated = false;

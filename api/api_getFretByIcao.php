@@ -1,4 +1,29 @@
 <?php
+/*
+-------------------------------------------------------------
+ Script : api_getFretByIcao.php
+ Emplacement : api/
+
+ Description :
+ API REST permettant de récupérer la quantité de fret disponible à un aéroport.
+
+ Paramètres GET :
+ - ICAO : Code ICAO de l'aéroport (obligatoire)
+
+ Réponse JSON :
+ - {success: true, ICAO: 'XXXX', fret: float} : Quantité de fret disponible
+ - {success: false, error: 'Aéroport non trouvé.'} : ICAO invalide
+ - {success: false, error: 'Paramètre ICAO manquant.'} : Paramètre manquant
+ - {success: false, error: '...'} : Erreur serveur (HTTP 500)
+
+ Utilisation :
+ - Utilisé par SimAddon pour afficher le fret disponible au départ.
+ - Permet aux pilotes de planifier leur chargement.
+
+ Auteur :
+ - Équipe de développement SimWeb
+-------------------------------------------------------------
+*/
 header('Content-Type: application/json');
 
 require_once __DIR__ . '/../includes/db_connect.php';

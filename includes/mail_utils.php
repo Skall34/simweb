@@ -14,7 +14,7 @@ require_once __DIR__ . '/PHPMailer/PHPMailer.php';
 require_once __DIR__ . '/PHPMailer/SMTP.php';
 require_once __DIR__ . '/PHPMailer/Exception.php';
 
-function sendSummaryMail($subject, $body, $to = null, $maxRetries = 5, $options = []) {
+function sendSummaryMail($subject, $body, $to = null, $maxRetries = 10, $options = []) {
     // Verifier si les constantes SMTP sont definies
     if (!defined('SMTP_HOST') || !defined('SMTP_USERNAME') || !defined('SMTP_PASSWORD')) {
         error_log('Mail non envoye : configuration SMTP manquante (config.php non configure)');

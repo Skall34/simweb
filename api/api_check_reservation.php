@@ -1,15 +1,31 @@
 <?php
+/*
+-------------------------------------------------------------
+ Script : api_check_reservation.php
+ Emplacement : api/
+
+ Description :
+ API REST permettant de vérifier si un pilote a une réservation active.
+ Retourne les détails de la réservation avec le callsign et les codes ICAO de départ/arrivée.
+
+ Paramètres GET :
+ - pilote_id : ID du pilote (optionnel si callsign fourni)
+ - callsign : Callsign du pilote (optionnel si pilote_id fourni)
+
+ Réponse JSON :
+ - {status: 'ok', reserved: true/false, reservation: {...}} : Réservation trouvée ou non
+ - {status: 'error', message: '...'} : Erreur lors du traitement
+
+ Utilisation :
+ - Appelé par les clients ACARS pour vérifier les réservations avant un vol.
+ - Permet de récupérer les informations de ligne (ICAO départ/arrivée).
+
+ Auteur :
+ - Équipe de développement SimWeb
+-------------------------------------------------------------
+*/
 require_once __DIR__ . '/../includes/db_connect.php';
-//require_once __DIR__ . '/../includes/api_auth.php';
-// Enable display of errors temporarily for debugging (remove or guard in production)
 header('Content-Type: application/json');
-
-
-// Vérification optionnelle de la clé API (retrocompatible : si pas configurée, passthrough)
-//require_api_key($pdo);
-
-// API pour vérifier si un pilote a une réservation active
-// Paramètres GET : pilote_id (ou callsign)
 $pilote_id = isset($_GET['pilote_id']) ? intval($_GET['pilote_id']) : 0;
 $callsign = isset($_GET['callsign']) ? trim($_GET['callsign']) : '';
 
