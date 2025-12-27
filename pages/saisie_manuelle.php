@@ -143,10 +143,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 if (!empty($erreurs_proc)) {
                     foreach ($erreurs_proc as $errp) logMsg("[saisie_manuelle] $errp", $logFile);
-                    // rejeter le vol si la fonction existe
-                    if (function_exists('rejeterVol')) {
-                        rejeterVol($pdo, $form, implode(' | ', $erreurs_proc), $logFile);
-                    }
+                    // Pour les vols manuels, on ne rejette pas via rejeterVol car il n'y a pas d'acars_id
+                    // On log simplement les erreurs
+                    logMsg("[saisie_manuelle] Vol manuel rejeté : " . implode(' | ', $erreurs_proc), $logFile);
                     $erreurs = array_merge($erreurs, $erreurs_proc);
                 } else {
                    
