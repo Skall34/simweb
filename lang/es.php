@@ -548,6 +548,7 @@ return [
     'menu_pilots' => 'Pilotos',
     'menu_simulation' => 'Simulación',
     'menu_grades' => 'Rangos',
+    'menu_reportgrades' => 'Informe de Rangos',
     'menu_manualentry' => 'Entrada Manual',
     // Missions labels
     'mission_normandie80' => 'Normandía 80',

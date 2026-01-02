@@ -99,6 +99,7 @@ require_once __DIR__ . '/../lang.php';
             <a href="/pages/simulation.php">🧮 <?= t('menu_simulation') ?></a>
             <a href="/pages/grades.php">🧑‍✈️ <?= t('menu_grades') ?></a>
             <a href="/pages/saisie_manuelle.php">📝 <?= t('menu_manualentry') ?></a>
+            <a href="/pages/rapport_grades.php">📊 <?= t('menu_reportgrades') ?></a>
         </div>
     </div>
     

@@ -546,6 +546,7 @@ return [
     'menu_pilots' => 'Pilotes',
     'menu_simulation' => 'Simulation',
     'menu_grades' => 'Grades',
+    'menu_reportgrades' => 'Rapport Grades',
     'menu_manualentry' => 'Saisie Manuelle',
     // Missions labels
     'mission_normandie80' => 'Normandie 80',
