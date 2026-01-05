@@ -98,17 +98,53 @@ function detecterDoublonVol($pdo, $callsign, $depart, $dest, $fuelDep, $fuelArr,
     $pilote = $stmtPilote->fetch();
     if (!$pilote) {
         // Si le pilote n'existe pas, on ne peut pas détecter de doublon
-        logMsg("[detecterDoublonVol] : Pilote inconnu pour callsign=$callsign", $logFile);
+        logMsg("[detecterDoublonVol] ❌ Pilote inconnu pour callsign=$callsign", $logFile);
         return false;
     }
     $pilote_id = $pilote['id'];
+    
+    logMsg("[detecterDoublonVol] 🔍 Vérification doublons pour callsign=$callsign, dep=$depart, dest=$dest, fuelDep=$fuelDep, fuelArr=$fuelArr, payload=$payload, mission=$mission", $logFile);
 
+    // ÉTAPE 1 : Vérification dans FROM_ACARS (pour éviter race condition sur vols en cours de traitement)
+    // On vérifie les vols traités (processed=1) ET non traités (processed=0) pour détecter les doublons immédiats
+    $sqlAcars = "SELECT COUNT(*) FROM FROM_ACARS 
+                 WHERE callsign = :callsign 
+                 AND departure_icao = :depart 
+                 AND arrival_icao = :dest 
+                 AND departure_fuel = :fuelDep 
+                 AND arrival_fuel = :fuelArr 
+                 AND payload = :payload 
+                 AND mission = :mission";
+    $stmtAcars = $pdo->prepare($sqlAcars);
+    $stmtAcars->execute([
+        'callsign' => $callsign,
+        'depart' => $depart,
+        'dest' => $dest,
+        'fuelDep' => $fuelDep,
+        'fuelArr' => $fuelArr,
+        'payload' => $payload,
+        'mission' => $mission
+    ]);
+    $countAcars = $stmtAcars->fetchColumn();
+    logMsg("[detecterDoublonVol] 📋 Vols dans FROM_ACARS : $countAcars", $logFile);
+    
+    if ($countAcars > 0) {
+        logMsg("[detecterDoublonVol] ⚠️ DOUBLON détecté dans FROM_ACARS (count=$countAcars)", $logFile);
+        return true;
+    }
+
+    // ÉTAPE 2 : Vérification dans CARNET_DE_VOL_GENERAL (vols déjà traités complètement)
     // Note retirée des critères : elle peut varier selon l'évaluation ACARS
-    $sql = "SELECT COUNT(*) FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = :pilote_id AND depart = :depart AND destination = :dest AND fuel_depart = :fuelDep AND fuel_arrivee = :fuelArr AND payload = :payload AND mission_id = (
-        SELECT id FROM MISSIONS WHERE libelle = :mission LIMIT 1
-    )";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([
+    $sqlCarnet = "SELECT COUNT(*) FROM CARNET_DE_VOL_GENERAL 
+                  WHERE pilote_id = :pilote_id 
+                  AND depart = :depart 
+                  AND destination = :dest 
+                  AND fuel_depart = :fuelDep 
+                  AND fuel_arrivee = :fuelArr 
+                  AND payload = :payload 
+                  AND mission_id = (SELECT id FROM MISSIONS WHERE libelle = :mission LIMIT 1)";
+    $stmtCarnet = $pdo->prepare($sqlCarnet);
+    $stmtCarnet->execute([
         'pilote_id' => $pilote_id,
         'depart' => $depart,
         'dest' => $dest,
@@ -117,8 +153,16 @@ function detecterDoublonVol($pdo, $callsign, $depart, $dest, $fuelDep, $fuelArr,
         'payload' => $payload,
         'mission' => $mission
     ]);
-    logMsg("[detecterDoublonVol] : sql=$sql", $logFile);
-    return $stmt->fetchColumn() > 0;
+    $countCarnet = $stmtCarnet->fetchColumn();
+    logMsg("[detecterDoublonVol] 📗 Vols dans CARNET_DE_VOL_GENERAL : $countCarnet", $logFile);
+    
+    if ($countCarnet > 0) {
+        logMsg("[detecterDoublonVol] ⚠️ DOUBLON détecté dans CARNET_DE_VOL_GENERAL (count=$countCarnet)", $logFile);
+        return true;
+    }
+    
+    logMsg("[detecterDoublonVol] ✅ Aucun doublon détecté", $logFile);
+    return false;
 }
 
 /**
