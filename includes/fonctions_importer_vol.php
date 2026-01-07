@@ -107,14 +107,17 @@ function detecterDoublonVol($pdo, $callsign, $depart, $dest, $fuelDep, $fuelArr,
 
     // ÉTAPE 1 : Vérification dans FROM_ACARS (pour éviter race condition sur vols en cours de traitement)
     // On vérifie les vols traités (processed=1) ET non traités (processed=0) pour détecter les doublons immédiats
+    // On utilise une tolérance de 1% sur les valeurs flottantes pour éviter les problèmes d'arrondis
+    // Et on limite la recherche aux dernières 24 heures pour optimiser les performances
     $sqlAcars = "SELECT COUNT(*) FROM FROM_ACARS 
                  WHERE callsign = :callsign 
                  AND departure_icao = :depart 
                  AND arrival_icao = :dest 
-                 AND departure_fuel = :fuelDep 
-                 AND arrival_fuel = :fuelArr 
-                 AND payload = :payload 
-                 AND mission = :mission";
+                 AND ABS(departure_fuel - :fuelDep) < 1 
+                 AND ABS(arrival_fuel - :fuelArr) < 1 
+                 AND ABS(payload - :payload) < 1 
+                 AND mission = :mission
+                 AND created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)";
     $stmtAcars = $pdo->prepare($sqlAcars);
     $stmtAcars->execute([
         'callsign' => $callsign,
@@ -135,14 +138,17 @@ function detecterDoublonVol($pdo, $callsign, $depart, $dest, $fuelDep, $fuelArr,
 
     // ÉTAPE 2 : Vérification dans CARNET_DE_VOL_GENERAL (vols déjà traités complètement)
     // Note retirée des critères : elle peut varier selon l'évaluation ACARS
+    // On utilise une tolérance de 1% sur les valeurs flottantes pour éviter les problèmes d'arrondis
+    // Et on limite la recherche aux dernières 24 heures pour optimiser les performances
     $sqlCarnet = "SELECT COUNT(*) FROM CARNET_DE_VOL_GENERAL 
                   WHERE pilote_id = :pilote_id 
                   AND depart = :depart 
                   AND destination = :dest 
-                  AND fuel_depart = :fuelDep 
-                  AND fuel_arrivee = :fuelArr 
-                  AND payload = :payload 
-                  AND mission_id = (SELECT id FROM MISSIONS WHERE libelle = :mission LIMIT 1)";
+                  AND ABS(fuel_depart - :fuelDep) < 1 
+                  AND ABS(fuel_arrivee - :fuelArr) < 1 
+                  AND ABS(payload - :payload) < 1 
+                  AND mission_id = (SELECT id FROM MISSIONS WHERE libelle = :mission LIMIT 1)
+                  AND date_vol >= DATE_SUB(NOW(), INTERVAL 24 HOUR)";
     $stmtCarnet = $pdo->prepare($sqlCarnet);
     $stmtCarnet->execute([
         'pilote_id' => $pilote_id,
