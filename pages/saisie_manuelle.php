@@ -137,15 +137,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (!$avion) $erreurs_proc[] = "Avion '$immat' introuvable ou inactif.";
 
                 // doublon
-                if (function_exists('detecterDoublonVol') && detecterDoublonVol($pdo, $callsign, $departure_icao, $arrival_icao, $departure_fuel, $arrival_fuel, $payload, $note, $mission)) {
+                if (function_exists('detecterDoublonVol') && detecterDoublonVol($pdo, $callsign, $departure_icao, $arrival_icao, $departure_fuel, $arrival_fuel, $payload, $note, $mission, $logFile)) {
                     $erreurs_proc[] = "Vol doublon détecté pour le pilote '$callsign'.";
                 }
 
                 if (!empty($erreurs_proc)) {
                     foreach ($erreurs_proc as $errp) logMsg("[saisie_manuelle] $errp", $logFile);
-                    // Pour les vols manuels, on ne rejette pas via rejeterVol car il n'y a pas d'acars_id
-                    // On log simplement les erreurs
-                    logMsg("[saisie_manuelle] Vol manuel rejeté : " . implode(' | ', $erreurs_proc), $logFile);
+                    // Rejeter le vol via la nouvelle fonction rejeterVolDirect
+                    if (function_exists('rejeterVolDirect')) {
+                        rejeterVolDirect($pdo, $callsign, $immat, $departure_icao, $arrival_icao, $departure_fuel, $arrival_fuel, $departure_time, $arrival_time, $payload, $commentaire, $note, $mission, implode(' | ', $erreurs_proc), $horodateur, $logFile);
+                    }
                     $erreurs = array_merge($erreurs, $erreurs_proc);
                 } else {
                    

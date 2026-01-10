@@ -13,11 +13,10 @@
  1. Vérifie la méthode HTTP (POST uniquement).
  2. Vérifie la présence et la validité des champs requis dans $_POST.
  3. Formate et nettoie les données reçues.
- 4. Insère le vol dans FROM_ACARS (marqué comme traité).
- 5. Contrôles métier : validité des données, existence du pilote et de l'avion.
- 6. Met à jour le fret, la flotte, les finances, le carnet de vol, et l'usure.
- 7. Logue chaque étape et erreur dans le fichier log.
- 8. Retourne une réponse JSON indiquant le succès ou l'erreur.
+ 4. Contrôles métier : validité des données, existence du pilote et de l'avion, détection doublons.
+ 5. Met à jour le fret, la flotte, les finances, le carnet de vol, et l'usure.
+ 6. Logue chaque étape et erreur dans le fichier log.
+ 7. Retourne une réponse JSON indiquant le succès ou l'erreur.
 
  Utilisation :
  - À appeler via une requête HTTP POST depuis un client ACARS ou une interface web.
@@ -133,43 +132,18 @@ try {
         foreach ($erreurs as $err) {
             logMsg("[api_import_vol_direct] ❌ $err", $logFile);
         }
-        rejeterVol($pdo, $_POST, implode(' | ', $erreurs), $logFile);
+        rejeterVolDirect($pdo, $callsign, $immat, $departure_icao, $arrival_icao, $departure_fuel, $arrival_fuel, $departure_time, $arrival_time, $payload, $commentaire, $note, $mission, implode(' | ', $erreurs), $horodateur, $logFile);
         echo json_encode(['status' => 'error', 'message' => implode(' | ', $erreurs)]);
         return;
     }
 
-    // 6. Insertion en base (vol traité)
-    $stmt = $pdo->prepare("INSERT INTO FROM_ACARS (
-        horodateur, callsign, immatriculation, departure_icao, departure_fuel, departure_time,
-        arrival_icao, arrival_fuel, arrival_time, payload, commentaire, note_du_vol, mission, processed, created_at
-    ) VALUES (
-        :horodateur, :callsign, :immat, :dep_icao, :dep_fuel, :dep_time,
-        :arr_icao, :arr_fuel, :arr_time, :payload, :commentaire, :note, :mission, 1, NOW()
-    )");
-
-    $stmt->execute([
-        'horodateur'   => $horodateur,
-        'callsign'     => $callsign,
-        'immat'        => $immat,
-        'dep_icao'     => $departure_icao,
-        'dep_fuel'     => $departure_fuel,
-        'dep_time'     => $departure_time,
-        'arr_icao'     => $arrival_icao,
-        'arr_fuel'     => $arrival_fuel,
-        'arr_time'     => $arrival_time,
-        'payload'      => $payload,
-        'commentaire'  => $commentaire,
-        'note'         => $note,
-        'mission'      => $mission
-    ]);
-
-    // 7. Traitement du fret
+    // 6. Traitement du fret
     if ($payload > 0) {
         $fret_transporte = deduireFretDepart($departure_icao, $payload, $logFile);
         ajouterFretDestination($arrival_icao, $fret_transporte, $logFile);
     }
 
-    // 8. Calcul du coût du vol
+    // 7. Calcul du coût du vol
     $distance = ComputeFlightDistance($departure_icao, $arrival_icao);
     logMsg("[api_import_vol_direct] Distance calculée : $distance NM", $logFile);
     $majoration_mission = getMajorationMission($mission);
@@ -188,11 +162,11 @@ try {
     }
     $cout_vol = calculerRevenuNetVol($payload, $temps_vol,$distance, $majoration_mission, $carburant, $note, $cout_horaire,$immat);
 
-    // 9. Ajout au carnet de vol avec le coût
+    // 8. Ajout au carnet de vol avec le coût
     $vol_id = remplirCarnetVolGeneral($horodateur, $callsign, $immat, $departure_icao, $arrival_icao, $departure_fuel, $arrival_fuel, $payload, $departure_time, $arrival_time, $mission, $commentaire, $note, $cout_vol, $temps_vol, $logFile);
     logMsg("[api_import_vol_direct] Ajout au carnet de vol : callsign=$callsign, immat=$immat, depart=$departure_icao, dest=$arrival_icao, payload=$payload, cout_vol=$cout_vol", $logFile);
 
-    // 10. Ajout de la trace GPS si fournie
+    // 9. Ajout de la trace GPS si fournie
     if (empty($tracegps)) {
         $tracegps = "Aucune trace GPS fournie pour le vol $vol_id";
     }else{
@@ -200,24 +174,24 @@ try {
         logMsg("[api_import_vol_direct] Ajout de la trace GPS ajoutée pour le vol ID $vol_id", $logFile);
     }
     
-    // 11. Mise à jour de la flotte
+    // 10. Mise à jour de la flotte
     mettreAJourFlotte($immat, $arrival_fuel, $callsign, $arrival_icao, $logFile);
     logMsg("[api_import_vol_direct] Mise à jour flotte : immat=$immat, fuel=$arrival_fuel, callsign=$callsign, localisation=$arrival_icao", $logFile);
 
-    // 12. Mettre à jour finances
+    // 11. Mettre à jour finances
     mettreAJourFinances($immat, $cout_vol, $logFile);
     logMsg("[api_import_vol_direct] Mise à jour finances : immat=$immat, cout_vol=$cout_vol", $logFile);
 
-    // 13. Mise à jour de la balance commerciale via fonction dédiée
+    // 12. Mise à jour de la balance commerciale via fonction dédiée
     $commentaire = "Vol importé depuis ACARS : $departure_icao -> $arrival_icao, pilote: $callsign, immat: $immat";
     mettreAJourRecettes($cout_vol, $vol_id, $immat, $callsign, 'vol', 'Recette vol ACARS');
     logMsg("[api_import_vol_direct] Ajout recette dans finances_recettes : cout_vol=$cout_vol, vol_id=$vol_id", $logFile);
 
-    // 14. Usure
+    // 13. Usure
     deduireUsure($immat, $note, $logFile);
     logMsg("[api_import_vol_direct] Usure avion $immat, note=$note", $logFile);
     
-    // 15. Envoi du mail recapitulatif enrichi
+    // 14. Envoi du mail recapitulatif enrichi
     if ($mailSummaryEnabled && function_exists('sendSummaryMail')) {
         $subject = "[SimWeb] Rapport import vol direct ACARS - " . date('d/m/Y H:i');
         $body = "Bonjour,\r\n\r\nImport d'un vol ACARS direct termine.\r\n\r\n";

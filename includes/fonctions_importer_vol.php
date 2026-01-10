@@ -105,40 +105,9 @@ function detecterDoublonVol($pdo, $callsign, $depart, $dest, $fuelDep, $fuelArr,
     
     logMsg("[detecterDoublonVol] 🔍 Vérification doublons pour callsign=$callsign, dep=$depart, dest=$dest, fuelDep=$fuelDep, fuelArr=$fuelArr, payload=$payload, mission=$mission", $logFile);
 
-    // ÉTAPE 1 : Vérification dans FROM_ACARS (pour éviter race condition sur vols en cours de traitement)
-    // On vérifie les vols traités (processed=1) ET non traités (processed=0) pour détecter les doublons immédiats
-    // On utilise une tolérance de 1% sur les valeurs flottantes pour éviter les problèmes d'arrondis
-    // Et on limite la recherche aux dernières 24 heures pour optimiser les performances
-    $sqlAcars = "SELECT COUNT(*) FROM FROM_ACARS 
-                 WHERE callsign = :callsign 
-                 AND departure_icao = :depart 
-                 AND arrival_icao = :dest 
-                 AND ABS(departure_fuel - :fuelDep) < 1 
-                 AND ABS(arrival_fuel - :fuelArr) < 1 
-                 AND ABS(payload - :payload) < 1 
-                 AND mission = :mission
-                 AND created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)";
-    $stmtAcars = $pdo->prepare($sqlAcars);
-    $stmtAcars->execute([
-        'callsign' => $callsign,
-        'depart' => $depart,
-        'dest' => $dest,
-        'fuelDep' => $fuelDep,
-        'fuelArr' => $fuelArr,
-        'payload' => $payload,
-        'mission' => $mission
-    ]);
-    $countAcars = $stmtAcars->fetchColumn();
-    logMsg("[detecterDoublonVol] 📋 Vols dans FROM_ACARS : $countAcars", $logFile);
-    
-    if ($countAcars > 0) {
-        logMsg("[detecterDoublonVol] ⚠️ DOUBLON détecté dans FROM_ACARS (count=$countAcars)", $logFile);
-        return true;
-    }
-
-    // ÉTAPE 2 : Vérification dans CARNET_DE_VOL_GENERAL (vols déjà traités complètement)
+    // Vérification dans CARNET_DE_VOL_GENERAL uniquement
     // Note retirée des critères : elle peut varier selon l'évaluation ACARS
-    // On utilise une tolérance de 1% sur les valeurs flottantes pour éviter les problèmes d'arrondis
+    // On utilise une tolérance de 1 sur les valeurs flottantes pour éviter les problèmes d'arrondis
     // Et on limite la recherche aux dernières 24 heures pour optimiser les performances
     $sqlCarnet = "SELECT COUNT(*) FROM CARNET_DE_VOL_GENERAL 
                   WHERE pilote_id = :pilote_id 
@@ -169,6 +138,92 @@ function detecterDoublonVol($pdo, $callsign, $depart, $dest, $fuelDep, $fuelArr,
     
     logMsg("[detecterDoublonVol] ✅ Aucun doublon détecté", $logFile);
     return false;
+}
+
+/**
+ * Insère un vol rejeté dans VOLS_REJETES et envoie un mail (version pour import direct sans FROM_ACARS).
+ * @param PDO $pdo Instance PDO
+ * @param string $callsign Callsign du pilote
+ * @param string $immat Immatriculation de l'avion
+ * @param string $departure_icao Code ICAO départ
+ * @param string $arrival_icao Code ICAO arrivée
+ * @param float $departure_fuel Carburant départ
+ * @param float $arrival_fuel Carburant arrivée
+ * @param string $departure_time Heure de départ
+ * @param string $arrival_time Heure d'arrivée
+ * @param float $payload Fret transporté
+ * @param string $commentaire Commentaire
+ * @param int $note Note du vol
+ * @param string $mission Mission
+ * @param string $motif Motif du rejet
+ * @param string $horodateur Horodateur
+ * @return void
+ */
+function rejeterVolDirect($pdo, $callsign, $immat, $departure_icao, $arrival_icao, $departure_fuel, $arrival_fuel, $departure_time, $arrival_time, $payload, $commentaire, $note, $mission, $motif, $horodateur, $logFile = null) {
+    if ($logFile === null) {
+        $logFile = dirname(__DIR__) . '/scripts/logs/import_vol.log';
+    }
+    logMsg("[rejeterVolDirect] 🔴 Rejet du vol callsign=$callsign, immat=$immat | Motif : $motif", $logFile);
+
+    $stmt = $pdo->prepare("
+        INSERT INTO VOLS_REJETES
+        (acars_id, horodateur, callsign, immatriculation, departure_icao, arrival_icao,
+         departure_fuel, arrival_fuel, departure_time, arrival_time, payload,
+         commentaire, note_du_vol, mission, motif_rejet)
+        VALUES (NULL, :horodateur, :callsign, :immatriculation, :departure_icao, :arrival_icao,
+                :departure_fuel, :arrival_fuel, :departure_time, :arrival_time, :payload,
+                :commentaire, :note_du_vol, :mission, :motif_rejet)
+    ");
+
+    $stmt->execute([
+        'horodateur' => $horodateur,
+        'callsign' => $callsign,
+        'immatriculation' => $immat,
+        'departure_icao' => $departure_icao,
+        'arrival_icao' => $arrival_icao,
+        'departure_fuel' => $departure_fuel,
+        'arrival_fuel' => $arrival_fuel,
+        'departure_time' => $departure_time,
+        'arrival_time' => $arrival_time,
+        'payload' => $payload,
+        'commentaire' => $commentaire,
+        'note_du_vol' => $note,
+        'mission' => $mission,
+        'motif_rejet' => $motif
+    ]);
+
+    logMsg("[rejeterVolDirect] Vol rejeté inséré dans VOLS_REJETES pour callsign=$callsign", $logFile);
+
+    // Envoi d'un mail après rejet
+    try {
+        require_once __DIR__ . '/../includes/PHPMailer/PHPMailer.php';
+        require_once __DIR__ . '/../includes/PHPMailer/SMTP.php';
+        require_once __DIR__ . '/../includes/PHPMailer/Exception.php';
+        
+        $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+
+        $mail->isSMTP();
+        $mail->Host = SMTP_HOST;
+        $mail->SMTPAuth = true;
+        $mail->Username = SMTP_USERNAME;
+        $mail->Password = SMTP_PASSWORD;
+        $mail->SMTPSecure = SMTP_SECURE;
+        $mail->Port = SMTP_PORT;
+        $mail->setFrom(SMTP_FROM_EMAIL, SMTP_FROM_NAME);
+        $mail->addAddress(VA_ADMIN_EMAIL);
+        $mail->Subject = 'Vol rejeté';
+        $mail->CharSet = 'UTF-8';
+        $mail->Body = "Un vol a été rejeté :\n" .
+            "Callsign : " . $callsign . "\n" .
+            "Immatriculation : " . $immat . "\n" .
+            "Départ : " . $departure_icao . "\n" .
+            "Arrivée : " . $arrival_icao . "\n" .
+            "Motif du rejet : " . $motif . "\n";
+        $mail->send();
+        logMsg("[rejeterVolDirect] 📧 Mail envoyé pour vol rejeté callsign=$callsign", $logFile);
+    } catch (Exception $e) {
+        error_log("[rejeterVolDirect] Erreur lors de l'envoi du mail de vol rejeté : " . $e->getMessage());
+    }
 }
 
 /**
