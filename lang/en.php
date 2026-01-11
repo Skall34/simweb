@@ -868,6 +868,8 @@ return [
     'admin_pilots_label_prenom' => 'First name:',
     'admin_pilots_label_nom' => 'Last name:',
     'admin_pilots_label_email' => 'Email:',
+    'admin_pilots_label_hours' => 'Flight hours:',
+    'admin_pilots_label_grade' => 'Rank:',
     'admin_pilots_label_admin' => 'Admin',
     'admin_pilots_label_actif' => 'Active',
     'admin_pilots_btn_save' => 'Save',

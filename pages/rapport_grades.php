@@ -27,23 +27,45 @@ if (!$isAdmin) {
     exit;
 }
 
-// Seuils de grades (à synchroniser avec le script de promotion)
-$seuils_grades = [
-    1 => 0,
-    2 => 100,
-    3 => 200,
-    4 => 300,
-    5 => 400
+// Palette de couleurs pour les grades (cycle automatique si plus de grades)
+$palette_couleurs = [
+    '#718096', // Gris
+    '#48bb78', // Vert
+    '#4299e1', // Bleu
+    '#ed8936', // Orange
+    '#f56565', // Rouge
+    '#9f7aea', // Violet
+    '#38b2ac', // Cyan
+    '#e53e3e', // Rouge foncé
+    '#dd6b20', // Orange foncé
+    '#d69e2e', // Jaune
 ];
 
-// Récupérer tous les grades
-$stmtGrades = $pdo->query("SELECT id, nom FROM GRADES ORDER BY id ASC");
+// Récupérer tous les grades et assigner dynamiquement les couleurs et seuils
+$stmtGrades = $pdo->query("SELECT id, nom, niveau FROM GRADES ORDER BY niveau ASC, id ASC");
 $grades = [];
+$grade_colors = [];
+$seuils_grades = [];
+$grades_par_niveau = []; // Pour retrouver facilement un grade par son niveau
+$index_couleur = 0;
 while ($row = $stmtGrades->fetch(PDO::FETCH_ASSOC)) {
     $grades[$row['id']] = $row['nom'];
+    // Assigner une couleur en cyclant dans la palette
+    $grade_colors[$row['id']] = $palette_couleurs[$index_couleur % count($palette_couleurs)];
+    // Calculer le seuil : (niveau - 1) × 100 heures
+    $seuils_grades[$row['id']] = ($row['niveau'] - 1) * 100;
+    $grades_par_niveau[$row['niveau']] = [
+        'id' => $row['id'],
+        'nom' => $row['nom'],
+        'seuil' => ($row['niveau'] - 1) * 100
+    ];
+    $index_couleur++;
 }
 
-// Récupérer tous les pilotes avec leurs heures
+// Niveau maximum
+$niveau_max = max(array_keys($grades_par_niveau));
+
+// Récupérer tous les pilotes actifs avec leurs heures
 $stmtPilotes = $pdo->query("
     SELECT 
         p.id,
@@ -54,6 +76,7 @@ $stmtPilotes = $pdo->query("
         COALESCE(SUM(TIME_TO_SEC(cdvg.temps_vol)), 0) AS total_secondes
     FROM PILOTES p
     LEFT JOIN CARNET_DE_VOL_GENERAL cdvg ON p.id = cdvg.pilote_id
+    WHERE p.actif = 1
     GROUP BY p.id, p.callsign, p.prenom, p.nom, p.grade_id
     ORDER BY total_secondes DESC
 ");
@@ -64,28 +87,38 @@ $promotions_imminentes = [];
 
 while ($pilote = $stmtPilotes->fetch(PDO::FETCH_ASSOC)) {
     $total_heures = $pilote['total_secondes'] / 3600;
-    $grade_actuel = $pilote['grade_id'];
-    $grade_nom = $grades[$grade_actuel] ?? 'Inconnu';
+    $grade_actuel_id = $pilote['grade_id'];
+    $grade_nom = $grades[$grade_actuel_id] ?? 'Inconnu';
+    
+    // Trouver le niveau actuel du pilote
+    $niveau_actuel = null;
+    foreach ($grades_par_niveau as $niv => $info) {
+        if ($info['id'] == $grade_actuel_id) {
+            $niveau_actuel = $niv;
+            break;
+        }
+    }
     
     // Calculer le prochain grade et progression
     $prochain_grade_id = null;
     $prochain_grade_nom = null;
     $heures_restantes = null;
-    $progression = 100;
+    $progression = 100; // Par défaut 100% si grade max
     
-    foreach ($seuils_grades as $gid => $seuil) {
-        if ($gid > $grade_actuel) {
-            $prochain_grade_id = $gid;
-            $prochain_grade_nom = $grades[$gid] ?? 'Inconnu';
-            $heures_restantes = $seuil - $total_heures;
+    // Chercher le prochain niveau
+    if ($niveau_actuel !== null && $niveau_actuel < $niveau_max) {
+        $prochain_niveau = $niveau_actuel + 1;
+        if (isset($grades_par_niveau[$prochain_niveau])) {
+            $prochain_grade_id = $grades_par_niveau[$prochain_niveau]['id'];
+            $prochain_grade_nom = $grades_par_niveau[$prochain_niveau]['nom'];
+            $seuil_prochain = $grades_par_niveau[$prochain_niveau]['seuil'];
+            $heures_restantes = $seuil_prochain - $total_heures;
             
             // Calculer la progression entre le grade actuel et le prochain
-            $seuil_actuel = $seuils_grades[$grade_actuel] ?? 0;
-            $seuil_suivant = $seuil;
-            if ($seuil_suivant > $seuil_actuel) {
-                $progression = min(100, (($total_heures - $seuil_actuel) / ($seuil_suivant - $seuil_actuel)) * 100);
+            $seuil_actuel = $grades_par_niveau[$niveau_actuel]['seuil'];
+            if ($seuil_prochain > $seuil_actuel) {
+                $progression = min(100, max(0, (($total_heures - $seuil_actuel) / ($seuil_prochain - $seuil_actuel)) * 100));
             }
-            break;
         }
     }
     
@@ -93,7 +126,7 @@ while ($pilote = $stmtPilotes->fetch(PDO::FETCH_ASSOC)) {
         'callsign' => $pilote['callsign'],
         'prenom' => $pilote['prenom'],
         'nom' => $pilote['nom'],
-        'grade_id' => $grade_actuel,
+        'grade_id' => $grade_actuel_id,
         'grade_nom' => $grade_nom,
         'heures' => $total_heures,
         'prochain_grade_id' => $prochain_grade_id,
@@ -102,10 +135,10 @@ while ($pilote = $stmtPilotes->fetch(PDO::FETCH_ASSOC)) {
         'progression' => $progression
     ];
     
-    $stats_grades[$grade_actuel]++;
+    $stats_grades[$grade_actuel_id]++;
     
-    // Promotions imminentes (< 20h)
-    if ($heures_restantes !== null && $heures_restantes > 0 && $heures_restantes < 20) {
+    // Promotions imminentes (< 20h ou déjà éligibles)
+    if ($heures_restantes !== null && $heures_restantes < 20) {
         $promotions_imminentes[] = [
             'callsign' => $pilote['callsign'],
             'prenom' => $pilote['prenom'],
@@ -233,11 +266,12 @@ include __DIR__ . '/../includes/menu_logged.php';
     color: white;
 }
 
-.grade-1 { background: #718096; }
-.grade-2 { background: #48bb78; }
-.grade-3 { background: #4299e1; }
-.grade-4 { background: #ed8936; }
-.grade-5 { background: #f56565; }
+<?php
+// Générer dynamiquement les classes CSS pour chaque grade
+foreach ($grade_colors as $grade_id => $color) {
+    echo ".grade-{$grade_id} { background: {$color}; }\n";
+}
+?>
 
 .progress-bar-container {
     width: 100%;
@@ -383,14 +417,18 @@ include __DIR__ . '/../includes/menu_logged.php';
         <!-- Promotions imminentes -->
         <?php if (count($promotions_imminentes) > 0): ?>
         <div class="alert-promo">
-            <h4>⚠️ Promotions Imminentes (moins de 20h restantes)</h4>
+            <h4>⚠️ Promotions Imminentes (moins de 20h restantes ou éligibles)</h4>
             <ul class="promo-list">
                 <?php foreach ($promotions_imminentes as $promo): ?>
                     <li>
                         <strong><?= htmlspecialchars($promo['callsign']) ?></strong> 
                         (<?= htmlspecialchars($promo['prenom'] . ' ' . $promo['nom']) ?>) 
                         → <strong><?= htmlspecialchars($promo['prochain_grade']) ?></strong> 
-                        dans <strong style="color: #f39c12;"><?= number_format($promo['heures_restantes'], 1) ?>h</strong>
+                        <?php if ($promo['heures_restantes'] > 0): ?>
+                            dans <strong style="color: #f39c12;"><?= number_format($promo['heures_restantes'], 1) ?>h</strong>
+                        <?php else: ?>
+                            <strong style="color: #48bb78;">✓ Éligible maintenant</strong>
+                        <?php endif; ?>
                     </li>
                 <?php endforeach; ?>
             </ul>
@@ -444,18 +482,22 @@ include __DIR__ . '/../includes/menu_logged.php';
                                 <?php endif; ?>
                             </td>
                             <td style="text-align: right;">
-                                <?php if ($p['heures_restantes'] !== null && $p['heures_restantes'] > 0): ?>
-                                    <span style="color: <?= $p['heures_restantes'] < 10 ? '#f56565' : '#718096' ?>; font-weight: bold;">
-                                        <?= number_format($p['heures_restantes'], 1) ?>h
-                                    </span>
+                                <?php if ($p['heures_restantes'] !== null): ?>
+                                    <?php if ($p['heures_restantes'] > 0): ?>
+                                        <span style="color: <?= $p['heures_restantes'] < 10 ? '#f56565' : '#718096' ?>; font-weight: bold;">
+                                            <?= number_format($p['heures_restantes'], 1) ?>h
+                                        </span>
+                                    <?php else: ?>
+                                        <span style="color: #48bb78; font-weight: bold;">✓ Éligible</span>
+                                    <?php endif; ?>
                                 <?php else: ?>
                                     <span style="color: #a0aec0;">—</span>
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <?php if ($p['heures_restantes'] !== null): ?>
+                                <?php if ($p['prochain_grade_nom']): ?>
                                     <div class="progress-bar-container">
-                                        <div class="progress-bar" style="width: <?= number_format($p['progression'], 1) ?>%;">
+                                        <div class="progress-bar" style="width: <?= min(100, number_format($p['progression'], 1)) ?>%;">
                                             <?= number_format($p['progression'], 0) ?>%
                                         </div>
                                     </div>

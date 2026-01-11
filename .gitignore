@@ -12,3 +12,4 @@ tools/airportfixer/.vs
 tools/airportfixer/bin
 tools/airportfixer/obj
 assets/images/
+.vscode/settings.json

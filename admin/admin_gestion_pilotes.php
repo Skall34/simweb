@@ -6,14 +6,30 @@ require_once __DIR__ . '/../lang.php';
 $stmt = $pdo->query('SELECT id, callsign FROM PILOTES ORDER BY callsign');
 $pilotes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// Récupère tous les grades
+$stmt = $pdo->query('SELECT id, nom FROM GRADES ORDER BY id');
+$grades = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 // Récupère les infos du pilote sélectionné
 // Aucun pilote sélectionné par défaut
 $selected_id = isset($_POST['pilote_id']) ? intval($_POST['pilote_id']) : null;
 $info = null;
+$total_heures = '00,00';
 if ($selected_id) {
     $stmt = $pdo->prepare('SELECT * FROM PILOTES WHERE id = ?');
     $stmt->execute([$selected_id]);
     $info = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    // Calcul du total des heures de vol
+    if ($info) {
+        $stmt = $pdo->prepare('SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(temps_vol))) as total FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = ?');
+        $stmt->execute([$selected_id]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $temps = $result['total'] ?? '00:00:00';
+        // Formatage : HH,MM (sans les secondes)
+        $parts = explode(':', $temps);
+        $total_heures = $parts[0] . ',' . $parts[1];
+    }
 }
 
 // Mise à jour des infos
@@ -24,8 +40,9 @@ if (isset($_POST['update']) && $info) {
     $email = trim($_POST['email'] ?? '');
     $admin = isset($_POST['admin']) ? 1 : 0;
     $actif = isset($_POST['actif']) ? 1 : 0;
-    $stmt = $pdo->prepare('UPDATE PILOTES SET prenom = ?, nom = ?, email = ?, admin = ?, actif = ? WHERE id = ?');
-    if ($stmt->execute([$prenom, $nom, $email, $admin, $actif, $selected_id])) {
+    $grade_id = intval($_POST['grade_id'] ?? 1);
+    $stmt = $pdo->prepare('UPDATE PILOTES SET prenom = ?, nom = ?, email = ?, admin = ?, actif = ?, grade_id = ? WHERE id = ?');
+    if ($stmt->execute([$prenom, $nom, $email, $admin, $actif, $grade_id, $selected_id])) {
         $message = t('admin_pilots_success_update');
         // Réinitialise la sélection du pilote
         $selected_id = null;
@@ -73,6 +90,20 @@ include __DIR__ . '/../includes/menu_logged.php';
         <div class="form-row">
             <label><?= t('admin_pilots_label_email') ?></label>
             <input type="email" name="email" value="<?= htmlspecialchars($info['email']) ?>">
+        </div>
+        <div class="form-row">
+            <label><?= t('admin_pilots_label_hours') ?></label>
+            <input type="text" value="<?= htmlspecialchars($total_heures) ?>" disabled>
+        </div>
+        <div class="form-row">
+            <label><?= t('admin_pilots_label_grade') ?></label>
+            <select name="grade_id" class="fleet-filter-select">
+                <?php foreach ($grades as $g): ?>
+                    <option value="<?= $g['id'] ?>" <?= (isset($info['grade_id']) && $info['grade_id']==$g['id'])?'selected':'' ?>>
+                        <?= htmlspecialchars($g['nom']) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
         </div>
         <div class="form-row">
             <label></label>

@@ -871,6 +871,8 @@ return [
     'admin_pilots_label_prenom' => 'Prénom :',
     'admin_pilots_label_nom' => 'Nom :',
     'admin_pilots_label_email' => 'Email :',
+    'admin_pilots_label_hours' => 'Heures de vol :',
+    'admin_pilots_label_grade' => 'Grade :',
     'admin_pilots_label_admin' => 'Admin',
     'admin_pilots_label_actif' => 'Actif',
     'admin_pilots_btn_save' => 'Enregistrer',
