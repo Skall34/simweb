@@ -58,7 +58,7 @@ $data = $_POST;
 // Champs obligatoires
 $required = [
     'callsign', 'immatriculation', 'departure_icao', 'departure_fuel', 'departure_time',
-    'arrival_icao', 'arrival_fuel', 'arrival_time', 'payload', 'note_du_vol', 'mission'
+    'arrival_icao', 'arrival_fuel', 'arrival_time', 'payload', 'note_du_vol', 'mission','session_token'
 ];
 
 // Vérification des champs requis
@@ -69,6 +69,9 @@ foreach ($required as $field) {
         exit;
     }
 }
+
+$session_token = $data['session_token'];
+
 
 // Formatage et nettoyage
 $departure_time = str_replace('T', ' ', $data['departure_time']) . ':00';

@@ -170,7 +170,7 @@ function rejeterVolDirect($pdo, $callsign, $immat, $departure_icao, $arrival_ica
         (acars_id, horodateur, callsign, immatriculation, departure_icao, arrival_icao,
          departure_fuel, arrival_fuel, departure_time, arrival_time, payload,
          commentaire, note_du_vol, mission, motif_rejet)
-        VALUES (NULL, :horodateur, :callsign, :immatriculation, :departure_icao, :arrival_icao,
+        VALUES (-1, :horodateur, :callsign, :immatriculation, :departure_icao, :arrival_icao,
                 :departure_fuel, :arrival_fuel, :departure_time, :arrival_time, :payload,
                 :commentaire, :note_du_vol, :mission, :motif_rejet)
     ");
