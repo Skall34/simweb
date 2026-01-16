@@ -12,7 +12,20 @@
  *   - Envoi d'un mail de notification au pilote promu
  *   - Log des promotions dans le fichier dédié
  *   - Envoi d'un mail récapitulatif à l'administrateur
+ *
+ * Accès :
+ *   Via CRON (hébergeur) : https://votresite.com/scripts/promotion_grades_pilotes.php?token=VOTRE_TOKEN_SECRET
+ *   Mode dry-run : https://votresite.com/scripts/promotion_grades_pilotes.php?token=VOTRE_TOKEN_SECRET&dry-run=1
  */
+
+// Protection par token
+define('CRON_SECRET_TOKEN', 'CHANGEZ_CE_TOKEN_SECRET_ICI'); // À MODIFIER dans config.php ou ici
+
+if (!isset($_GET['token']) || $_GET['token'] !== CRON_SECRET_TOKEN) {
+    http_response_code(403);
+    die('Accès refusé');
+}
+
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/mail_utils.php';
@@ -24,18 +37,48 @@ if (!isset($_SESSION['lang'])) {
     $_SESSION['lang'] = VA_DEFAULT_LANGUAGE;
 }
 
-// Récupérer les grades et seuils
-$grades = [
-    1 => 0,
-    2 => 100,
-    3 => 200,
-    4 => 300,
-    5 => 400
-];
+// Mode dry run (simuler sans modifier la base ni envoyer de mails)
+// Supporte les deux modes : ligne de commande et HTTP
+$dryRun = (isset($argv[1]) && $argv[1] === '--dry-run') || (isset($_GET['dry-run']) && $_GET['dry-run'] == '1');
 
-logMsg('[PROMOTION] Début du script de promotion automatique', __DIR__ . '/logs/promotion_grades.log');
+// Définir le type de sortie
+header('Content-Type: text/plain; charset=utf-8');
+
+if ($dryRun) {
+    echo "========================================\n";
+    echo "MODE DRY RUN - Simulation sans modification\n";
+    echo "========================================\n\n";
+}
+
+// Récupérer les grades et seuils depuis la base de données
+$stmtGrades = $pdo->query("SELECT id, nom, niveau FROM GRADES ORDER BY niveau ASC");
+$gradesData = $stmtGrades->fetchAll(PDO::FETCH_ASSOC);
+
+// Construction du tableau de correspondance niveau => seuil heures
+// Par défaut : niveau 1 = 0h, niveau 2 = 100h, niveau 3 = 200h, etc.
+$grades = [];
+foreach ($gradesData as $grade) {
+    $seuil_heures = ($grade['niveau'] - 1) * 100; // Formule : niveau 1 => 0h, niveau 2 => 100h, etc.
+    $grades[$grade['id']] = [
+        'seuil' => $seuil_heures,
+        'nom' => $grade['nom'],
+        'niveau' => $grade['niveau']
+    ];
+}
+
+logMsg('[PROMOTION] Début du script de promotion automatique' . ($dryRun ? ' (DRY RUN)' : ''), __DIR__ . '/logs/promotion_grades.log');
+if ($dryRun) {
+    echo "Grades chargés depuis la base :\n";
+    foreach ($grades as $id => $data) {
+        echo "  - Grade #{$id} '{$data['nom']}' (niveau {$data['niveau']}) : seuil {$data['seuil']}h\n";
+    }
+    echo "\n";
+}
 $stmtPilotes = $pdo->query("SELECT id, email, grade_id, prenom, nom, callsign FROM PILOTES");
 $pilotes = $stmtPilotes->fetchAll(PDO::FETCH_ASSOC);
+
+// Initialiser le tableau des promotions
+$promotions = [];
 
 foreach ($pilotes as $pilote) {
     // Calculer le total d'heures de vol
@@ -44,70 +87,95 @@ foreach ($pilotes as $pilote) {
     $total_sec = (int)$stmtHeures->fetchColumn();
     $total_heures = $total_sec / 3600;
 
-    // Déterminer le grade éligible
-    $nouveau_grade = $pilote['grade_id'];
-    foreach ($grades as $grade_id => $seuil) {
-        if ($total_heures >= $seuil) {
-            $nouveau_grade = $grade_id;
+    // Déterminer le grade éligible (le plus haut niveau accessible)
+    $nouveau_grade_id = $pilote['grade_id'];
+    $nouveau_grade_data = null;
+    
+    foreach ($grades as $grade_id => $grade_data) {
+        if ($total_heures >= $grade_data['seuil'] && $grade_data['niveau'] > ($grades[$nouveau_grade_id]['niveau'] ?? 0)) {
+            $nouveau_grade_id = $grade_id;
+            $nouveau_grade_data = $grade_data;
         }
     }
 
     // Si le grade doit être augmenté
-    if ($nouveau_grade > $pilote['grade_id']) {
-        // Mettre à jour le grade
-        $stmtUpdate = $pdo->prepare("UPDATE PILOTES SET grade_id = ? WHERE id = ?");
-        $stmtUpdate->execute([$nouveau_grade, $pilote['id']]);
-
-        // Récupérer le nom du nouveau grade
-        $stmtGrade = $pdo->prepare("SELECT nom FROM GRADES WHERE id = ?");
-        $stmtGrade->execute([$nouveau_grade]);
-        $grade_nom = $stmtGrade->fetchColumn();
-
-        // Log de la promotion (système commun)
-        $log_msg = "Promotion: " . $pilote['callsign'] . " (" . $pilote['prenom'] . " " . $pilote['nom'] . ") promu au grade $grade_nom (heures: " . number_format($total_heures, 2) . ")";
-        logMsg($log_msg, __DIR__ . '/logs/promotion_grades.log');
-        $promotions[] = date('Y-m-d H:i:s') . ' | ' . $log_msg . "\n";
-
-        // Envoyer un mail de notification au pilote
-        $to = $pilote['email'];
-        $subject = t('script_promotion_subject', ['grade' => $grade_nom]);
-        $message = t('script_promotion_greeting', ['firstname' => htmlspecialchars($pilote['prenom']), 'lastname' => htmlspecialchars($pilote['nom'])]) . "<br><br>";
-        $message .= t('script_promotion_congrats', ['grade' => $grade_nom]) . "<br>";
-        $message .= t('script_promotion_continue') . "<br><br>";
-        $message .= t('script_promotion_team');
-        $mailResult = sendSummaryMail($subject, $message, $to);
-        if ($mailResult === true || $mailResult === null) {
-            logMsg("Mail de promotion envoye a $to", __DIR__ . '/logs/promotion_grades.log');
+    if ($nouveau_grade_id > $pilote['grade_id'] && $nouveau_grade_data !== null) {
+        $grade_nom = $nouveau_grade_data['nom'];
+        
+        if ($dryRun) {
+            echo "[DRY RUN] Promotion détectée : {$pilote['callsign']} ({$pilote['prenom']} {$pilote['nom']})\n";
+            echo "  - Heures de vol : " . number_format($total_heures, 2) . "h\n";
+            echo "  - Grade actuel : #{$pilote['grade_id']}\n";
+            echo "  - Nouveau grade : #{$nouveau_grade_id} '{$grade_nom}'\n\n";
         } else {
-            logMsg("Erreur lors de l'envoi du mail de promotion a $to : $mailResult", __DIR__ . '/logs/promotion_grades.log');
+            // Mettre à jour le grade
+            $stmtUpdate = $pdo->prepare("UPDATE PILOTES SET grade_id = ? WHERE id = ?");
+            $stmtUpdate->execute([$nouveau_grade_id, $pilote['id']]);
+
+            // Envoyer un mail de notification au pilote
+            $to = $pilote['email'];
+            $subject = t('script_promotion_subject', ['grade' => $grade_nom]);
+            $message = t('script_promotion_greeting', ['firstname' => htmlspecialchars($pilote['prenom']), 'lastname' => htmlspecialchars($pilote['nom'])]) . "<br><br>";
+            $message .= t('script_promotion_congrats', ['grade' => $grade_nom]) . "<br>";
+            $message .= t('script_promotion_continue') . "<br><br>";
+            $message .= t('script_promotion_team');
+            
+            $mailResult = sendSummaryMail($subject, $message, $to);
+            if ($mailResult === true || $mailResult === null) {
+                logMsg("Mail de promotion envoye a $to", __DIR__ . '/logs/promotion_grades.log');
+            } else {
+                logMsg("Erreur lors de l'envoi du mail de promotion a $to : $mailResult", __DIR__ . '/logs/promotion_grades.log');
+            }
+        }
+
+        // Logger et ajouter au tableau de promotions
+        $promotions[] = "- {$pilote['callsign']} ({$pilote['prenom']} {$pilote['nom']}) : {$grade_nom} (" . number_format($total_heures, 2) . "h)\n";
+        logMsg("[PROMOTION] {$pilote['callsign']} promu au grade {$grade_nom}", __DIR__ . '/logs/promotion_grades.log');
+    }
+}
+
+// Envoyer le mail récapitulatif à l'administrateur
+if (!
+    if (!empty($promotions)) {
+        $subject = t('script_promotion_recap_subject');
+        $body = t('script_promotion_recap_greeting') . "<br><br>";
+        $body .= t('script_promotion_recap_intro') . "<br><pre>" . implode("", $promotions) . "</pre><br>";
+        $body .= t('script_promotion_recap_signature');
+        $mailResult = sendSummaryMail($subject, $body, VA_ADMIN_EMAIL);
+        if ($mailResult === true || $mailResult === null) {
+            logMsg("Mail recapitulatif envoye a " . VA_ADMIN_EMAIL, __DIR__ . '/logs/promotion_grades.log');
+        } else {
+            logMsg("Erreur lors de l'envoi du mail recapitulatif : $mailResult", __DIR__ . '/logs/promotion_grades.log');
+        }
+    } else {
+        $subject = t('script_promotion_recap_subject');
+        $body = t('script_promotion_recap_greeting') . "<br><br>";
+        $body .= t('script_promotion_recap_none') . "<br><br>";
+        $body .= t('script_promotion_recap_signature');
+        $mailResult = sendSummaryMail($subject, $body, VA_ADMIN_EMAIL);
+        if ($mailResult === true || $mailResult === null) {
+            logMsg("Mail récapitulatif (aucune promotion) envoyé à " . VA_ADMIN_EMAIL, __DIR__ . '/logs/promotion_grades.log');
+        } else {
+            logMsg("Erreur lors de l'envoi du mail récapitulatif (aucune promotion) : $mailResult", __DIR__ . '/logs/promotion_grades.log');
         }
     }
 }
 
-// Envoi d'un mail recapitulatif a l'administrateur
-if (!empty($promotions)) {
-    $subject = t('script_promotion_recap_subject');
-    $body = t('script_promotion_recap_greeting') . "<br><br>";
-    $body .= t('script_promotion_recap_intro') . "<br><pre>" . implode("", $promotions) . "</pre><br>";
-    $body .= t('script_promotion_recap_signature');
-    $mailResult = sendSummaryMail($subject, $body, VA_ADMIN_EMAIL);
-    if ($mailResult === true || $mailResult === null) {
-        logMsg("Mail recapitulatif envoye a " . VA_ADMIN_EMAIL, __DIR__ . '/logs/promotion_grades.log');
-    } else {
-        logMsg("Erreur lors de l'envoi du mail recapitulatif : $mailResult", __DIR__ . '/logs/promotion_grades.log');
-    }
-} else {
-    $subject = t('script_promotion_recap_subject');
-    $body = t('script_promotion_recap_greeting') . "<br><br>";
-    $body .= t('script_promotion_recap_none') . "<br><br>";
-    $body .= t('script_promotion_recap_signature');
-    $mailResult = sendSummaryMail($subject, $body, VA_ADMIN_EMAIL);
-    if ($mailResult === true || $mailResult === null) {
-        logMsg("Mail récapitulatif (aucune promotion) envoyé à " . VA_ADMIN_EMAIL, __DIR__ . '/logs/promotion_grades.log');
-    } else {
-        logMsg("Erreur lors de l'envoi du mail récapitulatif (aucune promotion) : $mailResult", __DIR__ . '/logs/promotion_grades.log');
-    }
-}
+logMsg('[PROMOTION] Fin du script de promotion automatique' . ($dryRun ? ' (DRY RUN)' : ''), __DIR__ . '/logs/promotion_grades.log');
 
-logMsg('[PROMOTION] Fin du script de promotion automatique', __DIR__ . '/logs/promotion_grades.log');
-echo "Promotions terminées.";
+if ($dryRun) {
+    echo "\n========================================\n";
+    echo "RÉSUMÉ DRY RUN\n";
+    echo "========================================\n";
+    echo "Total des promotions détectées : " . count($promotions) . "\n";
+    if (!empty($promotions)) {
+        echo "\nListe des promotions :\n";
+        foreach ($promotions as $promo) {
+            echo $promo;
+        }
+    }
+    echo "\nAucune modification n'a été effectuée en base.\n";
+    echo "Aucun mail n'a été envoyé.\n";
+} else {
+    echo "Promotions terminées. " . count($promotions) . " promotion(s) effectuée(s).\n";
+}

@@ -42,7 +42,7 @@ $palette_couleurs = [
 ];
 
 // Récupérer tous les grades et assigner dynamiquement les couleurs et seuils
-$stmtGrades = $pdo->query("SELECT id, nom, niveau FROM GRADES ORDER BY niveau ASC, id ASC");
+$stmtGrades = $pdo->query("SELECT id, nom, niveau, seuil_heures FROM GRADES ORDER BY niveau ASC, id ASC");
 $grades = [];
 $grade_colors = [];
 $seuils_grades = [];
@@ -52,12 +52,12 @@ while ($row = $stmtGrades->fetch(PDO::FETCH_ASSOC)) {
     $grades[$row['id']] = $row['nom'];
     // Assigner une couleur en cyclant dans la palette
     $grade_colors[$row['id']] = $palette_couleurs[$index_couleur % count($palette_couleurs)];
-    // Calculer le seuil : (niveau - 1) × 100 heures
-    $seuils_grades[$row['id']] = ($row['niveau'] - 1) * 100;
+    // Utiliser le seuil d'heures défini dans la base de données
+    $seuils_grades[$row['id']] = (int)$row['seuil_heures'];
     $grades_par_niveau[$row['niveau']] = [
         'id' => $row['id'],
         'nom' => $row['nom'],
-        'seuil' => ($row['niveau'] - 1) * 100
+        'seuil' => (int)$row['seuil_heures']
     ];
     $index_couleur++;
 }

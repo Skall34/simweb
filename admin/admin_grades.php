@@ -11,11 +11,12 @@ if ($action === 'add') {
     $nom = trim($_POST['nom'] ?? '');
     $description = trim($_POST['description'] ?? '');
     $taux_horaire = floatval(str_replace(',', '.', $_POST['taux_horaire'] ?? '0'));
-    if ($nom && $description && $taux_horaire > 0) {
+    $seuil_heures = intval($_POST['seuil_heures'] ?? 0);
+    if ($nom && $description && $taux_horaire > 0 && $seuil_heures >= 0) {
         // Trouver le niveau max et ajouter +1
         $maxNiveau = $pdo->query('SELECT COALESCE(MAX(niveau), 0) FROM GRADES')->fetchColumn();
-        $stmt = $pdo->prepare('INSERT INTO GRADES (nom, description, taux_horaire, niveau) VALUES (?, ?, ?, ?)');
-        $stmt->execute([$nom, $description, $taux_horaire, $maxNiveau + 1]);
+        $stmt = $pdo->prepare('INSERT INTO GRADES (nom, description, taux_horaire, niveau, seuil_heures) VALUES (?, ?, ?, ?, ?)');
+        $stmt->execute([$nom, $description, $taux_horaire, $maxNiveau + 1, $seuil_heures]);
         $message = t('admin_grades_success_add');
     } else {
         $message = t('admin_grades_error_required');
@@ -25,9 +26,10 @@ if ($action === 'add') {
     $nom = trim($_POST['nom'] ?? '');
     $description = trim($_POST['description'] ?? '');
     $taux_horaire = floatval(str_replace(',', '.', $_POST['taux_horaire'] ?? '0'));
-    if ($id && $nom && $description && $taux_horaire > 0) {
-        $stmt = $pdo->prepare('UPDATE GRADES SET nom=?, description=?, taux_horaire=? WHERE id=?');
-        $stmt->execute([$nom, $description, $taux_horaire, $id]);
+    $seuil_heures = intval($_POST['seuil_heures'] ?? 0);
+    if ($id && $nom && $description && $taux_horaire > 0 && $seuil_heures >= 0) {
+        $stmt = $pdo->prepare('UPDATE GRADES SET nom=?, description=?, taux_horaire=?, seuil_heures=? WHERE id=?');
+        $stmt->execute([$nom, $description, $taux_horaire, $seuil_heures, $id]);
         $message = t('admin_grades_success_edit');
     } else {
         $message = t('admin_grades_error_required');
@@ -82,7 +84,7 @@ if ($action === 'add') {
 }
 
 // Récupération des grades
-$stmt = $pdo->query('SELECT id, nom, description, taux_horaire, niveau FROM GRADES ORDER BY niveau ASC');
+$stmt = $pdo->query('SELECT id, nom, description, taux_horaire, niveau, seuil_heures FROM GRADES ORDER BY niveau ASC');
 $grades = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Récupération des pilotes avec leurs heures de vol
@@ -112,6 +114,7 @@ $pilotes = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <input type="hidden" name="action" value="add">
             <input type="text" name="nom" placeholder="<?= t('admin_grades_placeholder_nom') ?>" required>
             <input type="text" name="description" placeholder="<?= t('admin_grades_placeholder_description') ?>" required>
+            <input type="number" step="1" name="seuil_heures" placeholder="Seuil heures requis" required>
             <input type="number" step="10" name="taux_horaire" placeholder="<?= t('admin_grades_placeholder_taux') ?>" required>
             <button type="submit"><?= t('admin_grades_btn_add') ?></button>
         </form>
@@ -123,6 +126,7 @@ $pilotes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <tr>
                     <th>Ordre</th>
                     <th><?= t('admin_grades_col_grade') ?></th>
+                    <th>Seuil (h)</th>
                     <th><?= t('admin_grades_col_taux') ?></th>
                     <th><?= t('admin_grades_col_condition') ?></th>
                     <th><?= t('admin_grades_col_actions') ?></th>
@@ -144,6 +148,7 @@ $pilotes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <form method="post" style="display:contents;" class="grade-edit-form" data-grade-id="<?= $grade['id'] ?>">
                             <input type="hidden" name="id" value="<?= $grade['id'] ?>">
                             <td><input type="text" name="nom" class="grade-input" value="<?= htmlspecialchars($grade['nom']) ?>" data-initial="<?= htmlspecialchars($grade['nom']) ?>"></td>
+                            <td><input type="number" step="1" name="seuil_heures" class="grade-input" value="<?= htmlspecialchars($grade['seuil_heures']) ?>" data-initial="<?= htmlspecialchars($grade['seuil_heures']) ?>" style="width: 80px;"></td>
                             <td><input type="number" step="10" name="taux_horaire" class="grade-input" value="<?= htmlspecialchars($grade['taux_horaire']) ?>" data-initial="<?= htmlspecialchars($grade['taux_horaire']) ?>"></td>
                             <td><input type="text" name="description" class="grade-input" value="<?= htmlspecialchars($grade['description']) ?>" data-initial="<?= htmlspecialchars($grade['description']) ?>"></td>
                             <td class="grades-table-actions">
