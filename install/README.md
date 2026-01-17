@@ -60,7 +60,26 @@ votre-site/<br>
 
 **⚠️ IMPORTANT : Si un seul dossier manque, l'installation échouera !**
 
-## 🧹 Étape 2 : Connectez-vous sur adresse_de_votre_site/install
+## 🧹 Étape 2 : Créez votre base de données MySQL
+
+**IMPORTANT** : Chez la plupart des hébergeurs (OVH, etc.), vous devez **créer la base de données via leur interface web** AVANT de lancer l'installateur.
+
+### Chez OVH (et hébergeurs similaires) :
+
+1. **Connectez-vous à votre espace client OVH**
+2. **Allez dans "Bases de données" → "Créer une base de données"**
+3. **Notez précieusement** :
+   - Nom de la base (ex: `skywinjdemova`)
+   - Nom d'utilisateur (ex: `skywinjdemova`)
+   - Mot de passe
+   - Hôte (ex: `skywinjdemova.mysql.db`)
+   - Port (généralement `3306`)
+
+⚠️ **L'installateur ne peut PAS créer la base de données** chez ces hébergeurs, elle doit être créée manuellement.
+
+---
+
+## 🧹 Étape 3 : Connectez-vous sur adresse_de_votre_site/install
 
 1. **Ouvrez votre navigateur** : `http://votre-ip-ou-domaine/install/`
 
@@ -68,9 +87,11 @@ votre-site/<br>
    - Si rouge : corrigez les permissions avec les commandes affichées
 
 3. **Étape 2 - Base de données** :
-   - Hôte : **renseignez les informations de la base de données**
-   - Port : **renseignez le port**
-   - Nom de la base : **choisissez un nom** (ex: `ma_va`, `skyairlines`, etc.)
+   - Hôte : **celui fourni par OVH** (ex: `skywinjdemova.mysql.db`)
+   - Port : **généralement 3306**
+   - Nom de la base : **celui que vous avez créé** (ex: `skywinjdemova`)
+   - Utilisateur : **celui créé par OVH**
+   - Mot de passe : **celui défini lors de la création**
 
 4. **Étape 3 - Configuration VA** :
    - Nom de votre Virtual Airline

@@ -207,6 +207,7 @@ CREATE TABLE IF NOT EXISTS `GRADES` (
   `nom` varchar(50) NOT NULL,
   `description` text,
   `niveau` int NOT NULL DEFAULT '1',
+  `seuil_heures` INT NOT NULL DEFAULT 0,
   `date_creation` datetime DEFAULT CURRENT_TIMESTAMP,
   `taux_horaire` decimal(6,2) NOT NULL DEFAULT '10.00',
   PRIMARY KEY (`id`)
@@ -218,8 +219,8 @@ CREATE TABLE IF NOT EXISTS `GRADES` (
 -- Données initiales pour la table `GRADES`
 --
 
-INSERT INTO `GRADES` (`id`, `nom`, `description`, `niveau`, `taux_horaire`) VALUES
-(1, 'Cadet', 'Grade de départ pour les nouveaux pilotes', 1, 10.00);
+INSERT INTO `GRADES` (`id`, `nom`, `description`, `niveau`, `seuil_heures`, `taux_horaire`) VALUES
+(1, 'Cadet', 'Grade de départ pour les nouveaux pilotes', 1, 0, 10.00);
 --
 -- Structure de la table `LIGNES_REGULIERES`
 --

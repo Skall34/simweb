@@ -19,7 +19,7 @@
  */
 
 // Protection par token
-define('CRON_SECRET_TOKEN', 'CHANGEZ_CE_TOKEN_SECRET_ICI'); // À MODIFIER dans config.php ou ici
+define('CRON_SECRET_TOKEN', 'monTokenSecret2026XyZ987'); // À MODIFIER dans config.php ou ici
 
 if (!isset($_GET['token']) || $_GET['token'] !== CRON_SECRET_TOKEN) {
     http_response_code(403);
@@ -51,16 +51,14 @@ if ($dryRun) {
 }
 
 // Récupérer les grades et seuils depuis la base de données
-$stmtGrades = $pdo->query("SELECT id, nom, niveau FROM GRADES ORDER BY niveau ASC");
+$stmtGrades = $pdo->query("SELECT id, nom, niveau, seuil_heures FROM GRADES ORDER BY niveau ASC");
 $gradesData = $stmtGrades->fetchAll(PDO::FETCH_ASSOC);
 
 // Construction du tableau de correspondance niveau => seuil heures
-// Par défaut : niveau 1 = 0h, niveau 2 = 100h, niveau 3 = 200h, etc.
 $grades = [];
 foreach ($gradesData as $grade) {
-    $seuil_heures = ($grade['niveau'] - 1) * 100; // Formule : niveau 1 => 0h, niveau 2 => 100h, etc.
     $grades[$grade['id']] = [
-        'seuil' => $seuil_heures,
+        'seuil' => (int)$grade['seuil_heures'],
         'nom' => $grade['nom'],
         'niveau' => $grade['niveau']
     ];
@@ -135,7 +133,7 @@ foreach ($pilotes as $pilote) {
 }
 
 // Envoyer le mail récapitulatif à l'administrateur
-if (!
+if (!$dryRun) {
     if (!empty($promotions)) {
         $subject = t('script_promotion_recap_subject');
         $body = t('script_promotion_recap_greeting') . "<br><br>";

@@ -330,23 +330,21 @@ if (VA_DEBUG_MODE) {
             $logs[] = ['type' => 'success', 'message' => '✓ Dossier scripts/logs/ existe déjà'];
         }
         
-        // 4. Connexion à MySQL et création de la base de données
-        $logs[] = ['type' => 'info', 'message' => 'Connexion au serveur MySQL...'];
+        // 4. Connexion directe à la base de données (déjà créée via l'interface hébergeur)
+        $logs[] = ['type' => 'info', 'message' => 'Connexion à la base de données...'];
         
-        $dsn = "mysql:host={$db['host']};port={$db['port']};charset=utf8mb4";
+        // Se connecter directement à la base (ne pas tenter CREATE DATABASE)
+        $dsn = "mysql:host={$db['host']};port={$db['port']};dbname={$db['name']};charset=utf8mb4";
         $pdo = new PDO($dsn, $db['user'], $db['pass'], [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
         ]);
         
-        $logs[] = ['type' => 'success', 'message' => '✓ Connexion MySQL établie'];
+        $logs[] = ['type' => 'success', 'message' => '✓ Connexion à la base de données établie'];
         
-        // 4. Créer la base de données si elle n'existe pas
-        $logs[] = ['type' => 'info', 'message' => "Création de la base de données '{$db['name']}'..."];
-        
-        $pdo->exec("CREATE DATABASE IF NOT EXISTS `{$db['name']}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
-        $pdo->exec("USE `{$db['name']}`");
-        
-        $logs[] = ['type' => 'success', 'message' => '✓ Base de données créée/sélectionnée'];
+        // Vérifier si des tables existent déjà
+        if (!empty($db['has_tables'])) {
+            $logs[] = ['type' => 'warning', 'message' => '⚠ La base de données contient déjà des tables. Elles seront supprimées et recréées.'];
+        }
         
         // 5. Importer le script SQL principal
         $logs[] = ['type' => 'info', 'message' => 'Import du script 01_Main_Database.sql...'];

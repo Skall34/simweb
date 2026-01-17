@@ -21,14 +21,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($errors)) {
         // Test de connexion
         try {
-            $dsn = "mysql:host=$db_host;port=$db_port;charset=utf8mb4";
+            // Pour les hébergeurs mutualisés (OVH, etc.), la base existe déjà
+            // On se connecte directement à la base spécifiée
+            $dsn = "mysql:host=$db_host;port=$db_port;dbname=$db_name;charset=utf8mb4";
             $pdo = new PDO($dsn, $db_user, $db_pass, [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
             ]);
             
-            // Tester si la base existe déjà
-            $stmt = $pdo->query("SHOW DATABASES LIKE '$db_name'");
-            $db_exists = $stmt->rowCount() > 0;
+            // Vérifier qu'on peut accéder à la base
+            $pdo->query("SELECT 1");
+            
+            // Vérifier si des tables existent déjà
+            $stmt = $pdo->query("SHOW TABLES");
+            $db_has_tables = $stmt->rowCount() > 0;
             
             // Sauvegarder en session
             $_SESSION['install_data']['database'] = [
@@ -37,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'name' => $db_name,
                 'user' => $db_user,
                 'pass' => $db_pass,
-                'exists' => $db_exists
+                'has_tables' => $db_has_tables
             ];
             
             $success = true;
