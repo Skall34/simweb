@@ -19,6 +19,7 @@ require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/mail_utils.php';
 require_once __DIR__ . '/../includes/log_func.php';
 require_once __DIR__ . '/../includes/fonctions_financieres.php';
+require_once __DIR__ . '/../includes/generer_fiche_paie.php';
 require_once __DIR__ . '/../lang.php';
 
 // Définir la langue par défaut pour les scripts (pas de session)
@@ -34,7 +35,7 @@ $date_paiement = date('Y-m-01', strtotime('first day of this month -1 day'));
 
 logMsg('[SALAIRE] Début du script de paiement des salaires', __DIR__ . '/logs/paiement_salaires.log');
 
-$stmtPilotes = $pdo->query("SELECT id, email, grade_id, prenom, nom, callsign FROM PILOTES");
+$stmtPilotes = $pdo->query("SELECT id, email, grade_id, prenom, nom, callsign FROM PILOTES WHERE actif = 1 AND email IS NOT NULL AND email != ''");
 $pilotes = $stmtPilotes->fetchAll(PDO::FETCH_ASSOC);
 
 // Trace du nombre de pilotes et de leur callsign
@@ -98,10 +99,10 @@ foreach ($pilotes as $index => $pilote) {
     logMsg('[TRACE] Montant calculé : ' . $montant, __DIR__ . '/logs/paiement_salaires.log');
     echo "Montant calculé : $montant\n";
 
-    // Ignorer les pilotes sans vol ni fret sur la période
-    if (($total_sec === null || $total_sec == 0) && ($total_fret_kg === null || $total_fret_kg == 0)) {
-        logMsg('[INFO] Aucun vol ni fret pour ce pilote sur la période, traitement ignoré.', __DIR__ . '/logs/paiement_salaires.log');
-        echo "Aucun vol ni fret pour ce pilote sur la période, traitement ignoré.\n--- Fin traitement pilote ---\n\n";
+    // Ignorer les pilotes sans vol ni fret sur la période (ou avec 0 heures exactement)
+    if ($heures_mois <= 0 || (($total_sec === null || $total_sec == 0) && ($total_fret_kg === null || $total_fret_kg == 0))) {
+        logMsg('[INFO] Aucune heure de vol pour ce pilote sur la période, traitement ignoré.', __DIR__ . '/logs/paiement_salaires.log');
+        echo "Aucune heure de vol pour ce pilote sur la période, traitement ignoré.\n--- Fin traitement pilote ---\n\n";
         continue;
     }
 
@@ -127,28 +128,77 @@ foreach ($pilotes as $index => $pilote) {
         continue;
     }
 
-    $log_msg = "[TRACE] Salaire: " . $pilote['callsign'] . " (" . $pilote['prenom'] . " " . $pilote['nom'] . ") - Heures: " . number_format($heures_mois, 2) . " - Fret: " . number_format($total_fret_kg, 2) . "kg - Bonus fret: " . number_format($bonus_fret, 2) . "€ - Montant: " . number_format($montant, 2) . "€";
+    $log_msg = "[TRACE] Salaire: " . $pilote['callsign'] . " (" . $pilote['prenom'] . " " . $pilote['nom'] . ") - Heures: " . number_format($heures_mois, 2) . " - Fret: " . number_format($total_fret_kg, 2) . "kg - Bonus fret: " . number_format($bonus_fret, 2) . chr(128) . " - Montant: " . number_format($montant, 2) . chr(128);
     logMsg($log_msg, __DIR__ . '/logs/paiement_salaires.log');
+    
+    // Générer la fiche de paie PDF
+    $periode = date('m/Y', strtotime('first day of last month'));
+    $pdfData = [
+        'company_name' => defined('VA_NAME') ? VA_NAME : 'Virtual Airline',
+        'company_address' => defined('VA_ADDRESS') ? VA_ADDRESS : '',
+        'siret' => defined('VA_SIRET') ? VA_SIRET : '123 456 789 00012',
+        'prenom' => $pilote['prenom'],
+        'nom' => $pilote['nom'],
+        'callsign' => $pilote['callsign'],
+        'pilote_id' => $pilote['id'],
+        'periode' => $periode,
+        'heures' => $heures_mois,
+        'taux_horaire' => $taux_horaire,
+        'bonus_fret' => $bonus_fret,
+        'fret_kg' => $total_fret_kg,
+        'date_paiement' => date('d/m/Y', strtotime($date_paiement))
+    ];
+    
+    try {
+        $pdfPath = genererFichePaiePDF($pdfData);
+        logMsg('[TRACE] Fiche de paie PDF générée : ' . $pdfPath, __DIR__ . '/logs/paiement_salaires.log');
+        echo "Fiche de paie PDF générée : $pdfPath\n";
+    } catch (Exception $e) {
+        logMsg('[ERREUR] Génération PDF fiche de paie : ' . $e->getMessage(), __DIR__ . '/logs/paiement_salaires.log');
+        echo "ERREUR Génération PDF fiche de paie : " . htmlspecialchars($e->getMessage()) . "\n";
+        $pdfPath = null;
+    }
+    
     // Log utile : mail envoyé ou erreur
     $to = $test_mode ? VA_ADMIN_EMAIL : $pilote['email'];
     $subject = t('script_salary_subject');
     $message = t('script_salary_greeting', ['firstname' => $pilote['prenom']]) . "\n\n";
     $message .= t('script_salary_hours', ['hours' => number_format($heures_mois, 2)]) . "\n";
     $message .= t('script_salary_total', ['amount' => number_format($montant, 2) . "€"]) . "\n\n";
+    $message .= "Vous trouverez ci-joint votre fiche de paie détaillée.\n\n";
     $message .= t('script_salary_thanks') . "\n" . t('script_salary_team');
+    
     try {
         if ($index === count($pilotes) - 1) {
             sleep(5);
         }
-        $mailResult = sendSummaryMail($subject, $message, $to);
+        // Préparer les options avec la pièce jointe
+        $mailOptions = [];
+        if ($pdfPath && file_exists($pdfPath)) {
+            $mailOptions['attachments'] = [
+                [
+                    'path' => $pdfPath,
+                    'name' => 'fiche_paie_' . $pilote['callsign'] . '_' . str_replace('/', '-', $periode) . '.pdf'
+                ]
+            ];
+        }
+        
+        $mailResult = sendSummaryMail($subject, $message, $to, 10, $mailOptions);
         if ($mailResult === true || $mailResult === null) {
-            logMsg("[TRACE] Mail de salaire envoye a $to", __DIR__ . '/logs/paiement_salaires.log');
+            logMsg("[TRACE] Mail de salaire envoye a $to avec fiche de paie", __DIR__ . '/logs/paiement_salaires.log');
         } else {
             logMsg("[ERREUR] Envoi mail salaire à $to : $mailResult", __DIR__ . '/logs/paiement_salaires.log');
         }
+        
         sleep(1);
     } catch (Exception $e) {
         logMsg('[ERREUR] Envoi mail salaire : ' . $e->getMessage(), __DIR__ . '/logs/paiement_salaires.log');
+    } finally {
+        // Toujours supprimer le fichier PDF temporaire, même en cas d'erreur
+        if ($pdfPath && file_exists($pdfPath)) {
+            @unlink($pdfPath);
+            logMsg('[TRACE] PDF temporaire supprimé : ' . $pdfPath, __DIR__ . '/logs/paiement_salaires.log');
+        }
     }
     // Log utile : fin traitement pilote
     $recap[] = date('Y-m-d H:i:s') . ' | ' . $pilote['callsign'] . ' (' . $pilote['prenom'] . ' ' . $pilote['nom'] . ') - Heures: ' . number_format($heures_mois, 2) . ' - Fret: ' . number_format($total_fret_kg, 2) . 'kg - Bonus fret: ' . number_format($bonus_fret, 2) . '€ - Montant: ' . number_format($montant, 2) . "€\n";

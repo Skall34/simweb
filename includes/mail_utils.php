@@ -30,6 +30,9 @@ function sendSummaryMail($subject, $body, $to = null, $maxRetries = 10, $options
         $to = VA_ADMIN_EMAIL;
     }
     
+    // Extraire les pièces jointes si présentes
+    $attachments = isset($options['attachments']) ? $options['attachments'] : [];
+    
     $lastError = '';
     $delaySeconds = 3; // Delai initial entre les tentatives
     $retryLog = []; // Historique des tentatives pour logging
@@ -111,6 +114,17 @@ function sendSummaryMail($subject, $body, $to = null, $maxRetries = 10, $options
                 $mail->isHTML(false);
                 $mail->Encoding = 'quoted-printable';
                 $mail->Body = $body;
+            }
+            
+            // Ajouter les pièces jointes
+            if (!empty($attachments)) {
+                foreach ($attachments as $attachment) {
+                    if (is_array($attachment)) {
+                        $mail->addAttachment($attachment['path'], $attachment['name'] ?? '');
+                    } else {
+                        $mail->addAttachment($attachment);
+                    }
+                }
             }
             
             $mail->send();

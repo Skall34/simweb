@@ -400,13 +400,20 @@ if (VA_DEBUG_MODE) {
         
         $logs[] = ['type' => 'success', 'message' => '✓ Tables principales créées (compte ADM0001 inclus)'];
 
-        // Si une balance de départ est spécifiée, insérer en base dans BALANCE_COMMERCIALE
+        // Si une balance de départ est spécifiée, insérer en base dans BALANCE_COMMERCIALE et finances_recettes
         $starting_balance = isset($config['va_starting_balance']) ? (int)$config['va_starting_balance'] : 0;
         if ($starting_balance !== 0) {
             try {
                 $logs[] = ['type' => 'info', 'message' => 'Insertion du solde initial en base...'];
+                
+                // Insérer dans BALANCE_COMMERCIALE
                 $stmtBal = $pdo->prepare("INSERT INTO BALANCE_COMMERCIALE (balance_actuelle, commentaire, derniere_maj) VALUES (:bal,'Solde initial', NOW())");
                 $stmtBal->execute(['bal' => $starting_balance]);
+                
+                // Insérer dans finances_recettes pour traçabilité
+                $stmtRec = $pdo->prepare("INSERT INTO finances_recettes (date, type, montant, commentaire) VALUES (NOW(), 'capital_initial', :montant, 'Capital initial de la compagnie')");
+                $stmtRec->execute(['montant' => $starting_balance]);
+                
                 $logs[] = ['type' => 'success', 'message' => '✓ Solde initial inséré (' . number_format($starting_balance, 0, ',', ' ') . ')'];
             } catch (PDOException $e) {
                 $logs[] = ['type' => 'info', 'message' => 'Impossible d\'insérer le solde initial : ' . $e->getMessage()];
