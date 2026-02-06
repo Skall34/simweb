@@ -71,7 +71,7 @@ if (isset($_POST['cancel_reservation_id'])) {
         if (!$r) {
             $pdo->rollBack();
             $message = 'Réservation introuvable.';
-        } elseif ($r['statut'] !== 'reserved') {
+        } elseif ($r['statut'] !== 'reserved' && $r['statut'] !== 'in_flight') {
             $pdo->rollBack();
             $message = 'La réservation ne peut pas être annulée (statut).';
         } else {
@@ -95,7 +95,7 @@ if (isset($_POST['cancel_reservation_id'])) {
 }
 
 // Récupérer les réservations actives du pilote
-$stmt = $pdo->prepare("SELECT r.*, lr.icao_dep, lr.icao_arr FROM RESERVATIONS r LEFT JOIN LIGNES_REGULIERES lr ON r.ligne_id = lr.id WHERE r.pilote_id = ? AND r.statut = 'reserved' ORDER BY r.date_reservation DESC");
+$stmt = $pdo->prepare("SELECT r.*, lr.icao_dep, lr.icao_arr FROM RESERVATIONS r LEFT JOIN LIGNES_REGULIERES lr ON r.ligne_id = lr.id WHERE r.pilote_id = ? AND (r.statut = 'reserved' or r.statut = 'in_flight') ORDER BY r.date_reservation DESC");
 $stmt->execute([$id]);
 $reservations = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
