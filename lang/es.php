@@ -480,6 +480,9 @@ return [
     'index_liveflights_title' => 'Vuelos en curso',
     'index_liveflights_loading' => 'Cargando vuelos en curso...',
     'index_liveflights_error' => 'Error al cargar los vuelos en curso.',
+    'index_download_title' => 'Descarga',
+    'index_download_desc' => 'Descarga Simaddon para tu simulador',
+    'index_download_btn' => 'Descargar archivo ZIP',
     'index_welcome' => 'Hola',
     'index_notice_title' => 'Mensaje de la dirección',
     'index_reservation_active' => 'Reserva activa:',
@@ -575,6 +578,7 @@ return [
     'admin_lines' => 'Administración de líneas regulares',
     'admin_type_ligne' => 'Administración de tipos de líneas',
     'admin_welcomemsg' => 'Mensaje de bienvenida',
+    'admin_sitemenu' => 'Administración del sitio',
     'admin_superadmin' => 'Super Admin',
 
     // --- Page : admin_config.ini ---
@@ -949,7 +953,14 @@ return [
     'admin_lines_link_delete' => 'Eliminar',
     'admin_lines_confirm_delete' => '¿Confirmar la eliminación?',
 
-    // --- admin_message_accueil.php ---
+    // --- admin_message_accueil.php -> admin_page_accueil.php (Administración del sitio) ---
+    'admin_site_title' => 'Administración del sitio',
+    'admin_site_success' => 'Configuración del sitio actualizada.',
+    'admin_site_section_welcome' => 'Mensaje de bienvenida',
+    'admin_site_section_acars' => 'Descarga de Simaddon',
+    'admin_site_acars_warning' => 'Atención: modificar este enlace afectará la descarga de Simaddon para todos los pilotos. Asegúrese de que el archivo existe y que el enlace es correcto antes de guardar.',
+    'admin_site_acars_label' => 'Enlace de descarga:',
+    'admin_site_acars_help' => 'Ruta relativa (ej: assets/acars/simaddon_setup.zip) o URL completa',
     'admin_welcome_title' => 'Mensaje de bienvenida (página de inicio)',
     'admin_welcome_error_length' => 'El mensaje no debe exceder los 300 caracteres.',
     'admin_welcome_success' => 'Mensaje de bienvenida actualizado.',

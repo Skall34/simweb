@@ -481,6 +481,9 @@ return [
     'index_liveflights_title' => 'Live flights',
     'index_liveflights_loading' => 'Loading live flights...',
     'index_liveflights_error' => 'Error loading live flights.',
+    'index_download_title' => 'Download',
+    'index_download_desc' => 'Download Simaddon for your simulator',
+    'index_download_btn' => 'Download ZIP file',
     'index_welcome' => 'Hello',
     'index_notice_title' => 'Message from management',
     'index_reservation_active' => 'Active reservation:',
@@ -575,6 +578,7 @@ return [
     'admin_type_ligne' => 'Line Types Administration',
     'admin_lines' => 'Regular Lines Administration',
     'admin_welcomemsg' => 'Welcome message',
+    'admin_sitemenu' => 'Site Administration',
     'admin_superadmin' => 'Super Admin',
 
     // --- Page : admin_config.ini ---
@@ -949,7 +953,14 @@ return [
     'admin_lines_link_delete' => 'Delete',
     'admin_lines_confirm_delete' => 'Confirm deletion?',
 
-    // --- admin_message_accueil.php ---
+    // --- admin_message_accueil.php -> admin_page_accueil.php (Site Administration) ---
+    'admin_site_title' => 'Site Administration',
+    'admin_site_success' => 'Site settings updated.',
+    'admin_site_section_welcome' => 'Welcome Message',
+    'admin_site_section_acars' => 'Simaddon Download',
+    'admin_site_acars_warning' => 'Warning: modifying this link will affect Simaddon download for all pilots. Make sure the file exists and the link is correct before saving.',
+    'admin_site_acars_label' => 'Download link:',
+    'admin_site_acars_help' => 'Relative path (e.g.: assets/acars/simaddon_setup.zip) or full URL',
     'admin_welcome_title' => 'Welcome message (home page)',
     'admin_welcome_error_length' => 'Message must not exceed 300 characters.',
     'admin_welcome_success' => 'Welcome message updated.',

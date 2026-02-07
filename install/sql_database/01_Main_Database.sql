@@ -438,7 +438,8 @@ INSERT INTO VARIABLES_CONFIG (nom, valeur) VALUES
 ('bonus_fret_kg', '2.00'),
 ('prix_litre_essence', '0.88'),
 ('taux_assurance', '0.0200'),
-('reservation_timeout_hours', '24');
+('reservation_timeout_hours', '24'),
+('lien_acars', 'assets/acars/simaddon_setup.zip');
 --
 -- Structure de la table `VOLS_REJETES`
 --

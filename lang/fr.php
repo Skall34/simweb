@@ -479,6 +479,9 @@ return [
     'index_liveflights_title' => 'Vols en cours',
     'index_liveflights_loading' => 'Chargement des vols en cours...',
     'index_liveflights_error' => 'Erreur de chargement des vols en cours.',
+    'index_download_title' => 'Téléchargement',
+    'index_download_desc' => 'Téléchargez Simaddon pour votre simulateur',
+    'index_download_btn' => 'Télécharger le fichier ZIP',
     'index_welcome' => 'Bonjour',
     'index_notice_title' => 'Message de la direction',
     'index_reservation_active' => 'Réservation active :',
@@ -573,6 +576,7 @@ return [
     'admin_lines' => 'Administration des lignes régulières',
     'admin_type_ligne' => 'Administration des types de lignes',
     'admin_welcomemsg' => 'Message d\'accueil',
+    'admin_sitemenu' => 'Administration de la page d\'accueil',
     'admin_superadmin' => 'Super Admin',
 
     // --- Page : admin_config.ini ---
@@ -954,7 +958,14 @@ return [
     'admin_lines_link_delete' => 'Supprimer',
     'admin_lines_confirm_delete' => 'Confirmer la suppression ?',
 
-    // --- admin_message_accueil.php ---
+    // --- admin_message_accueil.php -> admin_page_accueil.php (Administration du site) ---
+    'admin_site_title' => 'Administration page accueil',
+    'admin_site_success' => 'Paramètres du site mis à jour.',
+    'admin_site_section_welcome' => 'Message d\'accueil',
+    'admin_site_section_acars' => 'Téléchargement Simaddon',
+    'admin_site_acars_warning' => 'Attention : modifier ce lien affectera le téléchargement de Simaddon pour tous les pilotes. Vérifiez que le fichier existe et que le lien est correct avant d\'enregistrer.',
+    'admin_site_acars_label' => 'Lien de téléchargement :',
+    'admin_site_acars_help' => 'URL complète',
     'admin_welcome_title' => 'Message d\'accueil (page d\'accueil)',
     'admin_welcome_error_length' => 'Le message ne doit pas dépasser 300 caractères.',
     'admin_welcome_success' => 'Message d\'accueil mis à jour.',

@@ -125,7 +125,7 @@ require_once __DIR__ . '/../lang.php';
                     <a href="/admin/admin_variables.php"><?= t('admin_variables') ?></a>
                     <a href="/admin/admin_type_ligne.php"><?= t('admin_type_ligne') ?></a>
                     <a href="/admin/admin_lignes_regulieres.php"><?= t('admin_lines') ?></a>
-                    <a href="/admin/admin_message_accueil.php"><?= t('admin_welcomemsg') ?></a>
+                    <a href="/admin/admin_page_accueil.php"><?= t('admin_sitemenu') ?></a>
                 </div>
                 <?php if (isset($_SESSION['user']['callsign']) && in_array($_SESSION['user']['callsign'], explode(',', VA_SUPER_ADMIN_CALLSIGNS))): ?>
                     <a href="/admin/admin_SuperAdminMenu.php" style="color: #c00; font-weight: bold; margin-left: 10px;"><?= t('admin_superadmin') ?></a>

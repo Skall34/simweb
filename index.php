@@ -222,6 +222,16 @@ if (!isset($_SESSION['user'])) {
 
         $message_accueil = $stmtMsg->fetchColumn();
 
+        
+
+        // Récupérer le lien de téléchargement ACARS depuis la base
+
+        $stmtAcars = $pdo->prepare("SELECT valeur FROM VARIABLES_CONFIG WHERE nom = 'lien_acars'");
+
+        $stmtAcars->execute();
+
+        $lien_acars = $stmtAcars->fetchColumn() ?: 'assets/acars/simaddon_setup.zip';
+
         if ($message_accueil) {
 
             echo '<div class="notice-box">'
@@ -322,10 +332,10 @@ if (!isset($_SESSION['user'])) {
 
                     <!-- Encadré de téléchargement -->
                     <div style="background-color: #f0f8ff; border: 2px solid #4a90e2; border-radius: 8px; padding: 15px; margin-bottom: 20px; text-align: center;">
-                        <h3 style="margin-top: 0; color: #2c5aa0;">📦 Téléchargement</h3>
-                        <p style="margin: 10px 0;">Téléchargez Simaddon pour votre simulateur</p>
-                        <a href="assets/acars/simaddon_setup.zip" download style="display: inline-block; background-color: #4a90e2; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">
-                            ⬇️ Télécharger le fichier ZIP
+                        <h3 style="margin-top: 0; color: #2c5aa0;">📦 <?= t('index_download_title') ?></h3>
+                        <p style="margin: 10px 0;"><?= t('index_download_desc') ?></p>
+                        <a target="_blank" href="<?= htmlspecialchars($lien_acars) ?>" download style="display: inline-block; background-color: #4a90e2; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                            ⬇️ <?= t('index_download_btn') ?>
                         </a>
                     </div>
 
