@@ -88,6 +88,7 @@ foreach ($pilotes as $pilote) {
     // Déterminer le grade éligible (le plus haut niveau accessible)
     $nouveau_grade_id = $pilote['grade_id'];
     $nouveau_grade_data = null;
+    $niveau_actuel = $grades[$pilote['grade_id']]['niveau'] ?? 0;
     
     foreach ($grades as $grade_id => $grade_data) {
         if ($total_heures >= $grade_data['seuil'] && $grade_data['niveau'] > ($grades[$nouveau_grade_id]['niveau'] ?? 0)) {
@@ -96,8 +97,8 @@ foreach ($pilotes as $pilote) {
         }
     }
 
-    // Si le grade doit être augmenté
-    if ($nouveau_grade_id > $pilote['grade_id'] && $nouveau_grade_data !== null) {
+    // Si le grade doit être augmenté (comparaison des NIVEAUX, pas des IDs)
+    if ($nouveau_grade_data !== null && $nouveau_grade_data['niveau'] > $niveau_actuel) {
         $grade_nom = $nouveau_grade_data['nom'];
         
         if ($dryRun) {
