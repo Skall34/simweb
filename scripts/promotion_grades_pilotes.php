@@ -120,10 +120,11 @@ foreach ($pilotes as $pilote) {
             $message .= t('script_promotion_team');
             
             $mailResult = sendSummaryMail($subject, $message, $to);
-            if ($mailResult === true || $mailResult === null) {
+            if ($mailResult === true || $mailResult === null || (is_array($mailResult) && !empty($mailResult['success']))) {
                 logMsg("Mail de promotion envoye a $to", __DIR__ . '/logs/promotion_grades.log');
             } else {
-                logMsg("Erreur lors de l'envoi du mail de promotion a $to : $mailResult", __DIR__ . '/logs/promotion_grades.log');
+                $errMsg = is_array($mailResult) ? json_encode($mailResult) : $mailResult;
+                logMsg("Erreur lors de l'envoi du mail de promotion a $to : $errMsg", __DIR__ . '/logs/promotion_grades.log');
             }
         }
 
@@ -141,10 +142,11 @@ if (!$dryRun) {
         $body .= t('script_promotion_recap_intro') . "<br><pre>" . implode("", $promotions) . "</pre><br>";
         $body .= t('script_promotion_recap_signature');
         $mailResult = sendSummaryMail($subject, $body, VA_ADMIN_EMAIL);
-        if ($mailResult === true || $mailResult === null) {
+        if ($mailResult === true || $mailResult === null || (is_array($mailResult) && !empty($mailResult['success']))) {
             logMsg("Mail recapitulatif envoye a " . VA_ADMIN_EMAIL, __DIR__ . '/logs/promotion_grades.log');
         } else {
-            logMsg("Erreur lors de l'envoi du mail recapitulatif : $mailResult", __DIR__ . '/logs/promotion_grades.log');
+            $errMsg = is_array($mailResult) ? json_encode($mailResult) : $mailResult;
+            logMsg("Erreur lors de l'envoi du mail recapitulatif : $errMsg", __DIR__ . '/logs/promotion_grades.log');
         }
     } else {
         $subject = t('script_promotion_recap_subject');
@@ -152,10 +154,11 @@ if (!$dryRun) {
         $body .= t('script_promotion_recap_none') . "<br><br>";
         $body .= t('script_promotion_recap_signature');
         $mailResult = sendSummaryMail($subject, $body, VA_ADMIN_EMAIL);
-        if ($mailResult === true || $mailResult === null) {
+        if ($mailResult === true || $mailResult === null || (is_array($mailResult) && !empty($mailResult['success']))) {
             logMsg("Mail récapitulatif (aucune promotion) envoyé à " . VA_ADMIN_EMAIL, __DIR__ . '/logs/promotion_grades.log');
         } else {
-            logMsg("Erreur lors de l'envoi du mail récapitulatif (aucune promotion) : $mailResult", __DIR__ . '/logs/promotion_grades.log');
+            $errMsg = is_array($mailResult) ? json_encode($mailResult) : $mailResult;
+            logMsg("Erreur lors de l'envoi du mail récapitulatif (aucune promotion) : $errMsg", __DIR__ . '/logs/promotion_grades.log');
         }
     }
 }
