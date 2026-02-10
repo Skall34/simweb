@@ -904,6 +904,7 @@ return [
     // --- admin_lignes_regulieres.php ---
     'admin_lines_title' => 'Administración de Líneas Regulares (:count)',
     'admin_lines_error_icao_required' => 'Ambos códigos OACI son requeridos.',
+    'admin_lines_error_icao_not_found' => '⚠️ El/los siguiente(s) código(s) OACI no existe(n) en la base de datos de aeropuertos: {icao}',
     'admin_lines_error_exists' => '⚠️ La línea {dep} → {arr} ya existe.',
     'admin_lines_success_add' => '✅ Línea {dep} → {arr} añadida.',
     'admin_lines_error_add' => 'Error durante la adición: {error}',

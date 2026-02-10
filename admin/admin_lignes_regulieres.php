@@ -66,6 +66,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['flash_show_field_popup'] = true;
         } else {
             try {
+                // Validate that both ICAO codes exist in AEROPORTS table
+                $stmtCheckDep = $pdo->prepare("SELECT COUNT(*) AS c FROM AEROPORTS WHERE ident = :icao");
+                $stmtCheckDep->execute(['icao' => $icao_dep]);
+                $depExists = $stmtCheckDep->fetch(PDO::FETCH_ASSOC);
+                
+                $stmtCheckArr = $pdo->prepare("SELECT COUNT(*) AS c FROM AEROPORTS WHERE ident = :icao");
+                $stmtCheckArr->execute(['icao' => $icao_arr]);
+                $arrExists = $stmtCheckArr->fetch(PDO::FETCH_ASSOC);
+                
+                $invalidIcaos = [];
+                if (!$depExists || (int)$depExists['c'] === 0) {
+                    $invalidIcaos[] = $icao_dep;
+                }
+                if (!$arrExists || (int)$arrExists['c'] === 0) {
+                    $invalidIcaos[] = $icao_arr;
+                }
+                
+                if (!empty($invalidIcaos)) {
+                    $message = t('admin_lines_error_icao_not_found', ['icao' => implode(', ', $invalidIcaos)]);
+                    $_SESSION['flash_message'] = $message;
+                    header('Location: admin_lignes_regulieres.php');
+                    exit;
+                }
+                
                 // Check duplicate exact pair for outbound
                 $chk = $pdo->prepare("SELECT COUNT(*) AS c FROM LIGNES_REGULIERES WHERE icao_dep = :dep AND icao_arr = :arr");
                 $chk->execute(['dep' => $icao_dep, 'arr' => $icao_arr]);
@@ -170,6 +194,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $message = t('admin_lines_error_invalid_data');
         } else {
             try {
+                // Validate that both ICAO codes exist in AEROPORTS table
+                $stmtCheckDep = $pdo->prepare("SELECT COUNT(*) AS c FROM AEROPORTS WHERE ident = :icao");
+                $stmtCheckDep->execute(['icao' => $icao_dep]);
+                $depExists = $stmtCheckDep->fetch(PDO::FETCH_ASSOC);
+                
+                $stmtCheckArr = $pdo->prepare("SELECT COUNT(*) AS c FROM AEROPORTS WHERE ident = :icao");
+                $stmtCheckArr->execute(['icao' => $icao_arr]);
+                $arrExists = $stmtCheckArr->fetch(PDO::FETCH_ASSOC);
+                
+                $invalidIcaos = [];
+                if (!$depExists || (int)$depExists['c'] === 0) {
+                    $invalidIcaos[] = $icao_dep;
+                }
+                if (!$arrExists || (int)$arrExists['c'] === 0) {
+                    $invalidIcaos[] = $icao_arr;
+                }
+                
+                if (!empty($invalidIcaos)) {
+                    $message = t('admin_lines_error_icao_not_found', ['icao' => implode(', ', $invalidIcaos)]);
+                    $_SESSION['flash_message'] = $message;
+                    header('Location: admin_lignes_regulieres.php');
+                    exit;
+                }
+                
                 // Ensure we don't create a duplicate (excluding current row)
                 $chk = $pdo->prepare("SELECT COUNT(*) AS c FROM LIGNES_REGULIERES WHERE icao_dep = :dep AND icao_arr = :arr AND id != :id");
                 $chk->execute(['dep' => $icao_dep, 'arr' => $icao_arr, 'id' => $id]);

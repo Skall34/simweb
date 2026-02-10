@@ -907,6 +907,7 @@ return [
     // --- admin_lignes_regulieres.php ---
     'admin_lines_title' => 'Administration des Lignes régulières (:count)',
     'admin_lines_error_icao_required' => 'Les deux codes ICAO sont requis.',
+    'admin_lines_error_icao_not_found' => '⚠️ Le(s) code(s) ICAO suivant(s) n\'existe(nt) pas dans la base des aéroports : {icao}',
     'admin_lines_error_exists' => '⚠️ La ligne {dep} → {arr} existe déjà.',
     'admin_lines_success_add' => '✅ Ligne {dep} → {arr} ajoutée.',
     'admin_lines_success_add_both' => '✅ Lignes aller ({dep} → {arr}) et retour ({arr} → {dep}) ajoutées.',

@@ -904,6 +904,7 @@ return [
     // --- admin_lignes_regulieres.php ---
     'admin_lines_title' => 'Regular Routes Administration (:count)',
     'admin_lines_error_icao_required' => 'Both ICAO codes are required.',
+    'admin_lines_error_icao_not_found' => '⚠️ The following ICAO code(s) do not exist in the airports database: {icao}',
     'admin_lines_error_exists' => '⚠️ Line {dep} → {arr} already exists.',
     'admin_lines_success_add' => '✅ Line {dep} → {arr} added.',
     'admin_lines_error_add' => 'Error during addition: {error}',
