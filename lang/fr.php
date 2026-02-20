@@ -688,6 +688,11 @@ return [
         'lignes_statut_reserved' => 'Réservé',
         'lignes_reservations_empty' => 'Aucune réservation en cours.',
         'lignes_map_title' => 'Carte des lignes régulières. Saisissez un ICAO de départ pour afficher les lignes attachées.',
+        'lignes_history_completed_title' => 'Dernières lignes effectuées',
+        'lignes_history_created_title' => 'Dernières lignes créées',
+        'lignes_history_date' => 'Date',
+        'lignes_history_completed_empty' => 'Aucune ligne effectuée pour le moment.',
+        'lignes_history_created_empty' => 'Aucune ligne créée pour le moment.',
        
         // --- Pages : Fleet ---
         'fleet_title' => 'Liste de la flotte',

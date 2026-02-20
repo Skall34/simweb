@@ -76,6 +76,38 @@ try {
     // Silently fail if airports data is unavailable
 }
 
+// Historique : dernières lignes régulières effectuées (completed)
+$historyCompleted = [];
+try {
+    $stmtHist = $pdo->query(
+        "SELECT r.date_fin, p.callsign AS pilote_callsign, lr.icao_dep, lr.icao_arr, r.immat
+         FROM RESERVATIONS r
+         LEFT JOIN PILOTES p ON r.pilote_id = p.id
+         LEFT JOIN LIGNES_REGULIERES lr ON r.ligne_id = lr.id
+         WHERE r.statut = 'completed'
+         ORDER BY r.date_fin DESC
+         LIMIT 8"
+    );
+    $historyCompleted = $stmtHist->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    $historyCompleted = [];
+}
+
+// Historique : dernières lignes régulières créées
+$historyCreated = [];
+try {
+    $stmtCreated = $pdo->query(
+        "SELECT lr.icao_dep, lr.icao_arr, lr.distance, lr.created_at, tl.label AS type_label
+         FROM LIGNES_REGULIERES lr
+         LEFT JOIN TYPE_LIGNE tl ON lr.type_ligne = tl.id
+         ORDER BY lr.created_at DESC
+         LIMIT 8"
+    );
+    $historyCreated = $stmtCreated->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    $historyCreated = [];
+}
+
 include __DIR__ . '/../includes/header.php';
 include __DIR__ . '/../includes/menu_logged.php';
 ?>
@@ -217,6 +249,78 @@ include __DIR__ . '/../includes/menu_logged.php';
                 <div id="map-container" style="height: 500px; background: #e0e0e0; border-radius: 6px; overflow: hidden;">
                     <div id="map" style="height: 100%;"></div>
                 </div>
+            </div>
+
+            <!-- Historique : dernières lignes effectuées -->
+            <div class="panel" style="margin-top:12px;">
+                <h3><?= t('lignes_history_completed_title') ?></h3>
+                <?php if (!empty($historyCompleted)): ?>
+                        <table class="table-skywings compact" style="font-size:0.85em;">
+                            <thead>
+                                <tr>
+                                    <th><?= t('lignes_history_date') ?></th>
+                                    <th><?= t('lignes_reservations_pilote') ?></th>
+                                    <th><?= t('lignes_reservations_ligne') ?></th>
+                                    <th><?= t('lignes_reservations_appareil') ?></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($historyCompleted as $hc): ?>
+                                <tr>
+                                    <td><?php
+                                        try {
+                                            $dt = new DateTime($hc['date_fin']);
+                                            echo htmlspecialchars($dt->format('d/m/Y'));
+                                        } catch (Exception $e) {
+                                            echo htmlspecialchars($hc['date_fin'] ?? '');
+                                        }
+                                    ?></td>
+                                    <td><?= htmlspecialchars($hc['pilote_callsign'] ?: 'N/A') ?></td>
+                                    <td><?= htmlspecialchars(($hc['icao_dep'] ?? '') . ' → ' . ($hc['icao_arr'] ?? '')) ?></td>
+                                    <td><?= htmlspecialchars($hc['immat'] ?? '') ?></td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                        <?php else: ?>
+                            <p class="empty-msg"><?= t('lignes_history_completed_empty') ?></p>
+                        <?php endif; ?>
+            </div>
+
+            <!-- Historique : dernières lignes créées -->
+            <div class="panel" style="margin-top:12px;">
+                <h3><?= t('lignes_history_created_title') ?></h3>
+                <?php if (!empty($historyCreated)): ?>
+                        <table class="table-skywings compact" style="font-size:0.85em;">
+                            <thead>
+                                <tr>
+                                    <th><?= t('lignes_history_date') ?></th>
+                                    <th><?= t('lignes_reservations_ligne') ?></th>
+                                    <th><?= t('lignes_table_type') ?></th>
+                                    <th><?= t('lignes_table_distance') ?></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($historyCreated as $hcr): ?>
+                                <tr>
+                                    <td><?php
+                                        try {
+                                            $dt = new DateTime($hcr['created_at']);
+                                            echo htmlspecialchars($dt->format('d/m/Y'));
+                                        } catch (Exception $e) {
+                                            echo htmlspecialchars($hcr['created_at'] ?? '');
+                                        }
+                                    ?></td>
+                                    <td><?= htmlspecialchars(($hcr['icao_dep'] ?? '') . ' → ' . ($hcr['icao_arr'] ?? '')) ?></td>
+                                    <td><?= htmlspecialchars($hcr['type_label'] ?? '') ?></td>
+                                    <td><?= is_null($hcr['distance']) ? '' : htmlspecialchars((int)$hcr['distance']) ?></td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                        <?php else: ?>
+                            <p class="empty-msg"><?= t('lignes_history_created_empty') ?></p>
+                        <?php endif; ?>
             </div>
         </aside>
     </div>

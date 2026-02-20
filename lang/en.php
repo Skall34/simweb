@@ -685,6 +685,11 @@ return [
     'lignes_statut_reserved' => 'Reserved',
     'lignes_reservations_empty' => 'No current reservation.',
     'lignes_map_title' => 'Regular lines map. Enter a departure ICAO to display attached routes.',
+    'lignes_history_completed_title' => 'Last completed lines',
+    'lignes_history_created_title' => 'Last created lines',
+    'lignes_history_date' => 'Date',
+    'lignes_history_completed_empty' => 'No completed lines yet.',
+    'lignes_history_created_empty' => 'No lines created yet.',
     
     // --- Pages: Fleet ---
     'fleet_title' => 'Fleet list',
