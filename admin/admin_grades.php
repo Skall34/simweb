@@ -3,9 +3,69 @@ require_once __DIR__ . '/../includes/require_admin.php';
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/menu_logged.php';
 
+/**
+ * Recalcule le grade_id de tous les pilotes actifs en fonction de leurs heures de vol
+ * et des seuils définis dans la table GRADES.
+ * 
+ * @param PDO $pdo Connexion à la base de données
+ * @return int Nombre de pilotes mis à jour
+ */
+function recalculerGradesPilotes($pdo) {
+    // Récupérer tous les grades triés par niveau
+    $stmtGrades = $pdo->query("SELECT id, niveau, seuil_heures FROM GRADES ORDER BY niveau DESC");
+    $grades = $stmtGrades->fetchAll(PDO::FETCH_ASSOC);
+    
+    if (empty($grades)) {
+        return 0;
+    }
+    
+    // Récupérer tous les pilotes actifs avec leurs heures de vol
+    $stmtPilotes = $pdo->query("
+        SELECT 
+            p.id,
+            p.grade_id,
+            COALESCE(SUM(TIME_TO_SEC(cdvg.temps_vol)), 0) AS total_secondes
+        FROM PILOTES p
+        LEFT JOIN CARNET_DE_VOL_GENERAL cdvg ON p.id = cdvg.pilote_id
+        WHERE p.actif = 1
+        GROUP BY p.id, p.grade_id
+    ");
+    $pilotes = $stmtPilotes->fetchAll(PDO::FETCH_ASSOC);
+    
+    $nbMisAJour = 0;
+    $stmtUpdate = $pdo->prepare("UPDATE PILOTES SET grade_id = ? WHERE id = ?");
+    
+    foreach ($pilotes as $pilote) {
+        $totalHeures = $pilote['total_secondes'] / 3600;
+        
+        // Trouver le grade approprié (le plus haut niveau dont le seuil est atteint)
+        $nouveauGradeId = null;
+        foreach ($grades as $grade) {
+            if ($totalHeures >= $grade['seuil_heures']) {
+                $nouveauGradeId = $grade['id'];
+                break; // On prend le premier trouvé (plus haut niveau car trié DESC)
+            }
+        }
+        
+        // Si aucun grade trouvé, prendre le grade de niveau le plus bas
+        if ($nouveauGradeId === null) {
+            $nouveauGradeId = end($grades)['id'];
+        }
+        
+        // Mettre à jour si le grade a changé
+        if ($nouveauGradeId != $pilote['grade_id']) {
+            $stmtUpdate->execute([$nouveauGradeId, $pilote['id']]);
+            $nbMisAJour++;
+        }
+    }
+    
+    return $nbMisAJour;
+}
+
 // Gestion des ajouts/edits/suppressions
 $action = $_POST['action'] ?? null;
 $message = '';
+$nbPilotesMisAJour = 0;
 
 if ($action === 'add') {
     $nom = trim($_POST['nom'] ?? '');
@@ -17,7 +77,12 @@ if ($action === 'add') {
         $maxNiveau = $pdo->query('SELECT COALESCE(MAX(niveau), 0) FROM GRADES')->fetchColumn();
         $stmt = $pdo->prepare('INSERT INTO GRADES (nom, description, taux_horaire, niveau, seuil_heures) VALUES (?, ?, ?, ?, ?)');
         $stmt->execute([$nom, $description, $taux_horaire, $maxNiveau + 1, $seuil_heures]);
+        // Recalculer les grades de tous les pilotes
+        $nbPilotesMisAJour = recalculerGradesPilotes($pdo);
         $message = t('admin_grades_success_add');
+        if ($nbPilotesMisAJour > 0) {
+            $message .= " ($nbPilotesMisAJour pilote(s) mis à jour)";
+        }
     } else {
         $message = t('admin_grades_error_required');
     }
@@ -30,7 +95,12 @@ if ($action === 'add') {
     if ($id && $nom && $description && $taux_horaire > 0 && $seuil_heures >= 0) {
         $stmt = $pdo->prepare('UPDATE GRADES SET nom=?, description=?, taux_horaire=?, seuil_heures=? WHERE id=?');
         $stmt->execute([$nom, $description, $taux_horaire, $seuil_heures, $id]);
+        // Recalculer les grades de tous les pilotes
+        $nbPilotesMisAJour = recalculerGradesPilotes($pdo);
         $message = t('admin_grades_success_edit');
+        if ($nbPilotesMisAJour > 0) {
+            $message .= " ($nbPilotesMisAJour pilote(s) mis à jour)";
+        }
     } else {
         $message = t('admin_grades_error_required');
     }
@@ -39,7 +109,12 @@ if ($action === 'add') {
     if ($id) {
         $stmt = $pdo->prepare('DELETE FROM GRADES WHERE id=?');
         $stmt->execute([$id]);
+        // Recalculer les grades de tous les pilotes
+        $nbPilotesMisAJour = recalculerGradesPilotes($pdo);
         $message = t('admin_grades_success_delete');
+        if ($nbPilotesMisAJour > 0) {
+            $message .= " ($nbPilotesMisAJour pilote(s) mis à jour)";
+        }
     }
 } elseif ($action === 'move_up') {
     $id = intval($_POST['id'] ?? 0);
@@ -58,7 +133,12 @@ if ($action === 'add') {
             // Échanger les niveaux
             $pdo->prepare('UPDATE GRADES SET niveau=? WHERE id=?')->execute([$previousGrade['niveau'], $id]);
             $pdo->prepare('UPDATE GRADES SET niveau=? WHERE id=?')->execute([$currentNiveau, $previousGrade['id']]);
+            // Recalculer les grades de tous les pilotes
+            $nbPilotesMisAJour = recalculerGradesPilotes($pdo);
             $message = 'Grade déplacé vers le haut';
+            if ($nbPilotesMisAJour > 0) {
+                $message .= " ($nbPilotesMisAJour pilote(s) mis à jour)";
+            }
         }
     }
 } elseif ($action === 'move_down') {
@@ -78,7 +158,12 @@ if ($action === 'add') {
             // Échanger les niveaux
             $pdo->prepare('UPDATE GRADES SET niveau=? WHERE id=?')->execute([$nextGrade['niveau'], $id]);
             $pdo->prepare('UPDATE GRADES SET niveau=? WHERE id=?')->execute([$currentNiveau, $nextGrade['id']]);
+            // Recalculer les grades de tous les pilotes
+            $nbPilotesMisAJour = recalculerGradesPilotes($pdo);
             $message = 'Grade déplacé vers le bas';
+            if ($nbPilotesMisAJour > 0) {
+                $message .= " ($nbPilotesMisAJour pilote(s) mis à jour)";
+            }
         }
     }
 }
