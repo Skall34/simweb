@@ -690,6 +690,18 @@ return [
     'lignes_history_date' => 'Fecha',
     'lignes_history_completed_empty' => 'Ninguna línea realizada por el momento.',
     'lignes_history_created_empty' => 'Ninguna línea creada por el momento.',
+    'lignes_matrix_title' => 'Matriz de líneas regulares interiores',
+    'lignes_matrix_desc' => 'Filas = salidas, columnas = llegadas. Valor: número de días desde el último vuelo en la ruta.',
+    'lignes_matrix_empty' => 'No se encontraron líneas interiores.',
+    'lignes_matrix_dep_arr' => 'SAL \ LLE',
+    'lignes_matrix_never' => 'Nunca',
+    'lignes_matrix_today' => 'Hoy',
+    'lignes_matrix_day_suffix' => 'd',
+    'lignes_matrix_legend_recent' => 'Reciente',
+    'lignes_matrix_legend_moderate' => 'Moderado',
+    'lignes_matrix_legend_old' => 'Antiguo',
+    'lignes_matrix_legend_never' => 'Nunca volado',
+    'lignes_matrix_legend_none' => 'Ruta inexistente',
    
     // --- Pages : Fleet ---
     'fleet_title' => 'Lista de la flota',

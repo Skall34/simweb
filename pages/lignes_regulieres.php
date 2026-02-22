@@ -360,17 +360,17 @@ include __DIR__ . '/../includes/menu_logged.php';
                     <!-- Matrice des lignes régulières intérieures -->
         <!--<section style="margin-top:28px;">-->
             <div class="panel">
-                <h3>Matrice des lignes régulières intérieures</h3>
-                <p style="font-size:0.85em;color:#666;margin-bottom:10px;">Lignes en lignes&nbsp;=&nbsp;départs, colonnes&nbsp;=&nbsp;arrivées. Valeur&nbsp;: nombre de jours depuis le dernier vol sur la liaison.</p>
+                <h3><?= t('lignes_matrix_title') ?></h3>
+                <p style="font-size:0.85em;color:#666;margin-bottom:10px;"><?= t('lignes_matrix_desc') ?></p>
                 <?php if (empty($matrixDeps)): ?>
-                    <p class="empty-msg">Aucune ligne intérieure trouvée.</p>
+                    <p class="empty-msg"><?= t('lignes_matrix_empty') ?></p>
                 <?php else: ?>
                     <?php $matrixNow = new DateTime(); ?>
                     <div style="overflow-x:auto;">
                     <table style="border-collapse:collapse; font-size:0.82em; text-align:center; white-space:nowrap;">
                         <thead>
                             <tr>
-                                <th style="background:#f0f0f0; border:1px solid #ccc; padding:5px 8px; font-weight:bold;">DEP \ ARR</th>
+                                <th style="background:#f0f0f0; border:1px solid #ccc; padding:5px 8px; font-weight:bold;"><?= t('lignes_matrix_dep_arr') ?></th>
                                 <?php foreach ($matrixArrs as $matArr): ?>
                                     <th style="background:#f0f0f0; border:1px solid #ccc; padding:5px 8px; font-weight:bold;"><?= htmlspecialchars($matArr) ?></th>
                                 <?php endforeach; ?>
@@ -390,22 +390,22 @@ include __DIR__ . '/../includes/menu_logged.php';
                                     } else {
                                         $lastFlight = $matrixData[$matDep][$matArr];
                                         if ($lastFlight === null) {
-                                            echo '<span style="background:#e9ecef;color:#6c757d;padding:2px 6px;border-radius:4px;">Jamais</span>';
+                                            echo '<span style="background:#e9ecef;color:#6c757d;padding:2px 6px;border-radius:4px;">' . t('lignes_matrix_never') . '</span>';
                                         } else {
                                             try {
                                                 $dtLast = new DateTime($lastFlight);
                                                 $diffDays = (int)$matrixNow->diff($dtLast)->days;
                                                 if ($diffDays === 0) {
-                                                    $badge = 'Auj.';
+                                                    $badge = t('lignes_matrix_today');
                                                     $bg = '#28a745';
                                                 } elseif ($diffDays <= 180) {
-                                                    $badge = $diffDays . 'j';
+                                                    $badge = $diffDays . t('lignes_matrix_day_suffix');
                                                     $bg = '#28a745';
                                                 } elseif ($diffDays <= 365) {
-                                                    $badge = $diffDays . 'j';
+                                                    $badge = $diffDays . t('lignes_matrix_day_suffix');
                                                     $bg = '#fd7e14';
                                                 } else {
-                                                    $badge = $diffDays . 'j';
+                                                    $badge = $diffDays . t('lignes_matrix_day_suffix');
                                                     $bg = '#dc3545';
                                                 }
                                                 echo '<span style="background:' . $bg . ';color:#fff;padding:2px 6px;border-radius:4px;font-weight:600;">' . $badge . '</span>';
@@ -423,11 +423,11 @@ include __DIR__ . '/../includes/menu_logged.php';
                     </table>
                     </div>
                     <div style="margin-top:10px;font-size:0.8em;color:#555;display:flex;gap:14px;flex-wrap:wrap;align-items:center;">
-                        <span><span style="display:inline-block;background:#28a745;color:#fff;padding:1px 7px;border-radius:4px;">0–6m</span>&nbsp;Récent</span>
-                        <span><span style="display:inline-block;background:#fd7e14;color:#fff;padding:1px 7px;border-radius:4px;">6–12m</span>&nbsp;Modéré</span>
-                        <span><span style="display:inline-block;background:#dc3545;color:#fff;padding:1px 7px;border-radius:4px;">&gt;12m</span>&nbsp;Ancien</span>
-                        <span><span style="display:inline-block;background:#e9ecef;color:#6c757d;padding:1px 7px;border-radius:4px;">Jamais</span>&nbsp;Jamais volé</span>
-                        <span style="color:#aaa;">&#8212;&nbsp;Liaison inexistante</span>
+                        <span><span style="display:inline-block;background:#28a745;color:#fff;padding:1px 7px;border-radius:4px;">0–6m</span>&nbsp;<?= t('lignes_matrix_legend_recent') ?></span>
+                        <span><span style="display:inline-block;background:#fd7e14;color:#fff;padding:1px 7px;border-radius:4px;">6–12m</span>&nbsp;<?= t('lignes_matrix_legend_moderate') ?></span>
+                        <span><span style="display:inline-block;background:#dc3545;color:#fff;padding:1px 7px;border-radius:4px;">&gt;12m</span>&nbsp;<?= t('lignes_matrix_legend_old') ?></span>
+                        <span><span style="display:inline-block;background:#e9ecef;color:#6c757d;padding:1px 7px;border-radius:4px;"><?= t('lignes_matrix_never') ?></span>&nbsp;<?= t('lignes_matrix_legend_never') ?></span>
+                        <span style="color:#aaa;">&#8212;&nbsp;<?= t('lignes_matrix_legend_none') ?></span>
                     </div>
                 <?php endif; ?>
             </div>

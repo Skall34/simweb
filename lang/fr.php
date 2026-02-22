@@ -693,6 +693,18 @@ return [
         'lignes_history_date' => 'Date',
         'lignes_history_completed_empty' => 'Aucune ligne effectuée pour le moment.',
         'lignes_history_created_empty' => 'Aucune ligne créée pour le moment.',
+        'lignes_matrix_title' => 'Matrice des lignes régulières intérieures',
+        'lignes_matrix_desc' => 'Lignes = départs, colonnes = arrivées. Valeur : nombre de jours depuis le dernier vol sur la liaison.',
+        'lignes_matrix_empty' => 'Aucune ligne intérieure trouvée.',
+        'lignes_matrix_dep_arr' => 'DEP \ ARR',
+        'lignes_matrix_never' => 'Jamais',
+        'lignes_matrix_today' => 'Auj.',
+        'lignes_matrix_day_suffix' => 'j',
+        'lignes_matrix_legend_recent' => 'Récent',
+        'lignes_matrix_legend_moderate' => 'Modéré',
+        'lignes_matrix_legend_old' => 'Ancien',
+        'lignes_matrix_legend_never' => 'Jamais volé',
+        'lignes_matrix_legend_none' => 'Liaison inexistante',
        
         // --- Pages : Fleet ---
         'fleet_title' => 'Liste de la flotte',

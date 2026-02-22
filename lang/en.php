@@ -690,6 +690,18 @@ return [
     'lignes_history_date' => 'Date',
     'lignes_history_completed_empty' => 'No completed lines yet.',
     'lignes_history_created_empty' => 'No lines created yet.',
+    'lignes_matrix_title' => 'Domestic regular lines matrix',
+    'lignes_matrix_desc' => 'Rows = departures, columns = arrivals. Value: number of days since the last flight on the route.',
+    'lignes_matrix_empty' => 'No domestic line found.',
+    'lignes_matrix_dep_arr' => 'DEP \ ARR',
+    'lignes_matrix_never' => 'Never',
+    'lignes_matrix_today' => 'Today',
+    'lignes_matrix_day_suffix' => 'd',
+    'lignes_matrix_legend_recent' => 'Recent',
+    'lignes_matrix_legend_moderate' => 'Moderate',
+    'lignes_matrix_legend_old' => 'Old',
+    'lignes_matrix_legend_never' => 'Never flown',
+    'lignes_matrix_legend_none' => 'Non-existent route',
     
     // --- Pages: Fleet ---
     'fleet_title' => 'Fleet list',
