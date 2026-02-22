@@ -383,9 +383,10 @@ include __DIR__ . '/../includes/menu_logged.php';
                                 <?php foreach ($matrixArrs as $matArr): ?>
                                 <td style="border:1px solid #ccc; padding:4px 7px;">
                                     <?php
+                                    // Cas 1 : même aéroport (cellule grisée avec croix) ou si pas de ligne régulière de ce type entre ces aéroports (cellule grisée avec tiret)
                                     if ($matDep === $matArr) {
                                         echo '<span style="color:#ccc;font-size:1.1em;">&#215;</span>';
-                                    } elseif (!isset($matrixData[$matDep][$matArr])) {
+                                    } elseif (!(isset($matrixData[$matDep]) && array_key_exists($matArr, $matrixData[$matDep]))) {
                                         echo '<span style="color:#ccc;">&#8212;</span>';
                                     } else {
                                         $lastFlight = $matrixData[$matDep][$matArr];
