@@ -156,10 +156,10 @@ if (isset($_GET['edit'])) {
             </select>
 
             <label><?= t('admin_fleet_type_label_hourly_cost') ?></label>
-            <input type="number" id="cout_horaire" name="cout_horaire" step="100" class="form-input input-250" required value="<?= htmlspecialchars($current['cout_horaire']) ?>">
+            <input type="number" id="cout_horaire" name="cout_horaire" step="10" class="form-input input-250" required value="<?= (int)$current['cout_horaire'] ?>">
 
             <label><?= t('admin_fleet_type_label_plane_cost') ?></label>
-            <input type="number" id="cout_appareil" name="cout_appareil" step="100" class="form-input input-250" required value="<?= htmlspecialchars($current['cout_appareil']) ?>">
+            <input type="number" id="cout_appareil" name="cout_appareil" step="100" class="form-input input-250" required value="<?= (int)$current['cout_appareil'] ?>">
 
             <div class="form-actions">
                 <?php if ($edit_mode): ?>
@@ -198,7 +198,7 @@ if (isset($_GET['edit'])) {
                         <tr>
                             <td class="fleet_type"><?= htmlspecialchars($ft['fleet_type']) ?></td>
                             <td class="type" style="color:#444; font-style:italic;"><?= htmlspecialchars($ft['type']) ?></td>
-                            <td class="cout_horaire" style="text-align:right;"><?= number_format((float)$ft['cout_horaire'], 2, ',', ' ') ?></td>
+                            <td class="cout_horaire" style="text-align:right;"><?= number_format((float)$ft['cout_horaire'], 0, '', ' ') ?></td>
                             <td class="prix" style="text-align:right;font-weight:bold;"><?= number_format((float)$ft['cout_appareil'], 0, '', ' ') ?></td>
                             <td>
                                 <a href="admin_fleet_type.php?edit=<?= (int)$ft['id'] ?>"><?= t('admin_fleet_type_edit_link') ?></a>
@@ -230,7 +230,7 @@ if (isset($_GET['edit'])) {
                         <tr>
                             <td class="fleet_type"><?= htmlspecialchars($ft['fleet_type']) ?></td>
                             <td class="type" style="color:#444; font-style:italic;"><?= htmlspecialchars($ft['type']) ?></td>
-                            <td class="cout_horaire" style="text-align:right;"><?= number_format((float)$ft['cout_horaire'], 2, ',', ' ') ?></td>
+                            <td class="cout_horaire" style="text-align:right;"><?= number_format((float)$ft['cout_horaire'], 0, '', ' ') ?></td>
                             <td class="prix" style="text-align:right;font-weight:bold;"><?= number_format((float)$ft['cout_appareil'], 0, '', ' ') ?></td>
                             <td>
                                 <a href="admin_fleet_type.php?edit=<?= (int)$ft['id'] ?>"><?= t('admin_fleet_type_edit_link') ?></a>
