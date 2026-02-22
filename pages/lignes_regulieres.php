@@ -101,34 +101,9 @@ try {
          FROM LIGNES_REGULIERES lr
          LEFT JOIN TYPE_LIGNE tl ON lr.type_ligne = tl.id
          ORDER BY lr.created_at DESC
-         LIMIT 16"
+         LIMIT 8"
     );
-    $rawHistory = $stmtCreated->fetchAll(PDO::FETCH_ASSOC);
-    
-    // Regrouper les allers-retours sur une seule ligne
-    $usedIndexes = [];
-    foreach ($rawHistory as $i => $entry) {
-        if (in_array($i, $usedIndexes)) continue;
-        
-        $isAR = false;
-        // Chercher une route inverse avec la même date de création
-        foreach ($rawHistory as $j => $other) {
-            if ($j <= $i || in_array($j, $usedIndexes)) continue;
-            
-            if ($entry['icao_dep'] === $other['icao_arr'] 
-                && $entry['icao_arr'] === $other['icao_dep']
-                && $entry['created_at'] === $other['created_at']
-                && $entry['type_label'] === $other['type_label']) {
-                $isAR = true;
-                $usedIndexes[] = $j;
-                break;
-            }
-        }
-        
-        $entry['is_ar'] = $isAR;
-        $historyCreated[] = $entry;
-        if (count($historyCreated) >= 8) break;
-    }
+    $historyCreated = $stmtCreated->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     $historyCreated = [];
 }
@@ -371,7 +346,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                                             echo htmlspecialchars($hcr['created_at'] ?? '');
                                         }
                                     ?></td>
-                                    <td><?= htmlspecialchars(($hcr['icao_dep'] ?? '') . ' ↔ ' . ($hcr['icao_arr'] ?? '')) ?><?php if (!empty($hcr['is_ar'])): ?> <span style="color:#0066cc;">(A/R)</span><?php endif; ?></td>
+                                    <td><?= htmlspecialchars(($hcr['icao_dep'] ?? '') . ' → ' . ($hcr['icao_arr'] ?? '')) ?></td>
                                     <td><?= htmlspecialchars($hcr['type_label'] ?? '') ?></td>
                                     <td><?= is_null($hcr['distance']) ? '' : htmlspecialchars((int)$hcr['distance']) ?></td>
                                 </tr>
