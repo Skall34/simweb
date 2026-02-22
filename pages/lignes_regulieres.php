@@ -108,6 +108,42 @@ try {
     $historyCreated = [];
 }
 
+// Matrice des lignes intérieures : pour chaque paire (dep, arr) du type 'intérieur',
+// on récupère la date du dernier vol complété.
+$matrixData = [];
+$matrixDeps = [];
+$matrixArrs = [];
+try {
+    $stmtMatrix = $pdo->query(
+        "SELECT lr.icao_dep, lr.icao_arr,
+                MAX(r.date_fin) AS last_flight
+         FROM LIGNES_REGULIERES lr
+         LEFT JOIN TYPE_LIGNE tl ON lr.type_ligne = tl.id
+         LEFT JOIN RESERVATIONS r ON r.ligne_id = lr.id AND r.statut = 'completed'
+         WHERE LOWER(tl.Label) LIKE '%int%'
+         GROUP BY lr.icao_dep, lr.icao_arr
+         ORDER BY lr.icao_dep ASC, lr.icao_arr ASC"
+    );
+    $matrixRows = $stmtMatrix->fetchAll(PDO::FETCH_ASSOC);
+    $depSet = [];
+    $arrSet = [];
+    foreach ($matrixRows as $row) {
+        $dep = $row['icao_dep'];
+        $arr = $row['icao_arr'];
+        $depSet[$dep] = true;
+        $arrSet[$arr] = true;
+        $matrixData[$dep][$arr] = $row['last_flight'];
+    }
+    $matrixDeps = array_keys($depSet);
+    $matrixArrs = array_keys($arrSet);
+    sort($matrixDeps);
+    sort($matrixArrs);
+} catch (PDOException $e) {
+    $matrixDeps = [];
+    $matrixArrs = [];
+    $matrixData = [];
+}
+
 include __DIR__ . '/../includes/header.php';
 include __DIR__ . '/../includes/menu_logged.php';
 ?>
@@ -159,37 +195,37 @@ include __DIR__ . '/../includes/menu_logged.php';
             <strong>Attention,</strong> pour pouvoir utiliser les lignes régulières, il faut l'Acars (SimAddon) version 4.0.4 minimum.
         </div>
     <div class="content-columns">
-    <div class="narrow-table-wrapper">
+        <div class="narrow-table-wrapper">
             <div class="panel">
                 <h3><?= t('lignes_table_title') ?></h3>
                 <table class="table-skywings">
-        <thead>
-            <tr>
-                <th><?= t('lignes_table_dep') ?></th>
-                <th><?= t('lignes_table_arr') ?></th>
-                <th><?= t('lignes_table_type') ?></th>
-                <th><?= t('lignes_table_distance') ?></th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php if (count($lines) === 0): ?>
-                <tr><td colspan="5"><?= t('lignes_no_results') ?></td></tr>
-            <?php else: ?>
-                <?php foreach ($lines as $line): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($line['icao_dep']) ?></td>
-                        <td><?= htmlspecialchars($line['icao_arr']) ?></td>
-                        <td><?= htmlspecialchars($line['type_label'] ?? '') ?></td>
-                        <td><?= is_null($line['distance']) ? '' : htmlspecialchars((int)$line['distance']) ?></td>
-                        <td>
-                            <a href="reserver_ligne.php?ligne_id=<?= urlencode($line['id']) ?>"><?= t('lignes_reserver_link') ?></a>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            <?php endif; ?>
-        </tbody>
-    </table>
+                    <thead>
+                        <tr>
+                            <th><?= t('lignes_table_dep') ?></th>
+                            <th><?= t('lignes_table_arr') ?></th>
+                            <th><?= t('lignes_table_type') ?></th>
+                            <th><?= t('lignes_table_distance') ?></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (count($lines) === 0): ?>
+                            <tr><td colspan="5"><?= t('lignes_no_results') ?></td></tr>
+                        <?php else: ?>
+                            <?php foreach ($lines as $line): ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($line['icao_dep']) ?></td>
+                                    <td><?= htmlspecialchars($line['icao_arr']) ?></td>
+                                    <td><?= htmlspecialchars($line['type_label'] ?? '') ?></td>
+                                    <td><?= is_null($line['distance']) ? '' : htmlspecialchars((int)$line['distance']) ?></td>
+                                    <td>
+                                        <a href="reserver_ligne.php?ligne_id=<?= urlencode($line['id']) ?>"><?= t('lignes_reserver_link') ?></a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
             </div>
         </div>
 
@@ -322,8 +358,85 @@ include __DIR__ . '/../includes/menu_logged.php';
                             <p class="empty-msg"><?= t('lignes_history_created_empty') ?></p>
                         <?php endif; ?>
             </div>
+                    <!-- Matrice des lignes régulières intérieures -->
+        <!--<section style="margin-top:28px;">-->
+            <div class="panel">
+                <h3>Matrice des lignes régulières intérieures</h3>
+                <p style="font-size:0.85em;color:#666;margin-bottom:10px;">Lignes en lignes&nbsp;=&nbsp;départs, colonnes&nbsp;=&nbsp;arrivées. Valeur&nbsp;: nombre de jours depuis le dernier vol sur la liaison.</p>
+                <?php if (empty($matrixDeps)): ?>
+                    <p class="empty-msg">Aucune ligne intérieure trouvée.</p>
+                <?php else: ?>
+                    <?php $matrixNow = new DateTime(); ?>
+                    <div style="overflow-x:auto;">
+                    <table style="border-collapse:collapse; font-size:0.82em; text-align:center; white-space:nowrap;">
+                        <thead>
+                            <tr>
+                                <th style="background:#f0f0f0; border:1px solid #ccc; padding:5px 8px; font-weight:bold;">DEP \ ARR</th>
+                                <?php foreach ($matrixArrs as $matArr): ?>
+                                    <th style="background:#f0f0f0; border:1px solid #ccc; padding:5px 8px; font-weight:bold;"><?= htmlspecialchars($matArr) ?></th>
+                                <?php endforeach; ?>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($matrixDeps as $matDep): ?>
+                            <tr>
+                                <th style="background:#f0f0f0; border:1px solid #ccc; padding:5px 8px; font-weight:bold; text-align:left;"><?= htmlspecialchars($matDep) ?></th>
+                                <?php foreach ($matrixArrs as $matArr): ?>
+                                <td style="border:1px solid #ccc; padding:4px 7px;">
+                                    <?php
+                                    if ($matDep === $matArr) {
+                                        echo '<span style="color:#ccc;font-size:1.1em;">&#215;</span>';
+                                    } elseif (!isset($matrixData[$matDep][$matArr])) {
+                                        echo '<span style="color:#ccc;">&#8212;</span>';
+                                    } else {
+                                        $lastFlight = $matrixData[$matDep][$matArr];
+                                        if ($lastFlight === null) {
+                                            echo '<span style="background:#e9ecef;color:#6c757d;padding:2px 6px;border-radius:4px;">Jamais</span>';
+                                        } else {
+                                            try {
+                                                $dtLast = new DateTime($lastFlight);
+                                                $diffDays = (int)$matrixNow->diff($dtLast)->days;
+                                                if ($diffDays === 0) {
+                                                    $badge = 'Auj.';
+                                                    $bg = '#28a745';
+                                                } elseif ($diffDays <= 180) {
+                                                    $badge = $diffDays . 'j';
+                                                    $bg = '#28a745';
+                                                } elseif ($diffDays <= 365) {
+                                                    $badge = $diffDays . 'j';
+                                                    $bg = '#fd7e14';
+                                                } else {
+                                                    $badge = $diffDays . 'j';
+                                                    $bg = '#dc3545';
+                                                }
+                                                echo '<span style="background:' . $bg . ';color:#fff;padding:2px 6px;border-radius:4px;font-weight:600;">' . $badge . '</span>';
+                                            } catch (Exception $e) {
+                                                echo '?';
+                                            }
+                                        }
+                                    }
+                                    ?>
+                                </td>
+                                <?php endforeach; ?>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                    </div>
+                    <div style="margin-top:10px;font-size:0.8em;color:#555;display:flex;gap:14px;flex-wrap:wrap;align-items:center;">
+                        <span><span style="display:inline-block;background:#28a745;color:#fff;padding:1px 7px;border-radius:4px;">0–6m</span>&nbsp;Récent</span>
+                        <span><span style="display:inline-block;background:#fd7e14;color:#fff;padding:1px 7px;border-radius:4px;">6–12m</span>&nbsp;Modéré</span>
+                        <span><span style="display:inline-block;background:#dc3545;color:#fff;padding:1px 7px;border-radius:4px;">&gt;12m</span>&nbsp;Ancien</span>
+                        <span><span style="display:inline-block;background:#e9ecef;color:#6c757d;padding:1px 7px;border-radius:4px;">Jamais</span>&nbsp;Jamais volé</span>
+                        <span style="color:#aaa;">&#8212;&nbsp;Liaison inexistante</span>
+                    </div>
+                <?php endif; ?>
+            </div>
+    <!--</section>-->
+
         </aside>
     </div>
+
 </main>
 
 <style>

@@ -388,7 +388,7 @@ include __DIR__ . '/../includes/menu_logged.php';
     <?php endif; ?>
 
     <section class="admin-lines-form-section">
-        <div class="narrow-table-wrapper admin-lines-form-wrapper">
+        <div class="admin-lines-form-wrapper">
         <h3><?= $edit_mode ? t('admin_lines_form_edit_title') : t('admin_lines_form_add_title') ?></h3>
     <form method="post" class="form-inscription admin-lines-inline-form">
              <?php if ($edit_mode): ?>
@@ -572,7 +572,7 @@ include __DIR__ . '/../includes/menu_logged.php';
             </div>
         </form>
 
-        <div class="narrow-table-wrapper">
+        <div>
             <table class="table-skywings admin-lines-table">
             <thead>
                 <tr>

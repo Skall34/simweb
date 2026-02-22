@@ -653,9 +653,11 @@ footer {
     align-items: center;
 }
 .narrow-table-wrapper {
-  max-width: 1100px; /* increased width to give more room for admin frames */
+  flex: 0 0 400px;
+  max-width: 400px; /* increased width to give more room for admin frames */
+  width: 400px;
   margin-left: 0; /* keep left alignment so panels line up with page content */
-  margin-right: auto;
+  margin-right: 0;
 }
 .narrow-table-wrapper .table-skywings {
   width: 100%;
@@ -747,7 +749,7 @@ footer {
 
 /* Layout columns used on lignes_regulieres.php */
 .content-columns { display:flex; gap:32px; align-items:flex-start; }
-.right-aside { width:900px; max-width:100%; min-width:320px; flex:0 0 900px; margin-left:16px; }
+.right-aside { max-width:100%; min-width:320px; flex:1 1 auto; margin-left:16px; }
 
 /* Vertical separator */
 .vertical-sep { width:1px; background:#e6e6e6; margin:0 12px; align-self:stretch; border-radius:2px; }
