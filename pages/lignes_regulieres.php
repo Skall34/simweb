@@ -118,9 +118,8 @@ try {
         "SELECT lr.icao_dep, lr.icao_arr,
                 MAX(r.date_fin) AS last_flight
          FROM LIGNES_REGULIERES lr
-         LEFT JOIN TYPE_LIGNE tl ON lr.type_ligne = tl.id
          LEFT JOIN RESERVATIONS r ON r.ligne_id = lr.id AND r.statut = 'completed'
-         WHERE LOWER(tl.Label) LIKE '%int%'
+         WHERE lr.type_ligne = 2
          GROUP BY lr.icao_dep, lr.icao_arr
          ORDER BY lr.icao_dep ASC, lr.icao_arr ASC"
     );
