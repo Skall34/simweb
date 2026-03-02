@@ -123,7 +123,12 @@ foreach ($pilotes as $pilote) {
             if ($mailResult === true || $mailResult === null || (is_array($mailResult) && !empty($mailResult['success']))) {
                 logMsg("Mail de promotion envoye a $to", __DIR__ . '/logs/promotion_grades.log');
             } else {
-                $errMsg = is_array($mailResult) ? json_encode($mailResult) : $mailResult;
+                // Extraire le message d'erreur de façon robuste
+                if (is_array($mailResult)) {
+                    $errMsg = isset($mailResult['error']) ? $mailResult['error'] : json_encode($mailResult, JSON_UNESCAPED_UNICODE);
+                } else {
+                    $errMsg = (string)$mailResult;
+                }
                 logMsg("Erreur lors de l'envoi du mail de promotion a $to : $errMsg", __DIR__ . '/logs/promotion_grades.log');
             }
         }
@@ -145,7 +150,11 @@ if (!$dryRun) {
         if ($mailResult === true || $mailResult === null || (is_array($mailResult) && !empty($mailResult['success']))) {
             logMsg("Mail recapitulatif envoye a " . VA_ADMIN_EMAIL, __DIR__ . '/logs/promotion_grades.log');
         } else {
-            $errMsg = is_array($mailResult) ? json_encode($mailResult) : $mailResult;
+            if (is_array($mailResult)) {
+                $errMsg = isset($mailResult['error']) ? $mailResult['error'] : json_encode($mailResult, JSON_UNESCAPED_UNICODE);
+            } else {
+                $errMsg = (string)$mailResult;
+            }
             logMsg("Erreur lors de l'envoi du mail recapitulatif : $errMsg", __DIR__ . '/logs/promotion_grades.log');
         }
     } else {
@@ -157,7 +166,11 @@ if (!$dryRun) {
         if ($mailResult === true || $mailResult === null || (is_array($mailResult) && !empty($mailResult['success']))) {
             logMsg("Mail récapitulatif (aucune promotion) envoyé à " . VA_ADMIN_EMAIL, __DIR__ . '/logs/promotion_grades.log');
         } else {
-            $errMsg = is_array($mailResult) ? json_encode($mailResult) : $mailResult;
+            if (is_array($mailResult)) {
+                $errMsg = isset($mailResult['error']) ? $mailResult['error'] : json_encode($mailResult, JSON_UNESCAPED_UNICODE);
+            } else {
+                $errMsg = (string)$mailResult;
+            }
             logMsg("Erreur lors de l'envoi du mail récapitulatif (aucune promotion) : $errMsg", __DIR__ . '/logs/promotion_grades.log');
         }
     }
