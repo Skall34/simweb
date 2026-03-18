@@ -27,7 +27,7 @@ require_once __DIR__ . '/../../includes/menu_logged.php';
         <p>Bienvenue sur la mission <strong>Opération Kangourou</strong> !</p>
 
         <p>Dans cette mission, vous serez chargé de piloter un avion de transport militaire (DC-3) depuis l'aéroport de Clermont-Ferrand, jusqu'en Australie.
-            A chaque étape, des consigne concernant la quantité de carburant, ainsi que la quantité de fret à embarquer seront indiquées.
+            A chaque étape, des consignes concernant la quantité de carburant, ainsi que la quantité de fret à embarquer seront indiquées.
             Vous devrez respecter ces consignes pour réussir la mission.</p>       
 
         <!-- Ajoutez une carte Google Maps si nécessaire -->
