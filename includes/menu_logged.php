@@ -42,6 +42,7 @@ require_once __DIR__ . '/../lang.php';
     <a href="/pages/reserver_ligne.php">🧭 <?= t('menu_bookline') ?></a>
     <a href="/pages/stats.php">📊 <?= t('menu_stats') ?></a>
     <a href="/pages/finances.php">💶 <?= t('menu_finances') ?></a>
+    <a href="/pages/tresorier.php">💰 <?= t('menu_tresorier') ?></a>
     <a href="/pages/mon_compte.php">👤 <?= t('menu_account') ?></a>
     <div class="menu-missions">
         <span class="missions-label">🗺️ <?= t('menu_missions') ?></span>
