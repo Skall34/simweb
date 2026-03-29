@@ -1324,7 +1324,7 @@ Coût total maintenance : 1 000,00 €
     'doc_promotion_etape4_title' => 'Récapitulatif administrateur',
     'doc_promotion_etape4_text' => 'Envoie un mail récapitulatif à l\'administrateur avec la liste des promotions effectuées.',
     'doc_promotion_automatisation_title' => 'Automatisation & utilisation',
-    'doc_promotion_automatisation1' => 'Le script est lancé automatiquement chaque 1er du mois à 23h, mais peut aussi être lancé manuellement.',
+    'doc_promotion_automatisation1' => 'Le script est lancé automatiquement chaque 2 du mois à 8h, mais peut aussi être lancé manuellement.',
     'doc_promotion_automatisation2' => 'En cas d\'anomalie ou d\'alerte, consulter le log',
     'doc_promotion_automatisation2_suite' => 'pour diagnostic.',
     'doc_promotion_grades_title' => 'Table des grades pilotes',
