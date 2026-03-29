@@ -4,31 +4,28 @@
  Script : assurance_mensuelle.php
  Emplacement : scripts/
 
-
  Description :
  Ce script calcule et déduit chaque mois le coût d'assurance de la compagnie aérienne virtuelle.
- L'assurance est calculée comme un petit pourcentage (par défaut 0.2%) de la valeur absolue de la balance commerciale actuelle (champ balance_actuelle dans BALANCE_COMMERCIALE).
- La balance commerciale est ensuite mise à jour en conséquence.
+ L'assurance est calculée comme un pourcentage annuel de la valeur totale de la flotte active,
+ divisé par 12 pour obtenir la mensualité.
 
  Log :
  Toutes les opérations et vérifications sont enregistrées dans scripts/logs/assurance_mensuelle.log.
 
  Notification :
- Un mail récapitulatif automatique est envoyé à l'administrateur à la fin du script pour indiquer le succès du traitement.
-
+ Un mail récapitulatif automatique est envoyé à l'administrateur à la fin du script.
 
  Fonctionnement :
- 1. Récupère la balance commerciale actuelle (champ balance_actuelle).
- 2. Calcule l'assurance mensuelle : valeur absolue de balance_actuelle * pourcentage.
- 3. Insère la dépense dans finances_depenses avec un commentaire explicite.
- 4. Met à jour la balance commerciale.
- 5. Logue la balance avant/après et toute anomalie détectée.
- 6. Envoie un mail récapitulatif automatique à la fin du script.
+ 1. Calcule la valeur totale de la flotte active (somme des cout_appareil via FLEET_TYPE).
+ 2. Récupère le taux d'assurance annuel depuis VARIABLES_CONFIG.
+ 3. Calcule l'assurance mensuelle : valeur_flotte * taux / 12.
+ 4. Insère la dépense dans finances_depenses.
+ 5. Met à jour la balance commerciale.
+ 6. Envoie un mail récapitulatif automatique.
 
  Utilisation :
  - À lancer une fois par mois (cron ou manuel).
- - Adapter le pourcentage si besoin (variable $pourcentage).
- - Vérifier le log en cas d'anomalie ou d'alerte.
+ - Adapter le taux si besoin via l'admin (variable taux_assurance).
 
  Auteur :
  - Automatisé avec GitHub Copilot
@@ -48,52 +45,61 @@ logMsg("--- Script assurance_mensuelle.php lancé ---", $logFile);
 echo "--- Script assurance_mensuelle.php lancé ---\n";
 
 try {
-    // Calculer l'assurance mensuelle comme un petit pourcentage de la valeur absolue de la balance actuelle
-    $sqlBalanceActuelle = "SELECT balance_actuelle FROM BALANCE_COMMERCIALE";
-    $stmtBalanceActuelle = $pdo->query($sqlBalanceActuelle);
-    $balance_actuelle = $stmtBalanceActuelle->fetchColumn();
-    logMsg("Balance actuelle (balance_actuelle): $balance_actuelle", $logFile);
-    // Récupérer dynamiquement le taux d'assurance depuis VARIABLES_CONFIG
-    $pourcentage = 0.002; // valeur par défaut si non trouvé
+    // Calculer la valeur totale de la flotte active
+    $sqlFlotte = "SELECT COALESCE(SUM(ft.cout_appareil), 0) 
+                  FROM FLOTTE f 
+                  JOIN FLEET_TYPE ft ON f.fleet_type = ft.id 
+                  WHERE f.Actif = 1";
+    $valeur_flotte = floatval($pdo->query($sqlFlotte)->fetchColumn());
+    logMsg("Valeur totale de la flotte active : $valeur_flotte", $logFile);
+
+    // Nombre d'appareils actifs (pour info)
+    $nb_appareils = intval($pdo->query("SELECT COUNT(*) FROM FLOTTE WHERE Actif = 1")->fetchColumn());
+
+    // Récupérer dynamiquement le taux d'assurance annuel depuis VARIABLES_CONFIG
+    $taux_annuel = 0.02; // valeur par défaut 2%
     $stmtTaux = $pdo->prepare("SELECT valeur FROM VARIABLES_CONFIG WHERE nom = 'taux_assurance'");
     if ($stmtTaux->execute()) {
         $valeurTaux = $stmtTaux->fetchColumn();
         if ($valeurTaux !== false && is_numeric($valeurTaux)) {
-            $pourcentage = floatval($valeurTaux);
+            $taux_annuel = floatval($valeurTaux);
         }
     }
-    $assiette = abs($balance_actuelle);
-    $assurance_mensuelle = round($assiette * $pourcentage, 2);
 
-    // Format numbers for human-readable output (comma decimal, space thousands)
-    $assiette_fmt = number_format((float)$assiette, 2, ',', ' ');
-    $assurance_fmt = number_format((float)$assurance_mensuelle, 2, ',', ' ');
-    $balance_fmt = number_format((float)$balance_actuelle, 2, ',', ' ');
-    // Pourcentage lisible (ex: 0.2% or 0,2%)
-    if ($pourcentage < 1) {
-        $pourcentage_display = rtrim(rtrim(number_format($pourcentage * 100, 3, ',', ' '), '0'), ',') . '%';
+    // Assurance mensuelle = valeur flotte * taux annuel / 12
+    $assurance_mensuelle = round($valeur_flotte * $taux_annuel / 12, 2);
+
+    // Formatage pour affichage
+    $valeur_flotte_fmt = number_format($valeur_flotte, 2, ',', ' ');
+    $assurance_fmt = number_format($assurance_mensuelle, 2, ',', ' ');
+    $taux_display = rtrim(rtrim(number_format($taux_annuel * 100, 3, ',', ' '), '0'), ',') . '%';
+
+    if ($assurance_mensuelle > 0) {
+        $commentaire_assurance = "Assurance mensuelle — {$taux_display} annuel sur flotte active ({$nb_appareils} appareils, valeur {$valeur_flotte_fmt} €)";
+        mettreAJourDepenses($assurance_mensuelle, null, '', 'SYSTEM', 'assurance', $commentaire_assurance);
+        logMsg("Assurance enregistrée : {$assurance_fmt} € | $commentaire_assurance", $logFile);
     } else {
-        $pourcentage_display = rtrim(rtrim(number_format($pourcentage, 3, ',', ' '), '0'), ',');
+        logMsg("Aucune assurance à prélever (flotte vide ou valeur nulle).", $logFile);
     }
 
-    $commentaire_assurance = "Prélèvement assurance mensuelle ({$pourcentage_display} de la valeur absolue de la balance actuelle : {$assiette_fmt} €)";
-    mettreAJourDepenses($assurance_mensuelle, null, '', 'SYSTEM', 'assurance', $commentaire_assurance);
-    logMsg("Assurance mensuelle enregistrée dans finances_depenses: $assurance_mensuelle | $commentaire_assurance", $logFile);
     logMsg("Traitement terminé.", $logFile);
-    // Affichage récapitulatif pour l'admin
+
+    // Affichage récapitulatif
     $message = "Traitement d'assurance mensuelle terminé.\n";
+    $message .= "Appareils actifs : {$nb_appareils}\n";
+    $message .= "Valeur flotte : {$valeur_flotte_fmt} €\n";
+    $message .= "Taux annuel : {$taux_display}\n";
     $message .= "Montant prélevé : {$assurance_fmt} €\n";
-    $message .= "Base de calcul (valeur absolue de la balance) : {$assiette_fmt} €\n";
-    $message .= "Balance avant : {$balance_fmt} €\n";
 
     echo $message;
     // Envoi du mail recapitulatif enrichi
     if ($mailSummaryEnabled && function_exists('sendSummaryMail')) {
         $subject = "[SimWeb] Rapport assurance mensuelle - " . date('d/m/Y H:i');
         $body = "Bonjour,\n\nLe traitement d'assurance mensuelle s'est terminé.";
+        $body .= "\nAppareils actifs : {$nb_appareils}";
+        $body .= "\nValeur flotte : {$valeur_flotte_fmt} €";
+        $body .= "\nTaux annuel : {$taux_display}";
         $body .= "\nMontant prélevé : {$assurance_fmt} €";
-        $body .= "\nBase de calcul : {$assiette_fmt} € ({$pourcentage_display})";
-        $body .= "\nBalance avant : {$balance_fmt} €";
         $body .= "\n\nCeci est un message automatique.";
         $to = VA_ADMIN_EMAIL;
         $mailResult = sendSummaryMail($subject, $body, $to);
