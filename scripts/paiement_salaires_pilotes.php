@@ -184,10 +184,11 @@ foreach ($pilotes as $index => $pilote) {
         }
         
         $mailResult = sendSummaryMail($subject, $message, $to, 10, $mailOptions);
-        if ($mailResult === true || $mailResult === null) {
+        if ($mailResult === true || $mailResult === null || (is_array($mailResult) && !empty($mailResult['success']))) {
             logMsg("[TRACE] Mail de salaire envoye a $to avec fiche de paie", __DIR__ . '/logs/paiement_salaires.log');
         } else {
-            logMsg("[ERREUR] Envoi mail salaire à $to : $mailResult", __DIR__ . '/logs/paiement_salaires.log');
+            $errMsg = is_array($mailResult) ? (isset($mailResult['error']) ? $mailResult['error'] : json_encode($mailResult, JSON_UNESCAPED_UNICODE)) : (string)$mailResult;
+            logMsg("[ERREUR] Envoi mail salaire à $to : $errMsg", __DIR__ . '/logs/paiement_salaires.log');
         }
         
         sleep(1);

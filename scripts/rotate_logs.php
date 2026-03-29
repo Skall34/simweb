@@ -117,10 +117,11 @@ if ($mailSummaryEnabled && function_exists('sendSummaryMail')) {
     $body .= "\n" . t('script_fret_mail_automatic');
     $to = VA_ADMIN_EMAIL;
     $mailResult = sendSummaryMail($subject, $body, $to);
-    if ($mailResult === true || $mailResult === null) {
+    if ($mailResult === true || $mailResult === null || (is_array($mailResult) && !empty($mailResult['success']))) {
         logMsg("Mail recapitulatif envoye a $to", $logFile);
     } else {
-        logMsg("Erreur lors de l'envoi du mail recapitulatif : $mailResult", $logFile);
+        $errMsg = is_array($mailResult) ? (isset($mailResult['error']) ? $mailResult['error'] : json_encode($mailResult, JSON_UNESCAPED_UNICODE)) : (string)$mailResult;
+        logMsg("Erreur lors de l'envoi du mail recapitulatif : $errMsg", $logFile);
     }
 }
 ?>

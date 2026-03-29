@@ -167,10 +167,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             '</ul>';
                         if (defined('VA_ADMIN_EMAIL') && VA_ADMIN_EMAIL) {
                             $mailResult = sendSummaryMail($mailSubject, $mailBody, VA_ADMIN_EMAIL);
-                            if ($mailResult !== true) {
-                                logMsg('Envoi mail admin_lines échoué: ' . $mailResult, __DIR__ . '/../scripts/logs/admin_lignes.log');
-                            } else {
+                            if ($mailResult === true || $mailResult === null || (is_array($mailResult) && !empty($mailResult['success']))) {
                                 logMsg('Mail admin_lines envoyé pour ligne ' . $icao_dep . '->' . $icao_arr, __DIR__ . '/../scripts/logs/admin_lignes.log');
+                            } else {
+                                $errMsg = is_array($mailResult) ? (isset($mailResult['error']) ? $mailResult['error'] : json_encode($mailResult, JSON_UNESCAPED_UNICODE)) : (string)$mailResult;
+                                logMsg('Envoi mail admin_lines échoué: ' . $errMsg, __DIR__ . '/../scripts/logs/admin_lignes.log');
                             }
                         }
                     } catch (Exception $e) {
