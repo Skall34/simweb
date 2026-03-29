@@ -1442,6 +1442,7 @@ Appareils sortis de maintenance : 1
     'fleet_detail_mode_achat' => 'Mode d\'achat',
     'fleet_detail_recettes' => 'Recettes',
     'fleet_detail_annees_credit' => 'Années crédit',
+    'fleet_detail_mois_restants' => 'Mois restants',
     'fleet_detail_taux_credit' => 'Taux crédit',
     'fleet_detail_remboursement' => 'Remboursement',
     'fleet_detail_traite_payee' => 'Traite payée cumulée',

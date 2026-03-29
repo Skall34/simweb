@@ -1439,6 +1439,7 @@ Aeronaves que salieron de mantenimiento: 1
     'fleet_detail_mode_achat' => 'Modo de compra',
     'fleet_detail_recettes' => 'Ingresos',
     'fleet_detail_annees_credit' => 'Años de crédito',
+    'fleet_detail_mois_restants' => 'Meses restantes',
     'fleet_detail_taux_credit' => 'Tasa de crédito',
     'fleet_detail_remboursement' => 'Reembolso',
     'fleet_detail_traite_payee' => 'Pago acumulado',

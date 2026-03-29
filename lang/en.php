@@ -1437,6 +1437,7 @@ Aircraft exited maintenance: 1
     'fleet_detail_mode_achat' => 'Purchase mode',
     'fleet_detail_recettes' => 'Revenue',
     'fleet_detail_annees_credit' => 'Credit years',
+    'fleet_detail_mois_restants' => 'Months remaining',
     'fleet_detail_taux_credit' => 'Credit rate',
     'fleet_detail_remboursement' => 'Repayment',
     'fleet_detail_traite_payee' => 'Cumulative payment',

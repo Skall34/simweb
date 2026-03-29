@@ -24,7 +24,7 @@ try {
 // Nouvelle requête : on récupère tous les appareils (actifs et inactifs)
 $sql = "SELECT f.id, ft.fleet_type AS type_libelle, ft.type AS categorie, f.immat, f.localisation, f.hub, f.status, f.etat,
                p.callsign AS pilote_callsign, f.fuel_restant, f.compteur_immo, f.en_vol, f.nb_maintenance, f.reservee,
-               f.date_achat, f.recettes, f.nb_annees_credit, f.taux_percent, f.remboursement, f.traite_payee_cumulee, f.reste_a_payer, f.recette_vente, f.date_vente, f.actif
+               f.date_achat, f.recettes, f.nb_annees_credit, f.nb_mois_restants, f.taux_percent, f.remboursement, f.traite_payee_cumulee, f.reste_a_payer, f.recette_vente, f.date_vente, f.actif
         FROM FLOTTE f
         LEFT JOIN FLEET_TYPE ft ON f.fleet_type = ft.id
         LEFT JOIN PILOTES p ON f.dernier_utilisateur = p.id
@@ -153,6 +153,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                         t('fleet_detail_mode_achat') => (isset($avion['mode_achat']) && $avion['mode_achat'] === 'credit') ? t('fleet_text_credit') : ((isset($avion['mode_achat']) && $avion['mode_achat'] === 'comptant') ? t('fleet_text_cash') : ((isset($avion['nb_annees_credit']) && intval($avion['nb_annees_credit']) > 0) ? t('fleet_text_credit') : t('fleet_text_cash'))),
                         t('fleet_detail_recettes') => ($avion['recettes'] ?? '') . ' €',
                         t('fleet_detail_annees_credit') => $avion['nb_annees_credit'] ?? '',
+                        t('fleet_detail_mois_restants') => $avion['nb_mois_restants'] ?? '',
                         t('fleet_detail_taux_credit') => ($avion['taux_percent'] ?? '') . ' %',
                         t('fleet_detail_remboursement') => ($avion['remboursement'] ?? '') . ' €',
                         t('fleet_detail_traite_payee') => ($avion['traite_payee_cumulee'] ?? '') . ' €',

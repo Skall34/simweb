@@ -39,83 +39,104 @@ require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/log_func.php';
 require_once __DIR__ . '/../includes/mail_utils.php';
+require_once __DIR__ . '/../includes/fonctions_financieres.php';
 $logFile = __DIR__ . '/logs/credit_mensualite.log';
 logMsg("--- Démarrage du script de mensualités crédit ---", $logFile);
-logMsg("--- Script credit_mensualite.php lancé ---", $logFile);
 echo "--- Script credit_mensualite.php lancé ---\n";
 
+$mois_courant = date('Y-m'); // Ex: "2026-03"
+
 try {
-    // Sélectionner tous les avions à crédit dans FLOTTE
-    $sql = "SELECT * FROM FLOTTE WHERE nb_annees_credit > 0 AND reste_a_payer > 0";
+    // Sélectionner tous les avions à crédit actifs avec des mois restants
+    $sql = "SELECT * FROM FLOTTE WHERE nb_mois_restants > 0 AND reste_a_payer > 0 AND Actif = 1";
     $stmt = $pdo->query($sql);
     $finances = $stmt->fetchAll(PDO::FETCH_ASSOC);
     $count = 0;
     $immat_mis_a_jour = [];
     $erreurs_coherence = [];
-    $mois_courant = date('n');
+
     if (count($finances) == 0) {
         logMsg("Aucun appareil à crédit à traiter.", $logFile);
         echo "Aucun appareil à crédit à traiter.\n";
     }
+
     foreach ($finances as $row) {
         $avion_id = $row['id'];
         $immat = $row['immat'];
-        $nb_annees_credit = $row['nb_annees_credit'];
-        // Si le crédit est terminé, on ne fait rien
-        if ($nb_annees_credit <= 0) {
-            logMsg("Avion $immat : crédit terminé, aucune opération.", $logFile);
-            continue;
-        }
-        // Si on est en janvier, on retire une année
-        if ($mois_courant == 1) {
-            $nouvelle_annee = $nb_annees_credit - 1;
-            if ($nouvelle_annee < 0) $nouvelle_annee = 0;
-            $sqlAnnee = "UPDATE FLOTTE SET nb_annees_credit = :annee WHERE id = :avion_id";
-            $stmtAnnee = $pdo->prepare($sqlAnnee);
-            $stmtAnnee->execute([
-                'annee' => $nouvelle_annee,
-                'avion_id' => $avion_id
-            ]);
-            logMsg("Avion $immat : décrément nb_annees_credit à $nouvelle_annee (janvier)", $logFile);
-            // Si après décrément on est à 0, on ne fait plus rien
-            if ($nouvelle_annee == 0) {
-                logMsg("Avion $immat : crédit terminé après décrément, aucune opération.", $logFile);
+
+        // Protection contre double exécution dans le même mois
+        if (!empty($row['derniere_mensualite'])) {
+            $derniere = substr($row['derniere_mensualite'], 0, 7); // "YYYY-MM"
+            if ($derniere === $mois_courant) {
+                logMsg("Avion $immat : mensualité déjà prélevée ce mois ($mois_courant), ignoré.", $logFile);
                 continue;
             }
-            $nb_annees_credit = $nouvelle_annee;
         }
-        $nb_mensualites = $nb_annees_credit * 12;
-        $taux_mensuel = $row['taux_percent'] / 100 / 12;
-        $reste_initial = $row['traite_payee_cumulee'] + $row['reste_a_payer'];
-        if ($nb_mensualites > 0 && $taux_mensuel > 0) {
-            $mensualite = $reste_initial * ($taux_mensuel / (1 - pow(1 + $taux_mensuel, -$nb_mensualites)));
-            $mensualite = round($mensualite, 2);
-            $nouveau_traite = $row['traite_payee_cumulee'] + $mensualite;
-            $nouveau_reste = $row['reste_a_payer'] - $mensualite;
-            if ($nouveau_reste < 0) $nouveau_reste = 0;
-            $nouveau_remboursement = $nouveau_traite + $nouveau_reste;
-            // Mise à jour en base
-            $sqlUpdate = "UPDATE FLOTTE SET traite_payee_cumulee = :traite, reste_a_payer = :reste, remboursement = :remboursement WHERE id = :avion_id";
-            $stmtUpdate = $pdo->prepare($sqlUpdate);
-            $stmtUpdate->execute([
-                'traite' => $nouveau_traite,
-                'reste' => $nouveau_reste,
-                'remboursement' => $nouveau_remboursement,
-                'avion_id' => $avion_id
-            ]);
-            $logDetail = "Appareil $immat : mensualité=$mensualite, traite_payee_cumulee=$nouveau_traite, reste_a_payer=$nouveau_reste, remboursement=$nouveau_remboursement";
-            // Vérification de cohérence
-            if (abs($nouveau_remboursement - ($nouveau_traite + $nouveau_reste)) > 0.01) {
-                $logDetail .= " [ERREUR: remboursement != traite_payee_cumulee + reste_a_payer]";
-                $erreurs_coherence[] = $immat;
-            }
-            logMsg($logDetail, $logFile);
-            $count++;
-            $immat_mis_a_jour[] = $immat;
+
+        $nb_mois_restants = intval($row['nb_mois_restants']);
+        $taux_mensuel = floatval($row['taux_percent']) / 100 / 12;
+        $reste_a_payer = floatval($row['reste_a_payer']);
+        $traite_payee_cumulee = floatval($row['traite_payee_cumulee']);
+        $capital_initial = floatval($row['remboursement']); // montant total du prêt (fixe)
+        $nb_total_mois = intval($row['nb_annees_credit']) * 12; // durée originale (fixe)
+
+        // Calculer la mensualité fixe à partir du capital initial et de la durée originale
+        if ($nb_total_mois > 0 && $taux_mensuel > 0) {
+            $mensualite_fixe = $capital_initial * ($taux_mensuel / (1 - pow(1 + $taux_mensuel, -$nb_total_mois)));
+            $mensualite_fixe = round($mensualite_fixe, 2);
+        } elseif ($nb_total_mois > 0) {
+            // Taux à 0% : mensualité = capital / nb mois
+            $mensualite_fixe = round($capital_initial / $nb_total_mois, 2);
         } else {
-            logMsg("Avion $immat : paramètres de crédit invalides (nb_mensualites=$nb_mensualites, taux_mensualite=$taux_mensualite)", $logFile);
+            logMsg("Avion $immat : paramètres de crédit invalides (nb_total_mois=$nb_total_mois, taux_mensuel=$taux_mensuel)", $logFile);
+            continue;
         }
+
+        // Calculer la part d'intérêts et la part de capital ce mois-ci
+        $interets = round($reste_a_payer * $taux_mensuel, 2);
+        $part_capital = $mensualite_fixe - $interets;
+
+        // Dernière mensualité : ajuster si le reste est inférieur à la part capital
+        if ($part_capital > $reste_a_payer) {
+            $part_capital = $reste_a_payer;
+            $mensualite_fixe = $part_capital + $interets;
+        }
+
+        $nouveau_reste = round($reste_a_payer - $part_capital, 2);
+        if ($nouveau_reste < 0.01) $nouveau_reste = 0; // Éviter les résidus d'arrondi
+        $nouveau_traite = round($traite_payee_cumulee + $mensualite_fixe, 2);
+        $nouveau_mois_restants = $nb_mois_restants - 1;
+
+        // Mise à jour en base
+        $sqlUpdate = "UPDATE FLOTTE SET traite_payee_cumulee = :traite, reste_a_payer = :reste, 
+                      nb_mois_restants = :mois_restants, derniere_mensualite = :derniere_mensualite 
+                      WHERE id = :avion_id";
+        $stmtUpdate = $pdo->prepare($sqlUpdate);
+        $stmtUpdate->execute([
+            'traite' => $nouveau_traite,
+            'reste' => $nouveau_reste,
+            'mois_restants' => $nouveau_mois_restants,
+            'derniere_mensualite' => date('Y-m-d'),
+            'avion_id' => $avion_id
+        ]);
+
+        // Enregistrer la mensualité dans finances_depenses
+        $commentaire = "Mensualité crédit $immat — Capital: " . number_format($part_capital, 2) . ", Intérêts: " . number_format($interets, 2);
+        mettreAJourDepenses($mensualite_fixe, $avion_id, $immat, '', 'mensualite_credit', $commentaire);
+
+        $logDetail = "Appareil $immat : mensualité=$mensualite_fixe (capital=$part_capital, intérêts=$interets), "
+            . "traite_payee_cumulee=$nouveau_traite, reste_a_payer=$nouveau_reste, mois_restants=$nouveau_mois_restants";
+
+        // Vérification de cohérence
+        if ($nouveau_reste == 0 && $nouveau_mois_restants > 0) {
+            $logDetail .= " [INFO: crédit soldé avec $nouveau_mois_restants mois restants]";
+        }
+
+        logMsg($logDetail, $logFile);
+        $count++;
+        $immat_mis_a_jour[] = $immat;
     }
+
     logMsg("Traitement terminé. $count appareils mis à jour.", $logFile);
     // Affichage récapitulatif pour l'admin
     $message = "Traitement des mensualités crédit terminé.\n";

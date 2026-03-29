@@ -73,7 +73,7 @@ if ($action === 'vendre' && isset($_POST['avion_id'])) {
         }
 
         // Mettre à jour FLOTTE après vente
-        $stmtUpdateF = $pdo->prepare("UPDATE FLOTTE SET actif = 0, status = 1, etat = 0, date_vente = :date_vente, recette_vente = :recette_vente, reste_a_payer = 0, remboursement = :remboursement, nb_annees_credit = 0 WHERE id = :id");
+        $stmtUpdateF = $pdo->prepare("UPDATE FLOTTE SET actif = 0, status = 1, etat = 0, date_vente = :date_vente, recette_vente = :recette_vente, reste_a_payer = 0, remboursement = :remboursement, nb_mois_restants = 0 WHERE id = :id");
         $stmtUpdateF->execute([
             'date_vente' => date('Y-m-d'),
             'recette_vente' => $recette_vente,
@@ -137,12 +137,14 @@ if ($action === 'acheter' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 if ($achat_mode === 'comptant') {
                     $nb_annees_credit = 0;
+                    $nb_mois_restants = 0;
                     $taux_percent = 0;
                     $remboursement = 0;
                     $traite_payee_cumulee = 0;
                     $reste_a_payer = 0;
                 } else {
-                    $remboursement = 0;
+                    $nb_mois_restants = $nb_annees_credit * 12;
+                    $remboursement = $prix_achat;
                     $traite_payee_cumulee = 0;
                     $reste_a_payer = $prix_achat;
                 }
@@ -153,13 +155,13 @@ if ($action === 'acheter' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                         fleet_type, immat, localisation, hub,
                         status, etat, dernier_utilisateur, fuel_restant,
                         compteur_immo, en_vol, nb_maintenance, Actif,
-                        date_achat, recettes, nb_annees_credit, taux_percent, remboursement, 
+                        date_achat, recettes, nb_annees_credit, nb_mois_restants, taux_percent, remboursement, 
                         traite_payee_cumulee, reste_a_payer, mode_achat
                     ) VALUES (
                         :fleet_type, :immat, :localisation, :hub,
                         0, 100, NULL, NULL,
                         0, 0, 0, 1,
-                        :date_achat, 0, :nb_annees_credit, :taux_percent, :remboursement, 
+                        :date_achat, 0, :nb_annees_credit, :nb_mois_restants, :taux_percent, :remboursement, 
                         :traite_payee_cumulee, :reste_a_payer, :mode_achat
                     )
                 ";
@@ -171,6 +173,7 @@ if ($action === 'acheter' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                     'hub' => $hub ?: null,
                     'date_achat' => date('Y-m-d'),
                     'nb_annees_credit' => $nb_annees_credit,
+                    'nb_mois_restants' => $nb_mois_restants,
                     'taux_percent' => $taux_percent,
                     'remboursement' => $remboursement,
                     'traite_payee_cumulee' => $traite_payee_cumulee,
@@ -179,10 +182,12 @@ if ($action === 'acheter' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 ]);
                 $avion_id = $pdo->lastInsertId();
 
-                // Enregistrer l'achat dans finances_depenses
+                // Enregistrer l'achat dans finances_depenses (uniquement si comptant)
                 $callsign_acheteur = $_SESSION['callsign'] ?? '';
                 $commentaire_finance = "Achat appareil $immat par $callsign_acheteur";
-                mettreAJourDepenses($prix_achat, $avion_id, $immat, $callsign_acheteur, 'achat', $commentaire_finance);
+                if ($achat_mode === 'comptant') {
+                    mettreAJourDepenses($prix_achat, $avion_id, $immat, $callsign_acheteur, 'achat', $commentaire_finance);
+                }
                 
                 $_SESSION['flash_message'] = str_replace('{immat}', htmlspecialchars($immat), t('admin_flotte_success_achat'));
                 
