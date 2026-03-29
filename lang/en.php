@@ -801,6 +801,7 @@ return [
 
     // --- admin_flotte.php ---
     'admin_flotte_error_vente' => 'Error during sale: ',
+    'admin_flotte_error_vente_en_vol' => 'Cannot sell this aircraft: it is currently in flight or reserved.',
     'admin_flotte_error_champs_obligatoires' => 'All required fields must be filled in correctly with the requested formats.',
     'admin_flotte_error_immat_exist' => 'An aircraft with this registration already exists.',
     'admin_flotte_success_achat' => 'The aircraft {immat} was successfully purchased.',
@@ -1439,7 +1440,7 @@ Aircraft exited maintenance: 1
     'fleet_detail_annees_credit' => 'Credit years',
     'fleet_detail_mois_restants' => 'Months remaining',
     'fleet_detail_taux_credit' => 'Credit rate',
-    'fleet_detail_remboursement' => 'Repayment',
+    'fleet_detail_mensualite' => 'Monthly payment',
     'fleet_detail_traite_payee' => 'Cumulative payment',
     'fleet_detail_reste_payer' => 'Remaining balance',
     'fleet_detail_recette_vente' => 'Sale revenue',

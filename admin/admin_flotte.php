@@ -51,47 +51,61 @@ if ($action === 'vendre' && isset($_POST['avion_id'])) {
     $avion_id = intval($_POST['avion_id']);
     logMsg('[VENTE] Début traitement vente appareil, avion_id=' . $avion_id, $logFile);
     try {
-        // Récupérer le reste à payer et infos financières
-        $stmtFinance = $pdo->prepare("SELECT reste_a_payer, nb_annees_credit, immat FROM FLOTTE WHERE id = :avion_id");
+        // Récupérer les infos financières
+        $stmtFinance = $pdo->prepare("SELECT reste_a_payer, nb_annees_credit, immat, en_vol, reservee, mode_achat FROM FLOTTE WHERE id = :avion_id");
         $stmtFinance->execute(['avion_id' => $avion_id]);
         $rowFinance = $stmtFinance->fetch(PDO::FETCH_ASSOC);
-        $reste_a_payer = $rowFinance['reste_a_payer'];
-        $immat_vendue = $rowFinance['immat'];
         
-        logMsg("Reste à payer récupéré pour avion_id=$avion_id : $reste_a_payer", $logFile);
-
-        // Calculer la recette de vente
-        if ($reste_a_payer > 0) {
-            $recette_vente = round($reste_a_payer * 0.9, 2);
-            logMsg("Mode crédit : recette_vente = 90% reste à payer = $recette_vente", $logFile);
+        if (!$rowFinance) {
+            $errorMessage = t('admin_flotte_error_vente') . "Avion introuvable.";
+        } elseif ($rowFinance['en_vol'] || $rowFinance['reservee']) {
+            $errorMessage = t('admin_flotte_error_vente_en_vol');
         } else {
-            $stmtPrix = $pdo->prepare("SELECT ft.cout_appareil FROM FLOTTE f JOIN FLEET_TYPE ft ON f.fleet_type = ft.id WHERE f.id = :avion_id");
-            $stmtPrix->execute(['avion_id' => $avion_id]);
-            $prix_neuf = $stmtPrix->fetchColumn();
-            $recette_vente = round($prix_neuf * 0.7, 2);
-            logMsg("Mode comptant : prix neuf = $prix_neuf, recette_vente (70%) = $recette_vente", $logFile);
+            $reste_a_payer = floatval($rowFinance['reste_a_payer']);
+            $immat_vendue = $rowFinance['immat'];
+            $mode_achat = $rowFinance['mode_achat'];
+            
+            logMsg("Reste à payer récupéré pour avion_id=$avion_id : $reste_a_payer", $logFile);
+
+            // Calculer la recette de vente
+            if ($reste_a_payer > 0) {
+                $recette_vente = round($reste_a_payer * 0.9, 2);
+                logMsg("Mode crédit : recette_vente = 90% reste à payer = $recette_vente", $logFile);
+            } else {
+                $stmtPrix = $pdo->prepare("SELECT ft.cout_appareil FROM FLOTTE f JOIN FLEET_TYPE ft ON f.fleet_type = ft.id WHERE f.id = :avion_id");
+                $stmtPrix->execute(['avion_id' => $avion_id]);
+                $prix_neuf = $stmtPrix->fetchColumn();
+                $recette_vente = round($prix_neuf * 0.7, 2);
+                logMsg("Mode comptant : prix neuf = $prix_neuf, recette_vente (70%) = $recette_vente", $logFile);
+            }
+
+            // Mettre à jour FLOTTE après vente
+            $stmtUpdateF = $pdo->prepare("UPDATE FLOTTE SET actif = 0, status = 1, etat = 0, date_vente = :date_vente, recette_vente = :recette_vente, reste_a_payer = 0, nb_mois_restants = 0 WHERE id = :id");
+            $stmtUpdateF->execute([
+                'date_vente' => date('Y-m-d'),
+                'recette_vente' => $recette_vente,
+                'id' => $avion_id
+            ]);
+            logMsg("FLOTTE mis à jour pour avion_id=$avion_id", $logFile);
+
+            // Enregistrer la vente dans finances_recettes
+            $callsign_vendeur = $_SESSION['callsign'] ?? '';
+            $commentaire_finance = "Vente appareil $immat_vendue par $callsign_vendeur";
+            mettreAJourRecettes($recette_vente, $avion_id, $immat_vendue, $callsign_vendeur, 'vente', $commentaire_finance);
+            logMsg("Vente enregistrée dans finances_recettes pour immat=$immat_vendue, montant=$recette_vente", $logFile);
+
+            // Si achat à crédit, solder la dette restante dans finances_depenses
+            if ($mode_achat === 'credit' && $reste_a_payer > 0) {
+                $commentaire_solde = "Solde dette crédit $immat_vendue suite à vente — reste à payer annulé";
+                mettreAJourDepenses($reste_a_payer, $avion_id, $immat_vendue, $callsign_vendeur, 'solde_credit', $commentaire_solde);
+                logMsg("Dette crédit soldée dans finances_depenses pour immat=$immat_vendue, montant=$reste_a_payer", $logFile);
+            }
+
+            $_SESSION['flash_message'] = str_replace('{immat}', htmlspecialchars($immat_vendue), t('admin_flotte_success_vente')) . ' ' . number_format($recette_vente, 0, ',', ' ') . ' €';
+            logMsg("[VENTE] Vente terminée pour immat=$immat_vendue", $logFile);
+            header('Location: admin_flotte.php');
+            exit;
         }
-
-        // Mettre à jour FLOTTE après vente
-        $stmtUpdateF = $pdo->prepare("UPDATE FLOTTE SET actif = 0, status = 1, etat = 0, date_vente = :date_vente, recette_vente = :recette_vente, reste_a_payer = 0, remboursement = :remboursement, nb_mois_restants = 0 WHERE id = :id");
-        $stmtUpdateF->execute([
-            'date_vente' => date('Y-m-d'),
-            'recette_vente' => $recette_vente,
-            'remboursement' => $recette_vente,
-            'id' => $avion_id
-        ]);
-        logMsg("FLOTTE mis à jour pour avion_id=$avion_id", $logFile);
-
-        // Enregistrer la vente dans finances_recettes
-        $callsign_vendeur = $_SESSION['callsign'] ?? '';
-        $commentaire_finance = "Vente appareil $immat_vendue par $callsign_vendeur";
-        mettreAJourRecettes($recette_vente, null, $immat_vendue, $callsign_vendeur, 'vente', $commentaire_finance);
-        logMsg("Vente enregistrée dans finances_recettes pour immat=$immat_vendue, montant=$recette_vente", $logFile);
-
-        $_SESSION['flash_message'] = str_replace('{immat}', htmlspecialchars($immat_vendue), t('admin_flotte_success_vente')) . ' ' . number_format($recette_vente, 0, ',', ' ') . ' €';
-        logMsg("[VENTE] Vente terminée pour immat=$immat_vendue", $logFile);
-        header('Location: admin_flotte.php');
-        exit;
     } catch (PDOException $e) {
         $errorMessage = t('admin_flotte_error_vente') . htmlspecialchars($e->getMessage());
         logMsg("[ERREUR] Vente échouée pour avion_id=$avion_id : " . $e->getMessage(), $logFile);

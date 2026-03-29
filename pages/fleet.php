@@ -153,9 +153,9 @@ include __DIR__ . '/../includes/menu_logged.php';
                         t('fleet_detail_mode_achat') => (isset($avion['mode_achat']) && $avion['mode_achat'] === 'credit') ? t('fleet_text_credit') : ((isset($avion['mode_achat']) && $avion['mode_achat'] === 'comptant') ? t('fleet_text_cash') : ((isset($avion['nb_annees_credit']) && intval($avion['nb_annees_credit']) > 0) ? t('fleet_text_credit') : t('fleet_text_cash'))),
                         t('fleet_detail_recettes') => ($avion['recettes'] ?? '') . ' €',
                         t('fleet_detail_annees_credit') => $avion['nb_annees_credit'] ?? '',
-                        t('fleet_detail_mois_restants') => $avion['nb_mois_restants'] ?? '',
                         t('fleet_detail_taux_credit') => ($avion['taux_percent'] ?? '') . ' %',
-                        t('fleet_detail_remboursement') => ($avion['remboursement'] ?? '') . ' €',
+                        t('fleet_detail_mensualite') => $avion['mode_achat'] === 'credit' && intval($avion['nb_annees_credit']) > 0 && floatval($avion['taux_percent']) > 0 ? number_format(floatval($avion['remboursement']) * ((floatval($avion['taux_percent']) / 100 / 12) / (1 - pow(1 + floatval($avion['taux_percent']) / 100 / 12, -(intval($avion['nb_annees_credit']) * 12)))), 2, ',', ' ') . ' €' : t('fleet_text_na'),
+                        t('fleet_detail_mois_restants') => $avion['nb_mois_restants'] ?? '',
                         t('fleet_detail_traite_payee') => ($avion['traite_payee_cumulee'] ?? '') . ' €',
                         t('fleet_detail_reste_payer') => ($avion['reste_a_payer'] ?? '') . ' €',
                         t('fleet_detail_recette_vente') => empty($avion['date_vente'] ?? '') ? t('fleet_text_na') : (($avion['recette_vente'] ?? '') . ' €'),
@@ -227,7 +227,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                 let modeAchat = details[<?= json_encode(t('fleet_detail_mode_achat')) ?>] || '';
                 // Liste des clés financières
                 const financeKeys = [
-                    <?= json_encode(t('fleet_detail_date_achat')) ?>, <?= json_encode(t('fleet_detail_mode_achat')) ?>, <?= json_encode(t('fleet_detail_recettes')) ?>, <?= json_encode(t('fleet_detail_annees_credit')) ?>, <?= json_encode(t('fleet_detail_taux_credit')) ?>, <?= json_encode(t('fleet_detail_remboursement')) ?>, <?= json_encode(t('fleet_detail_traite_payee')) ?>, <?= json_encode(t('fleet_detail_reste_payer')) ?>, <?= json_encode(t('fleet_detail_recette_vente')) ?>, <?= json_encode(t('fleet_detail_date_vente')) ?>
+                    <?= json_encode(t('fleet_detail_date_achat')) ?>, <?= json_encode(t('fleet_detail_mode_achat')) ?>, <?= json_encode(t('fleet_detail_recettes')) ?>, <?= json_encode(t('fleet_detail_annees_credit')) ?>, <?= json_encode(t('fleet_detail_taux_credit')) ?>, <?= json_encode(t('fleet_detail_mensualite')) ?>, <?= json_encode(t('fleet_detail_mois_restants')) ?>, <?= json_encode(t('fleet_detail_traite_payee')) ?>, <?= json_encode(t('fleet_detail_reste_payer')) ?>, <?= json_encode(t('fleet_detail_recette_vente')) ?>, <?= json_encode(t('fleet_detail_date_vente')) ?>
                 ];
                 let financeRows = '';
                 let normalRows = '';
@@ -253,7 +253,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                         }
                     }
                     // Si achat comptant, on masque les champs crédit
-                    if ((modeAchat === <?= json_encode(t('fleet_text_cash')) ?> || modeAchat === 'Comptant') && (key === <?= json_encode(t('fleet_detail_annees_credit')) ?> || key === <?= json_encode(t('fleet_detail_taux_credit')) ?> || key === <?= json_encode(t('fleet_detail_remboursement')) ?> || key === <?= json_encode(t('fleet_detail_traite_payee')) ?> || key === <?= json_encode(t('fleet_detail_reste_payer')) ?>)) {
+                    if ((modeAchat === <?= json_encode(t('fleet_text_cash')) ?> || modeAchat === 'Comptant') && (key === <?= json_encode(t('fleet_detail_annees_credit')) ?> || key === <?= json_encode(t('fleet_detail_taux_credit')) ?> || key === <?= json_encode(t('fleet_detail_mensualite')) ?> || key === <?= json_encode(t('fleet_detail_mois_restants')) ?> || key === <?= json_encode(t('fleet_detail_traite_payee')) ?> || key === <?= json_encode(t('fleet_detail_reste_payer')) ?>)) {
                         continue;
                     }
                     if (financeKeys.includes(key)) {

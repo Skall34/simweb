@@ -801,6 +801,7 @@ return [
 
     // --- admin_flotte.php ---
     'admin_flotte_error_vente' => 'Error durante la venta: ',
+    'admin_flotte_error_vente_en_vol' => 'No se puede vender esta aeronave: está actualmente en vuelo o reservada.',
     'admin_flotte_error_champs_obligatoires' => 'Todos los campos obligatorios deben completarse correctamente con los formatos solicitados.',
     'admin_flotte_error_immat_exist' => 'Ya existe una aeronave con esta matrícula.',
     'admin_flotte_success_achat' => 'La aeronave {immat} fue comprada con éxito.',
@@ -1441,7 +1442,7 @@ Aeronaves que salieron de mantenimiento: 1
     'fleet_detail_annees_credit' => 'Años de crédito',
     'fleet_detail_mois_restants' => 'Meses restantes',
     'fleet_detail_taux_credit' => 'Tasa de crédito',
-    'fleet_detail_remboursement' => 'Reembolso',
+    'fleet_detail_mensualite' => 'Mensualidad',
     'fleet_detail_traite_payee' => 'Pago acumulado',
     'fleet_detail_reste_payer' => 'Saldo pendiente',
     'fleet_detail_recette_vente' => 'Ingreso por venta',
