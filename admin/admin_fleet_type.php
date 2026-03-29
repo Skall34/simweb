@@ -14,6 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $type = trim($_POST['type'] ?? '');
         $cout_horaire = floatval($_POST['cout_horaire'] ?? 0);
         $cout_appareil = floatval($_POST['cout_appareil'] ?? 0);
+        $cout_maintenance = floatval($_POST['cout_maintenance'] ?? 0);
 
         if ($fleet_type === '' || $type === '') {
             $errorMessage = t('admin_fleet_type_error_required');
@@ -27,12 +28,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if ($exists) {
                         $errorMessage = t('admin_fleet_type_error_exists');
                     } else {
-                        $stmt = $pdo->prepare("INSERT INTO FLEET_TYPE (fleet_type, type, cout_horaire, cout_appareil) VALUES (:fleet_type, :type, :cout_horaire, :cout_appareil)");
+                        $stmt = $pdo->prepare("INSERT INTO FLEET_TYPE (fleet_type, type, cout_horaire, cout_appareil, cout_maintenance) VALUES (:fleet_type, :type, :cout_horaire, :cout_appareil, :cout_maintenance)");
                         $stmt->execute([
                             'fleet_type' => $fleet_type,
                             'type' => $type,
                             'cout_horaire' => $cout_horaire,
-                            'cout_appareil' => $cout_appareil
+                            'cout_appareil' => $cout_appareil,
+                            'cout_maintenance' => $cout_maintenance
                         ]);
                         $newId = $pdo->lastInsertId();
                         $_SESSION['flash_message'] = str_replace('{fleet_type}', htmlspecialchars($fleet_type), t('admin_fleet_type_success_add'));
@@ -52,8 +54,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         if ($chk->fetchColumn() > 0) {
                             $errorMessage = t('admin_fleet_type_error_exists_other');
                         } else {
-                            $stmt = $pdo->prepare("UPDATE FLEET_TYPE SET fleet_type = :fleet_type, type = :type, cout_horaire = :cout_horaire, cout_appareil = :cout_appareil WHERE id = :id");
-                            $stmt->execute(['fleet_type' => $fleet_type, 'type' => $type, 'cout_horaire' => $cout_horaire, 'cout_appareil' => $cout_appareil, 'id' => $id]);
+                            $stmt = $pdo->prepare("UPDATE FLEET_TYPE SET fleet_type = :fleet_type, type = :type, cout_horaire = :cout_horaire, cout_appareil = :cout_appareil, cout_maintenance = :cout_maintenance WHERE id = :id");
+                            $stmt->execute(['fleet_type' => $fleet_type, 'type' => $type, 'cout_horaire' => $cout_horaire, 'cout_appareil' => $cout_appareil, 'cout_maintenance' => $cout_maintenance, 'id' => $id]);
                             $_SESSION['flash_message'] = t('admin_fleet_type_success_update');
                             // Après une modification, revenir sur la page principale pour vider le formulaire
                             $redirect = 'admin_fleet_type.php';
@@ -102,7 +104,7 @@ include __DIR__ . '/../includes/menu_logged.php';
 // Récupérer toute la table FLEET_TYPE pour affichage en deux colonnes
 $fleetTypes = [];
 try {
-    $stmt = $pdo->query("SELECT id, fleet_type, type, cout_horaire, cout_appareil FROM FLEET_TYPE ORDER BY fleet_type ASC");
+    $stmt = $pdo->query("SELECT id, fleet_type, type, cout_horaire, cout_appareil, cout_maintenance FROM FLEET_TYPE ORDER BY fleet_type ASC");
     $fleetTypes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     // Ignore erreur
@@ -110,11 +112,11 @@ try {
 
 // Edit mode: charger l'enregistrement si demandé
 $edit_mode = false;
-$current = ['id' => 0, 'fleet_type' => '', 'type' => '', 'cout_horaire' => '', 'cout_appareil' => ''];
+$current = ['id' => 0, 'fleet_type' => '', 'type' => '', 'cout_horaire' => '', 'cout_appareil' => '', 'cout_maintenance' => ''];
 if (isset($_GET['edit'])) {
     $eid = (int)$_GET['edit'];
     if ($eid > 0) {
-        $s = $pdo->prepare("SELECT id, fleet_type, type, cout_horaire, cout_appareil FROM FLEET_TYPE WHERE id = :id");
+        $s = $pdo->prepare("SELECT id, fleet_type, type, cout_horaire, cout_appareil, cout_maintenance FROM FLEET_TYPE WHERE id = :id");
         $s->execute(['id' => $eid]);
         $row = $s->fetch(PDO::FETCH_ASSOC);
         if ($row) {
@@ -161,6 +163,9 @@ if (isset($_GET['edit'])) {
             <label><?= t('admin_fleet_type_label_plane_cost') ?></label>
             <input type="number" id="cout_appareil" name="cout_appareil" step="100" class="form-input input-250" required value="<?= htmlspecialchars($current['cout_appareil']) ?>">
 
+            <label><?= t('admin_fleet_type_label_maintenance_cost') ?></label>
+            <input type="number" id="cout_maintenance" name="cout_maintenance" step="100" class="form-input input-250" value="<?= htmlspecialchars($current['cout_maintenance']) ?>">
+
             <div class="form-actions">
                 <?php if ($edit_mode): ?>
                     <button type="submit" name="action" value="update" class="btn btn-small"><?= t('admin_fleet_type_update_button') ?></button>
@@ -190,6 +195,7 @@ if (isset($_GET['edit'])) {
                             <th class="type"><?= t('admin_fleet_type_col_category') ?></th>
                             <th class="cout_horaire"><?= t('admin_fleet_type_col_hourly_cost') ?></th>
                             <th class="prix"><?= t('admin_fleet_type_col_plane_cost') ?></th>
+                            <th class="cout_maintenance"><?= t('admin_fleet_type_col_maintenance_cost') ?></th>
                             <th><?= t('admin_fleet_type_col_actions') ?></th>
                         </tr>
                     </thead>
@@ -200,6 +206,7 @@ if (isset($_GET['edit'])) {
                             <td class="type" style="color:#444; font-style:italic;"><?= htmlspecialchars($ft['type']) ?></td>
                             <td class="cout_horaire" style="text-align:right;"><?= number_format((float)$ft['cout_horaire'], 2, ',', ' ') ?></td>
                             <td class="prix" style="text-align:right;font-weight:bold;"><?= number_format((float)$ft['cout_appareil'], 0, '', ' ') ?></td>
+                            <td class="cout_maintenance" style="text-align:center;"><?= number_format((float)$ft['cout_maintenance'], 0, '', ' ') ?></td>
                             <td>
                                 <a href="admin_fleet_type.php?edit=<?= (int)$ft['id'] ?>"><?= t('admin_fleet_type_edit_link') ?></a>
                                 &nbsp;|&nbsp;
@@ -222,6 +229,7 @@ if (isset($_GET['edit'])) {
                             <th class="type"><?= t('admin_fleet_type_col_category') ?></th>
                             <th class="cout_horaire"><?= t('admin_fleet_type_col_hourly_cost') ?></th>
                             <th class="prix"><?= t('admin_fleet_type_col_plane_cost') ?></th>
+                            <th class="cout_maintenance"><?= t('admin_fleet_type_col_maintenance_cost') ?></th>
                             <th><?= t('admin_fleet_type_col_actions') ?></th>
                         </tr>
                     </thead>
@@ -232,6 +240,7 @@ if (isset($_GET['edit'])) {
                             <td class="type" style="color:#444; font-style:italic;"><?= htmlspecialchars($ft['type']) ?></td>
                             <td class="cout_horaire" style="text-align:right;"><?= number_format((float)$ft['cout_horaire'], 2, ',', ' ') ?></td>
                             <td class="prix" style="text-align:right;font-weight:bold;"><?= number_format((float)$ft['cout_appareil'], 0, '', ' ') ?></td>
+                            <td class="cout_maintenance" style="text-align:center;"><?= number_format((float)$ft['cout_maintenance'], 0, '', ' ') ?></td>
                             <td>
                                 <a href="admin_fleet_type.php?edit=<?= (int)$ft['id'] ?>"><?= t('admin_fleet_type_edit_link') ?></a>
                                 &nbsp;|&nbsp;

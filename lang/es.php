@@ -10,6 +10,7 @@ return [
     'admin_variables_label_prix_litre_essence' => 'Precio por litro de combustible',
     'admin_variables_label_taux_assurance' => 'Tasa de seguro (%)',
     'admin_variables_label_reservation_timeout_hours' => 'Duración de validez de una reserva (horas)',
+    'admin_variables_label_multiplicateur_crash' => 'Multiplicador de coste de mantenimiento por accidente (×)',
     'admin_variables_update_success' => 'Variables actualizadas con éxito.',
     'admin_variables_save_button' => 'Guardar',
     'admin_lines_success_add_both' => '✅ Ambas líneas añadidas.',
@@ -273,6 +274,7 @@ return [
     'admin_fleet_type_cat_helico' => 'Helicóptero',
     'admin_fleet_type_label_hourly_cost' => 'Coste por hora (€) *',
     'admin_fleet_type_label_plane_cost' => 'Coste del aparato (€) *',
+    'admin_fleet_type_label_maintenance_cost' => 'Coste de mantenimiento (€)',
     'admin_fleet_type_update_button' => 'Actualizar',
     'admin_fleet_type_cancel_button' => 'Cancelar',
     'admin_fleet_type_reset_button' => 'Reiniciar',
@@ -282,6 +284,7 @@ return [
     'admin_fleet_type_col_category' => 'Categoría',
     'admin_fleet_type_col_hourly_cost' => 'Coste por hora (€)',
     'admin_fleet_type_col_plane_cost' => 'Precio (€)',
+    'admin_fleet_type_col_maintenance_cost' => 'Mant. (€)',
     'admin_fleet_type_col_actions' => 'Acciones',
     'admin_fleet_type_edit_link' => 'Editar',
     'admin_fleet_type_delete_link' => 'Eliminar',
@@ -1173,7 +1176,7 @@ return [
     // doc_maintenance.php
     'doc_maintenance_title' => 'Script: Mantenimiento automático de flota',
     'doc_maintenance_objectif_title' => 'Objetivo',
-    'doc_maintenance_objectif_text' => 'Este script gestiona el mantenimiento automático de las aeronaves de la flota: desgaste normal, salida de mantenimiento y mantenimiento después de accidente (3 días). Todas las operaciones y errores se registran en',
+    'doc_maintenance_objectif_text' => 'Este script gestiona el mantenimiento automático de las aeronaves de la flota: desgaste normal, salida de mantenimiento y mantenimiento después de accidente (3 días). Cada entrada en mantenimiento genera un costo financiero deducido del balance comercial. Todas las operaciones y errores se registran en',
     'doc_maintenance_objectif_text_suite' => 'y se envía un correo resumen al administrador.',
     'doc_maintenance_etapes_title' => 'Pasos del procesamiento',
     'doc_maintenance_etape1_title' => 'Selección de aeronaves',
@@ -1213,17 +1216,33 @@ return [
     'doc_maintenance_automatisation3' => 'El correo resumen puede desactivarse mediante la variable',
     'doc_maintenance_exemple_title' => 'Ejemplo de registro',
     'doc_maintenance_exemple_log' => '2025-07-20 02:00:01 --- Inicio de mantenimiento ---
-2025-07-20 02:00:01 Aeronave F-ABCD: estado=28 / estatus=0 / contador_immo=0
+2025-07-20 02:00:01 Multiplicador accidente: ×3
+2025-07-20 02:00:01 Aeronave F-ABCD (Cessna 172): estado=28 / estatus=0 / contador_immo=0 / costo_mant=1000
 2025-07-20 02:00:01 La aeronave F-ABCD entra en mantenimiento (desgaste normal)
-2025-07-20 02:00:01 Aeronave F-ESKY: estado=100 / estatus=1 / contador_immo=1
+2025-07-20 02:00:01 Costo mantenimiento registrado: 1000 € para F-ABCD (desgaste)
+2025-07-20 02:00:01 Aeronave F-ESKY (Boeing 737): estado=100 / estatus=1 / contador_immo=1 / costo_mant=40000
 2025-07-20 02:00:01 La aeronave F-ESKY sale de mantenimiento después de 1 día (desgaste)
 2025-07-20 02:00:01 --- Mantenimiento de flota ---
 Aeronaves que entraron en mantenimiento: 1
  - F-ABCD
 Aeronaves que salieron de mantenimiento: 1
  - F-ESKY
+Costo total mantenimiento: 1.000,00 €
+ - F-ABCD: 1.000,00 € (desgaste)
 ------------------------
 2025-07-20 02:00:01 Correo resumen enviado a admin@{VA_NAME}.com',
+    'doc_maintenance_cout_title' => 'Costo financiero',
+    'doc_maintenance_cout_intro' => 'Cada entrada en mantenimiento genera un costo financiero registrado en',
+    'doc_maintenance_cout_intro_suite' => 'e impactando el balance comercial.',
+    'doc_maintenance_cout_usure' => 'Mantenimiento por desgaste normal',
+    'doc_maintenance_cout_usure_formule' => 'Costo = costo_mantenimiento del tipo de aeronave (definido en FLEET_TYPE)',
+    'doc_maintenance_cout_crash' => 'Mantenimiento tras accidente',
+    'doc_maintenance_cout_crash_formule' => 'Costo = costo_mantenimiento × multiplicador_accidente (definido en VARIABLES_CONFIG)',
+    'doc_maintenance_cout_config' => 'El costo de mantenimiento por tipo es configurable desde',
+    'doc_maintenance_cout_config_lien' => 'la administración de tipos de flota',
+    'doc_maintenance_cout_mult' => 'El multiplicador de accidente es configurable desde',
+    'doc_maintenance_cout_mult_lien' => 'la administración de variables',
+    'doc_maintenance_cout_defaut' => 'Por defecto, el costo de mantenimiento se inicializa al 2% del precio de compra de la aeronave. Este valor puede ajustarse individualmente por tipo.',
     
     // doc_paiement_salaires_pilotes.php
     'doc_paiement_title' => 'Script: Pago mensual de salarios de pilotos',
@@ -1686,7 +1705,8 @@ Aeronaves que salieron de mantenimiento: 1
     'tresorier_rentables_conseil' => 'Un ROI > 100% significa que la aeronave ya amortizó su precio de compra.',
     'tresorier_gouffres_title' => 'Pozos sin fondo',
     'tresorier_gouffres_intro' => 'Aeronaves con más mantenimientos y menos ingresos.',
-    'tresorier_gouffres_conseil' => 'Demasiadas reparaciones = demasiados costos. Quizás sea hora de renovar la flota.',
+    'tresorier_gouffres_conseil' => 'Demasiadas reparaciones = demasiados costos. ¡Cada visita de mantenimiento es cara! Quizás sea hora de renovar la flota.',
+    'tresorier_col_cout_maintenance' => 'Costo mant.',
     'tresorier_fun_title' => 'Rincón de anécdotas',
     'tresorier_fun_heures' => 'Horas de vuelo totales',
     'tresorier_fun_vols' => 'Número de vuelos',

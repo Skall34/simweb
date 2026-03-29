@@ -48,7 +48,8 @@ $rentables = $pdo->query($sql_rentables)->fetchAll(PDO::FETCH_ASSOC);
 // 3. Avions "gouffre" : beaucoup de maintenance, peu de recettes
 $sql_gouffres = "
     SELECT f.immat, ft.fleet_type AS type_nom, f.etat, f.nb_maintenance, f.recettes,
-           ft.cout_appareil, f.compteur_immo
+           ft.cout_appareil, f.compteur_immo,
+           COALESCE((SELECT SUM(fd.montant) FROM finances_depenses fd WHERE fd.reference_id = f.id AND fd.type IN ('maintenance', 'maintenance_crash', 'maintenance_retro')), 0) AS cout_maintenance_cumule
     FROM FLOTTE f
     LEFT JOIN FLEET_TYPE ft ON f.fleet_type = ft.id
     WHERE f.Actif = 1
@@ -155,7 +156,7 @@ include __DIR__ . '/../includes/menu_logged.php';
 .tresorier-header h1 { font-size: 2em; }
 .tresorier-mood { font-size: 4em; display: block; margin: 10px 0; }
 .tresorier-quote { font-style: italic; color: #555; font-size: 1.1em; margin: 10px 0 20px; }
-.tresorier-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; margin-bottom: 30px; }
+.tresorier-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(480px, 1fr)); gap: 20px; margin-bottom: 30px; }
 .tresorier-card { background: #f7fbff; border-radius: 12px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
 .tresorier-card h3 { margin-top: 0; color: #0066cc; font-size: 1.1em; border-bottom: 2px solid #e0e0e0; padding-bottom: 8px; margin-bottom: 12px; }
 .tresorier-card.alert { background: #fff5f5; border-left: 4px solid #dc3545; }
@@ -163,7 +164,7 @@ include __DIR__ . '/../includes/menu_logged.php';
 .tresorier-card.info { background: #f0f8ff; border-left: 4px solid #17a2b8; }
 .tresorier-card.fun { background: #fffef0; border-left: 4px solid #ffc107; }
 .tresorier-table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
-.tresorier-table th, .tresorier-table td { padding: 6px 10px; text-align: left; border-bottom: 1px solid #eee; }
+.tresorier-table th, .tresorier-table td { padding: 6px 8px; text-align: left; border-bottom: 1px solid #eee; }
 .tresorier-table th { color: #555; font-weight: 600; }
 .tresorier-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.8em; font-weight: 600; }
 .badge-danger { background: #ffe0e0; color: #c0392b; }
@@ -273,13 +274,14 @@ include __DIR__ . '/../includes/menu_logged.php';
             <h3>🕳️ <?= t('tresorier_gouffres_title') ?></h3>
             <p style="font-size:0.9em;color:#666;"><?= t('tresorier_gouffres_intro') ?></p>
             <table class="tresorier-table">
-                <thead><tr><th><?= t('tresorier_col_immat') ?></th><th><?= t('tresorier_col_etat') ?></th><th><?= t('tresorier_col_maintenances') ?></th><th><?= t('tresorier_col_recettes') ?></th></tr></thead>
+                <thead><tr><th><?= t('tresorier_col_immat') ?></th><th><?= t('tresorier_col_etat') ?></th><th><?= t('tresorier_col_maintenances') ?></th><th><?= t('tresorier_col_cout_maintenance') ?></th><th><?= t('tresorier_col_recettes') ?></th></tr></thead>
                 <tbody>
                 <?php foreach ($gouffres as $g): ?>
                     <tr>
                         <td><strong><?= htmlspecialchars($g['immat']) ?></strong></td>
                         <td><?= $g['etat'] ?>%</td>
                         <td><?= $g['nb_maintenance'] ?></td>
+                        <td style="color:#dc3545;font-weight:600;"><?= fmt($g['cout_maintenance_cumule']) ?> €</td>
                         <td><?= fmt($g['recettes']) ?> €</td>
                     </tr>
                 <?php endforeach; ?>

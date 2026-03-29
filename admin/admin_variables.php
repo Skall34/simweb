@@ -57,6 +57,14 @@ $variables = [
         'step' => '1',
         'min' => '1',
         'default' => '24'
+    ],
+    'multiplicateur_crash' => [
+        'label' => t('admin_variables_label_multiplicateur_crash'),
+        'type' => 'number',
+        'step' => '1',
+        'min' => '1',
+        'max' => '10',
+        'default' => '3'
     ]
 ];
 

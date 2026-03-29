@@ -61,6 +61,31 @@ require_once __DIR__ . '/../../includes/menu_logged.php';
         </ul>
     </section>
     <section>
+        <h2>💰 <?= t('doc_maintenance_cout_title') ?></h2>
+        <p><?= t('doc_maintenance_cout_intro') ?> <code>finances_depenses</code> <?= t('doc_maintenance_cout_intro_suite') ?></p>
+        <ul>
+            <li>
+                <b><?= t('doc_maintenance_cout_usure') ?></b> :
+                <code><?= t('doc_maintenance_cout_usure_formule') ?></code>
+            </li>
+            <li>
+                <b><?= t('doc_maintenance_cout_crash') ?></b> :
+                <code><?= t('doc_maintenance_cout_crash_formule') ?></code>
+            </li>
+        </ul>
+        <p>
+            <?= t('doc_maintenance_cout_config') ?>
+            <a href="/admin/admin_fleet_type.php"><?= t('doc_maintenance_cout_config_lien') ?></a>.
+        </p>
+        <p>
+            <?= t('doc_maintenance_cout_mult') ?>
+            <a href="/admin/admin_variables.php"><?= t('doc_maintenance_cout_mult_lien') ?></a>.
+        </p>
+        <p style="font-style:italic;color:#555;">
+            💡 <?= t('doc_maintenance_cout_defaut') ?>
+        </p>
+    </section>
+    <section>
         <h2><?= t('doc_maintenance_exemple_title') ?></h2>
         <pre class="code-example">
 <?= t('doc_maintenance_exemple_log') ?>

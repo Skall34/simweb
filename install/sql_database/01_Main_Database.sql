@@ -156,6 +156,7 @@ CREATE TABLE IF NOT EXISTS `FLEET_TYPE` (
   `fleet_type` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
   `cout_horaire` decimal(10,2) NOT NULL,
   `cout_appareil` decimal(15,2) NOT NULL,
+  `cout_maintenance` decimal(10,2) NOT NULL DEFAULT 0,
   `type` varchar(20) COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'Monomoteur',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=59 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -441,6 +442,7 @@ INSERT INTO VARIABLES_CONFIG (nom, valeur) VALUES
 ('prix_litre_essence', '0.88'),
 ('taux_assurance', '0.0200'),
 ('reservation_timeout_hours', '24'),
+('multiplicateur_crash', '3'),
 ('lien_acars', 'assets/acars/simaddon_setup.zip');
 --
 -- Structure de la table `VOLS_REJETES`
