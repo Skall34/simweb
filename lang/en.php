@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 return [
     // --- Page : admin_variables ---
     'admin_variables_title' => 'Global Variables Administration',
@@ -1169,7 +1169,7 @@ return [
     'doc_credit_automatisation_title' => 'Automation',
     'doc_credit_automatisation1' => 'Runs every 1st of the month at 2am.',
     'doc_credit_automatisation2' => 'Calculation and payment of credit installments.',
-    'doc_credit_automatisation3' => 'Update of company finances.',,
+    'doc_credit_automatisation3' => 'Update of company finances.',
     
     // doc_maintenance.php
     'doc_maintenance_title' => 'Script: Automatic Fleet Maintenance',
