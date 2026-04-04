@@ -19,18 +19,28 @@
  */
 
 // Protection par token
-define('CRON_SECRET_TOKEN', 'monTokenSecret2026XyZ987'); // À MODIFIER dans config.php ou ici
-
-if (!isset($_GET['token']) || $_GET['token'] !== CRON_SECRET_TOKEN) {
-    http_response_code(403);
-    die('Accès refusé');
-}
-
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/mail_utils.php';
 require_once __DIR__ . '/../includes/log_func.php';
 require_once __DIR__ . '/../lang.php';
+
+// Token attendu — à définir dans config.php via : define('CRON_SECRET_TOKEN', 'votre_token');
+if (!defined('CRON_SECRET_TOKEN')) {
+    define('CRON_SECRET_TOKEN', 'monTokenSecret2026XyZ987');
+}
+
+// Accepte le token via HTTP (?token=...) ou en CLI (php script.php votre_token)
+$provided_token = php_sapi_name() === 'cli'
+    ? ($argv[1] ?? '')
+    : ($_GET['token'] ?? '');
+
+if ($provided_token !== CRON_SECRET_TOKEN) {
+    if (php_sapi_name() !== 'cli') {
+        http_response_code(403);
+    }
+    die('Accès refusé');
+}
 
 // Définir la langue par défaut pour les scripts (pas de session)
 if (!isset($_SESSION['lang'])) {
@@ -38,8 +48,8 @@ if (!isset($_SESSION['lang'])) {
 }
 
 // Mode dry run (simuler sans modifier la base ni envoyer de mails)
-// Supporte les deux modes : ligne de commande et HTTP
-$dryRun = (isset($argv[1]) && $argv[1] === '--dry-run') || (isset($_GET['dry-run']) && $_GET['dry-run'] == '1');
+// Supporte les deux modes : ligne de commande (php script.php token --dry-run) et HTTP (?dry-run=1)
+$dryRun = (isset($argv[2]) && $argv[2] === '--dry-run') || (isset($_GET['dry-run']) && $_GET['dry-run'] == '1');
 
 // Définir le type de sortie
 header('Content-Type: text/plain; charset=utf-8');
