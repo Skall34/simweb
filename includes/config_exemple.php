@@ -107,6 +107,10 @@ define('VA_TIMEZONE', 'Europe/Paris');
 // Langue par défaut (fr, en, es)
 define('VA_DEFAULT_LANGUAGE', 'fr');
 
+// Token secret pour les scripts CRON (générez une chaîne aléatoire longue)
+// Utilisé dans l'URL : ?token=VOTRE_TOKEN ou en CLI : php script.php VOTRE_TOKEN
+define('CRON_SECRET_TOKEN', 'changez-moi-par-une-chaine-aleatoire-longue');
+
 // Activer l'inscription des nouveaux pilotes (true/false)
 define('VA_REGISTRATION_ENABLED', true);
 

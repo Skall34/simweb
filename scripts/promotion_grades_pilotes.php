@@ -25,9 +25,9 @@ require_once __DIR__ . '/../includes/mail_utils.php';
 require_once __DIR__ . '/../includes/log_func.php';
 require_once __DIR__ . '/../lang.php';
 
-// Token attendu — à définir dans config.php via : define('CRON_SECRET_TOKEN', 'votre_token');
+// Token attendu — défini dans includes/config.php via : define('CRON_SECRET_TOKEN', '...');
 if (!defined('CRON_SECRET_TOKEN')) {
-    define('CRON_SECRET_TOKEN', 'monTokenSecret2026XyZ987');
+    die('CRON_SECRET_TOKEN non défini dans config.php');
 }
 
 // Accepte le token via HTTP (?token=...) ou en CLI (php script.php votre_token)

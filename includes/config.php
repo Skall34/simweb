@@ -75,6 +75,7 @@ define('VA_STARTING_BALANCE', (float)($config['financial']['starting_balance'] ?
 
 define('VA_TIMEZONE', $config['system']['timezone'] ?? 'UTC');
 define('VA_DEFAULT_LANGUAGE', $config['system']['default_language'] ?? 'en');
+define('CRON_SECRET_TOKEN', $config['system']['cron_secret_token'] ?? '');
 
 // ==================== MODE DEBUG ====================
 
