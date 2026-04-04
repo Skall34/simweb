@@ -193,8 +193,48 @@ try {
     // 13. Usure
     deduireUsure($immat, $note, $logFile);
     logMsg("[api_import_vol_direct] Usure avion $immat, note=$note", $logFile);
-    
-    // 14. Envoi du mail recapitulatif enrichi
+
+    // 14. Mise en maintenance crash immédiate si note = 1 (sans attendre le script nuit)
+    if ($note === 1) {
+        $stmtCrashData = $pdo->prepare("
+            SELECT f.id, ft.cout_maintenance, ft.fleet_type AS type_nom
+            FROM FLOTTE f
+            LEFT JOIN FLEET_TYPE ft ON f.fleet_type = ft.id
+            WHERE f.immat = :immat
+        ");
+        $stmtCrashData->execute(['immat' => $immat]);
+        $avionCrash = $stmtCrashData->fetch(PDO::FETCH_ASSOC);
+
+        if ($avionCrash) {
+            $avionCrashId = $avionCrash['id'];
+            $cout_maintenance_crash = floatval($avionCrash['cout_maintenance'] ?? 0);
+            $type_nom_crash = $avionCrash['type_nom'] ?? '';
+
+            // Récupérer le multiplicateur crash (défaut : 3)
+            $multiplicateur_crash = 3;
+            $stmtMult = $pdo->prepare("SELECT valeur FROM VARIABLES_CONFIG WHERE nom = 'multiplicateur_crash'");
+            $stmtMult->execute();
+            $valMult = $stmtMult->fetchColumn();
+            if ($valMult !== false && is_numeric($valMult)) {
+                $multiplicateur_crash = intval($valMult);
+            }
+
+            // Entrée immédiate en maintenance crash (status=2 déjà positionné par deduireUsure)
+            $stmtMaint = $pdo->prepare("UPDATE FLOTTE SET compteur_immo = 1, nb_maintenance = (nb_maintenance + 1) WHERE id = :id");
+            $stmtMaint->execute(['id' => $avionCrashId]);
+            logMsg("[api_import_vol_direct] ❌ CRASH — $immat mise en maintenance crash immédiate (×$multiplicateur_crash)", $logFile);
+
+            // Enregistrement du coût de maintenance crash
+            if ($cout_maintenance_crash > 0) {
+                $cout_crash = round($cout_maintenance_crash * $multiplicateur_crash, 2);
+                $commentaire_crash = "Maintenance crash (×$multiplicateur_crash) — $immat ($type_nom_crash)";
+                mettreAJourDepenses($cout_crash, $vol_id, $immat, $callsign, 'maintenance_crash', $commentaire_crash);
+                logMsg("[api_import_vol_direct] Coût maintenance crash enregistré : {$cout_crash} € pour $immat (×$multiplicateur_crash)", $logFile);
+            }
+        }
+    }
+
+    // 15. Envoi du mail recapitulatif enrichi
     if ($mailSummaryEnabled && function_exists('sendSummaryMail')) {
         $subject = "[SimWeb] Rapport import vol direct ACARS - " . date('d/m/Y H:i');
         $body = "Bonjour,\r\n\r\nImport d'un vol ACARS direct termine.\r\n\r\n";
