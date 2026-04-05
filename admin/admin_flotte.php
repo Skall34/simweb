@@ -93,13 +93,9 @@ if ($action === 'vendre' && isset($_POST['avion_id'])) {
             $commentaire_finance = "Vente appareil $immat_vendue par $callsign_vendeur";
             mettreAJourRecettes($recette_vente, $avion_id, $immat_vendue, $callsign_vendeur, 'vente', $commentaire_finance);
             logMsg("Vente enregistrée dans finances_recettes pour immat=$immat_vendue, montant=$recette_vente", $logFile);
-
-            // Si achat à crédit, solder la dette restante dans finances_depenses
-            if ($mode_achat === 'credit' && $reste_a_payer > 0) {
-                $commentaire_solde = "Solde dette crédit $immat_vendue suite à vente — reste à payer annulé";
-                mettreAJourDepenses($reste_a_payer, $avion_id, $immat_vendue, $callsign_vendeur, 'solde_credit', $commentaire_solde);
-                logMsg("Dette crédit soldée dans finances_depenses pour immat=$immat_vendue, montant=$reste_a_payer", $logFile);
-            }
+            // Note : pour les achats à crédit, le reste_a_payer annulé n'est PAS enregistré comme dépense.
+            // Dans ce modèle comptable (encaissements/décaissements), le capital emprunté n'a jamais été
+            // inscrit en recette, donc les mensualités futures annulées ne génèrent pas de nouvelle dépense.
 
             $_SESSION['flash_message'] = str_replace('{immat}', htmlspecialchars($immat_vendue), t('admin_flotte_success_vente')) . ' ' . number_format($recette_vente, 0, ',', ' ') . ' €';
             logMsg("[VENTE] Vente terminée pour immat=$immat_vendue", $logFile);
