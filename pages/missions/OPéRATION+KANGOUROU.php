@@ -33,7 +33,7 @@ require_once __DIR__ . '/../../includes/menu_logged.php';
         <!-- Ajoutez une carte Google Maps si nécessaire -->
 
         <div style="text-align:center;margin:18px 0;">
-            <iframe src="https://www.google.com/maps/d/embed?mid=19URiKJKHP3-VX5vNbQvcUBmu2quY2P4&ehbc=2E312F&noprof=1" width="640" height="480"></iframe>           
+            <iframe src="https://www.google.com/maps/d/embed?mid=1B8Md0Ibl9e9piiazXsOMOhP8KpMiIOY&ehbc=2E312F&noprof=1" width="640" height="480"></iframe>        
         </div>
 
     </section>
