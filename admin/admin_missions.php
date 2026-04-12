@@ -133,6 +133,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $pdo->prepare("SELECT id, libelle, majoration_mission, Active FROM MISSIONS WHERE id = :id");
             $stmt->execute(['id' => $id]);
             $selectedMission = $stmt->fetch(PDO::FETCH_ASSOC);
+            // Rafraîchir la liste
+            $stmtAll = $pdo->query("SELECT id, libelle, majoration_mission, Active FROM MISSIONS ORDER BY libelle ASC");
+            $missionsList = $stmtAll->fetchAll(PDO::FETCH_ASSOC);
         }
     } elseif ($action === 'create') {
         $libelle = trim($_POST['libelle_new'] ?? '');
