@@ -760,6 +760,21 @@ footer {
 .filters-form .filter-select { margin-left:.4em; }
 .reset-btn { margin-left:.5em; }
 
+/* Filters grid layout (labels above inputs) */
+.filters-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1rem;
+    align-items: end;
+}
+.filters-grid .filter-group { display: flex; flex-direction: column; gap: 0.25rem; }
+.filters-grid .filter-group label { font-size: 0.85em; font-weight: 600; color: #555; }
+.filters-grid .filter-group .fleet-filter-input,
+.filters-grid .filter-group .fleet-filter-select { width: 100%; }
+.filters-grid .filter-narrow { width: 110px; }
+.filters-grid .filter-buttons { display: flex; flex-direction: column; }
+.filters-grid .filter-buttons div { display: flex; gap: 0.4rem; }
+
 /* Reservations list */
 .reservations-scroll { max-height:220px; overflow:auto; margin-bottom:10px; }
 .empty-msg { margin:0 0 10px 0; color:#555; }

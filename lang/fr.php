@@ -408,11 +408,13 @@ return [
 
     // --- Pages : Tableau Vols ---
     'tableau_vols_title' => 'Liste des vols',
-    'tableau_vols_filter_callsign' => 'Filtrer par Callsign',
-    'tableau_vols_filter_immat' => 'Filtrer par Immat',
-    'tableau_vols_filter_mission' => 'Filtrer par Mission',
+    'tableau_vols_filter_callsign' => 'Callsign',
+    'tableau_vols_filter_immat' => 'Immatriculation',
+    'tableau_vols_filter_depart' => 'ICAO Départ',
+    'tableau_vols_filter_dest' => 'ICAO Arrivée',
+    'tableau_vols_filter_mission' => 'Mission',
     'tableau_vols_filter_mission_all' => '-- Toutes les missions --',
-    'tableau_vols_filter_fleet_type' => 'Filtrer par Fleet Type',
+    'tableau_vols_filter_fleet_type' => 'Type d\'appareil',
     'tableau_vols_filter_fleet_type_all' => '-- Tous les avions --',
     'tableau_vols_filter_button' => 'Filtrer',
     'tableau_vols_reset_button' => 'Réinitialiser',

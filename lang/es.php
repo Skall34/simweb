@@ -410,11 +410,13 @@ return [
 
     // --- Pages : Tableau Vols ---
     'tableau_vols_title' => 'Lista de vuelos',
-    'tableau_vols_filter_callsign' => 'Filtrar por Indicativo',
-    'tableau_vols_filter_immat' => 'Filtrar por Matrícula',
-    'tableau_vols_filter_mission' => 'Filtrar por Misión',
+    'tableau_vols_filter_callsign' => 'Indicativo',
+    'tableau_vols_filter_immat' => 'Matrícula',
+    'tableau_vols_filter_depart' => 'ICAO Salida',
+    'tableau_vols_filter_dest' => 'ICAO Llegada',
+    'tableau_vols_filter_mission' => 'Misión',
     'tableau_vols_filter_mission_all' => '-- Todas las misiones --',
-    'tableau_vols_filter_fleet_type' => 'Filtrar por Tipo de Flota',
+    'tableau_vols_filter_fleet_type' => 'Tipo de aeronave',
     'tableau_vols_filter_fleet_type_all' => '-- Todas las aeronaves --',
     'tableau_vols_filter_button' => 'Filtrar',
     'tableau_vols_reset_button' => 'Reiniciar',

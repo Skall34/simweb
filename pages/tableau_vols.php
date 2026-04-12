@@ -10,6 +10,8 @@ $callsignFilter = isset($_GET['callsign']) ? trim($_GET['callsign']) : '';
 $immatFilter = isset($_GET['immat']) ? trim($_GET['immat']) : '';
 $missionFilter = isset($_GET['mission']) ? trim($_GET['mission']) : '';
 $fleetTypeFilter = isset($_GET['fleetType']) ? trim($_GET['fleetType']) : '';
+$departFilter = isset($_GET['depart']) ? strtoupper(trim($_GET['depart'])) : '';
+$destFilter = isset($_GET['dest']) ? strtoupper(trim($_GET['dest'])) : '';
 
 // Récupérer la liste des missions pour le filtre
 $missionsList = [];
@@ -80,7 +82,15 @@ try {
     if ($fleetTypeFilter !== '') {
         $conditions[] = "ft.fleet_type = :fleetType";
         $params['fleetType'] = $fleetTypeFilter;
-    }   
+    }
+    if ($departFilter !== '') {
+        $conditions[] = "cdvg.depart LIKE :depart";
+        $params['depart'] = "%$departFilter%";
+    }
+    if ($destFilter !== '') {
+        $conditions[] = "cdvg.destination LIKE :dest";
+        $params['dest'] = "%$destFilter%";
+    }
     if (!empty($conditions)) {
         $sql .= " WHERE " . implode(' AND ', $conditions);
     }
@@ -125,32 +135,49 @@ try {
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <h2><?= t('tableau_vols_title') ?></h2>
 
-    <!-- Formulaire de filtre (amélioré : utilises les classes centralisées) -->
-    <form method="get" action="" class="filters-form">
-        <label for="callsign"><?= t('tableau_vols_filter_callsign') ?> :</label>
-        <input type="text" id="callsign" name="callsign" class="fleet-filter-input input-160" value="<?php echo htmlspecialchars($callsignFilter); ?>">
-
-        <label for="immat" class="filter-margin"><?= t('tableau_vols_filter_immat') ?> :</label>
-        <input type="text" id="immat" name="immat" class="fleet-filter-input input-160" value="<?php echo htmlspecialchars($immatFilter); ?>">
-
-        <label for="mission" class="filter-margin"><?= t('tableau_vols_filter_mission') ?> :</label>
-        <select id="mission" name="mission" class="fleet-filter-select">
-            <option value=""><?= t('tableau_vols_filter_mission_all') ?></option>
-            <?php foreach ($missionsList as $m): ?>
-                <option value="<?= htmlspecialchars($m) ?>" <?= ($missionFilter === $m) ? 'selected' : '' ?>><?= htmlspecialchars($m) ?></option>
-            <?php endforeach; ?>
-        </select>
-
-        <label for="fleetType" class="filter-margin"><?= t('tableau_vols_filter_fleet_type') ?> :</label>
-        <select id="fleetType" name="fleetType" class="fleet-filter-select">
-            <option value=""><?= t('tableau_vols_filter_fleet_type_all') ?></option>
-            <?php foreach ($fleetTypeList as $f): ?>
-                <option value="<?= htmlspecialchars($f) ?>" <?= ($fleetTypeFilter === $f) ? 'selected' : '' ?>><?= htmlspecialchars($f) ?></option>
-            <?php endforeach; ?>
-        </select>
-
-        <button type="submit" class="btn"><?= t('tableau_vols_filter_button') ?></button>
-        <button type="button" class="btn btn-reset" onclick="window.location.href='<?= basename($_SERVER['PHP_SELF']) ?>';"><?= t('tableau_vols_reset_button') ?></button>
+    <!-- Formulaire de filtre -->
+    <form method="get" action="" class="filters-form filters-grid">
+        <div class="filter-group filter-narrow">
+            <label for="callsign"><?= t('tableau_vols_filter_callsign') ?></label>
+            <input type="text" id="callsign" name="callsign" class="fleet-filter-input" value="<?php echo htmlspecialchars($callsignFilter); ?>">
+        </div>
+        <div class="filter-group filter-narrow">
+            <label for="immat"><?= t('tableau_vols_filter_immat') ?></label>
+            <input type="text" id="immat" name="immat" class="fleet-filter-input" value="<?php echo htmlspecialchars($immatFilter); ?>">
+        </div>
+        <div class="filter-group filter-narrow">
+            <label for="depart"><?= t('tableau_vols_filter_depart') ?></label>
+            <input type="text" id="depart" name="depart" class="fleet-filter-input" maxlength="4" value="<?php echo htmlspecialchars($departFilter); ?>">
+        </div>
+        <div class="filter-group filter-narrow">
+            <label for="dest"><?= t('tableau_vols_filter_dest') ?></label>
+            <input type="text" id="dest" name="dest" class="fleet-filter-input" maxlength="4" value="<?php echo htmlspecialchars($destFilter); ?>">
+        </div>
+        <div class="filter-group">
+            <label for="mission"><?= t('tableau_vols_filter_mission') ?></label>
+            <select id="mission" name="mission" class="fleet-filter-select">
+                <option value=""><?= t('tableau_vols_filter_mission_all') ?></option>
+                <?php foreach ($missionsList as $m): ?>
+                    <option value="<?= htmlspecialchars($m) ?>" <?= ($missionFilter === $m) ? 'selected' : '' ?>><?= htmlspecialchars($m) ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="fleetType"><?= t('tableau_vols_filter_fleet_type') ?></label>
+            <select id="fleetType" name="fleetType" class="fleet-filter-select">
+                <option value=""><?= t('tableau_vols_filter_fleet_type_all') ?></option>
+                <?php foreach ($fleetTypeList as $f): ?>
+                    <option value="<?= htmlspecialchars($f) ?>" <?= ($fleetTypeFilter === $f) ? 'selected' : '' ?>><?= htmlspecialchars($f) ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="filter-group filter-buttons">
+            <label>&nbsp;</label>
+            <div>
+                <button type="submit" class="btn"><?= t('tableau_vols_filter_button') ?></button>
+                <button type="button" class="btn btn-reset" onclick="window.location.href='<?= basename($_SERVER['PHP_SELF']) ?>';"><?= t('tableau_vols_reset_button') ?></button>
+            </div>
+        </div>
     </form>
     <div class="spacer-xl"></div>
     <div class="table-main-padding">
