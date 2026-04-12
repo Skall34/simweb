@@ -20,7 +20,7 @@
  1. Sélectionne tous les appareils actifs dans FLOTTE (avec jointure FLEET_TYPE).
  2. Récupère le multiplicateur crash depuis VARIABLES_CONFIG.
  3. Pour chaque appareil :
-    - Si usure < 30% et statut normal, passage en maintenance + coût maintenance.
+    - Si usure < 10% et statut normal, passage en maintenance + coût maintenance.
     - Si en maintenance, sortie ou réinitialisation selon compteur.
     - Si crash, passage en maintenance crash (3 jours) + coût maintenance × multiplicateur.
  4. Logue chaque étape et erreur dans le fichier log.
@@ -90,7 +90,7 @@ try {
         if ($immat !== '') {
             logMsg("Avion $immat ($type_nom) : état=$etat / statut=$status / compteur_immo=$compteur_immo / coût_maint=$cout_maintenance", $logFile);
 
-            if ($status === 0 && $etat < 30) {
+            if ($status === 0 && $etat < 10) {
                 // Entrée en maintenance usure normale
                 logMsg("L'avion $immat passe en maintenance (usure normale)", $logFile);
                 $sql = "UPDATE FLOTTE SET status = 1, etat = 0, compteur_immo = 1, nb_maintenance = (nb_maintenance + 1) WHERE id = :id";
