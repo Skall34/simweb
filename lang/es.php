@@ -1051,8 +1051,9 @@ return [
     'admin_flotte_js_prix_vente' => 'Precio de venta: ',
 
     // Explanations for sale modes (JS)
-    'admin_flotte_js_expl_credit' => '(90% del saldo pendiente)',
-    'admin_flotte_js_expl_comptant' => '(70% del precio nuevo - depreciación)',
+    'admin_flotte_js_expl_valeur_type' => 'del valor del tipo',
+    'admin_flotte_js_expl_deduction_credit' => 'Deducción crédito pendiente:',
+    'admin_flotte_error_vente_negative' => 'Venta imposible: el saldo pendiente supera el valor de reventa de la aeronave.',
 
     // === DOC SCRIPTS - Common ===
     'doc_back_link' => '← Volver a la documentación',

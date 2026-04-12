@@ -634,12 +634,15 @@ Total à payer : 154,999.92 EUR
 
 **Valeur de revente :**
 ```
-Valeur = Prix d'achat × (État actuel / 100) × 0.7
+Valeur nette = (Prix du type d'appareil × 0.9) − Reste à payer (si crédit)
 
-Exemple :
-Prix achat : 150,000 EUR
-État : 86%
-Valeur revente : 150,000 × 0.86 × 0.7 = 90,300 EUR
+Exemple comptant :
+Prix type : 150,000 EUR
+Valeur revente : 150,000 × 0.9 = 135,000 EUR
+
+Exemple crédit (reste à payer : 40,000 EUR) :
+Prix type : 150,000 EUR
+Valeur revente : 150,000 × 0.9 − 40,000 = 95,000 EUR
 ```
 
 **Confirmation :**
@@ -647,11 +650,9 @@ Valeur revente : 150,000 × 0.86 × 0.7 = 90,300 EUR
 ┌─────────────────────────────────────┐
 │ Vendre F-GSKY ?                      │
 │                                     │
-│ Prix achat : 150,000 EUR            │
-│ État : 86%                          │
-│ Valeur revente : 90,300 EUR         │
-│                                     │
-│ Perte : -59,700 EUR                 │
+│ Prix type : 150,000 EUR             │
+│ Valeur revente : 135,000 EUR        │
+│ (90% de la valeur du type)          │
 │                                     │
 │ [Confirmer] [Annuler]               │
 └─────────────────────────────────────┘
@@ -659,8 +660,9 @@ Valeur revente : 150,000 × 0.86 × 0.7 = 90,300 EUR
 
 **⚠️ Attention :**
 - Vente définitive
-- Si crédit en cours : solde restant dû déduit de la vente
-- Recette créditée dans finances
+- Si crédit en cours : le solde restant dû est déduit de la recette
+- Si la dette dépasse la valeur de revente, la vente est bloquée
+- Recette nette créditée dans finances
 
 #### Faire le Plein d'un Avion
 

@@ -1024,8 +1024,9 @@ return [
     'admin_flotte_btn_signer' => 'Sign purchase order',
     'admin_flotte_btn_reinitialiser' => 'Reset',
     'admin_flotte_confirm_vente' => 'Confirm the sale of this aircraft?',
-    'admin_flotte_js_expl_credit' => '(90% of the remaining due)',
-    'admin_flotte_js_expl_comptant' => '(70% of the new price - depreciation)',
+    'admin_flotte_js_expl_valeur_type' => 'of the type value',
+    'admin_flotte_js_expl_deduction_credit' => 'Remaining credit deduction:',
+    'admin_flotte_error_vente_negative' => 'Sale impossible: the remaining credit exceeds the aircraft resale value.',
 
     // admin_flotte - UI labels
     'admin_flotte_title_buy_section' => 'Buy a new aircraft',
