@@ -1026,6 +1026,8 @@ return [
     'admin_flotte_btn_signer' => 'Firmar la orden de compra',
     'admin_flotte_btn_reinitialiser' => 'Reiniciar',
     'admin_flotte_confirm_vente' => '¿Confirma la venta de esta aeronave?',
+    'admin_flotte_js_expl_valeur_type' => 'del valor del tipo',
+    'admin_flotte_js_expl_dette_transferee' => 'Deuda restante transferida al comprador',
 
     // admin_flotte - UI labels
     'admin_flotte_title_buy_section' => 'Comprar un nuevo avión',

@@ -1032,8 +1032,7 @@ return [
     'admin_flotte_btn_reinitialiser' => 'Réinitialiser',
     'admin_flotte_confirm_vente' => 'Confirmez-vous la vente de cet appareil ?',
     'admin_flotte_js_expl_valeur_type' => 'de la valeur du type',
-    'admin_flotte_js_expl_deduction_credit' => 'Déduction crédit restant :',
-    'admin_flotte_error_vente_negative' => 'Vente impossible : le reste à payer est supérieur à la valeur de revente de l\'appareil.',
+    'admin_flotte_js_expl_dette_transferee' => 'Dette restante transférée à l\'acheteur',
 
     // admin_flotte - UI labels
     'admin_flotte_title_buy_section' => 'Acheter un nouvel appareil',

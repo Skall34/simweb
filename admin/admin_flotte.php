@@ -67,37 +67,33 @@ if ($action === 'vendre' && isset($_POST['avion_id'])) {
             
             logMsg("Reste à payer récupéré pour avion_id=$avion_id : $reste_a_payer", $logFile);
 
-            // Calculer la recette de vente : 90% de la valeur du fleet type, moins le reste à payer (crédit)
+            // Calculer la recette de vente : 90% de la valeur du fleet type
+            // La dette restante est transférée à l'acheteur (annulée pour la compagnie)
             $stmtPrix = $pdo->prepare("SELECT ft.cout_appareil FROM FLOTTE f JOIN FLEET_TYPE ft ON f.fleet_type = ft.id WHERE f.id = :avion_id");
             $stmtPrix->execute(['avion_id' => $avion_id]);
             $prix_neuf = floatval($stmtPrix->fetchColumn());
-            $recette_vente = round($prix_neuf * 0.9 - $reste_a_payer, 2);
-            logMsg("Prix neuf = $prix_neuf, reste_a_payer = $reste_a_payer, recette_vente (90% - dette) = $recette_vente", $logFile);
+            $recette_vente = round($prix_neuf * 0.9, 2);
+            logMsg("Prix neuf = $prix_neuf, recette_vente (90%) = $recette_vente, dette transférée = $reste_a_payer", $logFile);
 
-            if ($recette_vente < 0) {
-                $errorMessage = t('admin_flotte_error_vente_negative');
-                logMsg("[VENTE] Vente refusée pour avion_id=$avion_id : recette négative ($recette_vente)", $logFile);
-            } else {
-                // Mettre à jour FLOTTE après vente
+            // Mettre à jour FLOTTE après vente
                 $stmtUpdateF = $pdo->prepare("UPDATE FLOTTE SET actif = 0, status = 1, etat = 0, date_vente = :date_vente, recette_vente = :recette_vente, reste_a_payer = 0, nb_mois_restants = 0 WHERE id = :id");
                 $stmtUpdateF->execute([
                     'date_vente' => date('Y-m-d'),
                     'recette_vente' => $recette_vente,
                     'id' => $avion_id
                 ]);
-                logMsg("FLOTTE mis à jour pour avion_id=$avion_id", $logFile);
+            logMsg("FLOTTE mis à jour pour avion_id=$avion_id", $logFile);
 
-                // Enregistrer la vente dans finances_recettes
-                $callsign_vendeur = $_SESSION['callsign'] ?? '';
-                $commentaire_finance = "Vente appareil $immat_vendue par $callsign_vendeur";
-                mettreAJourRecettes($recette_vente, $avion_id, $immat_vendue, $callsign_vendeur, 'vente', $commentaire_finance);
-                logMsg("Vente enregistrée dans finances_recettes pour immat=$immat_vendue, montant=$recette_vente", $logFile);
+            // Enregistrer la vente dans finances_recettes
+            $callsign_vendeur = $_SESSION['callsign'] ?? '';
+            $commentaire_finance = "Vente appareil $immat_vendue par $callsign_vendeur";
+            mettreAJourRecettes($recette_vente, $avion_id, $immat_vendue, $callsign_vendeur, 'vente', $commentaire_finance);
+            logMsg("Vente enregistrée dans finances_recettes pour immat=$immat_vendue, montant=$recette_vente", $logFile);
 
-                $_SESSION['flash_message'] = str_replace('{immat}', htmlspecialchars($immat_vendue), t('admin_flotte_success_vente')) . ' ' . number_format($recette_vente, 0, ',', ' ') . ' €';
-                logMsg("[VENTE] Vente terminée pour immat=$immat_vendue", $logFile);
-                header('Location: admin_flotte.php');
-                exit;
-            }
+            $_SESSION['flash_message'] = str_replace('{immat}', htmlspecialchars($immat_vendue), t('admin_flotte_success_vente')) . ' ' . number_format($recette_vente, 0, ',', ' ') . ' €';
+            logMsg("[VENTE] Vente terminée pour immat=$immat_vendue", $logFile);
+            header('Location: admin_flotte.php');
+            exit;
         }
     } catch (PDOException $e) {
         $errorMessage = t('admin_flotte_error_vente') . htmlspecialchars($e->getMessage());
@@ -338,8 +334,8 @@ include __DIR__ . '/../includes/menu_logged.php';
                 </thead>
                 <tbody>
                     <?php foreach ($flotte as $avion): 
-                            // Calculer prix de vente : 90% de la valeur du fleet type, moins le reste à payer
-                            $prix_vente = round($avion['cout_appareil'] * 0.9 - floatval($avion['reste_a_payer']), 2);
+                            // Calculer prix de vente : 90% de la valeur du fleet type (dette transférée à l'acheteur)
+                            $prix_vente = round($avion['cout_appareil'] * 0.9, 2);
                         ?>
                             <tr>
                                 <td><strong><?= htmlspecialchars($avion['immat']) ?></strong></td>
@@ -382,7 +378,7 @@ var sim_i18n = <?= json_encode([
     'mode_credit' => t('admin_flotte_mode_credit'),
     'mode_comptant' => t('admin_flotte_mode_comptant'),
     'expl_valeur_type' => t('admin_flotte_js_expl_valeur_type'),
-    'expl_deduction_credit' => t('admin_flotte_js_expl_deduction_credit'),
+    'expl_dette_transferee' => t('admin_flotte_js_expl_dette_transferee'),
 ]) ?>;
 
 function confirmLiberer(id, immat) {
@@ -422,8 +418,7 @@ function confirmVente(id, immat, type, categorie, reste, recettes, prixVente, mo
 
     let explication = '\n(90% ' + sim_i18n.expl_valeur_type + ')';
     if (reste > 0) {
-        const resteFormate2 = new Intl.NumberFormat('fr-FR', {style: 'currency', currency: 'EUR'}).format(reste);
-        explication += '\n' + sim_i18n.expl_deduction_credit + ' ' + resteFormate2;
+        explication += '\n' + sim_i18n.expl_dette_transferee;
     }
 
     const titleLine = sim_i18n.confirm_vente.replace('{immat}', immat);

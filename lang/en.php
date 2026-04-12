@@ -1027,8 +1027,7 @@ return [
     'admin_flotte_btn_reinitialiser' => 'Reset',
     'admin_flotte_confirm_vente' => 'Confirm the sale of this aircraft?',
     'admin_flotte_js_expl_valeur_type' => 'of the type value',
-    'admin_flotte_js_expl_deduction_credit' => 'Remaining credit deduction:',
-    'admin_flotte_error_vente_negative' => 'Sale impossible: the remaining credit exceeds the aircraft resale value.',
+    'admin_flotte_js_expl_dette_transferee' => 'Remaining debt transferred to buyer',
 
     // admin_flotte - UI labels
     'admin_flotte_title_buy_section' => 'Buy a new aircraft',
