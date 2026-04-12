@@ -31,29 +31,50 @@ $sql_dormeurs = "
 ";
 $dormeurs = $pdo->query($sql_dormeurs)->fetchAll(PDO::FETCH_ASSOC);
 
-// 2. Avions les plus rentables (recettes / prix d'achat)
+// 2. Avions les plus rentables (bilan complet : recettes - maintenance - achat - crédit)
 $sql_rentables = "
-    SELECT f.immat, ft.fleet_type AS type_nom, ft.cout_appareil, f.recettes,
-           ROUND(f.recettes / NULLIF(ft.cout_appareil, 0) * 100, 1) AS roi_pct,
+    SELECT f.immat, ft.fleet_type AS type_nom, ft.cout_appareil,
+           COALESCE(SUM(c.cout_vol), 0) AS recettes,
+           COALESCE((SELECT SUM(fd.montant) FROM finances_depenses fd WHERE fd.reference_id = f.id AND fd.type IN ('maintenance', 'maintenance_crash', 'maintenance_retro')), 0) AS cout_maintenance,
+           COALESCE((SELECT SUM(fd.montant) FROM finances_depenses fd WHERE fd.reference_id = f.id AND fd.type = 'achat'), 0) AS cout_achat,
+           COALESCE((SELECT SUM(fd.montant) FROM finances_depenses fd WHERE fd.reference_id = f.id AND fd.type = 'mensualite_credit'), 0) AS cout_credit,
+           (COALESCE(SUM(c.cout_vol), 0) 
+            - COALESCE((SELECT SUM(fd.montant) FROM finances_depenses fd WHERE fd.reference_id = f.id AND fd.type IN ('maintenance', 'maintenance_crash', 'maintenance_retro')), 0)
+            - COALESCE((SELECT SUM(fd.montant) FROM finances_depenses fd WHERE fd.reference_id = f.id AND fd.type = 'achat'), 0)
+            - COALESCE((SELECT SUM(fd.montant) FROM finances_depenses fd WHERE fd.reference_id = f.id AND fd.type = 'mensualite_credit'), 0)
+           ) AS profit_net,
+           ROUND((COALESCE(SUM(c.cout_vol), 0) 
+            - COALESCE((SELECT SUM(fd.montant) FROM finances_depenses fd WHERE fd.reference_id = f.id AND fd.type IN ('maintenance', 'maintenance_crash', 'maintenance_retro')), 0)
+            - COALESCE((SELECT SUM(fd.montant) FROM finances_depenses fd WHERE fd.reference_id = f.id AND fd.type = 'achat'), 0)
+            - COALESCE((SELECT SUM(fd.montant) FROM finances_depenses fd WHERE fd.reference_id = f.id AND fd.type = 'mensualite_credit'), 0)
+           ) / NULLIF(ft.cout_appareil, 0) * 100, 1) AS roi_pct,
            COUNT(c.id) AS nb_vols
     FROM FLOTTE f
     LEFT JOIN FLEET_TYPE ft ON f.fleet_type = ft.id
     LEFT JOIN CARNET_DE_VOL_GENERAL c ON c.appareil_id = f.id
     WHERE f.Actif = 1
     GROUP BY f.id
-    ORDER BY roi_pct DESC
+    ORDER BY profit_net DESC
 ";
 $rentables = $pdo->query($sql_rentables)->fetchAll(PDO::FETCH_ASSOC);
 
-// 3. Avions "gouffre" : beaucoup de maintenance, peu de recettes
+// 3. Avions "gouffre" : pire bilan complet (recettes - maintenance - achat - crédit)
 $sql_gouffres = "
-    SELECT f.immat, ft.fleet_type AS type_nom, f.etat, f.nb_maintenance, f.recettes,
+    SELECT f.immat, ft.fleet_type AS type_nom, f.etat, f.nb_maintenance,
            ft.cout_appareil, f.compteur_immo,
-           COALESCE((SELECT SUM(fd.montant) FROM finances_depenses fd WHERE fd.reference_id = f.id AND fd.type IN ('maintenance', 'maintenance_crash', 'maintenance_retro')), 0) AS cout_maintenance_cumule
+           COALESCE((SELECT SUM(cdvg.cout_vol) FROM CARNET_DE_VOL_GENERAL cdvg WHERE cdvg.appareil_id = f.id), 0) AS recettes,
+           COALESCE((SELECT SUM(fd.montant) FROM finances_depenses fd WHERE fd.reference_id = f.id AND fd.type IN ('maintenance', 'maintenance_crash', 'maintenance_retro')), 0) AS cout_maintenance,
+           COALESCE((SELECT SUM(fd.montant) FROM finances_depenses fd WHERE fd.reference_id = f.id AND fd.type = 'achat'), 0) AS cout_achat,
+           COALESCE((SELECT SUM(fd.montant) FROM finances_depenses fd WHERE fd.reference_id = f.id AND fd.type = 'mensualite_credit'), 0) AS cout_credit,
+           (COALESCE((SELECT SUM(cdvg.cout_vol) FROM CARNET_DE_VOL_GENERAL cdvg WHERE cdvg.appareil_id = f.id), 0)
+            - COALESCE((SELECT SUM(fd.montant) FROM finances_depenses fd WHERE fd.reference_id = f.id AND fd.type IN ('maintenance', 'maintenance_crash', 'maintenance_retro')), 0)
+            - COALESCE((SELECT SUM(fd.montant) FROM finances_depenses fd WHERE fd.reference_id = f.id AND fd.type = 'achat'), 0)
+            - COALESCE((SELECT SUM(fd.montant) FROM finances_depenses fd WHERE fd.reference_id = f.id AND fd.type = 'mensualite_credit'), 0)
+           ) AS bilan_net
     FROM FLOTTE f
     LEFT JOIN FLEET_TYPE ft ON f.fleet_type = ft.id
     WHERE f.Actif = 1
-    ORDER BY f.nb_maintenance DESC, f.recettes ASC
+    ORDER BY bilan_net ASC
     LIMIT 5
 ";
 $gouffres = $pdo->query($sql_gouffres)->fetchAll(PDO::FETCH_ASSOC);
@@ -88,12 +109,16 @@ $avion_voyageur = $pdo->query("
 $stats['avion_star'] = $avion_voyageur ? $avion_voyageur['immat'] : '?';
 $stats['avion_star_vols'] = $avion_voyageur ? $avion_voyageur['nb_vols'] : 0;
 
-// Aéroport le plus visité
+// Aéroport le plus visité (départs + destinations)
 $aeroport_top = $pdo->query("
-    SELECT destination, COUNT(*) AS nb FROM CARNET_DE_VOL_GENERAL GROUP BY destination ORDER BY nb DESC LIMIT 1
+    SELECT icao, SUM(nb) AS total FROM (
+        SELECT depart AS icao, COUNT(*) AS nb FROM CARNET_DE_VOL_GENERAL GROUP BY depart
+        UNION ALL
+        SELECT destination AS icao, COUNT(*) AS nb FROM CARNET_DE_VOL_GENERAL GROUP BY destination
+    ) combined GROUP BY icao ORDER BY total DESC LIMIT 1
 ")->fetch(PDO::FETCH_ASSOC);
-$stats['aeroport_star'] = $aeroport_top ? $aeroport_top['destination'] : '?';
-$stats['aeroport_star_nb'] = $aeroport_top ? $aeroport_top['nb'] : 0;
+$stats['aeroport_star'] = $aeroport_top ? $aeroport_top['icao'] : '?';
+$stats['aeroport_star_nb'] = $aeroport_top ? $aeroport_top['total'] : 0;
 
 // Balance commerciale
 $stats['balance'] = floatval($pdo->query("SELECT balance_actuelle FROM BALANCE_COMMERCIALE WHERE id = 1")->fetchColumn());
@@ -107,26 +132,6 @@ $stats['valeur_flotte'] = floatval($pdo->query("SELECT COALESCE(SUM(ft.cout_appa
 // Avions à crédit
 $stats['nb_credit'] = intval($pdo->query("SELECT COUNT(*) FROM FLOTTE WHERE mode_achat = 'credit' AND reste_a_payer > 0 AND Actif = 1")->fetchColumn());
 $stats['dette_totale'] = floatval($pdo->query("SELECT COALESCE(SUM(reste_a_payer), 0) FROM FLOTTE WHERE mode_achat = 'credit' AND reste_a_payer > 0 AND Actif = 1")->fetchColumn());
-
-// Pire note de vol
-$pire_vol = $pdo->query("
-    SELECT c.note_du_vol, c.date_vol, p.callsign, f.immat, c.depart, c.destination
-    FROM CARNET_DE_VOL_GENERAL c
-    JOIN PILOTES p ON c.pilote_id = p.id
-    JOIN FLOTTE f ON c.appareil_id = f.id
-    WHERE c.note_du_vol IS NOT NULL
-    ORDER BY c.note_du_vol ASC LIMIT 1
-")->fetch(PDO::FETCH_ASSOC);
-
-// Meilleure note de vol
-$best_vol = $pdo->query("
-    SELECT c.note_du_vol, c.date_vol, p.callsign, f.immat, c.depart, c.destination
-    FROM CARNET_DE_VOL_GENERAL c
-    JOIN PILOTES p ON c.pilote_id = p.id
-    JOIN FLOTTE f ON c.appareil_id = f.id
-    WHERE c.note_du_vol IS NOT NULL
-    ORDER BY c.note_du_vol DESC LIMIT 1
-")->fetch(PDO::FETCH_ASSOC);
 
 // =============================================
 // LOGIQUE DU "MOOD" DU TRÉSORIER
@@ -150,32 +155,6 @@ include __DIR__ . '/../includes/header.php';
 include __DIR__ . '/../includes/menu_logged.php';
 ?>
 
-<style>
-.tresorier-container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-.tresorier-header { text-align: center; margin-bottom: 30px; }
-.tresorier-header h1 { font-size: 2em; }
-.tresorier-mood { font-size: 4em; display: block; margin: 10px 0; }
-.tresorier-quote { font-style: italic; color: #555; font-size: 1.1em; margin: 10px 0 20px; }
-.tresorier-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(480px, 1fr)); gap: 20px; margin-bottom: 30px; }
-.tresorier-card { background: #f7fbff; border-radius: 12px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-.tresorier-card h3 { margin-top: 0; color: #0066cc; font-size: 1.1em; border-bottom: 2px solid #e0e0e0; padding-bottom: 8px; margin-bottom: 12px; }
-.tresorier-card.alert { background: #fff5f5; border-left: 4px solid #dc3545; }
-.tresorier-card.success { background: #f0fff0; border-left: 4px solid #28a745; }
-.tresorier-card.info { background: #f0f8ff; border-left: 4px solid #17a2b8; }
-.tresorier-card.fun { background: #fffef0; border-left: 4px solid #ffc107; }
-.tresorier-table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
-.tresorier-table th, .tresorier-table td { padding: 6px 8px; text-align: left; border-bottom: 1px solid #eee; }
-.tresorier-table th { color: #555; font-weight: 600; }
-.tresorier-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.8em; font-weight: 600; }
-.badge-danger { background: #ffe0e0; color: #c0392b; }
-.badge-warning { background: #fff3cd; color: #856404; }
-.badge-ok { background: #d4edda; color: #155724; }
-.stat-big { font-size: 1.8em; font-weight: 700; color: #0066cc; }
-.stat-label { color: #777; font-size: 0.85em; }
-.stats-flex { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; text-align: center; }
-.stats-flex > div { min-width: 120px; }
-</style>
-
 <div class="tresorier-container">
 
     <!-- EN-TÊTE AVEC MOOD -->
@@ -191,11 +170,11 @@ include __DIR__ . '/../includes/menu_logged.php';
     </div>
 
     <!-- TABLEAU DE BORD RAPIDE -->
-    <div class="tresorier-card info" style="margin-bottom: 20px;">
+    <div class="tresorier-card info tresorier-dashboard">
         <h3>📊 <?= t('tresorier_dashboard') ?></h3>
         <div class="stats-flex">
             <div>
-                <div class="stat-big" style="color: <?= $stats['balance'] >= 0 ? '#28a745' : '#dc3545' ?>"><?= fmt($stats['balance']) ?> €</div>
+                <div class="stat-big <?= $stats['balance'] >= 0 ? 'tresorier-positive' : 'tresorier-negative' ?>"><?= fmt($stats['balance']) ?> €</div>
                 <div class="stat-label"><?= t('tresorier_balance') ?></div>
             </div>
             <div>
@@ -207,7 +186,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                 <div class="stat-label"><?= t('tresorier_valeur_flotte') ?></div>
             </div>
             <div>
-                <div class="stat-big" style="color: #dc3545;"><?= fmt($stats['dette_totale']) ?> €</div>
+                <div class="stat-big tresorier-negative"><?= fmt($stats['dette_totale']) ?> €</div>
                 <div class="stat-label"><?= t('tresorier_dette') ?> (<?= $stats['nb_credit'] ?> <?= t('tresorier_appareils') ?>)</div>
             </div>
         </div>
@@ -218,11 +197,11 @@ include __DIR__ . '/../includes/menu_logged.php';
         <!-- AVIONS DORMEURS -->
         <div class="tresorier-card alert">
             <h3>😴 <?= t('tresorier_dormeurs_title') ?></h3>
-            <p style="font-size:0.9em;color:#666;"><?= t('tresorier_dormeurs_intro') ?></p>
+            <p class="tresorier-card-intro"><?= t('tresorier_dormeurs_intro') ?></p>
             <?php
             $dormeurs_alertes = array_filter($dormeurs, fn($d) => $d['jours_sans_vol'] > 60);
             if (empty($dormeurs_alertes)): ?>
-                <p style="color:#28a745;font-weight:600;">✅ <?= t('tresorier_dormeurs_ok') ?></p>
+                <p class="tresorier-ok-msg">✅ <?= t('tresorier_dormeurs_ok') ?></p>
             <?php else: ?>
                 <table class="tresorier-table">
                     <thead><tr><th><?= t('tresorier_col_immat') ?></th><th><?= t('tresorier_col_type') ?></th><th><?= t('tresorier_col_dernier_vol') ?></th><th><?= t('tresorier_col_jours') ?></th></tr></thead>
@@ -239,7 +218,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                     <?php endforeach; ?>
                     </tbody>
                 </table>
-                <p style="font-size:0.85em;color:#888;margin-top:8px;">
+                <p class="tresorier-card-hint">
                     💡 <?= t('tresorier_dormeurs_conseil') ?>
                 </p>
             <?php endif; ?>
@@ -248,23 +227,26 @@ include __DIR__ . '/../includes/menu_logged.php';
         <!-- TOP 5 RENTABILITÉ -->
         <div class="tresorier-card success">
             <h3>🏆 <?= t('tresorier_rentables_title') ?></h3>
-            <p style="font-size:0.9em;color:#666;"><?= t('tresorier_rentables_intro') ?></p>
+            <p class="tresorier-card-intro"><?= t('tresorier_rentables_intro') ?></p>
             <table class="tresorier-table">
-                <thead><tr><th><?= t('tresorier_col_immat') ?></th><th><?= t('tresorier_col_recettes') ?></th><th>ROI</th><th><?= t('tresorier_col_vols') ?></th></tr></thead>
+                <thead><tr><th><?= t('tresorier_col_immat') ?></th><th><?= t('tresorier_col_recettes') ?></th><th><?= t('tresorier_col_cout_maintenance') ?></th><th><?= t('tresorier_col_profit_net') ?></th><th>ROI</th><th><?= t('tresorier_col_vols') ?></th></tr></thead>
                 <tbody>
                 <?php foreach (array_slice($rentables, 0, 5) as $i => $r): 
                     $medal = ['🥇','🥈','🥉','4️⃣','5️⃣'][$i] ?? '';
+                    $profit = floatval($r['profit_net']);
                 ?>
                     <tr>
                         <td><?= $medal ?> <strong><?= htmlspecialchars($r['immat']) ?></strong></td>
                         <td><?= fmt($r['recettes']) ?> €</td>
-                        <td><span class="tresorier-badge <?= floatval($r['roi_pct']) >= 100 ? 'badge-ok' : 'badge-warning' ?>"><?= $r['roi_pct'] ?? 0 ?>%</span></td>
+                        <td class="tresorier-negative"><?= fmt($r['cout_maintenance']) ?> €</td>
+                        <td class="<?= $profit >= 0 ? 'tresorier-positive' : 'tresorier-negative' ?>"><?= fmt($profit) ?> €</td>
+                        <td><span class="tresorier-badge <?= floatval($r['roi_pct']) >= 100 ? 'badge-ok' : ($profit >= 0 ? 'badge-warning' : 'badge-danger') ?>"><?= $r['roi_pct'] ?? 0 ?>%</span></td>
                         <td><?= $r['nb_vols'] ?></td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>
             </table>
-            <p style="font-size:0.85em;color:#888;margin-top:8px;">
+            <p class="tresorier-card-hint">
                 💡 <?= t('tresorier_rentables_conseil') ?>
             </p>
         </div>
@@ -272,22 +254,25 @@ include __DIR__ . '/../includes/menu_logged.php';
         <!-- GOUFFRES FINANCIERS -->
         <div class="tresorier-card alert">
             <h3>🕳️ <?= t('tresorier_gouffres_title') ?></h3>
-            <p style="font-size:0.9em;color:#666;"><?= t('tresorier_gouffres_intro') ?></p>
+            <p class="tresorier-card-intro"><?= t('tresorier_gouffres_intro') ?></p>
             <table class="tresorier-table">
-                <thead><tr><th><?= t('tresorier_col_immat') ?></th><th><?= t('tresorier_col_etat') ?></th><th><?= t('tresorier_col_maintenances') ?></th><th><?= t('tresorier_col_cout_maintenance') ?></th><th><?= t('tresorier_col_recettes') ?></th></tr></thead>
+                <thead><tr><th><?= t('tresorier_col_immat') ?></th><th><?= t('tresorier_col_recettes') ?></th><th><?= t('tresorier_col_depenses') ?></th><th><?= t('tresorier_col_bilan') ?></th><th><?= t('tresorier_col_etat') ?></th></tr></thead>
                 <tbody>
-                <?php foreach ($gouffres as $g): ?>
+                <?php foreach ($gouffres as $g): 
+                    $bilan = floatval($g['bilan_net']);
+                    $depenses = floatval($g['cout_maintenance']) + floatval($g['cout_achat']) + floatval($g['cout_credit']);
+                ?>
                     <tr>
                         <td><strong><?= htmlspecialchars($g['immat']) ?></strong></td>
-                        <td><?= $g['etat'] ?>%</td>
-                        <td><?= $g['nb_maintenance'] ?></td>
-                        <td style="color:#dc3545;font-weight:600;"><?= fmt($g['cout_maintenance_cumule']) ?> €</td>
                         <td><?= fmt($g['recettes']) ?> €</td>
+                        <td class="tresorier-negative"><?= fmt($depenses) ?> €</td>
+                        <td class="<?= $bilan >= 0 ? 'tresorier-positive' : 'tresorier-negative' ?>"><strong><?= fmt($bilan) ?> €</strong></td>
+                        <td><?= $g['etat'] ?>%</td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>
             </table>
-            <p style="font-size:0.85em;color:#888;margin-top:8px;">
+            <p class="tresorier-card-hint">
                 💡 <?= t('tresorier_gouffres_conseil') ?>
             </p>
         </div>
@@ -303,20 +288,14 @@ include __DIR__ . '/../includes/menu_logged.php';
                     <tr><td>👨‍✈️ <?= t('tresorier_fun_pilote') ?></td><td><strong><?= htmlspecialchars($stats['pilote_star']) ?></strong> (<?= $stats['pilote_star_vols'] ?> <?= t('tresorier_fun_vols_label') ?>)</td></tr>
                     <tr><td>✈️ <?= t('tresorier_fun_avion') ?></td><td><strong><?= htmlspecialchars($stats['avion_star']) ?></strong> (<?= $stats['avion_star_vols'] ?> <?= t('tresorier_fun_vols_label') ?>)</td></tr>
                     <tr><td>🏛️ <?= t('tresorier_fun_aeroport') ?></td><td><strong><?= htmlspecialchars($stats['aeroport_star']) ?></strong> (<?= $stats['aeroport_star_nb'] ?>×)</td></tr>
-                    <?php if ($pire_vol): ?>
-                    <tr><td>💩 <?= t('tresorier_fun_pire_vol') ?></td><td><strong><?= $pire_vol['note_du_vol'] ?>/100</strong> — <?= htmlspecialchars($pire_vol['callsign']) ?> (<?= htmlspecialchars($pire_vol['depart']) ?>→<?= htmlspecialchars($pire_vol['destination']) ?>)</td></tr>
-                    <?php endif; ?>
-                    <?php if ($best_vol): ?>
-                    <tr><td>⭐ <?= t('tresorier_fun_best_vol') ?></td><td><strong><?= $best_vol['note_du_vol'] ?>/100</strong> — <?= htmlspecialchars($best_vol['callsign']) ?> (<?= htmlspecialchars($best_vol['depart']) ?>→<?= htmlspecialchars($best_vol['destination']) ?>)</td></tr>
-                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
 
         <!-- CONSEILS DU TRÉSORIER -->
-        <div class="tresorier-card info" style="grid-column: 1 / -1;">
+        <div class="tresorier-card info tresorier-conseils-card">
             <h3>📝 <?= t('tresorier_conseils_title') ?></h3>
-            <ul style="font-size:0.95em;line-height:1.8;">
+            <ul class="tresorier-conseils-list">
             <?php
             // Conseils dynamiques basés sur les données
             $conseils = [];
