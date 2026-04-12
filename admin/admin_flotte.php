@@ -239,7 +239,7 @@ $flotte = [];
 try {
     $stmt = $pdo->query("
         SELECT f.id, f.immat, f.localisation, f.hub, f.fleet_type, f.reste_a_payer, 
-               f.date_achat, f.recettes, f.nb_annees_credit, f.mode_achat, f.en_vol, f.reservee,
+               f.date_achat, COALESCE((SELECT SUM(cdvg.cout_vol) FROM CARNET_DE_VOL_GENERAL cdvg WHERE cdvg.appareil_id = f.id), 0) AS recettes, f.nb_annees_credit, f.mode_achat, f.en_vol, f.reservee,
                f.status, f.etat, ft.type as categorie, ft.fleet_type as type_nom, ft.cout_appareil
         FROM FLOTTE f
         LEFT JOIN FLEET_TYPE ft ON f.fleet_type = ft.id
