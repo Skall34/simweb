@@ -118,6 +118,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $libelle = trim($_POST['libelle'] ?? '');
         $majoration = trim($_POST['majoration_mission'] ?? '');
         $active = isset($_POST['Active']) ? 1 : 0;
+        
+        // Normaliser en Title Case (première lettre de chaque mot en majuscule)
+        $libelle = mb_convert_case($libelle, MB_CASE_TITLE, 'UTF-8');
+        
         if ($libelle === '') $errors[] = t('admin_missions_error_libelle');
         if (!is_numeric($majoration) || $majoration < 0) $errors[] = t('admin_missions_error_majoration');
         if (empty($errors) && $id > 0) {
@@ -141,6 +145,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $libelle = trim($_POST['libelle_new'] ?? '');
         $majoration = trim($_POST['majoration_mission_new'] ?? '');
         $active = isset($_POST['Active_new']) ? 1 : 0;
+        
+        // Normaliser en Title Case (première lettre de chaque mot en majuscule)
+        $libelle = mb_convert_case($libelle, MB_CASE_TITLE, 'UTF-8');
+        
         if ($libelle === '') $errors[] = t('admin_missions_error_libelle');
         if (!is_numeric($majoration) || $majoration < 0) $errors[] = t('admin_missions_error_majoration');
         // Vérifier unicité

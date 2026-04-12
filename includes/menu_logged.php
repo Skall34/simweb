@@ -57,29 +57,26 @@ require_once __DIR__ . '/../lang.php';
                 echo '<span style="color:red;">' . t('menu_missions_error') . '</span>';
             }
             $missionLabels = [
-                'NORMANDIE 80' => t('mission_normandie80'),
-                'HYDRAVIONS' => t('mission_hydravions'),
-                'CANNES 2024' => t('mission_cannes2024'),
-                'RTESOIE' => t('mission_rtesoie'),
-                'RTEGRECE' => t('mission_rtegrece'),
-                'CARAIBES' => t('mission_caraibes'),
-                'ESQUIMOS' => t('mission_esquimos'),
-                'OPFRANCE' => t('mission_opfrance'),
-                'OPLINER' => t('mission_opliner'),
-                'OPPNG' => t('mission_oppng'),
-                'VOLLIBRE' => t('mission_vollibre'),
-                'Long/moyen courrier' => t('mission_longmoyen'),
+                'Normandie 80' => t('mission_normandie80'),
+                'Hydravions' => t('mission_hydravions'),
+                'Cannes 2024' => t('mission_cannes2024'),
+                'Route de la Soie' => t('mission_rtesoie'),
+                'Route de Grece' => t('mission_rtegrece'),
+                'Caraibes' => t('mission_caraibes'),
+                'Esquimos' => t('mission_esquimos'),
+                'Op France' => t('mission_opfrance'),
+                'Op Liner' => t('mission_opliner'),
+                'Op PNG' => t('mission_oppng'),
+                'Vol Libre' => t('mission_vollibre'),
+                'Longs Moyens Courriers' => t('mission_longmoyen'),
+                'Operation Kangourou' => t('mission_kangourou'),
             ];
             foreach ($missions as $missionRow) {
                 $mission = $missionRow['libelle'];
                 $isInactive = (isset($missionRow['Active']) && !$missionRow['Active']);
-                if ($mission === 'Long/moyen courrier') {
-                    $url = '/pages/missions/LONGSMOYENSCOURIERS.php';
-                } else {
-                    // Utiliser le même format que creerPageMission() : remplacer espaces et caractères spéciaux par +
-                    $nomFichier = strtoupper(str_replace([' ', '/', '\\', ':', '*', '?', '"', '<', '>', '|'], '+', $mission));
-                    $url = '/pages/missions/' . rawurlencode($nomFichier) . '.php';
-                }
+                // Utiliser le même format que creerPageMission() : remplacer espaces et caractères spéciaux par +
+                $nomFichier = strtoupper(str_replace([' ', '/', '\\', ':', '*', '?', '"', '<', '>', '|'], '+', $mission));
+                $url = '/pages/missions/' . rawurlencode($nomFichier) . '.php';
                 $label = isset($missionLabels[$mission]) ? $missionLabels[$mission] : htmlspecialchars($mission);
                 if ($isInactive) {
                     echo '<a href="#" style="color:#b0b0b0;pointer-events:none;cursor:default;background:#f6f6f6;">' . $label . '</a>';
