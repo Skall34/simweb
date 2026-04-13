@@ -1741,5 +1741,26 @@ Costo total mantenimiento: 1.000,00 €
     'tresorier_col_profit_net' => 'Beneficio neto',
     'tresorier_col_bilan' => 'Balance',
     'tresorier_col_depenses' => 'Gastos',
+
+    // Carnet de vol por avión
+    'carnet_avion_title' => 'Cuaderno de bitácora',
+    'fleet_table_carnet' => 'Bitácora',
+    'fleet_voir_carnet' => 'Ver cuaderno de bitácora',
+    'carnet_stat_vols' => 'Vuelos',
+    'carnet_stat_heures' => 'Horas de vuelo',
+    'carnet_stat_fuel' => 'Combustible consumido',
+    'carnet_stat_recettes' => 'Ingresos generados',
+    'carnet_stat_maintenances' => 'Mantenimientos',
+    'carnet_stat_cout_maint' => 'Coste mantenimientos',
+    'carnet_timeline_title' => 'Historial cronológico',
+    'carnet_no_events' => 'No hay eventos registrados para este avión.',
+    'carnet_event_vol' => 'VUELO',
+    'carnet_maint_usure' => 'MANTENIMIENTO DESGASTE',
+    'carnet_maint_crash' => 'MANTENIMIENTO ACCIDENTE',
+    'carnet_maint_sortie' => 'FIN MANTENIMIENTO',
+    'carnet_maint_sortie_crash' => 'FIN MANTENIMIENTO ACCIDENTE',
+    'carnet_etat' => 'Estado',
+    'carnet_pilotes_title' => 'Pilotos que usaron este avión',
+    'carnet_vols' => 'vuelos',
 ];
 ?>

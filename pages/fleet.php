@@ -101,6 +101,7 @@ include __DIR__ . '/../includes/menu_logged.php';
             <thead class="table-skywings">
                 <tr class="table-skywings">
                     <th><?= t('fleet_table_immat') ?></th>
+                    <th><?= t('fleet_table_carnet') ?></th>
                     <th><?= t('fleet_table_fleet_type') ?></th>
                     <th><?= t('fleet_table_categorie') ?></th>
                     <th><?= t('fleet_table_localisation') ?></th>
@@ -169,6 +170,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                 ?>
                     <tr class="<?= $rowClass ?>" data-details="<?= $details_json ?>">
                         <td><?= htmlspecialchars($avion['immat'] ?? '') ?></td>
+                        <td><a href="carnet_avion.php?id=<?= (int)$avion['id'] ?>" class="carnet-link" title="<?= t('fleet_voir_carnet') ?>">📖</a></td>
                         <td><?= htmlspecialchars($avion['type_libelle'] ?? '') ?></td>
                         <td><?= htmlspecialchars($avion['categorie'] ?? '') ?></td>
                         <td><?= htmlspecialchars($avion['localisation'] ?? '') ?></td>

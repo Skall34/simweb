@@ -47,6 +47,26 @@ $logFile = __DIR__ . '/logs/maintenance.log';
 
 date_default_timezone_set('Europe/Paris');
 
+// Fonction pour logger dans MAINTENANCES_LOG
+function logMaintenance($pdo, $appareil_id, $type, $etat_avant, $etat_apres, $cout, $commentaire, $logFile) {
+    try {
+        $stmt = $pdo->prepare("
+            INSERT INTO MAINTENANCES_LOG (appareil_id, type_maintenance, etat_avant, etat_apres, cout, commentaire)
+            VALUES (:appareil_id, :type_maintenance, :etat_avant, :etat_apres, :cout, :commentaire)
+        ");
+        $stmt->execute([
+            'appareil_id' => $appareil_id,
+            'type_maintenance' => $type,
+            'etat_avant' => $etat_avant,
+            'etat_apres' => $etat_apres,
+            'cout' => $cout,
+            'commentaire' => $commentaire
+        ]);
+    } catch (PDOException $e) {
+        logMsg("Erreur log MAINTENANCES_LOG : " . $e->getMessage(), $logFile);
+    }
+}
+
 try {
     logMsg("--- Début maintenance ---", $logFile);
 
@@ -106,6 +126,8 @@ try {
                     $cout_total += $cout_maintenance;
                     $details_couts[] = "$immat : " . number_format($cout_maintenance, 2, ',', ' ') . " € (usure)";
                     logMsg("Coût maintenance enregistré : $cout_maintenance € pour $immat (usure)", $logFile);
+                    // Log dans MAINTENANCES_LOG
+                    logMaintenance($pdo, $id, 'usure', (int)$etat, 0, $cout_maintenance, $commentaire, $logFile);
                 }
 
             } elseif ($status === 1) {
@@ -116,6 +138,8 @@ try {
                     $stmtUp->execute(['id' => $id]);
                     $count_sortie++;
                     $sortie_immat[] = $immat;
+                    // Log sortie maintenance
+                    logMaintenance($pdo, $id, 'sortie', 0, 100, null, "Sortie maintenance usure — $immat", $logFile);
                 } elseif ($compteur_immo > 1) {
                     logMsg("L'avion $immat en maintenance, compteur_immo > 1, réinitialisation", $logFile);
                     $sql = "UPDATE FLOTTE SET status = 0, etat = 1, compteur_immo = 0 WHERE id = :id";
@@ -123,6 +147,8 @@ try {
                     $stmtUp->execute(['id' => $id]);
                     $count_sortie++;
                     $sortie_immat[] = $immat;
+                    // Log sortie maintenance
+                    logMaintenance($pdo, $id, 'sortie', 0, 1, null, "Sortie maintenance (réinit.) — $immat", $logFile);
                 }
 
             } elseif ($status === 2) {
@@ -143,6 +169,8 @@ try {
                         $cout_total += $cout_crash;
                         $details_couts[] = "$immat : " . number_format($cout_crash, 2, ',', ' ') . " € (crash ×$multiplicateur_crash)";
                         logMsg("Coût maintenance crash enregistré : $cout_crash € pour $immat (×$multiplicateur_crash)", $logFile);
+                        // Log dans MAINTENANCES_LOG
+                        logMaintenance($pdo, $id, 'crash', (int)$etat, 0, $cout_crash, $commentaire, $logFile);
                     }
 
                 } elseif ($compteur_immo >= 1 && $compteur_immo < 3) {
@@ -157,6 +185,8 @@ try {
                     $stmtUp->execute(['id' => $id]);
                     $count_sortie++;
                     $sortie_immat[] = $immat;
+                    // Log sortie maintenance crash
+                    logMaintenance($pdo, $id, 'sortie_crash', 0, 100, null, "Sortie maintenance crash — $immat", $logFile);
                 }
             }
         }

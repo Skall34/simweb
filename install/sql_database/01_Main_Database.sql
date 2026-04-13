@@ -278,6 +278,28 @@ CREATE TABLE IF NOT EXISTS `MISSIONS` (
 -- --------------------------------------------------------
 
 --
+-- Structure de la table `MAINTENANCES_LOG`
+--
+
+DROP TABLE IF EXISTS `MAINTENANCES_LOG`;
+CREATE TABLE IF NOT EXISTS `MAINTENANCES_LOG` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `appareil_id` int NOT NULL,
+  `date_maintenance` datetime DEFAULT CURRENT_TIMESTAMP,
+  `type_maintenance` enum('usure','crash','sortie','sortie_crash') NOT NULL DEFAULT 'usure',
+  `etat_avant` tinyint UNSIGNED DEFAULT NULL,
+  `etat_apres` tinyint UNSIGNED DEFAULT NULL,
+  `cout` decimal(10,2) DEFAULT NULL,
+  `commentaire` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_appareil` (`appareil_id`),
+  KEY `idx_date` (`date_maintenance`),
+  CONSTRAINT `fk_maint_appareil` FOREIGN KEY (`appareil_id`) REFERENCES `FLOTTE` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Structure de la table `password_resets`
 --
 
