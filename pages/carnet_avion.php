@@ -166,12 +166,14 @@ include __DIR__ . '/../includes/menu_logged.php';
 $statusLabels = [
     0 => t('fleet_status_ok'),
     1 => t('fleet_status_maintenance'),
-    2 => t('fleet_status_crash')
+    2 => t('fleet_status_crash'),
+    3 => t('fleet_status_vendu')
 ];
 $statusClasses = [
     0 => 'status-ok',
     1 => 'status-maintenance',
-    2 => 'status-crash'
+    2 => 'status-crash',
+    3 => 'status-vendu'
 ];
 
 ?>
@@ -195,19 +197,19 @@ $statusClasses = [
         </div>
         <div class="carnet-header-right">
             <div class="carnet-info-item">
-                <span class="label"><?= t('fleet_hub') ?></span>
+                <span class="label"><?= t('fleet_table_hub') ?></span>
                 <span class="value"><?= htmlspecialchars($avion['hub'] ?? '—') ?></span>
             </div>
             <div class="carnet-info-item">
-                <span class="label"><?= t('fleet_localisation') ?></span>
+                <span class="label"><?= t('fleet_table_localisation') ?></span>
                 <span class="value"><?= htmlspecialchars($avion['localisation'] ?? '—') ?></span>
             </div>
             <div class="carnet-info-item">
-                <span class="label"><?= t('fleet_etat') ?></span>
+                <span class="label"><?= t('fleet_table_etat') ?></span>
                 <span class="value"><?= (int)$avion['etat'] ?>%</span>
             </div>
             <div class="carnet-info-item">
-                <span class="label"><?= t('fleet_status') ?></span>
+                <span class="label"><?= t('fleet_table_status') ?></span>
                 <span class="value <?= $statusClasses[(int)$avion['status']] ?? '' ?>">
                     <?= $statusLabels[(int)$avion['status']] ?? '?' ?>
                 </span>

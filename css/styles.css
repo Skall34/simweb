@@ -1920,6 +1920,7 @@ footer {
 .carnet-info-item .value.status-ok { color: #28a745; }
 .carnet-info-item .value.status-maintenance { color: #e67e22; }
 .carnet-info-item .value.status-crash { color: #c0392b; }
+.carnet-info-item .value.status-vendu { color: #6c757d; }
 
 /* Badges */
 .badge {
