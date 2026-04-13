@@ -261,7 +261,7 @@ $statusClasses = [
                         <span class="tl-info">⏱️ <?= formatTempsVol($vol['temps_vol']) ?></span>
                         <span class="tl-info">👤 <?= htmlspecialchars($vol['pilote_callsign'] ?? '?') ?></span>
                         <span class="tl-info">📦 <?= number_format((float)$vol['payload'], 0, ',', ' ') ?> kg</span>
-                        <span class="tl-info tl-money">💰 <?= number_format((float)$vol['cout_vol'], 0, ',', ' ') ?> €</span>
+                        <span class="tl-info <?= ((float)$vol['cout_vol'] < 0) ? 'tl-cost' : 'tl-money' ?>">💰 <?= number_format((float)$vol['cout_vol'], 0, ',', ' ') ?> €</span>
                         <?php if ($vol['note_du_vol'] !== null && $vol['note_du_vol'] !== ''): ?>
                             <span class="tl-note">⭐ <?= (int)$vol['note_du_vol'] ?>/10</span>
                         <?php endif; ?>
