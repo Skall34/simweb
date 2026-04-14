@@ -76,21 +76,21 @@ try {
     // Silently fail if airports data is unavailable
 }
 
-// Historique : dernières lignes régulières effectuées (completed)
-$historyCompleted = [];
+// Top 10 des lignes régulières les plus utilisées
+$topRoutes = [];
 try {
-    $stmtHist = $pdo->query(
-        "SELECT r.date_fin, p.callsign AS pilote_callsign, lr.icao_dep, lr.icao_arr, r.immat
+    $stmtTop = $pdo->query(
+        "SELECT lr.icao_dep, lr.icao_arr, COUNT(*) AS flight_count
          FROM RESERVATIONS r
-         LEFT JOIN PILOTES p ON r.pilote_id = p.id
-         LEFT JOIN LIGNES_REGULIERES lr ON r.ligne_id = lr.id
+         INNER JOIN LIGNES_REGULIERES lr ON r.ligne_id = lr.id
          WHERE r.statut = 'completed'
-         ORDER BY r.date_fin DESC
-         LIMIT 8"
+         GROUP BY lr.icao_dep, lr.icao_arr
+         ORDER BY flight_count DESC
+         LIMIT 10"
     );
-    $historyCompleted = $stmtHist->fetchAll(PDO::FETCH_ASSOC);
+    $topRoutes = $stmtTop->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
-    $historyCompleted = [];
+    $topRoutes = [];
 }
 
 // Historique : dernières lignes régulières créées
@@ -286,39 +286,28 @@ include __DIR__ . '/../includes/menu_logged.php';
                 </div>
             </div>
 
-            <!-- Historique : dernières lignes effectuées -->
+            <!-- Top 10 des lignes les plus utilisées -->
             <div class="panel" style="margin-top:12px;">
-                <h3><?= t('lignes_history_completed_title') ?></h3>
-                <?php if (!empty($historyCompleted)): ?>
+                <h3><?= t('lignes_top_routes_title') ?></h3>
+                <?php if (!empty($topRoutes)): ?>
                         <table class="table-skywings compact" style="font-size:0.85em;">
                             <thead>
                                 <tr>
-                                    <th><?= t('lignes_history_date') ?></th>
-                                    <th><?= t('lignes_reservations_pilote') ?></th>
                                     <th><?= t('lignes_reservations_ligne') ?></th>
-                                    <th><?= t('lignes_reservations_appareil') ?></th>
+                                    <th><?= t('lignes_top_routes_count') ?></th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($historyCompleted as $hc): ?>
+                                <?php foreach ($topRoutes as $route): ?>
                                 <tr>
-                                    <td><?php
-                                        try {
-                                            $dt = new DateTime($hc['date_fin']);
-                                            echo htmlspecialchars($dt->format('d/m/Y'));
-                                        } catch (Exception $e) {
-                                            echo htmlspecialchars($hc['date_fin'] ?? '');
-                                        }
-                                    ?></td>
-                                    <td><?= htmlspecialchars($hc['pilote_callsign'] ?: 'N/A') ?></td>
-                                    <td><?= htmlspecialchars(($hc['icao_dep'] ?? '') . ' → ' . ($hc['icao_arr'] ?? '')) ?></td>
-                                    <td><?= htmlspecialchars($hc['immat'] ?? '') ?></td>
+                                    <td><?= htmlspecialchars($route['icao_dep'] . ' - ' . $route['icao_arr']) ?></td>
+                                    <td><?= (int)$route['flight_count'] ?> <?= t('lignes_top_routes_flights') ?></td>
                                 </tr>
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
                         <?php else: ?>
-                            <p class="empty-msg"><?= t('lignes_history_completed_empty') ?></p>
+                            <p class="empty-msg"><?= t('lignes_top_routes_empty') ?></p>
                         <?php endif; ?>
             </div>
 
