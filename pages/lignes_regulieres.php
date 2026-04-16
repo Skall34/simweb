@@ -76,15 +76,18 @@ try {
     // Silently fail if airports data is unavailable
 }
 
-// Top 10 des lignes régulières les plus utilisées
+// Top 10 des lignes régulières les plus utilisées (aller-retours confondus)
 $topRoutes = [];
 try {
     $stmtTop = $pdo->query(
-        "SELECT lr.icao_dep, lr.icao_arr, COUNT(*) AS flight_count
+        "SELECT 
+            LEAST(lr.icao_dep, lr.icao_arr) AS icao_a,
+            GREATEST(lr.icao_dep, lr.icao_arr) AS icao_b,
+            COUNT(*) AS flight_count
          FROM RESERVATIONS r
          INNER JOIN LIGNES_REGULIERES lr ON r.ligne_id = lr.id
          WHERE r.statut = 'completed'
-         GROUP BY lr.icao_dep, lr.icao_arr
+         GROUP BY LEAST(lr.icao_dep, lr.icao_arr), GREATEST(lr.icao_dep, lr.icao_arr)
          ORDER BY flight_count DESC
          LIMIT 10"
     );
@@ -300,7 +303,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                             <tbody>
                                 <?php foreach ($topRoutes as $route): ?>
                                 <tr>
-                                    <td><?= htmlspecialchars($route['icao_dep'] . ' - ' . $route['icao_arr']) ?></td>
+                                    <td><?= htmlspecialchars($route['icao_a'] . ' ↔ ' . $route['icao_b']) ?></td>
                                     <td><?= (int)$route['flight_count'] ?> <?= t('lignes_top_routes_flights') ?></td>
                                 </tr>
                                 <?php endforeach; ?>
