@@ -45,6 +45,7 @@ function sendSummaryMail($subject, $body, $to = null, $maxRetries = 10, $options
     $jitterSeconds = isset($options['jitterSeconds']) ? intval($options['jitterSeconds']) : 3;
     $enableLock = isset($options['enableLock']) ? (bool)$options['enableLock'] : true;
     $lockFilePath = isset($options['lockFile']) ? $options['lockFile'] : (sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'simweb_mail.lock');
+    $smtpTimeout = isset($options['smtpTimeout']) ? intval($options['smtpTimeout']) : 15;
     $lockHandle = null;
     
     // Appliquer le delai de base
@@ -92,6 +93,7 @@ function sendSummaryMail($subject, $body, $to = null, $maxRetries = 10, $options
             $mail->Password = SMTP_PASSWORD;
             $mail->SMTPSecure = defined('SMTP_SECURE') ? SMTP_SECURE : 'tls';
             $mail->Port = defined('SMTP_PORT') ? SMTP_PORT : 587;
+            $mail->Timeout = $smtpTimeout;
             $mail->setFrom(
                 defined('SMTP_FROM_EMAIL') ? SMTP_FROM_EMAIL : SMTP_USERNAME,
                 defined('SMTP_FROM_NAME') ? SMTP_FROM_NAME : 'Virtual Airline'

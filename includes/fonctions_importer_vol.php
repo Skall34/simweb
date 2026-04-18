@@ -91,7 +91,7 @@ function deduireFretDepart($icao, $fret_demande, $logFile = null) {
  * @param string $mission
  * @return bool True si doublon trouvé, False sinon
  */
-function detecterDoublonVol($pdo, $callsign, $depart, $dest, $fuelDep, $fuelArr, $payload, $note, $mission, $logFile = null) {
+function detecterDoublonVol($pdo, $callsign, $depart, $dest, $fuelDep, $fuelArr, $payload, $note, $mission, $logFile = null, $date_ref = null) {
     // Récupérer l'id du pilote à partir du callsign
     $stmtPilote = $pdo->prepare("SELECT id FROM PILOTES WHERE callsign = :callsign");
     $stmtPilote->execute(['callsign' => $callsign]);
@@ -108,7 +108,23 @@ function detecterDoublonVol($pdo, $callsign, $depart, $dest, $fuelDep, $fuelArr,
     // Vérification dans CARNET_DE_VOL_GENERAL uniquement
     // Note retirée des critères : elle peut varier selon l'évaluation ACARS
     // On utilise une tolérance de 1 sur les valeurs flottantes pour éviter les problèmes d'arrondis
-    // Et on limite la recherche aux dernières 24 heures pour optimiser les performances
+    // La fenêtre temporelle est centrée sur $date_ref si fourni (saisie manuelle de vols passés),
+    // sinon sur NOW() (import ACARS en temps réel).
+    $params = [
+        'pilote_id' => $pilote_id,
+        'depart' => $depart,
+        'dest' => $dest,
+        'fuelDep' => $fuelDep,
+        'fuelArr' => $fuelArr,
+        'payload' => $payload,
+        'mission' => $mission
+    ];
+    if ($date_ref !== null) {
+        $dateFilter = "AND date_vol BETWEEN DATE_SUB(:date_ref, INTERVAL 24 HOUR) AND DATE_ADD(:date_ref, INTERVAL 24 HOUR)";
+        $params['date_ref'] = $date_ref;
+    } else {
+        $dateFilter = "AND date_vol >= DATE_SUB(NOW(), INTERVAL 24 HOUR)";
+    }
     $sqlCarnet = "SELECT COUNT(*) FROM CARNET_DE_VOL_GENERAL 
                   WHERE pilote_id = :pilote_id 
                   AND depart = :depart 
@@ -117,17 +133,9 @@ function detecterDoublonVol($pdo, $callsign, $depart, $dest, $fuelDep, $fuelArr,
                   AND ABS(fuel_arrivee - :fuelArr) < 1 
                   AND ABS(payload - :payload) < 1 
                   AND mission_id = (SELECT id FROM MISSIONS WHERE libelle = :mission LIMIT 1)
-                  AND date_vol >= DATE_SUB(NOW(), INTERVAL 24 HOUR)";
+                  $dateFilter";
     $stmtCarnet = $pdo->prepare($sqlCarnet);
-    $stmtCarnet->execute([
-        'pilote_id' => $pilote_id,
-        'depart' => $depart,
-        'dest' => $dest,
-        'fuelDep' => $fuelDep,
-        'fuelArr' => $fuelArr,
-        'payload' => $payload,
-        'mission' => $mission
-    ]);
+    $stmtCarnet->execute($params);
     $countCarnet = $stmtCarnet->fetchColumn();
     logMsg("[detecterDoublonVol] 📗 Vols dans CARNET_DE_VOL_GENERAL : $countCarnet", $logFile);
     

@@ -1764,5 +1764,33 @@ Costo total mantenimiento: 1.000,00 €
     'carnet_etat' => 'Estado',
     'carnet_pilotes_title' => 'Pilotos que usaron este avión',
     'carnet_vols' => 'vuelos',
+    
+    // doc_cleanup_orphan_reservations.php
+    'doc_cleanup_reservations_title' => 'Script: Limpieza de reservas huérfanas',
+    'doc_cleanup_reservations_objectif_title' => 'Objetivo',
+    'doc_cleanup_reservations_objectif_text' => 'Este script detecta y completa automáticamente las reservas que quedan bloqueadas mientras el vuelo correspondiente ya ha sido registrado. Esto puede ocurrir si el cliente ACARS no pudo llamar a la API de finalización (timeout de red, crash del cliente, etc.).',
+    'doc_cleanup_reservations_cas_title' => 'Casos tratados',
+    'doc_cleanup_reservations_cas1' => 'Reserva en estado "in_flight" cuyo vuelo está terminado y registrado.',
+    'doc_cleanup_reservations_cas2' => 'Reserva en estado "reserved" cuyo vuelo fue enviado sin pasar por la API consume.',
+    'doc_cleanup_reservations_logique_title' => 'Lógica de detección',
+    'doc_cleanup_reservations_logique_text' => 'Para cada reserva activa, el script busca un vuelo correspondiente en',
+    'doc_cleanup_reservations_logique_criteres' => 'Criterios de correspondencia:',
+    'doc_cleanup_reservations_logique_c1' => 'Mismo piloto',
+    'doc_cleanup_reservations_logique_c2' => 'Mismo avión (matrícula)',
+    'doc_cleanup_reservations_logique_c3' => 'Aeropuertos correspondientes a la ruta (en ambas direcciones)',
+    'doc_cleanup_reservations_logique_c4' => 'Vuelo registrado después de la fecha de reserva',
+    'doc_cleanup_reservations_actions_title' => 'Acciones realizadas',
+    'doc_cleanup_reservations_action1' => 'Marca la reserva como "completed" con fecha de fin.',
+    'doc_cleanup_reservations_action2' => 'Libera el avión poniendo',
+    'doc_cleanup_reservations_action3' => 'Registra la operación en',
+    'doc_cleanup_reservations_automatisation_title' => 'Automatización y uso',
+    'doc_cleanup_reservations_auto1' => 'Frecuencia recomendada: cada 10-15 minutos.',
+    'doc_cleanup_reservations_auto2' => 'Puede ejecutarse manualmente o vía CRON.',
+    'doc_cleanup_reservations_auto3' => 'En caso de problemas, consultar el log',
+    'doc_cleanup_reservations_auto3_suite' => 'para diagnóstico.',
+    'doc_cleanup_reservations_exemple_title' => 'Ejemplo de log',
+    'doc_cleanup_reservations_exemple_log' => '[2025-07-20 14:15:01] === Inicio del script cleanup_orphan_reservations ===
+[2025-07-20 14:15:01] Reserva #42 completada (piloto: FWA001, avión: F-ABCD, vuelo #1234 del 2025-07-20)
+[2025-07-20 14:15:01] Terminado - Verificadas: 3, Limpiadas: 1',
 ];
 ?>

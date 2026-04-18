@@ -137,7 +137,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (!$avion) $erreurs_proc[] = "Avion '$immat' introuvable ou inactif.";
 
                 // doublon
-                if (function_exists('detecterDoublonVol') && detecterDoublonVol($pdo, $callsign, $departure_icao, $arrival_icao, $departure_fuel, $arrival_fuel, $payload, $note, $mission, $logFile)) {
+                if (function_exists('detecterDoublonVol') && detecterDoublonVol($pdo, $callsign, $departure_icao, $arrival_icao, $departure_fuel, $arrival_fuel, $payload, $note, $mission, $logFile, $departure_time)) {
                     $erreurs_proc[] = "Vol doublon détecté pour le pilote '$callsign'.";
                 }
 
@@ -202,7 +202,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $cout_vol_fmt = number_format(floatval($cout_vol), 2, ',', '');
                         $body .= "Recettes du vol : {$cout_vol_fmt} €\n";
                         $to = VA_ADMIN_EMAIL;
-                        $mailResult = sendSummaryMail($subject, $body, $to);
+                        $mailResult = sendSummaryMail($subject, $body, $to, 1, ['smtpTimeout' => 10, 'enableLock' => false]);
                         if ($mailResult === true || $mailResult === null || (is_array($mailResult) && !empty($mailResult['success']))) {
                             logMsg("[saisie_manuelle] Mail recapitulatif envoye a $to", $logFile);
                         } else {

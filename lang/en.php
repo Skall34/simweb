@@ -1759,5 +1759,33 @@ Total maintenance cost: 1,000.00 €
     'carnet_etat' => 'Condition',
     'carnet_pilotes_title' => 'Pilots who flew this aircraft',
     'carnet_vols' => 'flights',
+    
+    // doc_cleanup_orphan_reservations.php
+    'doc_cleanup_reservations_title' => 'Script: Orphan Reservations Cleanup',
+    'doc_cleanup_reservations_objectif_title' => 'Purpose',
+    'doc_cleanup_reservations_objectif_text' => 'This script automatically detects and completes reservations that remain stuck while the corresponding flight has already been recorded. This can happen if the ACARS client could not call the completion API (network timeout, client crash, etc.).',
+    'doc_cleanup_reservations_cas_title' => 'Cases handled',
+    'doc_cleanup_reservations_cas1' => 'Reservation in "in_flight" status whose flight is completed and recorded.',
+    'doc_cleanup_reservations_cas2' => 'Reservation in "reserved" status whose flight was submitted without going through the consume API.',
+    'doc_cleanup_reservations_logique_title' => 'Detection logic',
+    'doc_cleanup_reservations_logique_text' => 'For each active reservation, the script searches for a matching flight in',
+    'doc_cleanup_reservations_logique_criteres' => 'Matching criteria:',
+    'doc_cleanup_reservations_logique_c1' => 'Same pilot',
+    'doc_cleanup_reservations_logique_c2' => 'Same aircraft (registration)',
+    'doc_cleanup_reservations_logique_c3' => 'Airports matching the route (in both directions)',
+    'doc_cleanup_reservations_logique_c4' => 'Flight recorded after the reservation date',
+    'doc_cleanup_reservations_actions_title' => 'Actions performed',
+    'doc_cleanup_reservations_action1' => 'Marks the reservation as "completed" with end date.',
+    'doc_cleanup_reservations_action2' => 'Releases the aircraft by setting',
+    'doc_cleanup_reservations_action3' => 'Logs the operation in',
+    'doc_cleanup_reservations_automatisation_title' => 'Automation & usage',
+    'doc_cleanup_reservations_auto1' => 'Recommended frequency: every 10-15 minutes.',
+    'doc_cleanup_reservations_auto2' => 'Can be run manually or via CRON.',
+    'doc_cleanup_reservations_auto3' => 'In case of issues, check the log',
+    'doc_cleanup_reservations_auto3_suite' => 'for troubleshooting.',
+    'doc_cleanup_reservations_exemple_title' => 'Log example',
+    'doc_cleanup_reservations_exemple_log' => '[2025-07-20 14:15:01] === Starting cleanup_orphan_reservations script ===
+[2025-07-20 14:15:01] Reservation #42 completed (pilot: FWA001, aircraft: F-ABCD, flight #1234 from 2025-07-20)
+[2025-07-20 14:15:01] Done - Checked: 3, Cleaned: 1',
 ];
 ?>
