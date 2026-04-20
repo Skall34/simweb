@@ -120,8 +120,9 @@ function detecterDoublonVol($pdo, $callsign, $depart, $dest, $fuelDep, $fuelArr,
         'mission' => $mission
     ];
     if ($date_ref !== null) {
-        $dateFilter = "AND date_vol BETWEEN DATE_SUB(:date_ref, INTERVAL 24 HOUR) AND DATE_ADD(:date_ref, INTERVAL 24 HOUR)";
-        $params['date_ref'] = $date_ref;
+        $dateFilter = "AND date_vol BETWEEN DATE_SUB(:date_ref1, INTERVAL 24 HOUR) AND DATE_ADD(:date_ref2, INTERVAL 24 HOUR)";
+        $params['date_ref1'] = $date_ref;
+        $params['date_ref2'] = $date_ref;
     } else {
         $dateFilter = "AND date_vol >= DATE_SUB(NOW(), INTERVAL 24 HOUR)";
     }

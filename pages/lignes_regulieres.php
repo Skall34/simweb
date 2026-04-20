@@ -146,6 +146,17 @@ try {
     $matrixData = [];
 }
 
+// Toutes les liaisons existantes (tous types) pour distinguer "jamais volée" de "inexistante"
+$allExistingRoutes = [];
+try {
+    $stmtAllRoutes = $pdo->query("SELECT icao_dep, icao_arr FROM LIGNES_REGULIERES");
+    while ($row = $stmtAllRoutes->fetch(PDO::FETCH_ASSOC)) {
+        $allExistingRoutes[$row['icao_dep']][$row['icao_arr']] = true;
+    }
+} catch (PDOException $e) {
+    $allExistingRoutes = [];
+}
+
 include __DIR__ . '/../includes/header.php';
 include __DIR__ . '/../includes/menu_logged.php';
 ?>
@@ -375,11 +386,17 @@ include __DIR__ . '/../includes/menu_logged.php';
                                 <?php foreach ($matrixArrs as $matArr): ?>
                                 <td style="border:1px solid #ccc; padding:4px 7px;">
                                     <?php
-                                    // Cas 1 : même aéroport (cellule grisée avec croix) ou si pas de ligne régulière de ce type entre ces aéroports (cellule grisée avec tiret)
+                                    // Cas 1 : même aéroport (cellule grisée avec croix)
+                                    // Cas 2 : liaison absente de la matrice filtrée mais existante dans LIGNES_REGULIERES → jamais volée
+                                    // Cas 3 : liaison vraiment inexistante → tiret
                                     if ($matDep === $matArr) {
                                         echo '<span style="color:#ccc;font-size:1.1em;">&#215;</span>';
                                     } elseif (!(isset($matrixData[$matDep]) && array_key_exists($matArr, $matrixData[$matDep]))) {
-                                        echo '<span style="color:#ccc;">&#8212;</span>';
+                                        if (isset($allExistingRoutes[$matDep][$matArr])) {
+                                            echo '<span style="background:#e9ecef;color:#6c757d;padding:2px 6px;border-radius:4px;">' . t('lignes_matrix_never') . '</span>';
+                                        } else {
+                                            echo '<span style="color:#ccc;">&#8212;</span>';
+                                        }
                                     } else {
                                         $lastFlight = $matrixData[$matDep][$matArr];
                                         if ($lastFlight === null) {
