@@ -7,7 +7,7 @@ require_once __DIR__ . '/../../includes/menu_logged.php';
     <h1 style="text-align:center;color:#1a3552;margin-top:24px;margin-bottom:18px;">Circuit Des Alpages</h1>
     <div style="display:flex;justify-content:center;margin-bottom:24px;">
         <!-- Ajoutez une image ici si nécessaire -->
-        <img src="/assets/images/ciruit_alpages.png" alt="Circuit Des Alpages" style="max-width:600px;width:100%;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+        <img src="/assets/images/circuit_alpages.png" alt="Circuit Des Alpages" style="max-width:600px;width:100%;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
     </div>
     <section style="max-width:700px;margin:0 auto 32px auto;font-size:1.15em;line-height:1.6;background:#f7fbff;padding:24px;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
         <h2 style="color:#1a3552;">Description de la mission</h2>
