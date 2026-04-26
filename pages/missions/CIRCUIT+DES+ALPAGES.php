@@ -18,7 +18,6 @@ require_once __DIR__ . '/../../includes/menu_logged.php';
             La dernière étape vous conduira jusqu'à Barcelonette, charmante ville des Alpes-de-Haute-Provence, nichée au cœur d'un vallon préservé.
             Ce circuit vous offre une diversité de paysages exceptionnelle : lacs alpins, sommets enneigés, prairies verdoyantes et villages perchés.
             Un vol idéal pour découvrir la région en toute tranquilité !</p>
-        <code>pages/missions/CIRCUIT+DES+ALPAGES.php</code></p>
         
         <!-- Ajoutez une carte Google Maps si nécessaire -->
         <div style="text-align:center;margin:18px 0;">
