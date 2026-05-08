@@ -14,45 +14,23 @@
  *   - Envoi d'un mail récapitulatif à l'administrateur
  *
  * Accès :
- *   Via CRON (hébergeur) : https://votresite.com/scripts/promotion_grades_pilotes.php?token=VOTRE_TOKEN_SECRET
- *   Mode dry-run : https://votresite.com/scripts/promotion_grades_pilotes.php?token=VOTRE_TOKEN_SECRET&dry-run=1
+ *   Via CRON (hébergeur) : https://votresite.com/scripts/promotion_grades_pilotes.php
+ *   Mode dry-run : https://votresite.com/scripts/promotion_grades_pilotes.php?dry-run=1
  */
 
-// Protection par token
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/mail_utils.php';
 require_once __DIR__ . '/../includes/log_func.php';
 require_once __DIR__ . '/../lang.php';
 
-// Token attendu — défini dans includes/config.php via : define('CRON_SECRET_TOKEN', '...');
-if (!defined('CRON_SECRET_TOKEN')) {
-    die('CRON_SECRET_TOKEN non défini dans config.php');
-}
-
-// Accepte le token via HTTP (?token=...) ou en CLI (php script.php votre_token)
-$provided_token = php_sapi_name() === 'cli'
-    ? ($argv[1] ?? '')
-    : ($_GET['token'] ?? '');
-
-if ($provided_token !== CRON_SECRET_TOKEN) {
-    if (php_sapi_name() !== 'cli') {
-        http_response_code(403);
-    }
-    die('Accès refusé');
-}
-
-// Définir la langue par défaut pour les scripts (pas de session)
-if (!isset($_SESSION['lang'])) {
-    $_SESSION['lang'] = VA_DEFAULT_LANGUAGE;
-}
-
 // Mode dry run (simuler sans modifier la base ni envoyer de mails)
-// Supporte les deux modes : ligne de commande (php script.php token --dry-run) et HTTP (?dry-run=1)
-$dryRun = (isset($argv[2]) && $argv[2] === '--dry-run') || (isset($_GET['dry-run']) && $_GET['dry-run'] == '1');
+$dryRun = (isset($argv[1]) && $argv[1] === '--dry-run') || (isset($_GET['dry-run']) && $_GET['dry-run'] == '1');
 
 // Définir le type de sortie
-header('Content-Type: text/plain; charset=utf-8');
+if (php_sapi_name() !== 'cli') {
+    header('Content-Type: text/plain; charset=utf-8');
+}
 
 if ($dryRun) {
     echo "========================================\n";
@@ -123,11 +101,11 @@ foreach ($pilotes as $pilote) {
 
             // Envoyer un mail de notification au pilote
             $to = $pilote['email'];
-            $subject = t('script_promotion_subject', ['grade' => $grade_nom]);
-            $message = t('script_promotion_greeting', ['firstname' => htmlspecialchars($pilote['prenom']), 'lastname' => htmlspecialchars($pilote['nom'])]) . "<br><br>";
-            $message .= t('script_promotion_congrats', ['grade' => $grade_nom]) . "<br>";
-            $message .= t('script_promotion_continue') . "<br><br>";
-            $message .= t('script_promotion_team');
+            $subject = t_mail('script_promotion_subject', ['grade' => $grade_nom]);
+            $message = t_mail('script_promotion_greeting', ['firstname' => htmlspecialchars($pilote['prenom']), 'lastname' => htmlspecialchars($pilote['nom'])]) . "<br><br>";
+            $message .= t_mail('script_promotion_congrats', ['grade' => $grade_nom]) . "<br>";
+            $message .= t_mail('script_promotion_continue') . "<br><br>";
+            $message .= t_mail('script_promotion_team');
             
             $mailResult = sendSummaryMail($subject, $message, $to);
             if ($mailResult === true || $mailResult === null || (is_array($mailResult) && !empty($mailResult['success']))) {
@@ -152,10 +130,10 @@ foreach ($pilotes as $pilote) {
 // Envoyer le mail récapitulatif à l'administrateur
 if (!$dryRun) {
     if (!empty($promotions)) {
-        $subject = t('script_promotion_recap_subject');
-        $body = t('script_promotion_recap_greeting') . "<br><br>";
-        $body .= t('script_promotion_recap_intro') . "<br><pre>" . implode("", $promotions) . "</pre><br>";
-        $body .= t('script_promotion_recap_signature');
+        $subject = t_mail('script_promotion_recap_subject');
+        $body = t_mail('script_promotion_recap_greeting') . "<br><br>";
+        $body .= t_mail('script_promotion_recap_intro') . "<br><pre>" . implode("", $promotions) . "</pre><br>";
+        $body .= t_mail('script_promotion_recap_signature');
         $mailResult = sendSummaryMail($subject, $body, VA_ADMIN_EMAIL);
         if ($mailResult === true || $mailResult === null || (is_array($mailResult) && !empty($mailResult['success']))) {
             logMsg("Mail recapitulatif envoye a " . VA_ADMIN_EMAIL, __DIR__ . '/logs/promotion_grades.log');
@@ -168,10 +146,10 @@ if (!$dryRun) {
             logMsg("Erreur lors de l'envoi du mail recapitulatif : $errMsg", __DIR__ . '/logs/promotion_grades.log');
         }
     } else {
-        $subject = t('script_promotion_recap_subject');
-        $body = t('script_promotion_recap_greeting') . "<br><br>";
-        $body .= t('script_promotion_recap_none') . "<br><br>";
-        $body .= t('script_promotion_recap_signature');
+        $subject = t_mail('script_promotion_recap_subject');
+        $body = t_mail('script_promotion_recap_greeting') . "<br><br>";
+        $body .= t_mail('script_promotion_recap_none') . "<br><br>";
+        $body .= t_mail('script_promotion_recap_signature');
         $mailResult = sendSummaryMail($subject, $body, VA_ADMIN_EMAIL);
         if ($mailResult === true || $mailResult === null || (is_array($mailResult) && !empty($mailResult['success']))) {
             logMsg("Mail récapitulatif (aucune promotion) envoyé à " . VA_ADMIN_EMAIL, __DIR__ . '/logs/promotion_grades.log');
