@@ -39,6 +39,7 @@ require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/log_func.php';
 require_once __DIR__ . '/../includes/mail_utils.php';
 require_once __DIR__ . '/../includes/fonctions_financieres.php';
+require_once __DIR__ . '/../includes/fonctions_maintenance.php';
 require_once __DIR__ . '/../lang.php';
 require_once __DIR__ . '/../includes/config.php';
 if (!isset($_SESSION['lang'])) $_SESSION['lang'] = VA_DEFAULT_LANGUAGE;
@@ -46,26 +47,6 @@ if (!isset($_SESSION['lang'])) $_SESSION['lang'] = VA_DEFAULT_LANGUAGE;
 $logFile = __DIR__ . '/logs/maintenance.log';
 
 date_default_timezone_set('Europe/Paris');
-
-// Fonction pour logger dans MAINTENANCES_LOG
-function logMaintenance($pdo, $appareil_id, $type, $etat_avant, $etat_apres, $cout, $commentaire, $logFile) {
-    try {
-        $stmt = $pdo->prepare("
-            INSERT INTO MAINTENANCES_LOG (appareil_id, type_maintenance, etat_avant, etat_apres, cout, commentaire)
-            VALUES (:appareil_id, :type_maintenance, :etat_avant, :etat_apres, :cout, :commentaire)
-        ");
-        $stmt->execute([
-            'appareil_id' => $appareil_id,
-            'type_maintenance' => $type,
-            'etat_avant' => $etat_avant,
-            'etat_apres' => $etat_apres,
-            'cout' => $cout,
-            'commentaire' => $commentaire
-        ]);
-    } catch (PDOException $e) {
-        logMsg("Erreur log MAINTENANCES_LOG : " . $e->getMessage(), $logFile);
-    }
-}
 
 try {
     logMsg("--- Début maintenance ---", $logFile);

@@ -33,6 +33,7 @@ require_once __DIR__ . '/../includes/log_func.php';
 require_once __DIR__ . '/../includes/mail_utils.php';
 require_once __DIR__ . '/../includes/fonctions_financieres.php';
 require_once __DIR__ . '/../includes/fonctions_importer_vol.php';
+require_once __DIR__ . '/../includes/fonctions_maintenance.php';
 require_once __DIR__ . '/../includes/calcul_cout.php';
 require_once __DIR__ . '/../lang.php';
 
@@ -230,6 +231,8 @@ try {
                 $commentaire_crash = "Maintenance crash (×$multiplicateur_crash) — $immat ($type_nom_crash)";
                 mettreAJourDepenses($cout_crash, $vol_id, $immat, $callsign, 'maintenance_crash', $commentaire_crash);
                 logMsg("[api_import_vol_direct] Coût maintenance crash enregistré : {$cout_crash} € pour $immat (×$multiplicateur_crash)", $logFile);
+                // Enregistrement dans MAINTENANCES_LOG
+                logMaintenance($pdo, $avionCrashId, 'crash', 0, 0, $cout_crash, $commentaire_crash, $logFile);
             }
         }
     }
@@ -253,6 +256,12 @@ try {
         // Formater le montant de la recette avec une virgule comme séparateur décimal
         $cout_vol_fmt = number_format(floatval($cout_vol), 2, ',', '');
         $body .= "Recettes du vol : {$cout_vol_fmt} EUR\r\n";
+        if ($note === 1 && isset($cout_crash)) {
+            $cout_crash_fmt = number_format(floatval($cout_crash), 2, ',', '');
+            $body .= "\r\n/!\\ CRASH DETECTE /!\\\r\n";
+            $body .= "L'appareil $immat_clean a ete place en maintenance crash immediate.\r\n";
+            $body .= "Cout maintenance crash (x$multiplicateur_crash) : {$cout_crash_fmt} EUR\r\n";
+        }
         
         $body .= "\r\n\r\nCeci est un message automatique.\r\n";
         $to = VA_ADMIN_EMAIL;
