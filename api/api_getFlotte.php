@@ -34,13 +34,19 @@ try {
     F.en_vol, 
     P.callsign, 
     F.etat,
-    F.reservee
+    F.reservee,
+    F.status,
+    PRESA.callsign AS reserved_by
 FROM 
     FLOTTE F
 LEFT JOIN 
     FLEET_TYPE FT ON F.fleet_type = FT.id
 LEFT JOIN 
     PILOTES P ON F.dernier_utilisateur = P.id
+LEFT JOIN 
+    RESERVATIONS R ON R.immat = F.immat AND R.statut IN ('reserved', 'in_flight')
+LEFT JOIN 
+    PILOTES PRESA ON R.pilote_id = PRESA.id
 WHERE 
     F.actif = 1
 ORDER BY 
