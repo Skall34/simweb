@@ -65,11 +65,11 @@ For guest-accessible pages (about, contact, register), use `menu_guest.php` inst
 ## Database Conventions
 
 - **Global `$pdo`** provided by `includes/db_connect.php` — PDO with `ERRMODE_EXCEPTION`, `FETCH_ASSOC`
-- **Table names are UPPERCASE**: `PILOTES`, `FLOTTE`, `FLEET_TYPE`, `RESERVATIONS`, `CARNET_DE_VOL_GENERAL`, `AEROPORTS`, `BALANCE_COMMERCIALE`, `GRADES`, `MISSIONS`, `MAINTENANCES_LOG`, `SALAIRES`, `VARIABLES_CONFIG`, `LIGNES_REGULIERES`
-- **Financial tables are lowercase**: `finances_recettes`, `finances_depenses`
-- **System tables**: `rate_limits`, `simaddon_tokens`
+- **Most table names are UPPERCASE**: `PILOTES`, `FLOTTE`, `FLEET_TYPE`, `RESERVATIONS`, `CARNET_DE_VOL_GENERAL`, `AEROPORTS`, `BALANCE_COMMERCIALE`, `GRADES`, `MISSIONS`, `MAINTENANCES_LOG`, `SALAIRES`, `VARIABLES_CONFIG`, `LIGNES_REGULIERES`. Exceptions: financial tables (`finances_recettes`, `finances_depenses`) and system tables are lowercase. New tables should follow UPPERCASE unless extending an existing lowercase group.
+- **System tables** (lowercase): `rate_limits`, `simaddon_tokens`
 - **Always use prepared statements** with named (`:param`) or positional (`?`) placeholders — never concatenate user input
 - Functions use `global $pdo` (no dependency injection)
+- **Error handling**: wrap database operations in `try/catch` blocks. Log errors with `logMsg()` from `includes/log_func.php`. Never expose raw SQL errors to users — display a generic translated error message using `t('error_generic')`
 
 ---
 
@@ -83,7 +83,7 @@ All user-visible strings **must** use the translation system:
 1. Add/update the key in **all three** lang files: `lang/fr.php`, `lang/en.php`, `lang/es.php`
 2. Use `lang/check_keys.php` to verify key parity
 3. Key naming convention: `pagename_elementname` (e.g., `finances_title`, `menu_home`)
-4. Placeholders: `:param` or `{param}` syntax
+4. Placeholders: use `{param}` syntax for new translation keys. The `:param` syntax is legacy — do not introduce new keys using it
 5. Auto-replaced: `{VA_NAME}`, `{VA_CONTACT_EMAIL}`, `{VA_ADMIN_EMAIL}`, `{year}`
 
 ---
@@ -129,7 +129,7 @@ All user-visible strings **must** use the translation system:
 
 Before submitting any code:
 - [ ] All user input uses PDO prepared statements (no string concatenation in SQL)
-- [ ] Output is escaped with `htmlspecialchars()` where appropriate
+- [ ] All user-supplied or database-sourced values rendered in HTML are escaped with `htmlspecialchars($val, ENT_QUOTES, 'UTF-8')`. Only omit escaping for trusted HTML fragments explicitly marked as safe in code comments
 - [ ] No inline CSS added
 - [ ] No hardcoded strings — all UI text uses `t('key')`
 - [ ] Login/admin guards are in place where needed
