@@ -48,7 +48,8 @@ $mois_courant = date('Y-m'); // Ex: "2026-03"
 
 try {
     // Sélectionner tous les avions à crédit actifs avec des mois restants
-    $sql = "SELECT * FROM FLOTTE WHERE nb_mois_restants > 0 AND reste_a_payer > 0 AND Actif = 1";
+    // Joindre FLEET_TYPE pour récupérer le prix d'achat (`cout_appareil`) si présent
+    $sql = "SELECT f.*, ft.cout_appareil AS prix_original FROM FLOTTE f LEFT JOIN FLEET_TYPE ft ON f.fleet_type = ft.id WHERE f.nb_mois_restants > 0 AND f.reste_a_payer > 0 AND f.Actif = 1";
     $stmt = $pdo->query($sql);
     $finances = $stmt->fetchAll(PDO::FETCH_ASSOC);
     $count = 0;
@@ -77,8 +78,22 @@ try {
         $taux_mensuel = floatval($row['taux_percent']) / 100 / 12;
         $reste_a_payer = floatval($row['reste_a_payer']);
         $traite_payee_cumulee = floatval($row['traite_payee_cumulee']);
-        $capital_initial = floatval($row['remboursement']); // montant total du prêt (fixe)
+
+        // Déterminer le capital initial (principal du prêt).
+        // Priorité à un champ explicite `prix_original` si présent, sinon somme du déjà payé + restant.
+        if (!empty($row['prix_original'])) {
+            $capital_initial = floatval($row['prix_original']);
+        } else {
+            $capital_initial = round($reste_a_payer + $traite_payee_cumulee, 2);
+        }
+
         $nb_total_mois = intval($row['nb_annees_credit']) * 12; // durée originale (fixe)
+
+        // Validations basiques
+        if ($capital_initial <= 0) {
+            logMsg("Avion $immat : capital initial invalide (capital_initial=$capital_initial)", $logFile);
+            continue;
+        }
 
         // Calculer la mensualité fixe à partir du capital initial et de la durée originale
         if ($nb_total_mois > 0 && $taux_mensuel > 0) {
@@ -106,6 +121,18 @@ try {
         if ($nouveau_reste < 0.01) $nouveau_reste = 0; // Éviter les résidus d'arrondi
         $nouveau_traite = round($traite_payee_cumulee + $mensualite_fixe, 2);
         $nouveau_mois_restants = $nb_mois_restants - 1;
+
+        // Vérification de cohérence: comparer (déjà payé + reste) vs capital initial
+        $sum_before = round($traite_payee_cumulee + $reste_a_payer, 2);
+        if ($capital_initial > 0) {
+            $diff_pct = abs($sum_before - $capital_initial) / $capital_initial * 100;
+        } else {
+            $diff_pct = 0;
+        }
+        if ($diff_pct > 2) { // seuil 2%
+            $erreurs_coherence[] = $immat;
+            logMsg("Avion $immat : incohérence capital (sum_paid=$sum_before, capital_initial=$capital_initial, diff_pct=" . round($diff_pct,2) . "%)", $logFile);
+        }
 
         // Mise à jour en base
         $sqlUpdate = "UPDATE FLOTTE SET traite_payee_cumulee = :traite, reste_a_payer = :reste, 

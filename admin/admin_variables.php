@@ -46,10 +46,10 @@ $variables = [
     'taux_assurance' => [
         'label' => t('admin_variables_label_taux_assurance'),
         'type' => 'number',
-        'step' => '1',
+        'step' => '0.1',
         'min' => '0',
         'max' => '100',
-        'default' => '2'
+        'default' => '1'
     ],
     'reservation_timeout_hours' => [
         'label' => t('admin_variables_label_reservation_timeout_hours'),
@@ -118,7 +118,7 @@ foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
                 <label style="display:flex;flex-direction:column;font-weight:600;color:#1a3552;">
                     <?= $info['label'] ?>
                     <?php if ($key === 'taux_assurance'): ?>
-                        <input type="number" name="taux_assurance" step="1" min="0" max="100" value="<?= isset($values['taux_assurance']) ? round(floatval($values['taux_assurance'])*100) : $info['default'] ?>" style="margin-top:6px;padding:8px 10px;border-radius:4px;border:1px solid #bbb;max-width:220px;">
+                        <input type="number" name="taux_assurance" step="0.1" min="0" max="100" value="<?= isset($values['taux_assurance']) ? round(floatval($values['taux_assurance'])*100, 1) : $info['default'] ?>" style="margin-top:6px;padding:8px 10px;border-radius:4px;border:1px solid #bbb;max-width:220px;">
                     <?php else: ?>
                         <input type="<?= $info['type'] ?>" name="<?= $key ?>" step="<?= $info['step'] ?>" value="<?= htmlspecialchars($values[$key] ?? $info['default']) ?>" style="margin-top:6px;padding:8px 10px;border-radius:4px;border:1px solid #bbb;max-width:220px;">
                     <?php endif; ?>
