@@ -155,7 +155,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                         t('fleet_detail_recettes') => number_format(floatval($avion['recettes_calculees'] ?? 0), 2, ',', ' ') . ' €',
                         t('fleet_detail_annees_credit') => $avion['nb_annees_credit'] ?? '',
                         t('fleet_detail_taux_credit') => ($avion['taux_percent'] ?? '') . ' %',
-                        t('fleet_detail_mensualite') => $avion['mode_achat'] === 'credit' && intval($avion['nb_annees_credit']) > 0 && floatval($avion['taux_percent']) > 0 ? number_format(floatval($avion['remboursement']) * ((floatval($avion['taux_percent']) / 100 / 12) / (1 - pow(1 + floatval($avion['taux_percent']) / 100 / 12, -(intval($avion['nb_annees_credit']) * 12)))), 2, ',', ' ') . ' €' : t('fleet_text_na'),
+                        t('fleet_detail_mensualite') => $avion['mode_achat'] === 'credit' && floatval($avion['remboursement']) > 0 ? number_format(floatval($avion['remboursement']), 2, ',', ' ') . ' €' : t('fleet_text_na'),
                         t('fleet_detail_mois_restants') => $avion['nb_mois_restants'] ?? '',
                         t('fleet_detail_traite_payee') => ($avion['traite_payee_cumulee'] ?? '') . ' €',
                         t('fleet_detail_reste_payer') => ($avion['reste_a_payer'] ?? '') . ' €',

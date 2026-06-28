@@ -130,8 +130,8 @@ $stats['nb_avions'] = intval($pdo->query("SELECT COUNT(*) FROM FLOTTE WHERE Acti
 $stats['valeur_flotte'] = floatval($pdo->query("SELECT COALESCE(SUM(ft.cout_appareil), 0) FROM FLOTTE f JOIN FLEET_TYPE ft ON f.fleet_type = ft.id WHERE f.Actif = 1")->fetchColumn());
 
 // Avions à crédit
-$stats['nb_credit'] = intval($pdo->query("SELECT COUNT(*) FROM FLOTTE WHERE mode_achat = 'credit' AND reste_a_payer > 0 AND Actif = 1")->fetchColumn());
-$stats['dette_totale'] = floatval($pdo->query("SELECT COALESCE(SUM(reste_a_payer), 0) FROM FLOTTE WHERE mode_achat = 'credit' AND reste_a_payer > 0 AND Actif = 1")->fetchColumn());
+$stats['nb_credit'] = intval($pdo->query("SELECT COUNT(*) FROM FLOTTE WHERE mode_achat = 'credit' AND nb_mois_restants > 0 AND Actif = 1")->fetchColumn());
+$stats['dette_totale'] = floatval($pdo->query("SELECT COALESCE(SUM(reste_a_payer), 0) FROM FLOTTE WHERE mode_achat = 'credit' AND nb_mois_restants > 0 AND Actif = 1")->fetchColumn());
 
 // =============================================
 // LOGIQUE DU "MOOD" DU TRÉSORIER

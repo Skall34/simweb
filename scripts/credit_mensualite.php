@@ -49,12 +49,13 @@ $mois_courant = date('Y-m'); // Ex: "2026-03"
 try {
     // Sélectionner tous les avions à crédit actifs avec des mois restants
     // Joindre FLEET_TYPE pour récupérer le prix d'achat (`cout_appareil`) si présent
-    $sql = "SELECT f.*, ft.cout_appareil AS prix_original FROM FLOTTE f LEFT JOIN FLEET_TYPE ft ON f.fleet_type = ft.id WHERE f.nb_mois_restants > 0 AND f.reste_a_payer > 0 AND f.Actif = 1";
+    $sql = "SELECT f.*, ft.cout_appareil AS prix_original FROM FLOTTE f LEFT JOIN FLEET_TYPE ft ON f.fleet_type = ft.id WHERE f.nb_mois_restants > 0 AND f.mode_achat = 'credit' AND f.Actif = 1";
     $stmt = $pdo->query($sql);
     $finances = $stmt->fetchAll(PDO::FETCH_ASSOC);
     $count = 0;
     $immat_mis_a_jour = [];
     $erreurs_coherence = [];
+    $credits_soldes = [];
 
     if (count($finances) == 0) {
         logMsg("Aucun appareil à crédit à traiter.", $logFile);
@@ -79,32 +80,30 @@ try {
         $reste_a_payer = floatval($row['reste_a_payer']);
         $traite_payee_cumulee = floatval($row['traite_payee_cumulee']);
 
-        // Déterminer le capital initial (principal du prêt).
-        // Priorité à un champ explicite `prix_original` si présent, sinon somme du déjà payé + restant.
-        if (!empty($row['prix_original'])) {
-            $capital_initial = floatval($row['prix_original']);
-        } else {
-            $capital_initial = round($reste_a_payer + $traite_payee_cumulee, 2);
-        }
-
-        $nb_total_mois = intval($row['nb_annees_credit']) * 12; // durée originale (fixe)
-
-        // Validations basiques
-        if ($capital_initial <= 0) {
-            logMsg("Avion $immat : capital initial invalide (capital_initial=$capital_initial)", $logFile);
+        // Sécurité : si reste_a_payer est à 0 malgré nb_mois_restants > 0, fermer le crédit
+        if ($reste_a_payer <= 0) {
+            logMsg("Avion $immat : reste_a_payer = 0 malgré nb_mois_restants = $nb_mois_restants — fermeture forcée.", $logFile);
+            $pdo->prepare("UPDATE FLOTTE SET nb_mois_restants = 0 WHERE id = ?")->execute([$avion_id]);
             continue;
         }
 
-        // Calculer la mensualité fixe à partir du capital initial et de la durée originale
-        if ($nb_total_mois > 0 && $taux_mensuel > 0) {
-            $mensualite_fixe = $capital_initial * ($taux_mensuel / (1 - pow(1 + $taux_mensuel, -$nb_total_mois)));
-            $mensualite_fixe = round($mensualite_fixe, 2);
-        } elseif ($nb_total_mois > 0) {
-            // Taux à 0% : mensualité = capital / nb mois
-            $mensualite_fixe = round($capital_initial / $nb_total_mois, 2);
-        } else {
-            logMsg("Avion $immat : paramètres de crédit invalides (nb_total_mois=$nb_total_mois, taux_mensuel=$taux_mensuel)", $logFile);
-            continue;
+        // Utiliser la mensualité fixe stockée dans le champ remboursement
+        $mensualite_fixe = floatval($row['remboursement']);
+
+        // Auto-guérison : si mensualité invalide (0 ou absente), la recalculer et la stocker
+        if ($mensualite_fixe <= 0) {
+            $capital_initial = floatval($row['prix_original'] ?? 0) ?: round($reste_a_payer + $traite_payee_cumulee, 2);
+            $nb_total_mois = intval($row['nb_annees_credit']) * 12;
+            if ($nb_total_mois > 0 && $capital_initial > 0) {
+                $mensualite_fixe = ($taux_mensuel > 0)
+                    ? round($capital_initial * ($taux_mensuel / (1 - pow(1 + $taux_mensuel, -$nb_total_mois))), 2)
+                    : round($capital_initial / $nb_total_mois, 2);
+                $pdo->prepare("UPDATE FLOTTE SET remboursement = ? WHERE id = ?")->execute([$mensualite_fixe, $avion_id]);
+                logMsg("Avion $immat : mensualité recalculée et corrigée en base ($mensualite_fixe €).", $logFile);
+            } else {
+                logMsg("Avion $immat : impossible de calculer la mensualité (données invalides) — ignoré.", $logFile);
+                continue;
+            }
         }
 
         // Calculer la part d'intérêts et la part de capital ce mois-ci
@@ -121,18 +120,6 @@ try {
         if ($nouveau_reste < 0.01) $nouveau_reste = 0; // Éviter les résidus d'arrondi
         $nouveau_traite = round($traite_payee_cumulee + $mensualite_fixe, 2);
         $nouveau_mois_restants = $nb_mois_restants - 1;
-
-        // Vérification de cohérence: comparer (déjà payé + reste) vs capital initial
-        $sum_before = round($traite_payee_cumulee + $reste_a_payer, 2);
-        if ($capital_initial > 0) {
-            $diff_pct = abs($sum_before - $capital_initial) / $capital_initial * 100;
-        } else {
-            $diff_pct = 0;
-        }
-        if ($diff_pct > 2) { // seuil 2%
-            $erreurs_coherence[] = $immat;
-            logMsg("Avion $immat : incohérence capital (sum_paid=$sum_before, capital_initial=$capital_initial, diff_pct=" . round($diff_pct,2) . "%)", $logFile);
-        }
 
         // Mise à jour en base
         $sqlUpdate = "UPDATE FLOTTE SET traite_payee_cumulee = :traite, reste_a_payer = :reste, 
@@ -154,9 +141,9 @@ try {
         $logDetail = "Appareil $immat : mensualité=$mensualite_fixe (capital=$part_capital, intérêts=$interets), "
             . "traite_payee_cumulee=$nouveau_traite, reste_a_payer=$nouveau_reste, mois_restants=$nouveau_mois_restants";
 
-        // Vérification de cohérence
-        if ($nouveau_reste == 0 && $nouveau_mois_restants > 0) {
-            $logDetail .= " [INFO: crédit soldé avec $nouveau_mois_restants mois restants]";
+        if ($nouveau_mois_restants === 0) {
+            $logDetail .= " [CRÉDIT SOLDÉ]";
+            $credits_soldes[] = $immat;
         }
 
         logMsg($logDetail, $logFile);
@@ -171,6 +158,9 @@ try {
     if ($count > 0) {
         $message .= "\n - " . implode(', ', $immat_mis_a_jour);
     }
+    if (count($credits_soldes) > 0) {
+        $message .= "\n[CRÉDIT SOLDÉ] : " . implode(', ', $credits_soldes);
+    }
     if (count($erreurs_coherence) > 0) {
         $message .= "\n[ALERTE] Erreur de cohérence détectée pour : " . implode(', ', $erreurs_coherence);
     }
@@ -182,6 +172,9 @@ try {
         $body .= "\nAppareils mis à jour : $count";
         if ($count > 0) {
             $body .= "\n - " . implode(', ', $immat_mis_a_jour);
+        }
+        if (count($credits_soldes) > 0) {
+            $body .= "\n\n[CRÉDIT SOLDÉ] Les appareils suivants ont fini de rembourser : " . implode(', ', $credits_soldes);
         }
         if (count($erreurs_coherence) > 0) {
             $body .= "\n\n[ALERTE] Erreur de cohérence détectée pour : " . implode(', ', $erreurs_coherence);

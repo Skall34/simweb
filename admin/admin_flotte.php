@@ -147,7 +147,11 @@ if ($action === 'acheter' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                     $reste_a_payer = 0;
                 } else {
                     $nb_mois_restants = $nb_annees_credit * 12;
-                    $remboursement = $prix_achat;
+                    // Calcul de la mensualité fixe par amortissement
+                    $r_mensuel = $taux_percent / 100 / 12;
+                    $remboursement = ($r_mensuel > 0)
+                        ? round($prix_achat * ($r_mensuel / (1 - pow(1 + $r_mensuel, -$nb_mois_restants))), 2)
+                        : round($prix_achat / $nb_mois_restants, 2);
                     $traite_payee_cumulee = 0;
                     $reste_a_payer = $prix_achat;
                 }
