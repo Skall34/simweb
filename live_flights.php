@@ -1,4 +1,3 @@
-
 <?php
 require_once("lang.php");
 require_once("includes/db_connect.php");
