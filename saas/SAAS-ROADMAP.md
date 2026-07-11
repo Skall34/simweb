@@ -1,7 +1,7 @@
 # SimWeb — Feuille de route SaaS
 
 > Document de synthèse — Juillet 2026  
-> Résumé de la session de planification initiale.
+> Mis à jour après Phase 1 complétée.
 
 ---
 
@@ -52,18 +52,28 @@ Le client ACARS est indispensable au fonctionnement du site. En SaaS :
 
 ---
 
-## Phase 1 — Fondations (≈ 2 jours)
+## Phase 1 — Fondations ✅ COMPLÉTÉE (11 juillet 2026)
 
-> Branche `saas`, pages marketing, Docker, architecture documentée.  
-> **Aucune modification du code PHP existant.**
+> Branche `saas` créée et poussée sur GitHub. Aucun fichier PHP existant modifié. Production inchangée.
 
-- [ ] Branche Git `saas`
-- [ ] Docker Compose (PHP-FPM + MariaDB + Nginx)
-- [ ] `docker/nginx.conf` adapté
-- [ ] `Dockerfile`
-- [ ] Landing page (`saas/landing.html`)
-- [ ] Pricing page (`saas/pricing.html`)
-- [ ] Wizard d'onboarding (`saas/wizard.html`)
+- [x] Branche Git `saas` — créée depuis `main`, poussée sur `origin/saas`
+- [x] Docker Compose (PHP-FPM + MariaDB + Nginx + phpMyAdmin)
+- [x] `docker/nginx.conf` — sécurisé (bloque `/includes/`, `/scripts/`, `/lang/`, `.ini`, `.sql`, `.log`)
+- [x] `Dockerfile` — PHP 8.4-FPM + pdo_mysql + mbstring + curl
+- [x] `config.ini.docker` — config dev versionnable, montée comme `config.ini` dans le conteneur
+- [x] `.dockerignore` — exclut secrets, logs, airports SQL (80K lignes)
+- [x] Landing page (`saas/landing.html`) — thème aviation, dark mode, 9 features, section ACARS animée
+- [x] Pricing page (`saas/pricing.html`) — plan unique 9,90 €/mois, FAQ accordion
+- [x] Wizard d'onboarding (`saas/wizard.html`) — 4 étapes, validation JS, résumé SimAddon
+- [x] `saas/SAAS-ROADMAP.md` — ce fichier
+
+**Lancer en local :**
+```bash
+docker compose up --build
+# Site  : http://localhost:8080
+# PMA   : http://localhost:8081
+# DB    : localhost:3307
+```
 
 ---
 
