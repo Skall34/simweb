@@ -1,4 +1,5 @@
 config.ini
+docker-compose.override.yml
 includes/config_exemple.php
 scripts/uploads/*.csv
 scripts/*.csv

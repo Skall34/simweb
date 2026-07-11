@@ -1,0 +1,68 @@
+services:
+  # ── PHP-FPM (application) ──
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/var/www/html
+      # config.ini.docker est monté comme config.ini dans le conteneur
+      - ./config.ini.docker:/var/www/html/config.ini:ro
+    environment:
+      # Valeurs redondantes avec config.ini.docker — utiles pour scripts shell
+      SW_DB_HOST: db
+      SW_DB_NAME: simweb
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ── Nginx (reverse proxy) ──
+  web:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html:ro
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+    restart: unless-stopped
+
+  # ── MariaDB ──
+  db:
+    image: mariadb:11
+    environment:
+      MARIADB_ROOT_PASSWORD: root_dev
+      MARIADB_DATABASE: simweb
+      MARIADB_USER: simweb
+      MARIADB_PASSWORD: simweb_dev
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      # Initialisation avec le schéma principal uniquement
+      # (les aéroports — 80K lignes — sont chargés manuellement si besoin)
+      - ./install/sql_database/01_Main_Database.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  # ── phpMyAdmin (optionnel — accès sur http://localhost:8081) ──
+  pma:
+    image: phpmyadmin:latest
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      PMA_USER: simweb
+      PMA_PASSWORD: simweb_dev
+    depends_on:
+      - db
+    restart: unless-stopped
+
+volumes:
+  db_data:

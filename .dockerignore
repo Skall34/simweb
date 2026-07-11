@@ -1,0 +1,36 @@
+# Fichiers de config (secrets)
+config.ini
+.env
+.env.local
+
+# Logs
+scripts/logs/
+*.log
+
+# Backups et exports
+*.bkp
+*.zip
+sauvegarde_migration/
+
+# Upload utilisateurs
+scripts/uploads/
+scripts/*.csv
+
+# Données aéroports (80K lignes — trop lourd pour l'image Docker)
+install/sql_database/02_Airports_data.sql
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+*.txt
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation (pas utile dans l'image)
+Documentation/
+
+# Dossier saas (pages marketing statiques — pas d'exécution PHP)
+saas/

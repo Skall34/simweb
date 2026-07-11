@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimWeb — Créer votre Virtual Airline</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>" type="image/svg+xml">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --color-primary: #2979ff;
+            --color-primary-dark: #1565c0;
+            --color-primary-light: #82b1ff;
+            --color-dark: #0d1b2a;
+            --color-text: #2c3e50;
+            --color-text-light: #6c757d;
+            --color-bg: #f0f4f8;
+            --color-surface: #ffffff;
+            --color-border: #dee2e6;
+            --color-success: #1e8c45;
+            --font-main: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            --radius-md: 8px;
+            --radius-lg: 14px;
+            --shadow-md: 0 4px 24px rgba(0,0,0,0.12);
+        }
+
+        [data-theme="dark"] {
+            --color-primary: #5393ff;
+            --color-primary-dark: #2979ff;
+            --color-primary-light: #82b1ff;
+            --color-dark: #070e17;
+            --color-text: #e0e6f0;
+            --color-text-light: #9aaabb;
+            --color-bg: #0d1b2a;
+            --color-surface: #162032;
+            --color-border: #1e3048;
+            --color-success: #2ecc71;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background: var(--color-bg);
+            color: var(--color-text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        /* ── Wizard container ── */
+        .wizard-wrap {
+            width: 100%;
+            max-width: 560px;
+        }
+
+        .wizard-logo {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .wizard-logo a {
+            color: var(--color-primary-dark);
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        [data-theme="dark"] .wizard-logo a { color: var(--color-primary-light); }
+
+        .wizard-container {
+            background: var(--color-surface);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+        [data-theme="dark"] .wizard-container { border: 1px solid #1e3048; }
+
+        .wizard-header {
+            background: linear-gradient(135deg, var(--color-dark), #0a2640);
+            color: #fff;
+            padding: 2rem;
+            text-align: center;
+        }
+        .wizard-header h1 { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.4rem; }
+        .wizard-header p { color: rgba(255,255,255,0.65); font-size: 0.88rem; }
+
+        /* ── Progress ── */
+        .wizard-progress {
+            display: flex;
+            padding: 1.2rem 2rem 0;
+            gap: 6px;
+        }
+        .progress-step {
+            flex: 1;
+            height: 4px;
+            background: var(--color-border);
+            border-radius: 2px;
+            transition: background 0.4s;
+        }
+        .progress-step.active { background: var(--color-primary); }
+        .progress-step.done { background: var(--color-success); }
+
+        .step-indicator {
+            text-align: center;
+            padding: 0.6rem 2rem 0;
+            font-size: 0.8rem;
+            color: var(--color-text-light);
+        }
+
+        /* ── Body ── */
+        .wizard-body { padding: 1.8rem 2rem; }
+
+        .wizard-step { display: none; }
+        .wizard-step.active { display: block; }
+
+        .wizard-step h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--color-dark);
+            margin-bottom: 0.3rem;
+        }
+        [data-theme="dark"] .wizard-step h2 { color: #e0e6f0; }
+        .wizard-step .step-desc {
+            color: var(--color-text-light);
+            font-size: 0.88rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* ── Form ── */
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label { display: block; font-weight: 600; font-size: 0.88rem; margin-bottom: 0.3rem; color: var(--color-text); }
+        .form-control {
+            width: 100%;
+            padding: 0.65rem 1rem;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            font-family: inherit;
+            background: var(--color-surface);
+            color: var(--color-text);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        [data-theme="dark"] .form-control { background: #0d1b2a; border-color: #1e3048; color: #e0e6f0; }
+        .form-control:focus { outline: none; border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(41,121,255,0.15); }
+        .form-control.error { border-color: #dc3545; }
+        .form-hint { font-size: 0.78rem; color: var(--color-text-light); margin-top: 0.25rem; }
+        .form-error { font-size: 0.8rem; color: #dc3545; margin-top: 0.25rem; display: none; }
+        .form-error.visible { display: block; }
+
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+        /* ── Choice cards ── */
+        .choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+        .choice-card {
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        [data-theme="dark"] .choice-card { background: #0d1b2a; }
+        .choice-card:hover { border-color: var(--color-primary); }
+        .choice-card.selected { border-color: var(--color-primary); background: rgba(41,121,255,0.07); }
+        [data-theme="dark"] .choice-card.selected { background: rgba(41,121,255,0.12); }
+        .choice-icon { font-size: 1.8rem; margin-bottom: 0.4rem; }
+        .choice-label { font-weight: 700; font-size: 0.88rem; }
+        .choice-desc { font-size: 0.75rem; color: var(--color-text-light); margin-top: 0.2rem; }
+
+        /* ── Footer ── */
+        .wizard-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem 2rem;
+            border-top: 1px solid var(--color-border);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.65rem 1.5rem;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            font-family: inherit;
+        }
+        .btn-primary { background: var(--color-primary); color: #fff; }
+        .btn-primary:hover { background: var(--color-primary-dark); transform: translateY(-1px); }
+        .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .btn-ghost { background: transparent; color: var(--color-text-light); }
+        .btn-ghost:hover { color: var(--color-text); }
+
+        /* ── Step 4 : succès ── */
+        .success-wrap { text-align: center; padding: 1rem 0; }
+        .success-plane { font-size: 4rem; animation: takeoff 1s ease forwards; display: inline-block; }
+        @keyframes takeoff { from { transform: translateY(0) rotate(0); } to { transform: translateY(-12px) rotate(-10deg); } }
+        .success-wrap h2 { color: var(--color-success) !important; margin-top: 1rem; }
+        .success-wrap p { color: var(--color-text-light); font-size: 0.9rem; margin: 0.5rem 0; }
+
+        .acars-box {
+            background: var(--color-bg);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            padding: 1.2rem;
+            margin-top: 1.5rem;
+            text-align: left;
+        }
+        [data-theme="dark"] .acars-box { background: #0d1b2a; }
+        .acars-box h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--color-text); }
+        .acars-box ol { padding-left: 1.2rem; }
+        .acars-box ol li { font-size: 0.85rem; color: var(--color-text-light); margin-bottom: 0.3rem; line-height: 1.6; }
+        .acars-box ol li strong { color: var(--color-text); }
+
+        /* ── Misc ── */
+        .trial-note { text-align: center; font-size: 0.8rem; color: var(--color-text-light); padding: 0.8rem 2rem 1.2rem; }
+
+        @media (max-width: 580px) {
+            body { padding: 1rem; }
+            .wizard-body { padding: 1.5rem; }
+            .wizard-footer { padding: 1rem 1.5rem; }
+            .form-row, .choice-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+    <script>(function(){var t=localStorage.getItem('sw_theme');if(t==='dark'){document.documentElement.setAttribute('data-theme','dark')}})();</script>
+</head>
+<body>
+
+<div class="wizard-wrap">
+
+    <div class="wizard-logo">
+        <a href="landing.html">✈ SimWeb</a>
+    </div>
+
+    <div class="wizard-container">
+        <div class="wizard-header">
+            <h1>Créer votre Virtual Airline</h1>
+            <p>Quelques étapes pour configurer votre compagnie</p>
+        </div>
+
+        <div class="wizard-progress">
+            <div class="progress-step active" id="p1"></div>
+            <div class="progress-step" id="p2"></div>
+            <div class="progress-step" id="p3"></div>
+            <div class="progress-step" id="p4"></div>
+        </div>
+        <div class="step-indicator" id="stepLabel">Étape 1 sur 4</div>
+
+        <div class="wizard-body">
+
+            <!-- Étape 1 : Votre VA -->
+            <div class="wizard-step active" data-step="1">
+                <h2>Votre Virtual Airline</h2>
+                <p class="step-desc">Ces informations seront visibles par vos pilotes sur le site.</p>
+
+                <div class="form-group">
+                    <label for="va-name">Nom de la compagnie <span style="color:#dc3545">*</span></label>
+                    <input type="text" class="form-control" id="va-name" placeholder="Ex : SkyRoutes Virtual" maxlength="80" required>
+                    <div class="form-error" id="err-va-name">Veuillez saisir le nom de votre VA.</div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="va-icao">Code ICAO <span style="color:#dc3545">*</span></label>
+                        <input type="text" class="form-control" id="va-icao" placeholder="SKR" maxlength="4" style="text-transform:uppercase" required>
+                        <div class="form-hint">3–4 lettres, identifiant unique de votre VA</div>
+                        <div class="form-error" id="err-va-icao">Code ICAO invalide (3–4 lettres).</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="va-iata">Code IATA</label>
+                        <input type="text" class="form-control" id="va-iata" placeholder="SR" maxlength="3" style="text-transform:uppercase">
+                        <div class="form-hint">2–3 lettres (optionnel)</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="va-tagline">Slogan <span style="color:var(--color-text-light);font-weight:400">(optionnel)</span></label>
+                    <input type="text" class="form-control" id="va-tagline" placeholder="Ex : Votre compagnie virtuelle de confiance" maxlength="120">
+                </div>
+
+                <div class="form-group">
+                    <label>Langue par défaut</label>
+                    <div class="choice-grid">
+                        <div class="choice-card selected" data-group="lang" data-value="fr">
+                            <div class="choice-icon">🇫🇷</div>
+                            <div class="choice-label">Français</div>
+                        </div>
+                        <div class="choice-card" data-group="lang" data-value="en">
+                            <div class="choice-icon">🇬🇧</div>
+                            <div class="choice-label">English</div>
+                        </div>
+                        <div class="choice-card" data-group="lang" data-value="es">
+                            <div class="choice-icon">🇪🇸</div>
+                            <div class="choice-label">Español</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Étape 2 : Administrateur -->
+            <div class="wizard-step" data-step="2">
+                <h2>Compte administrateur</h2>
+                <p class="step-desc">Ce compte sera le premier super-admin de votre VA.</p>
+
+                <div class="form-group">
+                    <label for="admin-callsign">Callsign <span style="color:#dc3545">*</span></label>
+                    <input type="text" class="form-control" id="admin-callsign" placeholder="Ex : SKR0001" maxlength="10" style="text-transform:uppercase" required>
+                    <div class="form-hint">Identifiant unique du pilote (lettres + chiffres)</div>
+                    <div class="form-error" id="err-callsign">Callsign invalide (3–10 caractères).</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="admin-email">Email administrateur <span style="color:#dc3545">*</span></label>
+                    <input type="email" class="form-control" id="admin-email" placeholder="admin@votre-domaine.com" required>
+                    <div class="form-error" id="err-email">Adresse email invalide.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="admin-password">Mot de passe <span style="color:#dc3545">*</span></label>
+                    <input type="password" class="form-control" id="admin-password" placeholder="12 caractères minimum" required>
+                    <div class="form-hint">Minimum 12 caractères, majuscule, chiffre et caractère spécial</div>
+                    <div class="form-error" id="err-password">Le mot de passe ne respecte pas les critères de sécurité.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="admin-password2">Confirmer le mot de passe <span style="color:#dc3545">*</span></label>
+                    <input type="password" class="form-control" id="admin-password2" placeholder="Répéter le mot de passe" required>
+                    <div class="form-error" id="err-password2">Les mots de passe ne correspondent pas.</div>
+                </div>
+            </div>
+
+            <!-- Étape 3 : Paramètres -->
+            <div class="wizard-step" data-step="3">
+                <h2>Paramètres de la compagnie</h2>
+                <p class="step-desc">Ces réglages peuvent être modifiés à tout moment dans l'admin.</p>
+
+                <div class="form-group">
+                    <label for="timezone">Fuseau horaire</label>
+                    <select class="form-control" id="timezone">
+                        <option value="Europe/Paris">Europe/Paris (UTC+1/+2)</option>
+                        <option value="Europe/London">Europe/London (UTC+0/+1)</option>
+                        <option value="Europe/Madrid">Europe/Madrid (UTC+1/+2)</option>
+                        <option value="Europe/Berlin">Europe/Berlin (UTC+1/+2)</option>
+                        <option value="America/New_York">America/New_York (UTC-5/-4)</option>
+                        <option value="America/Chicago">America/Chicago (UTC-6/-5)</option>
+                        <option value="America/Los_Angeles">America/Los_Angeles (UTC-8/-7)</option>
+                        <option value="America/Sao_Paulo">America/Sao_Paulo (UTC-3)</option>
+                        <option value="UTC">UTC</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Devise</label>
+                    <div class="choice-grid">
+                        <div class="choice-card selected" data-group="currency" data-value="EUR">
+                            <div class="choice-icon">💶</div>
+                            <div class="choice-label">Euro (€)</div>
+                        </div>
+                        <div class="choice-card" data-group="currency" data-value="USD">
+                            <div class="choice-icon">💵</div>
+                            <div class="choice-label">Dollar ($)</div>
+                        </div>
+                        <div class="choice-card" data-group="currency" data-value="GBP">
+                            <div class="choice-icon">💷</div>
+                            <div class="choice-label">Livre (£)</div>
+                        </div>
+                        <div class="choice-card" data-group="currency" data-value="BRL">
+                            <div class="choice-icon">🇧🇷</div>
+                            <div class="choice-label">Real (R$)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="contact-email">Email de contact visible</label>
+                    <input type="email" class="form-control" id="contact-email" placeholder="contact@votre-domaine.com">
+                    <div class="form-hint">Affiché à vos pilotes pour les questions. Peut être différent de l'email admin.</div>
+                </div>
+            </div>
+
+            <!-- Étape 4 : Succès -->
+            <div class="wizard-step" data-step="4">
+                <div class="success-wrap">
+                    <div class="success-plane">✈️</div>
+                    <h2>Votre VA est prête au décollage !</h2>
+                    <p>Votre Virtual Airline <strong id="summary-va-name">—</strong> a été créée.</p>
+                    <p>Un email de confirmation a été envoyé à <strong id="summary-email">—</strong>.</p>
+
+                    <div class="acars-box">
+                        <h4>🔌 Étapes suivantes — SimAddon ACARS</h4>
+                        <ol>
+                            <li>Connectez-vous à votre espace admin avec votre callsign <strong id="summary-callsign">—</strong></li>
+                            <li>Dans <strong>Admin → Flotte</strong>, ajoutez vos premiers appareils</li>
+                            <li>Téléchargez le client <strong>SimAddon</strong> depuis votre espace admin</li>
+                            <li>Distribuez-le à vos pilotes avec l'URL <strong id="summary-url">—</strong></li>
+                            <li>Vos pilotes lancent SimAddon avant MSFS — les vols s'importent automatiquement !</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- /.wizard-body -->
+
+        <div class="wizard-footer" id="wizardFooter">
+            <button class="btn btn-ghost" id="btnBack" style="display:none">← Retour</button>
+            <div></div>
+            <button class="btn btn-primary" id="btnNext">Continuer →</button>
+        </div>
+
+        <div class="trial-note" id="trialNote">
+            🎁 14 jours d'essai gratuit — Aucune carte bancaire requise
+        </div>
+
+    </div><!-- /.wizard-container -->
+
+</div><!-- /.wizard-wrap -->
+
+<script>
+(function () {
+    const TOTAL = 4;
+    let current = 1;
+
+    const steps     = document.querySelectorAll('.wizard-step');
+    const progSteps = document.querySelectorAll('.progress-step');
+    const btnNext   = document.getElementById('btnNext');
+    const btnBack   = document.getElementById('btnBack');
+    const stepLabel = document.getElementById('stepLabel');
+    const trialNote = document.getElementById('trialNote');
+
+    // ── Choice cards ──
+    document.querySelectorAll('.choice-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const group = card.dataset.group;
+            document.querySelectorAll(`.choice-card[data-group="${group}"]`).forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+        });
+    });
+
+    // ── Uppercase inputs ──
+    ['va-icao', 'va-iata', 'admin-callsign'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', () => { el.value = el.value.toUpperCase(); });
+    });
+
+    // ── Validation ──
+    function showError(id, show) {
+        const el = document.getElementById('err-' + id);
+        if (!el) return;
+        el.classList.toggle('visible', show);
+        const input = document.getElementById(id.replace(/-/g, '-'));
+        if (input) input.classList.toggle('error', show);
+    }
+
+    function validate(step) {
+        let ok = true;
+
+        if (step === 1) {
+            const name = document.getElementById('va-name').value.trim();
+            const icao = document.getElementById('va-icao').value.trim();
+            if (!name) { showError('va-name', true); ok = false; } else showError('va-name', false);
+            if (!/^[A-Z]{3,4}$/.test(icao)) { showError('va-icao', true); ok = false; } else showError('va-icao', false);
+        }
+
+        if (step === 2) {
+            const cs   = document.getElementById('admin-callsign').value.trim();
+            const em   = document.getElementById('admin-email').value.trim();
+            const pw   = document.getElementById('admin-password').value;
+            const pw2  = document.getElementById('admin-password2').value;
+            const pwOk = pw.length >= 12 && /[A-Z]/.test(pw) && /[0-9]/.test(pw) && /[^A-Za-z0-9]/.test(pw);
+
+            if (!/^[A-Z0-9]{3,10}$/.test(cs)) { showError('callsign', true); ok = false; } else showError('callsign', false);
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { showError('email', true); ok = false; } else showError('email', false);
+            if (!pwOk) { showError('password', true); ok = false; } else showError('password', false);
+            if (pw !== pw2) { showError('password2', true); ok = false; } else showError('password2', false);
+        }
+
+        return ok;
+    }
+
+    // ── Navigation ──
+    function goTo(n) {
+        if (n < 1 || n > TOTAL) return;
+
+        steps.forEach(s => s.classList.remove('active'));
+        steps[n - 1].classList.add('active');
+
+        progSteps.forEach((p, i) => {
+            p.classList.remove('active', 'done');
+            if (i + 1 < n)  p.classList.add('done');
+            if (i + 1 === n) p.classList.add('active');
+        });
+
+        stepLabel.textContent = `Étape ${n} sur ${TOTAL}`;
+        btnBack.style.display = n > 1 && n < TOTAL ? 'inline-flex' : 'none';
+
+        if (n === TOTAL) {
+            btnNext.style.display = 'none';
+            btnBack.style.display = 'none';
+            trialNote.style.display = 'none';
+            // Remplir le résumé
+            document.getElementById('summary-va-name').textContent  = document.getElementById('va-name').value.trim();
+            document.getElementById('summary-email').textContent    = document.getElementById('admin-email').value.trim();
+            document.getElementById('summary-callsign').textContent = document.getElementById('admin-callsign').value.trim();
+            const icao = document.getElementById('va-icao').value.trim().toLowerCase();
+            document.getElementById('summary-url').textContent      = `https://${icao}.simweb.io`;
+        } else {
+            btnNext.style.display = 'inline-flex';
+            btnNext.textContent = n === TOTAL - 1 ? 'Créer ma VA →' : 'Continuer →';
+        }
+
+        current = n;
+    }
+
+    btnNext.addEventListener('click', () => {
+        if (!validate(current)) return;
+        goTo(current + 1);
+    });
+
+    btnBack.addEventListener('click', () => goTo(current - 1));
+
+})();
+</script>
+</body>
+</html>

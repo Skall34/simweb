@@ -1,0 +1,56 @@
+; SimWeb — Configuration de développement Docker
+; ─────────────────────────────────────────────
+; Ce fichier est monté en tant que config.ini dans le conteneur Docker.
+; Il est versionné dans git (valeurs de dev uniquement — jamais de secrets réels).
+;
+; Pour la production : créer un vrai config.ini (non versionné).
+
+[database]
+host     = db
+port     = 3306
+name     = simweb
+user     = simweb
+password = simweb_dev
+charset  = utf8mb4
+
+[company]
+name   = DevAirline
+icao   = DEV
+iata   = DV
+tagline = Virtual Airline — Environnement de développement
+
+[contact]
+contact_email = contact@localhost
+admin_email   = admin@localhost
+
+[admin]
+super_admin_callsigns = DEV0001
+base_url              = http://localhost:8080
+
+[smtp]
+host       = localhost
+port       = 1025
+secure     =
+username   =
+password   =
+from_email = noreply@localhost
+from_name  = DevAirline
+
+[social]
+discord_url =
+website_url =
+forum_url   =
+
+[financial]
+currency          = EUR
+currency_symbol   = €
+currency_position = after
+starting_balance  = 100000
+
+[system]
+timezone          = Europe/Paris
+default_language  = fr
+cron_secret_token = dev_cron_token_change_in_prod
+
+[debug]
+debug_mode = true

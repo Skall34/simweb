@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimWeb — Tarifs</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>" type="image/svg+xml">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --color-primary: #2979ff;
+            --color-primary-dark: #1565c0;
+            --color-primary-light: #82b1ff;
+            --color-dark: #0d1b2a;
+            --color-dark-alt: #112240;
+            --color-text: #2c3e50;
+            --color-text-light: #6c757d;
+            --color-bg: #f0f4f8;
+            --color-surface: #ffffff;
+            --color-border: #dee2e6;
+            --color-success: #1e8c45;
+            --font-main: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        [data-theme="dark"] {
+            --color-primary: #5393ff;
+            --color-primary-dark: #2979ff;
+            --color-primary-light: #82b1ff;
+            --color-dark: #070e17;
+            --color-dark-alt: #0d1b2a;
+            --color-text: #e0e6f0;
+            --color-text-light: #9aaabb;
+            --color-bg: #0d1b2a;
+            --color-surface: #162032;
+            --color-border: #1e3048;
+            --color-success: #2ecc71;
+        }
+
+        body { font-family: var(--font-main); background: var(--color-bg); color: var(--color-text); line-height: 1.6; }
+
+        /* ── Navbar ── */
+        .navbar { background: var(--color-dark); padding: 0 2rem; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+        .navbar-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 60px; }
+        .navbar-brand { font-size: 1.4rem; color: var(--color-primary-light) !important; font-weight: 700; text-decoration: none; }
+        .navbar-links { display: flex; gap: 1.5rem; align-items: center; }
+        .navbar-links a { color: rgba(255,255,255,0.85); font-size: 0.9rem; text-decoration: none; transition: color 0.2s; }
+        .navbar-links a:hover, .navbar-links a.active { color: var(--color-primary-light); }
+        .theme-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; }
+
+        /* ── Boutons ── */
+        .btn { display: inline-flex; align-items: center; justify-content: center; padding: 0.7rem 1.5rem; border: none; border-radius: var(--radius-md); font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.2s; text-decoration: none; }
+        .btn-primary { background: var(--color-primary); color: #fff; }
+        .btn-primary:hover { background: var(--color-primary-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(41,121,255,0.4); }
+        .btn-outline { background: transparent; border: 2px solid var(--color-primary); color: var(--color-primary); }
+        .btn-outline:hover { background: var(--color-primary); color: #fff; }
+        .btn-lg { padding: 1rem 2.5rem; font-size: 1.05rem; }
+        .btn-block { width: 100%; }
+
+        /* ── Page header ── */
+        .page-header {
+            background: linear-gradient(135deg, var(--color-dark) 0%, #0a2640 100%);
+            text-align: center;
+            padding: 5rem 2rem 4rem;
+        }
+        .page-header h1 { font-size: 2.8rem; font-weight: 800; color: #fff; margin-bottom: 0.8rem; letter-spacing: -0.5px; }
+        .page-header p { color: rgba(255,255,255,0.72); font-size: 1.15rem; max-width: 540px; margin: 0 auto; }
+
+        /* ── Pricing layout ── */
+        .pricing-container { max-width: 900px; margin: 0 auto; padding: 4rem 2rem; }
+
+        /* Carte unique centrée + highlight */
+        .pricing-single {
+            background: var(--color-surface);
+            border-radius: var(--radius-lg);
+            border: 2px solid var(--color-primary);
+            box-shadow: 0 8px 40px rgba(41,121,255,0.15);
+            overflow: hidden;
+            max-width: 520px;
+            margin: 0 auto;
+        }
+        [data-theme="dark"] .pricing-single { background: #162032; box-shadow: 0 8px 40px rgba(41,121,255,0.1); }
+
+        .pricing-header {
+            background: linear-gradient(135deg, var(--color-primary-dark), var(--color-primary));
+            padding: 2.5rem 2.5rem 2rem;
+            text-align: center;
+            color: #fff;
+        }
+        .pricing-header h2 { font-size: 1.6rem; font-weight: 800; margin-bottom: 0.5rem; }
+        .pricing-header .tagline { font-size: 0.95rem; opacity: 0.85; }
+        .pricing-price-block { margin: 1.5rem 0 0.5rem; }
+        .pricing-price { font-size: 3.8rem; font-weight: 900; line-height: 1; }
+        .pricing-price sup { font-size: 1.4rem; font-weight: 700; vertical-align: top; margin-top: 0.6rem; display: inline-block; }
+        .pricing-price .period { font-size: 1rem; font-weight: 400; opacity: 0.75; }
+        .pricing-annual-note { font-size: 0.85rem; opacity: 0.7; }
+
+        .pricing-body { padding: 2rem 2.5rem; }
+        .pricing-features { list-style: none; margin-bottom: 2rem; }
+        .pricing-features li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.7rem;
+            padding: 0.65rem 0;
+            border-bottom: 1px solid var(--color-border);
+            font-size: 0.95rem;
+            color: var(--color-text);
+        }
+        .pricing-features li:last-child { border-bottom: none; }
+        .feat-check { color: var(--color-success); font-weight: 700; font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+        .pricing-cta { text-align: center; padding-bottom: 0.5rem; }
+
+        /* ── Garanties ── */
+        .guarantees {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+            text-align: center;
+        }
+        .guarantee { padding: 1.5rem 1rem; }
+        .guarantee-icon { font-size: 2rem; margin-bottom: 0.6rem; }
+        .guarantee h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.3rem; color: var(--color-dark); }
+        [data-theme="dark"] .guarantee h4 { color: #e0e6f0; }
+        .guarantee p { font-size: 0.82rem; color: var(--color-text-light); }
+
+        /* ── FAQ ── */
+        .faq-section { max-width: 700px; margin: 0 auto; padding: 1rem 2rem 5rem; }
+        .faq-section h2 { font-size: 2rem; font-weight: 800; text-align: center; color: var(--color-dark); margin-bottom: 2.5rem; }
+        [data-theme="dark"] .faq-section h2 { color: #e0e6f0; }
+        .faq-item { border-bottom: 1px solid var(--color-border); padding: 1.2rem 0; }
+        .faq-question { font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; user-select: none; }
+        .faq-question::after { content: '+'; font-size: 1.3rem; color: var(--color-primary); transition: transform 0.2s; flex-shrink: 0; margin-left: 1rem; }
+        .faq-item.open .faq-question::after { content: '−'; }
+        .faq-answer { display: none; margin-top: 0.8rem; color: var(--color-text-light); font-size: 0.9rem; line-height: 1.75; }
+        .faq-item.open .faq-answer { display: block; }
+
+        /* ── Footer ── */
+        .footer { background: var(--color-dark); color: rgba(255,255,255,0.5); text-align: center; padding: 2rem; font-size: 0.85rem; }
+        .footer-links { display: flex; justify-content: center; gap: 2rem; margin-bottom: 1rem; flex-wrap: wrap; }
+        .footer-links a { color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s; }
+        .footer-links a:hover { color: var(--color-primary-light); }
+
+        @media (max-width: 600px) {
+            .page-header h1 { font-size: 2rem; }
+            .pricing-header { padding: 2rem 1.5rem 1.5rem; }
+            .pricing-body { padding: 1.5rem; }
+            .pricing-price { font-size: 3rem; }
+        }
+    </style>
+    <script>(function(){var t=localStorage.getItem('sw_theme');if(t==='dark'){document.documentElement.setAttribute('data-theme','dark')}})();</script>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+    <div class="navbar-inner">
+        <a href="landing.html" class="navbar-brand">✈ SimWeb</a>
+        <div class="navbar-links">
+            <a href="landing.html#features">Fonctionnalités</a>
+            <a href="pricing.html" class="active">Tarifs</a>
+            <a href="wizard.html" class="btn btn-primary" style="padding:0.45rem 1.2rem;font-size:0.85rem;">Démarrer</a>
+            <button class="theme-btn" id="themeToggle" title="Mode sombre/clair">🌙</button>
+        </div>
+    </div>
+</nav>
+
+<!-- Header -->
+<div class="page-header">
+    <h1>Un seul abonnement, tout inclus</h1>
+    <p>Pas d'options, pas de surprises. Tout ce dont votre VA a besoin pour un prix fixe mensuel.</p>
+</div>
+
+<!-- Pricing -->
+<div class="pricing-container">
+
+    <div class="pricing-single">
+        <div class="pricing-header">
+            <h2>SimWeb Pro</h2>
+            <p class="tagline">Virtual Airline Management · Accès complet</p>
+            <div class="pricing-price-block">
+                <div class="pricing-price"><sup>€</sup>9<span class="period">,90 / mois</span></div>
+            </div>
+            <p class="pricing-annual-note">ou 99 € / an — 2 mois offerts</p>
+        </div>
+        <div class="pricing-body">
+            <ul class="pricing-features">
+                <li><span class="feat-check">✓</span> <span>ACARS intégré — client SimAddon C# inclus</span></li>
+                <li><span class="feat-check">✓</span> <span>Live Flights — carte temps réel des vols</span></li>
+                <li><span class="feat-check">✓</span> <span>Pilotes illimités</span></li>
+                <li><span class="feat-check">✓</span> <span>Flotte illimitée (appareils + types)</span></li>
+                <li><span class="feat-check">✓</span> <span>Lignes régulières &amp; missions cargo</span></li>
+                <li><span class="feat-check">✓</span> <span>Gestion financière complète (salaires, assurances, dépenses)</span></li>
+                <li><span class="feat-check">✓</span> <span>Système de grades automatique</span></li>
+                <li><span class="feat-check">✓</span> <span>80 000+ aéroports (base MSFS)</span></li>
+                <li><span class="feat-check">✓</span> <span>Interface FR / EN / ES</span></li>
+                <li><span class="feat-check">✓</span> <span>Historique complet des vols (carnet de vol)</span></li>
+                <li><span class="feat-check">✓</span> <span>API REST pour le client ACARS</span></li>
+                <li><span class="feat-check">✓</span> <span>Sous-domaine dédié (maVA.simweb.io)</span></li>
+                <li><span class="feat-check">✓</span> <span>Sauvegardes quotidiennes incluses</span></li>
+                <li><span class="feat-check">✓</span> <span>Mises à jour automatiques</span></li>
+                <li><span class="feat-check">✓</span> <span>Support par email</span></li>
+            </ul>
+            <div class="pricing-cta">
+                <a href="wizard.html" class="btn btn-primary btn-lg btn-block">Créer ma VA maintenant</a>
+                <p style="margin-top:0.8rem;font-size:0.82rem;color:var(--color-text-light);">14 jours d'essai gratuit — Aucune carte bancaire requise</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Garanties -->
+    <div class="guarantees">
+        <div class="guarantee">
+            <div class="guarantee-icon">🔒</div>
+            <h4>Données isolées</h4>
+            <p>Votre VA a sa propre base de données. Aucune donnée partagée avec d'autres compagnies.</p>
+        </div>
+        <div class="guarantee">
+            <div class="guarantee-icon">↩️</div>
+            <h4>Annulation libre</h4>
+            <p>Résiliez à tout moment depuis votre espace admin. Export de vos données inclus.</p>
+        </div>
+        <div class="guarantee">
+            <div class="guarantee-icon">🔄</div>
+            <h4>Mises à jour incluses</h4>
+            <p>Chaque nouvelle fonctionnalité SimWeb est disponible sans surcoût.</p>
+        </div>
+        <div class="guarantee">
+            <div class="guarantee-icon">📩</div>
+            <h4>Support réactif</h4>
+            <p>Réponse sous 48h par email. Documentation complète en ligne.</p>
+        </div>
+    </div>
+
+</div>
+
+<!-- FAQ -->
+<div class="faq-section">
+    <h2>Questions fréquentes</h2>
+
+    <div class="faq-item">
+        <div class="faq-question">Qu'est-ce que le SimAddon et comment mes pilotes l'obtiennent-ils ?</div>
+        <div class="faq-answer">Le SimAddon est un client Windows (C#) qui se connecte à Microsoft Flight Simulator via SimConnect. Après création de votre VA, vous recevez un lien de téléchargement à distribuer à vos pilotes. Ils renseignent l'URL de votre VA une seule fois, et tous leurs vols s'importent ensuite automatiquement.</div>
+    </div>
+
+    <div class="faq-item">
+        <div class="faq-question">Combien de pilotes puis-je avoir ?</div>
+        <div class="faq-answer">Il n'y a pas de limite. L'abonnement couvre un nombre illimité de pilotes et de vols, quel que soit le volume d'activité de votre VA.</div>
+    </div>
+
+    <div class="faq-item">
+        <div class="faq-question">Puis-je importer ma VA existante ?</div>
+        <div class="faq-answer">Si vous utilisez déjà SimWeb en auto-hébergé, nous préparons un outil de migration. Pour les migrations depuis d'autres plateformes, contactez-nous — nous étudions chaque cas au cas par cas.</div>
+    </div>
+
+    <div class="faq-item">
+        <div class="faq-question">Que se passe-t-il si j'annule mon abonnement ?</div>
+        <div class="faq-answer">Vous conservez l'accès jusqu'à la fin de la période payée. À l'expiration, vous pouvez exporter l'intégralité de vos données (pilotes, vols, finances) en CSV avant que la VA soit archivée.</div>
+    </div>
+
+    <div class="faq-item">
+        <div class="faq-question">SimWeb fonctionne-t-il avec MSFS 2024 ?</div>
+        <div class="faq-answer">Oui. Le SimAddon est compatible avec Microsoft Flight Simulator 2020 et MSFS 2024. Il utilise l'API SimConnect qui est présente dans les deux versions.</div>
+    </div>
+
+    <div class="faq-item">
+        <div class="faq-question">Puis-je auto-héberger SimWeb ?</div>
+        <div class="faq-answer">SimWeb est open source. Vous pouvez tout à fait l'installer sur votre propre serveur gratuitement. L'abonnement SaaS est une option clé-en-main pour ceux qui préfèrent ne pas gérer l'infrastructure.</div>
+    </div>
+
+    <div class="faq-item">
+        <div class="faq-question">Les données sont-elles hébergées en Europe ?</div>
+        <div class="faq-answer">Oui. Les serveurs SimWeb sont hébergés en Europe (OVH ou Hetzner selon la région). Vos données ne quittent pas l'UE.</div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="footer-links">
+        <a href="landing.html">Accueil</a>
+        <a href="pricing.html">Tarifs</a>
+        <a href="wizard.html">Démarrer</a>
+        <a href="#">CGV</a>
+        <a href="#">Confidentialité</a>
+        <a href="#">Contact</a>
+    </div>
+    <div>&copy; <span id="year"></span> SimWeb — Virtual Airline Management Platform</div>
+</footer>
+
+<script>
+document.getElementById('year').textContent = new Date().getFullYear();
+
+// Dark mode
+const toggle = document.getElementById('themeToggle');
+function applyTheme(dark) {
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : '');
+    toggle.textContent = dark ? '☀️' : '🌙';
+    localStorage.setItem('sw_theme', dark ? 'dark' : 'light');
+}
+applyTheme(localStorage.getItem('sw_theme') === 'dark');
+toggle.addEventListener('click', () => applyTheme(document.documentElement.getAttribute('data-theme') !== 'dark'));
+
+// FAQ accordion
+document.querySelectorAll('.faq-question').forEach(q => {
+    q.addEventListener('click', () => {
+        const item = q.parentElement;
+        const wasOpen = item.classList.contains('open');
+        document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+        if (!wasOpen) item.classList.add('open');
+    });
+});
+</script>
+</body>
+</html>
