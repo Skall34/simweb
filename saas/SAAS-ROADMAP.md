@@ -54,26 +54,39 @@ Le client ACARS est indispensable au fonctionnement du site. En SaaS :
 
 ## Phase 1 — Fondations ✅ COMPLÉTÉE (11 juillet 2026)
 
-> Branche `saas` créée et poussée sur GitHub. Aucun fichier PHP existant modifié. Production inchangée.
+> Branche `saas` créée et poussée sur GitHub. Aucun fichier PHP de prod modifié.
 
 - [x] Branche Git `saas` — créée depuis `main`, poussée sur `origin/saas`
 - [x] Docker Compose (PHP-FPM + MariaDB + Nginx + phpMyAdmin)
 - [x] `docker/nginx.conf` — sécurisé (bloque `/includes/`, `/scripts/`, `/lang/`, `.ini`, `.sql`, `.log`)
-- [x] `Dockerfile` — PHP 8.4-FPM + pdo_mysql + mbstring + curl
+- [x] `Dockerfile` — PHP 8.4-FPM + libonig-dev + pdo_mysql + mbstring + curl
 - [x] `config.ini.docker` — config dev versionnable, montée comme `config.ini` dans le conteneur
 - [x] `.dockerignore` — exclut secrets, logs, airports SQL (80K lignes)
-- [x] Landing page (`saas/landing.html`) — thème aviation, dark mode, 9 features, section ACARS animée
+- [x] Landing page (`saas/landing.html`) — thème aviation, dark mode, 9 features, section ACARS
 - [x] Pricing page (`saas/pricing.html`) — plan unique 9,90 €/mois, FAQ accordion
 - [x] Wizard d'onboarding (`saas/wizard.html`) — 4 étapes, validation JS, résumé SimAddon
 - [x] `saas/SAAS-ROADMAP.md` — ce fichier
+- [x] Fix `live_flights.php` — ligne vide avant `<?php` causait `session_start()` warning (cherry-pick vers `main` recommandé)
 
 **Lancer en local :**
-```bash
-docker compose up --build
-# Site  : http://localhost:8080
-# PMA   : http://localhost:8081
-# DB    : localhost:3307
+```powershell
+docker compose up        # (--build seulement si Dockerfile modifié)
+# Site        : http://localhost:8080
+# phpMyAdmin  : http://localhost:8081
+# DB directe  : localhost:3307
 ```
+
+**Importer les aéroports (80K lignes) — obligatoire pour que le site soit fonctionnel :**
+```powershell
+# Docker doit être démarré
+Get-Content install\sql_database\02_Airports_data.sql | docker exec -i simweb-db-1 mariadb -u simweb -psimweb_dev simweb
+# Durée ~30-60 secondes. Bypass total des timeouts PHP/phpMyAdmin.
+```
+
+**Bugs corrigés lors de la mise en place Docker :**
+- `Dockerfile` : `libonig-dev` doit être installé via apt **avant** `docker-php-ext-install mbstring`
+- `Dockerfile` : `scripts/logs/` et `assets/images/` sont gitignorés → `mkdir -p` requis avant `chown`
+- `live_flights.php` : ligne vide avant `<?php` → `session_start() headers already sent`
 
 ---
 
