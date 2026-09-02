@@ -1828,10 +1828,12 @@ footer {
 .tresorier-card.success { background: #f0fff0; border-left: 4px solid #28a745; }
 .tresorier-card.info { background: #f0f8ff; border-left: 4px solid #17a2b8; }
 .tresorier-card.fun { background: #fffef0; border-left: 4px solid #ffc107; }
+.tresorier-card.credit { background: #f8f9fa; border-left: 4px solid #6c757d; }
 .tresorier-card-intro { font-size: 0.9em; color: #666; }
 .tresorier-card-hint { font-size: 0.85em; color: #888; margin-top: 8px; }
 .tresorier-ok-msg { color: #28a745; font-weight: 600; }
 .tresorier-dashboard { margin-bottom: 20px; }
+.tresorier-credits-card { margin-bottom: 20px; }
 .tresorier-conseils-card { grid-column: 1 / -1; }
 .tresorier-conseils-list { font-size: 0.95em; line-height: 1.8; }
 .tresorier-table { width: 100%; border-collapse: collapse; font-size: 0.8em; }

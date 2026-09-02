@@ -133,6 +133,15 @@ $stats['valeur_flotte'] = floatval($pdo->query("SELECT COALESCE(SUM(ft.cout_appa
 $stats['nb_credit'] = intval($pdo->query("SELECT COUNT(*) FROM FLOTTE WHERE mode_achat = 'credit' AND nb_mois_restants > 0 AND Actif = 1")->fetchColumn());
 $stats['dette_totale'] = floatval($pdo->query("SELECT COALESCE(SUM(reste_a_payer), 0) FROM FLOTTE WHERE mode_achat = 'credit' AND nb_mois_restants > 0 AND Actif = 1")->fetchColumn());
 
+// Avions à crédit et échéances restantes
+$credits = $pdo->query("
+    SELECT f.immat, ft.fleet_type AS type_nom, f.nb_mois_restants, f.remboursement, f.reste_a_payer
+    FROM FLOTTE f
+    LEFT JOIN FLEET_TYPE ft ON f.fleet_type = ft.id
+    WHERE f.mode_achat = 'credit' AND f.nb_mois_restants > 0 AND f.Actif = 1
+    ORDER BY f.remboursement DESC, f.immat ASC
+")->fetchAll(PDO::FETCH_ASSOC);
+
 // =============================================
 // LOGIQUE DU "MOOD" DU TRÉSORIER
 // =============================================
@@ -190,6 +199,30 @@ include __DIR__ . '/../includes/menu_logged.php';
                 <div class="stat-label"><?= t('tresorier_dette') ?> (<?= $stats['nb_credit'] ?> <?= t('tresorier_appareils') ?>)</div>
             </div>
         </div>
+    </div>
+
+    <!-- CRÉDITS EN COURS -->
+    <div class="tresorier-card credit tresorier-credits-card">
+        <h3>💳 <?= t('tresorier_credits_title') ?></h3>
+        <p class="tresorier-card-intro"><?= t('tresorier_credits_intro') ?></p>
+        <?php if (empty($credits)): ?>
+            <p class="tresorier-ok-msg">✅ <?= t('tresorier_credits_empty') ?></p>
+        <?php else: ?>
+            <table class="tresorier-table">
+                <thead><tr><th><?= t('tresorier_col_immat') ?></th><th><?= t('tresorier_col_type') ?></th><th><?= t('tresorier_col_mois_restants') ?></th><th><?= t('tresorier_col_mensualite') ?></th><th><?= t('tresorier_col_reste_a_payer') ?></th></tr></thead>
+                <tbody>
+                <?php foreach ($credits as $credit): ?>
+                    <tr>
+                        <td><strong><?= htmlspecialchars($credit['immat']) ?></strong></td>
+                        <td><?= htmlspecialchars($credit['type_nom'] ?? '') ?></td>
+                        <td><?= intval($credit['nb_mois_restants']) ?></td>
+                        <td class="tresorier-negative"><?= fmt($credit['remboursement'], 2) ?> €</td>
+                        <td class="tresorier-negative"><?= fmt($credit['reste_a_payer'], 2) ?> €</td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php endif; ?>
     </div>
 
     <div class="tresorier-grid">
