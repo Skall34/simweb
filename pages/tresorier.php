@@ -201,30 +201,6 @@ include __DIR__ . '/../includes/menu_logged.php';
         </div>
     </div>
 
-    <!-- CRÉDITS EN COURS -->
-    <div class="tresorier-card credit tresorier-credits-card">
-        <h3>💳 <?= t('tresorier_credits_title') ?></h3>
-        <p class="tresorier-card-intro"><?= t('tresorier_credits_intro') ?></p>
-        <?php if (empty($credits)): ?>
-            <p class="tresorier-ok-msg">✅ <?= t('tresorier_credits_empty') ?></p>
-        <?php else: ?>
-            <table class="tresorier-table">
-                <thead><tr><th><?= t('tresorier_col_immat') ?></th><th><?= t('tresorier_col_type') ?></th><th><?= t('tresorier_col_mois_restants') ?></th><th><?= t('tresorier_col_mensualite') ?></th><th><?= t('tresorier_col_reste_a_payer') ?></th></tr></thead>
-                <tbody>
-                <?php foreach ($credits as $credit): ?>
-                    <tr>
-                        <td><strong><?= htmlspecialchars($credit['immat']) ?></strong></td>
-                        <td><?= htmlspecialchars($credit['type_nom'] ?? '') ?></td>
-                        <td><?= intval($credit['nb_mois_restants']) ?></td>
-                        <td class="tresorier-negative"><?= fmt($credit['remboursement'], 2) ?> €</td>
-                        <td class="tresorier-negative"><?= fmt($credit['reste_a_payer'], 2) ?> €</td>
-                    </tr>
-                <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php endif; ?>
-    </div>
-
     <div class="tresorier-grid">
 
         <!-- AVIONS DORMEURS -->
@@ -378,6 +354,30 @@ include __DIR__ . '/../includes/menu_logged.php';
             </ul>
         </div>
 
+    </div>
+
+    <!-- CRÉDITS EN COURS -->
+    <div class="tresorier-card credit tresorier-credits-card">
+        <h3>💳 <?= t('tresorier_credits_title') ?></h3>
+        <p class="tresorier-card-intro"><?= t('tresorier_credits_intro') ?></p>
+        <?php if (empty($credits)): ?>
+            <p class="tresorier-ok-msg">✅ <?= t('tresorier_credits_empty') ?></p>
+        <?php else: ?>
+            <table class="tresorier-table">
+                <thead><tr><th><?= t('tresorier_col_immat') ?></th><th><?= t('tresorier_col_type') ?></th><th><?= t('tresorier_col_mois_restants') ?></th><th><?= t('tresorier_col_mensualite') ?></th><th><?= t('tresorier_col_reste_a_payer') ?></th></tr></thead>
+                <tbody>
+                <?php foreach ($credits as $credit): ?>
+                    <tr>
+                        <td><strong><?= htmlspecialchars($credit['immat']) ?></strong></td>
+                        <td><?= htmlspecialchars($credit['type_nom'] ?? '') ?></td>
+                        <td><?= intval($credit['nb_mois_restants']) ?></td>
+                        <td class="tresorier-negative"><?= fmt($credit['remboursement'], 2) ?> €</td>
+                        <td class="tresorier-negative"><?= fmt($credit['reste_a_payer'], 2) ?> €</td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php endif; ?>
     </div>
 
 </div>
