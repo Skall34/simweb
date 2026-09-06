@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../includes/header.php';
 require_once __DIR__ . '/../../includes/menu_logged.php';
 ?>
 <main>
+    <?php afficherCoefficientMission(); ?>
     <h1 style="text-align:center;color:#3c4a2a;margin-top:24px;margin-bottom:18px;">🎖️ Contrats Militaires</h1>
 
     <section style="max-width:700px;margin:0 auto 32px auto;font-size:1.15em;line-height:1.6;background:#f5f7f0;padding:24px;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
@@ -14,7 +15,6 @@ require_once __DIR__ . '/../../includes/menu_logged.php';
 
     <section style="max-width:700px;margin:0 auto 32px auto;background:#e8ecd8;padding:24px;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,0.04);border-left:4px solid #6b7b3c;">
         <h2 style="color:#4a5320;margin-top:0;">💎 Impact financier</h2>
-        <p style="margin-bottom:0;"><strong>Coefficient de mission : 2.5</strong></p>
         <p>Les contrats militaires sont <strong>extrêmement rentables</strong>. Ce coefficient élevé reflète :</p>
         <ul style="margin-left:20px;">
             <li>Des budgets de défense conséquents</li>

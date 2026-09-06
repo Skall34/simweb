@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../includes/header.php';
 require_once __DIR__ . '/../../includes/menu_logged.php';
 ?>
 <main>
+    <?php afficherCoefficientMission(); ?>
     <h1 style="text-align:center;color:#1a3552;margin-top:24px;margin-bottom:18px;">Circuit Des Alpages</h1>
     <div style="display:flex;justify-content:center;margin-bottom:24px;">
         <!-- Ajoutez une image ici si nécessaire -->

@@ -7,6 +7,7 @@ require_once __DIR__ . '/../../includes/menu_logged.php';
 ?>
 
 <main>
+    <?php afficherCoefficientMission(); ?>
     <h1 style="text-align:center;color:#1a3552;margin-top:24px;margin-bottom:18px;">La Grèce</h1>
     <section style="max-width:700px;margin:0 auto 24px auto;font-size:1.13em;line-height:1.6;background:#fafdff;padding:20px 28px;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,0.05);">
         Parcourez la Grèce à partir de petits avions ou bien d'hélicoptères sur des étapes courtes d'une moyenne de 50nm. Voyagez d'île en île pour découvrir des paysages extraordinaires.<br><br>

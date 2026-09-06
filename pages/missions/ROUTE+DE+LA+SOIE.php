@@ -7,6 +7,7 @@ require_once __DIR__ . '/../../includes/menu_logged.php';
 ?>
 
 <main>
+    <?php afficherCoefficientMission(); ?>
     <h1 style="text-align:center;color:#1a3552;margin-top:24px;margin-bottom:18px;">La Route de la Soie</h1>
     <section style="max-width:700px;margin:0 auto 24px auto;font-size:1.13em;line-height:1.6;background:#fafdff;padding:20px 28px;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,0.05);">
         Parcourez les grands paysages des steppes en longeant la chaîne des montagnes himalayennes. La Route de la soie est un réseau ancien de routes commerciales entre l'Asie et l'Europe, reliant la ville de Chang'an (actuelle Xi'an) en Chine à la ville de Constantinople (aujourd'hui Istanbul), en Turquie. Elle tire son nom de la plus précieuse marchandise qui y transitait : la soie.

@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../includes/header.php';
 require_once __DIR__ . '/../../includes/menu_logged.php';
 ?>
 <main>
+    <?php afficherCoefficientMission(); ?>
     <h1 style="text-align:center;color:#1a3552;margin-top:24px;margin-bottom:18px;">✈️ Vols Loisir</h1>
 
     <section style="max-width:700px;margin:0 auto 32px auto;font-size:1.15em;line-height:1.6;background:#f7fbff;padding:24px;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
@@ -14,7 +15,6 @@ require_once __DIR__ . '/../../includes/menu_logged.php';
 
     <section style="max-width:700px;margin:0 auto 32px auto;background:#fff3cd;padding:24px;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,0.04);border-left:4px solid #ffc107;">
         <h2 style="color:#856404;margin-top:0;">⚠️ Impact financier</h2>
-        <p style="margin-bottom:0;"><strong>Coefficient de mission : 0.5</strong></p>
         <p>Cela signifie que les vols loisir <strong>coûtent de l'argent</strong> à la compagnie. Le revenu net sera généralement négatif car :</p>
         <ul style="margin-left:20px;">
             <li>Aucun passager ni fret payant à bord</li>

@@ -571,6 +571,7 @@ return [
     'mission_oppng' => 'OP Papua',
     'mission_vollibre' => 'Free flight',
     'mission_longmoyen' => 'Long/medium haul',
+    'mission_revenue_coefficient' => 'Revenue multiplier: x{coefficient}',
     // Page: missions/CARGO
     'cargo_mission_eyebrow' => 'Cargo operations',
     'cargo_mission_title' => 'Cargo',

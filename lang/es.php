@@ -571,6 +571,7 @@ return [
     'mission_oppng' => 'OP Papúa',
     'mission_vollibre' => 'Vuelo libre',
     'mission_longmoyen' => 'Largo/medio recorrido',
+    'mission_revenue_coefficient' => 'Multiplicador de ingresos: x{coefficient}',
     // Pagina: missions/CARGO
     'cargo_mission_eyebrow' => 'Operaciones de carga',
     'cargo_mission_title' => 'Carga',

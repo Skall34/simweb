@@ -2084,6 +2084,16 @@ footer {
 }
 
 /* Cargo mission */
+.mission-revenue-coefficient {
+    max-width: 700px;
+    margin: 24px auto;
+    padding: 10px 16px;
+    background: #e8f3f5;
+    border-left: 4px solid #0c6374;
+    color: #0c5263;
+    font-weight: 700;
+    text-align: center;
+}
 .cargo-mission {
     max-width: 900px;
     margin: 0 auto;

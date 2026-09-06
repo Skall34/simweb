@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../includes/header.php';
 require_once __DIR__ . '/../../includes/menu_logged.php';
 ?>
 <main>
+    <?php afficherCoefficientMission(); ?>
     <h1 style="text-align:center;color:#1a3552;margin-top:24px;margin-bottom:18px;">Vols réguliers</h1>
    
     <section style="max-width:1100px;margin:0 auto 32px auto;font-size:1.05em;line-height:1.6;background:#f7fbff;padding:26px 28px;border-radius:12px;box-shadow:0 6px 18px rgba(10,30,60,0.06);">

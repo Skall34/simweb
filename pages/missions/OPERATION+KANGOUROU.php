@@ -9,6 +9,7 @@ require_once __DIR__ . '/../../includes/menu_logged.php';
 ?>
 
 <main>
+    <?php afficherCoefficientMission(); ?>
 
     <h1 style="text-align:center;color:#1a3552;margin-top:24px;margin-bottom:18px;">Opération Kangourou</h1>
 

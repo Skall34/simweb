@@ -7,6 +7,7 @@ require_once __DIR__ . '/../../includes/menu_logged.php';
 ?>
 
 <main>
+    <?php afficherCoefficientMission(); ?>
     <h1 style="text-align:center;color:#1a3552;margin-top:24px;margin-bottom:18px;">Les Caraïbes</h1>
     <div style="display:flex;justify-content:center;margin-bottom:24px;">
         <img src="../../assets/images/caraibes_1.jpg" alt="Les Caraïbes" style="max-width:600px;width:100%;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,0.08);">

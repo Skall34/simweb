@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../includes/header.php';
 require_once __DIR__ . '/../../includes/menu_logged.php';
 ?>
 <main class="cargo-mission">
+    <?php afficherCoefficientMission(); ?>
     <header class="cargo-mission__header">
         <p class="cargo-mission__eyebrow"><?= t('cargo_mission_eyebrow') ?></p>
         <h1><?= t('cargo_mission_title') ?></h1>

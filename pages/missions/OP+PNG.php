@@ -4,6 +4,7 @@ include __DIR__ . '/../../includes/header.php';
 include __DIR__ . '/../../includes/menu_logged.php';
 ?>
 <main>
+    <?php afficherCoefficientMission(); ?>
     <h1 style="text-align:center;color:#1a3552;margin-top:24px;margin-bottom:18px;">Opération Papouasie</h1>
     <div style="display:flex;justify-content:center;margin-bottom:24px;gap:24px;flex-wrap:wrap;">
         <img src="/assets/images/Papouasie_1.jpg" alt="Tapini" style="max-width:420px;width:100%;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,0.08);">

@@ -569,6 +569,7 @@ return [
     'mission_oppng' => 'OP Papouasie',
     'mission_vollibre' => 'Vol libre',
     'mission_longmoyen' => 'Long/moyen courrier',
+    'mission_revenue_coefficient' => 'Coefficient de revenu : x{coefficient}',
     // Page : missions/CARGO
     'cargo_mission_eyebrow' => 'Operations fret',
     'cargo_mission_title' => 'Cargo',
