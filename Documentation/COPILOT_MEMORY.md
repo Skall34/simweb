@@ -38,3 +38,11 @@ La structure complète est documentée dans `/memories/repo/database_structure.m
 - `FLOTTE.etat` : pourcentage état (0-100), déclenche maintenance si <10%
 - `MISSIONS.libelle` : nom de la mission (pas "nom")
 - `PILOTES.admin` : 1=administrateur
+
+## Annulation de vol
+
+- La migration `install/sql_database/migrations_archive/add_flight_cancellation.sql` ajoute à `CARNET_DE_VOL_GENERAL` les colonnes `annule`, `date_annulation`, `annule_par`, `motif_annulation` et l'index `idx_carnet_annule`.
+- Seuls les super-admins de `VA_SUPER_ADMIN_CALLSIGNS` peuvent annuler un vol via `admin/admin_annulation_vol.php`; le motif et une confirmation explicite sont obligatoires.
+- L'annulation est logique: le vol est conservé avec ses métadonnées d'audit, mais les carnets, agrégats et calculs métier doivent filtrer `annule = 0`.
+- L'annulation transactionnelle supprime la trace GPS, inverse le fret, contre-passe les écritures financières directement liées, recalcule les recettes de l'avion et le grade du pilote, puis crédite l'usure liée à la note. Elle ne restaure pas la localisation, le carburant restant ni le dernier utilisateur de l'avion.
+- Les vols annulés restent visibles uniquement dans la vue super-admin dédiée, avec date, auteur et motif d'annulation.

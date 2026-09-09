@@ -134,6 +134,7 @@ function detecterDoublonVol($pdo, $callsign, $depart, $dest, $fuelDep, $fuelArr,
                   AND ABS(fuel_arrivee - :fuelArr) < 1 
                   AND ABS(payload - :payload) < 1 
                   AND mission_id = (SELECT id FROM MISSIONS WHERE libelle = :mission LIMIT 1)
+                  AND annule = 0
                   $dateFilter";
     $stmtCarnet = $pdo->prepare($sqlCarnet);
     $stmtCarnet->execute($params);

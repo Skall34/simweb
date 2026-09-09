@@ -102,7 +102,12 @@ CREATE TABLE IF NOT EXISTS `CARNET_DE_VOL_GENERAL` (
   `mission_id` int DEFAULT NULL,
   `pirep_maintenance` text COLLATE utf8mb4_general_ci,
   `cout_vol` decimal(10,2) DEFAULT NULL,
+  `annule` tinyint(1) NOT NULL DEFAULT '0',
+  `date_annulation` datetime DEFAULT NULL,
+  `annule_par` varchar(7) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `motif_annulation` text COLLATE utf8mb4_general_ci,
   PRIMARY KEY (`id`),
+  KEY `idx_carnet_annule` (`annule`),
   KEY `fk_pilote` (`pilote_id`),
   KEY `fk_appareil` (`appareil_id`),
   KEY `fk_mission` (`mission_id`)
