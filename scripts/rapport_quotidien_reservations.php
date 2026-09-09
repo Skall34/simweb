@@ -75,10 +75,11 @@ try {
     
     logMsg("[$timestamp] Envoi du rapport quotidien a " . VA_ADMIN_EMAIL, __DIR__ . '/logs/expire_reservations.log');
     // Ajouter un delai initial de 7 minutes et jitter pour eviter les pics
-    $mailResult = sendSummaryMail($subject, $body, null, 5, [
+    $mailResult = sendSummaryMail($subject, $body, null, 10, [
         'initialDelaySeconds' => 420, // 7 minutes
         'baseDelaySeconds' => 3,
-        'maxDelaySeconds' => 10,
+        'maxDelaySeconds' => 60,
+        'maxTotalWaitSeconds' => 600, // CRON : aucun client ne patiente
         'jitterSeconds' => 3,
         'enableLock' => true,
     ]);

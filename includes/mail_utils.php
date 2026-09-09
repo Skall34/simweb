@@ -37,11 +37,15 @@ function sendSummaryMail($subject, $body, $to = null, $maxRetries = 10, $options
     $delaySeconds = 3; // Delai initial entre les tentatives
     $retryLog = []; // Historique des tentatives pour logging
     $startTime = microtime(true);
+    $attemptsDone = 0;
+    $totalWaitSeconds = 0;
     
     // Options de retry
     $initialDelaySeconds = isset($options['initialDelaySeconds']) ? intval($options['initialDelaySeconds']) : 0;
     $baseDelaySeconds = isset($options['baseDelaySeconds']) ? intval($options['baseDelaySeconds']) : 3;
-    $maxDelaySeconds = isset($options['maxDelaySeconds']) ? intval($options['maxDelaySeconds']) : 10;
+    $maxDelaySeconds = isset($options['maxDelaySeconds']) ? intval($options['maxDelaySeconds']) : 30;
+    // Budget d'attente cumule : borne la duree totale d'un appel synchrone (API, page web)
+    $maxTotalWaitSeconds = isset($options['maxTotalWaitSeconds']) ? intval($options['maxTotalWaitSeconds']) : 120;
     $jitterSeconds = isset($options['jitterSeconds']) ? intval($options['jitterSeconds']) : 3;
     $enableLock = isset($options['enableLock']) ? (bool)$options['enableLock'] : true;
     $lockFilePath = isset($options['lockFile']) ? $options['lockFile'] : (sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'simweb_mail.lock');
@@ -152,6 +156,7 @@ function sendSummaryMail($subject, $body, $to = null, $maxRetries = 10, $options
             return true;
         } catch (Exception $e) {
             $lastError = $e->getMessage();
+            $attemptsDone = $attempt;
             $msg = "FAILED: Tentative $attempt/$maxRetries echouee (to: $to) : " . $lastError;
             error_log($msg);
             $retryLog[] = $msg;
@@ -160,20 +165,30 @@ function sendSummaryMail($subject, $body, $to = null, $maxRetries = 10, $options
             if ($attempt < $maxRetries) {
                 $jitter = ($jitterSeconds > 0) ? rand(0, $jitterSeconds) : 0;
                 $wait = $delaySeconds + $jitter;
+                if ($maxTotalWaitSeconds > 0 && ($totalWaitSeconds + $wait) >= $maxTotalWaitSeconds) {
+                    $wait = $maxTotalWaitSeconds - $totalWaitSeconds;
+                    if ($wait <= 0) {
+                        $msg = "INFO: Budget d'attente global atteint ({$maxTotalWaitSeconds}s), abandon apres $attempt tentatives";
+                        error_log($msg);
+                        $retryLog[] = $msg;
+                        break;
+                    }
+                }
                 $retryLog[] = "INFO: Attente avant retry: {$wait}s (base={$delaySeconds}s, jitter={$jitter}s)";
                 sleep($wait);
-                // Augmenter progressivement le delai (backoff progressif avec plafond)
-                $delaySeconds = min($delaySeconds + 2, $maxDelaySeconds);
+                $totalWaitSeconds += $wait;
+                // Backoff exponentiel plafonne : couvre une fenetre de throttling plus large
+                $delaySeconds = min($delaySeconds * 2, $maxDelaySeconds);
             }
         }
     }
     
     // Toutes les tentatives ont echoue
-    $msg = "FATAL: Echec definitif envoi mail apres $maxRetries tentatives (to: $to) : $lastError";
+    $msg = "FATAL: Echec definitif envoi mail apres $attemptsDone tentatives (to: $to) : $lastError";
     error_log($msg);
     $retryLog[] = $msg;
     $totalElapsed = round((microtime(true) - $startTime), 3);
-    $retryLog[] = "SUMMARY: Tentatives={$maxRetries}, DureeTotale={$totalElapsed}s";
+    $retryLog[] = "SUMMARY: Tentatives={$attemptsDone}, DureeTotale={$totalElapsed}s";
     
     // Liberer le verrou si acquis
     if ($lockHandle) {
@@ -182,5 +197,5 @@ function sendSummaryMail($subject, $body, $to = null, $maxRetries = 10, $options
         $retryLog[] = "INFO: Verrou d'envoi libere";
     }
     
-    return ['success' => false, 'error' => $lastError, 'attempts' => $maxRetries, 'log' => $retryLog, 'elapsed' => $totalElapsed];
+    return ['success' => false, 'error' => $lastError, 'attempts' => $attemptsDone, 'log' => $retryLog, 'elapsed' => $totalElapsed];
 }
