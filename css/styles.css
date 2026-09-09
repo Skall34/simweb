@@ -247,24 +247,43 @@ header {
 }
 
 .admin-cancel-flight {
-    max-width: 1240px;
+    max-width: 1280px;
     width: 100%;
+    margin-top: 24px;
+    padding: 32px;
+    border-radius: 8px;
+}
+
+.admin-cancel-flight h2 {
+    margin-bottom: 6px;
+    color: #003b73;
 }
 
 .admin-cancel-flight-intro,
 .admin-cancel-flight-simulation {
-    margin: 12px 0 20px;
+    margin: 0 0 18px;
+    color: #45627d;
 }
 
 .admin-cancel-flight-filters {
     display: flex;
     flex-wrap: wrap;
-    align-items: end;
-    gap: 8px 12px;
-    margin-bottom: 20px;
+    align-items: center;
+    gap: 10px 14px;
+    margin: 18px 0 22px;
+    padding: 14px 16px;
+    border: 1px solid #c8d8e8;
+    border-radius: 6px;
+    background: #ffffff;
 }
 
-.admin-cancel-flight-filters label {
+.admin-cancel-flight-filter-field {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.admin-cancel-flight-filter-field label {
     font-weight: 700;
 }
 
@@ -273,12 +292,74 @@ header {
     font-weight: 400;
 }
 
+.admin-cancel-flight-filter-checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 34px;
+    white-space: nowrap;
+}
+
+.admin-cancel-flight-checkbox-control {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+}
+
+.admin-cancel-flight-filter-checkbox input[type="checkbox"] {
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 0;
+}
+
+.admin-cancel-flight-checkbox-label {
+    margin: 0;
+}
+
 .admin-cancel-flight-filters input {
-    width: 130px;
-    padding: 7px;
+    width: 112px;
+    height: 34px;
+    padding: 5px 7px;
     border: 1px solid #b3c6e0;
     border-radius: 4px;
     font: inherit;
+}
+
+.admin-cancel-flight-filters input[type="date"] {
+    width: 132px;
+}
+
+.admin-cancel-flight-filter-airport input {
+    width: 88px;
+}
+
+.admin-cancel-flight-filters .btn {
+    min-width: 112px;
+    min-height: 34px;
+    padding: 5px 10px;
+    text-align: center;
+}
+
+.admin-cancel-flight-reset {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 112px;
+    min-height: 34px;
+    padding: 5px 10px;
+    border: 1px solid #aab9c8;
+    border-radius: 4px;
+    background: #eef3f7;
+    color: #174a73;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.admin-cancel-flight-reset:hover {
+    background: #dfe9f1;
+    color: #003b73;
 }
 
 .admin-cancel-flight-form textarea {
@@ -387,6 +468,49 @@ header {
 }
 
 .admin-cancel-flight-confirm-button:hover {
+    background: #8b1f16;
+}
+
+.super-admin-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.super-admin-menu h2 {
+    margin-bottom: 8px;
+}
+
+.super-admin-menu > p {
+    color: #45627d;
+}
+
+.super-admin-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 36px;
+    padding: 7px 13px;
+    border: 1px solid #004080;
+    border-radius: 4px;
+    background: #004080;
+    color: #fff;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.super-admin-action:hover {
+    background: #003366;
+    color: #fff;
+}
+
+.super-admin-action-danger {
+    border-color: #b42318;
+    background: #b42318;
+}
+
+.super-admin-action-danger:hover {
     background: #8b1f16;
 }
 

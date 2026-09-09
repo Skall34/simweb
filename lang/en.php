@@ -1,9 +1,9 @@
 <?php
 return [
     // --- Page: admin_annulation_vol ---
-    'admin_cancel_flight_title' => 'Flight cancellation simulation',
-    'admin_cancel_flight_menu_link' => 'Simulate a flight cancellation',
-    'admin_cancel_flight_intro' => 'This page analyses the effects of a cancellation without modifying the database.',
+    'admin_cancel_flight_title' => 'Cancel a flight',
+    'admin_cancel_flight_menu_link' => 'Cancel a flight',
+    'admin_cancel_flight_intro' => 'Select a flight, review the planned operations, then confirm its cancellation.',
     'admin_cancel_flight_filter_pilot' => 'Pilot',
     'admin_cancel_flight_filter_aircraft' => 'Aircraft',
     'admin_cancel_flight_filter_date' => 'Date',
@@ -24,7 +24,7 @@ return [
     'admin_cancel_flight_table_cancelled_by' => 'Cancelled by',
     'admin_cancel_flight_table_reason' => 'Reason',
     'admin_cancel_flight_label_reason' => 'Required cancellation reason',
-    'admin_cancel_flight_simulate_button' => 'Simulate cancellation',
+    'admin_cancel_flight_simulate_button' => 'Cancel the flight',
     'admin_cancel_flight_error_id' => 'Select a flight.',
     'admin_cancel_flight_error_reason' => 'A cancellation reason is required.',
     'admin_cancel_flight_error_not_found' => 'No flight matches this ID.',
@@ -32,13 +32,13 @@ return [
     'admin_cancel_flight_error_confirmation' => 'You must confirm the flight cancellation.',
     'admin_cancel_flight_error_cancel' => 'The flight could not be cancelled. No change was retained.',
     'admin_cancel_flight_success' => 'Flight #{id} was cancelled.',
-    'admin_cancel_flight_result_title' => 'Analysed flight',
+    'admin_cancel_flight_result_title' => 'Cancellation summary',
     'admin_cancel_flight_detail_flight' => 'Flight',
     'admin_cancel_flight_detail_pilot' => 'Pilot',
     'admin_cancel_flight_detail_aircraft' => 'Aircraft',
     'admin_cancel_flight_detail_route' => 'Route',
     'admin_cancel_flight_detail_reason' => 'Reason',
-    'admin_cancel_flight_operations_title' => 'Operations that would be performed',
+    'admin_cancel_flight_operations_title' => 'Operations that will be performed',
     'admin_cancel_flight_operation_hide' => 'Mark the flight as cancelled so it is hidden from logbooks and statistics.',
     'admin_cancel_flight_operation_gps' => 'Remove the GPS track associated with the flight.',
     'admin_cancel_flight_operation_freight' => 'Restore {payload} kg of freight at departure and remove it at destination.',
@@ -52,7 +52,7 @@ return [
     'admin_cancel_flight_crash_warning' => 'Warning: expenses linked to this flight were found. The crash case must reverse them and the associated maintenance.',
     'admin_cancel_flight_simulation_notice' => 'Simulation only: no data-changing query was executed.',
     'admin_cancel_flight_confirm_label' => 'I confirm the final cancellation of this flight.',
-    'admin_cancel_flight_confirm_button' => 'Cancel this flight',
+    'admin_cancel_flight_confirm_button' => 'Confirm cancellation',
 
     // --- Page : admin_variables ---
     'admin_variables_title' => 'Global Variables Administration',

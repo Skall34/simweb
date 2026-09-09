@@ -86,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($errors)) {
-        $stmtVol = $pdo->prepare("\n            SELECT c.id, c.date_vol, c.depart, c.destination, c.fuel_depart, c.fuel_arrivee,\n                   c.payload, c.temps_vol, c.note_du_vol, c.cout_vol,\n                   p.callsign AS pilote_callsign, f.id AS appareil_id, f.immat\n            FROM CARNET_DE_VOL_GENERAL c\n            INNER JOIN PILOTES p ON p.id = c.pilote_id\n            INNER JOIN FLOTTE f ON f.id = c.appareil_id\n            WHERE c.id = :vol_id\n        ");
+        $stmtVol = $pdo->prepare("\n            SELECT c.id, c.date_vol, c.depart, c.destination, c.fuel_depart, c.fuel_arrivee,\n                   c.payload, c.temps_vol, c.note_du_vol, c.cout_vol,\n                   p.callsign AS pilote_callsign, f.id AS appareil_id, f.immat\n            FROM CARNET_DE_VOL_GENERAL c\n            INNER JOIN PILOTES p ON p.id = c.pilote_id\n            INNER JOIN FLOTTE f ON f.id = c.appareil_id\n            WHERE c.id = :vol_id AND c.annule = 0\n        ");
         $stmtVol->execute(['vol_id' => $volId]);
         $vol = $stmtVol->fetch(PDO::FETCH_ASSOC);
 
@@ -122,7 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $pdo->prepare("INSERT INTO finances_depenses (date, type, montant, reference_id, reference_type, commentaire) SELECT NOW(), 'annulation_vol', -montant, :vol_id, 'annulation_vol', :commentaire FROM finances_depenses WHERE reference_id = :source_vol_id AND type = 'maintenance_crash'")->execute(['vol_id' => $volId, 'source_vol_id' => $volId, 'commentaire' => $commentaire]);
 
                     $pdo->prepare('UPDATE CARNET_DE_VOL_GENERAL SET annule = 1, date_annulation = NOW(), annule_par = :callsign, motif_annulation = :motif WHERE id = :vol_id')->execute(['callsign' => $callsign, 'motif' => $motif, 'vol_id' => $volId]);
-                    $pdo->prepare('UPDATE FLOTTE SET etat = LEAST(100, etat + :usure), recettes = (SELECT COALESCE(SUM(cout_vol), 0) FROM CARNET_DE_VOL_GENERAL WHERE appareil_id = :appareil_id AND annule = 0) WHERE id = :appareil_id')->execute(['usure' => $usureCredit, 'appareil_id' => $vol['appareil_id']]);
+                    $pdo->prepare('UPDATE FLOTTE SET etat = LEAST(100, etat + :usure), recettes = (SELECT COALESCE(SUM(cout_vol), 0) FROM CARNET_DE_VOL_GENERAL WHERE appareil_id = :recettes_appareil_id AND annule = 0) WHERE id = :appareil_id')->execute(['usure' => $usureCredit, 'recettes_appareil_id' => $vol['appareil_id'], 'appareil_id' => $vol['appareil_id']]);
                     $stmtPilotId = $pdo->prepare('SELECT id FROM PILOTES WHERE callsign = :callsign');
                     $stmtPilotId->execute(['callsign' => $vol['pilote_callsign']]);
                     $pilotId = $stmtPilotId->fetchColumn();
@@ -167,17 +167,25 @@ include __DIR__ . '/../includes/menu_logged.php';
     <p class="admin-cancel-flight-intro"><?= t('admin_cancel_flight_intro') ?></p>
 
     <form method="get" class="admin-cancel-flight-filters">
-        <label for="callsign"><?= t('admin_cancel_flight_filter_pilot') ?></label>
-        <input type="text" id="callsign" name="callsign" value="<?= htmlspecialchars($pilotFilter) ?>">
-        <label for="immat"><?= t('admin_cancel_flight_filter_aircraft') ?></label>
-        <input type="text" id="immat" name="immat" value="<?= htmlspecialchars($aircraftFilter) ?>">
-        <label for="date"><?= t('admin_cancel_flight_filter_date') ?></label>
-        <input type="date" id="date" name="date" value="<?= htmlspecialchars($dateFilter) ?>">
-        <label for="airport"><?= t('admin_cancel_flight_filter_airport') ?></label>
-        <input type="text" id="airport" name="airport" maxlength="4" value="<?= htmlspecialchars($airportFilter) ?>">
-        <label class="admin-cancel-flight-filter-checkbox" for="show_cancelled"><input type="checkbox" id="show_cancelled" name="show_cancelled" value="1" <?= $showCancelled ? 'checked' : '' ?>> <?= t('admin_cancel_flight_filter_cancelled') ?></label>
+        <div class="admin-cancel-flight-filter-field">
+            <label for="callsign"><?= t('admin_cancel_flight_filter_pilot') ?></label>
+            <input type="text" id="callsign" name="callsign" value="<?= htmlspecialchars($pilotFilter) ?>">
+        </div>
+        <div class="admin-cancel-flight-filter-field">
+            <label for="immat"><?= t('admin_cancel_flight_filter_aircraft') ?></label>
+            <input type="text" id="immat" name="immat" value="<?= htmlspecialchars($aircraftFilter) ?>">
+        </div>
+        <div class="admin-cancel-flight-filter-field">
+            <label for="date"><?= t('admin_cancel_flight_filter_date') ?></label>
+            <input type="date" id="date" name="date" value="<?= htmlspecialchars($dateFilter) ?>">
+        </div>
+        <div class="admin-cancel-flight-filter-field admin-cancel-flight-filter-airport">
+            <label for="airport"><?= t('admin_cancel_flight_filter_airport') ?></label>
+            <input type="text" id="airport" name="airport" maxlength="4" value="<?= htmlspecialchars($airportFilter) ?>">
+        </div>
+        <label class="admin-cancel-flight-filter-checkbox" for="show_cancelled"><span class="admin-cancel-flight-checkbox-control"><input type="checkbox" id="show_cancelled" name="show_cancelled" value="1" <?= $showCancelled ? 'checked' : '' ?>></span><span class="admin-cancel-flight-checkbox-label"><?= t('admin_cancel_flight_filter_cancelled') ?></span></label>
         <button type="submit" class="btn"><?= t('admin_cancel_flight_filter_button') ?></button>
-        <a href="admin_annulation_vol.php" class="btn btn-reset"><?= t('admin_cancel_flight_reset_button') ?></a>
+        <a href="admin_annulation_vol.php" class="admin-cancel-flight-reset"><?= t('admin_cancel_flight_reset_button') ?></a>
     </form>
 
     <?php if (!empty($errors)): ?>
@@ -247,7 +255,7 @@ include __DIR__ . '/../includes/menu_logged.php';
     </form>
 
     <?php if ($vol && empty($errors)): ?>
-        <section class="admin-cancel-flight-result">
+        <section id="admin-cancel-flight-recap" class="admin-cancel-flight-result">
             <h3><?= t('admin_cancel_flight_result_title') ?></h3>
             <dl class="admin-cancel-flight-details">
                 <dt><?= t('admin_cancel_flight_detail_flight') ?></dt><dd>#<?= (int)$vol['id'] ?></dd>
@@ -285,6 +293,11 @@ include __DIR__ . '/../includes/menu_logged.php';
                 <button type="submit" class="btn admin-cancel-flight-confirm-button"><?= t('admin_cancel_flight_confirm_button') ?></button>
             </form>
         </section>
+        <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('admin-cancel-flight-recap').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+        </script>
     <?php endif; ?>
 </main>
 

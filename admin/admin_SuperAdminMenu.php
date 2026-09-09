@@ -152,14 +152,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['csv_script']) && isse
 */
 ?>
 
-<main>
+<main class="super-admin-menu">
 
     <h2>Super Administration</h2>
 
     <p>Bienvenue dans le menu de super administration. Sélectionnez une action à effectuer :</p>
 
-    <a href="admin_config.php" class="button">Administrer la compagnie</a>
-    <a href="admin_annulation_vol.php" class="button"><?= t('admin_cancel_flight_menu_link') ?></a>
+    <div class="super-admin-actions" aria-label="Actions de super administration">
+        <a href="admin_config.php" class="super-admin-action">Administrer la compagnie</a>
+        <a href="admin_annulation_vol.php" class="super-admin-action super-admin-action-danger"><?= t('admin_cancel_flight_menu_link') ?></a>
+    </div>
 </main>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

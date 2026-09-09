@@ -1,9 +1,9 @@
 <?php
 return [
     // --- Page : admin_annulation_vol ---
-    'admin_cancel_flight_title' => 'Simulation d\'annulation de vol',
-    'admin_cancel_flight_menu_link' => 'Simuler une annulation de vol',
-    'admin_cancel_flight_intro' => 'Cette page analyse les effets d\'une annulation sans modifier la base de données.',
+    'admin_cancel_flight_title' => 'Annuler un vol',
+    'admin_cancel_flight_menu_link' => 'Annuler un vol',
+    'admin_cancel_flight_intro' => 'Sélectionnez un vol, vérifiez les opérations prévues, puis confirmez son annulation.',
     'admin_cancel_flight_filter_pilot' => 'Pilote',
     'admin_cancel_flight_filter_aircraft' => 'Avion',
     'admin_cancel_flight_filter_date' => 'Date',
@@ -24,7 +24,7 @@ return [
     'admin_cancel_flight_table_cancelled_by' => 'Annulé par',
     'admin_cancel_flight_table_reason' => 'Motif',
     'admin_cancel_flight_label_reason' => 'Motif obligatoire de l\'annulation',
-    'admin_cancel_flight_simulate_button' => 'Simuler l\'annulation',
+    'admin_cancel_flight_simulate_button' => 'Annuler le vol',
     'admin_cancel_flight_error_id' => 'Sélectionnez un vol.',
     'admin_cancel_flight_error_reason' => 'Le motif d\'annulation est obligatoire.',
     'admin_cancel_flight_error_not_found' => 'Aucun vol ne correspond à cet identifiant.',
@@ -32,13 +32,13 @@ return [
     'admin_cancel_flight_error_confirmation' => 'Vous devez confirmer l\'annulation du vol.',
     'admin_cancel_flight_error_cancel' => 'Le vol n\'a pas pu être annulé. Aucune modification n\'a été conservée.',
     'admin_cancel_flight_success' => 'Le vol #{id} a été annulé.',
-    'admin_cancel_flight_result_title' => 'Vol analysé',
+    'admin_cancel_flight_result_title' => 'Récapitulatif avant annulation',
     'admin_cancel_flight_detail_flight' => 'Vol',
     'admin_cancel_flight_detail_pilot' => 'Pilote',
     'admin_cancel_flight_detail_aircraft' => 'Avion',
     'admin_cancel_flight_detail_route' => 'Trajet',
     'admin_cancel_flight_detail_reason' => 'Motif',
-    'admin_cancel_flight_operations_title' => 'Opérations qui seraient exécutées',
+    'admin_cancel_flight_operations_title' => 'Opérations qui seront exécutées',
     'admin_cancel_flight_operation_hide' => 'Marquer le vol comme annulé afin de le masquer des carnets et des statistiques.',
     'admin_cancel_flight_operation_gps' => 'Retirer la trace GPS associée au vol.',
     'admin_cancel_flight_operation_freight' => 'Restituer {payload} kg de fret au départ et les retirer de la destination.',
@@ -52,7 +52,7 @@ return [
     'admin_cancel_flight_crash_warning' => 'Attention : des dépenses liées au vol ont été trouvées. Le cas crash devra inclure leur contrepassation et la maintenance associée.',
     'admin_cancel_flight_simulation_notice' => 'Simulation uniquement : aucune requête de modification n\'a été exécutée.',
     'admin_cancel_flight_confirm_label' => 'Je confirme l\'annulation définitive de ce vol.',
-    'admin_cancel_flight_confirm_button' => 'Annuler ce vol',
+    'admin_cancel_flight_confirm_button' => 'Valider l\'annulation',
 
     // --- Page : admin_variables ---
     'admin_variables_title' => 'Administration des variables globales',
