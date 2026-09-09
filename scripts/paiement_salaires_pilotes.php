@@ -66,7 +66,7 @@ foreach ($pilotes as $index => $pilote) {
     }
 
     try {
-        $stmtHeures = $pdo->prepare("SELECT SUM(TIME_TO_SEC(temps_vol)) FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = ? AND DATE(date_vol) >= ? AND DATE(date_vol) < ?");
+        $stmtHeures = $pdo->prepare("SELECT SUM(TIME_TO_SEC(temps_vol)) FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = ? AND annule = 0 AND DATE(date_vol) >= ? AND DATE(date_vol) < ?");
         $stmtHeures->execute([$pilote['id'], $debut_mois, $fin_mois]);
         $total_sec = (int)$stmtHeures->fetchColumn();
         $heures_mois = $total_sec / 3600;
@@ -83,7 +83,7 @@ foreach ($pilotes as $index => $pilote) {
     $stmtBonus = $pdo->prepare("SELECT valeur FROM VARIABLES_CONFIG WHERE nom = 'bonus_fret_kg'");
     $stmtBonus->execute();
     $bonus_fret_kg = (float)$stmtBonus->fetchColumn();
-    $stmtFret = $pdo->prepare("SELECT SUM(payload) FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = ? AND DATE(date_vol) >= ? AND DATE(date_vol) < ?");
+    $stmtFret = $pdo->prepare("SELECT SUM(payload) FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = ? AND annule = 0 AND DATE(date_vol) >= ? AND DATE(date_vol) < ?");
     $stmtFret->execute([$pilote['id'], $debut_mois, $fin_mois]);
     $total_fret_kg = (float)$stmtFret->fetchColumn();
     $bonus_fret = round($total_fret_kg * $bonus_fret_kg, 2); // bonus administrable

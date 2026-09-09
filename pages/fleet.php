@@ -24,7 +24,7 @@ try {
 // Nouvelle requête : on récupère tous les appareils (actifs et inactifs)
 $sql = "SELECT f.id, ft.fleet_type AS type_libelle, ft.type AS categorie, f.immat, f.localisation, f.hub, f.status, f.etat,
                p.callsign AS pilote_callsign, f.fuel_restant, f.compteur_immo, f.en_vol, f.nb_maintenance, f.reservee,
-               f.date_achat, f.mode_achat, COALESCE((SELECT SUM(cdvg.cout_vol) FROM CARNET_DE_VOL_GENERAL cdvg WHERE cdvg.appareil_id = f.id), 0) AS recettes_calculees, f.nb_annees_credit, f.nb_mois_restants, f.taux_percent, f.remboursement, f.traite_payee_cumulee, f.reste_a_payer, f.recette_vente, f.date_vente, f.actif
+               f.date_achat, f.mode_achat, COALESCE((SELECT SUM(cdvg.cout_vol) FROM CARNET_DE_VOL_GENERAL cdvg WHERE cdvg.appareil_id = f.id AND cdvg.annule = 0), 0) AS recettes_calculees, f.nb_annees_credit, f.nb_mois_restants, f.taux_percent, f.remboursement, f.traite_payee_cumulee, f.reste_a_payer, f.recette_vente, f.date_vente, f.actif
         FROM FLOTTE f
         LEFT JOIN FLEET_TYPE ft ON f.fleet_type = ft.id
         LEFT JOIN PILOTES p ON f.dernier_utilisateur = p.id
@@ -122,7 +122,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                     // Récupérer la date du dernier vol pour cet avion
                     $dernierVol = null;
                     try {
-                        $stmtDernierVol = $pdo->prepare("SELECT MAX(date_vol) AS date_dernier_vol FROM CARNET_DE_VOL_GENERAL WHERE appareil_id = :appareil_id");
+                        $stmtDernierVol = $pdo->prepare("SELECT MAX(date_vol) AS date_dernier_vol FROM CARNET_DE_VOL_GENERAL WHERE appareil_id = :appareil_id AND annule = 0");
                         $stmtDernierVol->execute(['appareil_id' => $avionId]);
                         $rowDernierVol = $stmtDernierVol->fetch(PDO::FETCH_ASSOC);
                         if (!empty($rowDernierVol['date_dernier_vol'])) {

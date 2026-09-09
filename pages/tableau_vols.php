@@ -62,7 +62,7 @@ try {
     LEFT JOIN MISSIONS m ON cdvg.mission_id = m.id
     ";
 
-    $conditions = [];
+    $conditions = ['cdvg.annule = 0'];
     $params = [];
 
     if ($callsignFilter !== '') {

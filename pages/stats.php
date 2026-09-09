@@ -13,6 +13,7 @@ try {
             COUNT(*) AS nb_vols,
             ROUND(SUM(TIME_TO_SEC(TIMEDIFF(heure_arrivee, heure_depart))) / 3600, 2) AS total_heures
         FROM CARNET_DE_VOL_GENERAL
+        WHERE annule = 0
         GROUP BY annee
         ORDER BY annee DESC
     ";
@@ -31,6 +32,7 @@ try {
             SUM(TIME_TO_SEC(TIMEDIFF(c.heure_arrivee, c.heure_depart))) AS total_secondes
         FROM CARNET_DE_VOL_GENERAL c
         LEFT JOIN PILOTES p ON c.pilote_id = p.id
+        WHERE c.annule = 0
         GROUP BY annee, p.callsign
         ORDER BY annee DESC, total_secondes DESC
     ";
@@ -59,6 +61,7 @@ try {
             depart,
             COUNT(*) AS nb_visites
         FROM CARNET_DE_VOL_GENERAL
+        WHERE annule = 0
         GROUP BY depart
         ORDER BY nb_visites DESC
         LIMIT 20
@@ -75,25 +78,25 @@ try {
     $nbAppareils = $pdo->query("SELECT COUNT(*) FROM FLOTTE WHERE actif=1")->fetchColumn();
 
     // Nombre de destinations distinctes
-    $nbDestinations = $pdo->query("SELECT COUNT(DISTINCT destination) FROM CARNET_DE_VOL_GENERAL")->fetchColumn();
+    $nbDestinations = $pdo->query("SELECT COUNT(DISTINCT destination) FROM CARNET_DE_VOL_GENERAL WHERE annule = 0")->fetchColumn();
 
     // Durée moyenne des vols
-    $dureeMoyenneVols = $pdo->query("SELECT ROUND(AVG(TIME_TO_SEC(TIMEDIFF(heure_arrivee, heure_depart))) / 60, 1) FROM CARNET_DE_VOL_GENERAL")->fetchColumn();
+    $dureeMoyenneVols = $pdo->query("SELECT ROUND(AVG(TIME_TO_SEC(TIMEDIFF(heure_arrivee, heure_depart))) / 60, 1) FROM CARNET_DE_VOL_GENERAL WHERE annule = 0")->fetchColumn();
 
     // Appareil le plus utilisé (immat)
-    $appareilPlusUtilise = $pdo->query("SELECT f.immat, COUNT(*) AS nb FROM CARNET_DE_VOL_GENERAL c JOIN FLOTTE f ON c.appareil_id = f.id GROUP BY f.immat ORDER BY nb DESC LIMIT 1")
+    $appareilPlusUtilise = $pdo->query("SELECT f.immat, COUNT(*) AS nb FROM CARNET_DE_VOL_GENERAL c JOIN FLOTTE f ON c.appareil_id = f.id WHERE c.annule = 0 GROUP BY f.immat ORDER BY nb DESC LIMIT 1")
         ->fetch(PDO::FETCH_ASSOC);
 
     // Appareil avec le plus d'heures de vol (immat)
-    $appareilPlusDHeures = $pdo->query("SELECT f.immat, ROUND(SUM(TIME_TO_SEC(TIMEDIFF(c.heure_arrivee, c.heure_depart))/3600), 1) AS total_heures FROM CARNET_DE_VOL_GENERAL c JOIN FLOTTE f ON c.appareil_id = f.id GROUP BY f.immat ORDER BY total_heures DESC LIMIT 1")
+    $appareilPlusDHeures = $pdo->query("SELECT f.immat, ROUND(SUM(TIME_TO_SEC(TIMEDIFF(c.heure_arrivee, c.heure_depart))/3600), 1) AS total_heures FROM CARNET_DE_VOL_GENERAL c JOIN FLOTTE f ON c.appareil_id = f.id WHERE c.annule = 0 GROUP BY f.immat ORDER BY total_heures DESC LIMIT 1")
         ->fetch(PDO::FETCH_ASSOC);
 
     // Pilote le plus actif
-    $pilotePlusActif = $pdo->query("SELECT p.callsign, ROUND(SUM(TIME_TO_SEC(TIMEDIFF(c.heure_arrivee, c.heure_depart))/3600), 1) AS heures FROM CARNET_DE_VOL_GENERAL c JOIN PILOTES p ON c.pilote_id = p.id GROUP BY p.callsign ORDER BY heures DESC LIMIT 1")
+    $pilotePlusActif = $pdo->query("SELECT p.callsign, ROUND(SUM(TIME_TO_SEC(TIMEDIFF(c.heure_arrivee, c.heure_depart))/3600), 1) AS heures FROM CARNET_DE_VOL_GENERAL c JOIN PILOTES p ON c.pilote_id = p.id WHERE c.annule = 0 GROUP BY p.callsign ORDER BY heures DESC LIMIT 1")
         ->fetch(PDO::FETCH_ASSOC);
 
     // Trajet le plus fréquent
-    $trajetFrequent = $pdo->query("SELECT CONCAT(depart, ' → ', destination) AS trajet, COUNT(*) AS nb FROM CARNET_DE_VOL_GENERAL GROUP BY trajet ORDER BY nb DESC LIMIT 1")
+    $trajetFrequent = $pdo->query("SELECT CONCAT(depart, ' → ', destination) AS trajet, COUNT(*) AS nb FROM CARNET_DE_VOL_GENERAL WHERE annule = 0 GROUP BY trajet ORDER BY nb DESC LIMIT 1")
         ->fetch(PDO::FETCH_ASSOC);
 
 } catch (PDOException $e) {
@@ -140,7 +143,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                 <thead><tr><th><?= t('stats_table_callsign') ?></th><th><?= t('stats_table_hours') ?></th></tr></thead>
                 <tbody>
                 <?php
-                $topPilotes = $pdo->query("SELECT p.callsign, ROUND(SUM(TIME_TO_SEC(temps_vol)/3600),1) AS heures FROM CARNET_DE_VOL_GENERAL c JOIN PILOTES p ON c.pilote_id = p.id GROUP BY p.callsign ORDER BY heures DESC LIMIT 10")->fetchAll();
+                $topPilotes = $pdo->query("SELECT p.callsign, ROUND(SUM(TIME_TO_SEC(temps_vol)/3600),1) AS heures FROM CARNET_DE_VOL_GENERAL c JOIN PILOTES p ON c.pilote_id = p.id WHERE c.annule = 0 GROUP BY p.callsign ORDER BY heures DESC LIMIT 10")->fetchAll();
                 foreach ($topPilotes as $p): ?>
                     <tr><td><?= htmlspecialchars($p['callsign']) ?></td><td><?= $p['heures'] ?></td></tr>
                 <?php endforeach; ?>
@@ -153,7 +156,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                 <thead><tr><th><?= t('stats_table_immat') ?></th><th><?= t('stats_table_hours') ?></th></tr></thead>
                 <tbody>
                 <?php
-                $topAppareils = $pdo->query("SELECT f.immat, ROUND(SUM(TIME_TO_SEC(TIMEDIFF(c.heure_arrivee, c.heure_depart))/3600),1) AS heures FROM CARNET_DE_VOL_GENERAL c JOIN FLOTTE f ON c.appareil_id = f.id GROUP BY f.immat ORDER BY heures DESC LIMIT 10")->fetchAll();
+                $topAppareils = $pdo->query("SELECT f.immat, ROUND(SUM(TIME_TO_SEC(TIMEDIFF(c.heure_arrivee, c.heure_depart))/3600),1) AS heures FROM CARNET_DE_VOL_GENERAL c JOIN FLOTTE f ON c.appareil_id = f.id WHERE c.annule = 0 GROUP BY f.immat ORDER BY heures DESC LIMIT 10")->fetchAll();
                 foreach ($topAppareils as $a): ?>
                     <tr><td><?= htmlspecialchars($a['immat']) ?></td><td><?= $a['heures'] ?></td></tr>
                 <?php endforeach; ?>
@@ -179,9 +182,9 @@ include __DIR__ . '/../includes/menu_logged.php';
             <h3 class="stats-records-title"><?= t('stats_company_records') ?></h3>
             <ul class="stats-records-list">
                 <?php
-                $volLong = $pdo->query("SELECT c.id, p.callsign, f.immat, c.depart, c.destination, TIMEDIFF(c.heure_arrivee, c.heure_depart) AS duree FROM CARNET_DE_VOL_GENERAL c LEFT JOIN PILOTES p ON c.pilote_id=p.id LEFT JOIN FLOTTE f ON c.appareil_id=f.id ORDER BY TIMEDIFF(c.heure_arrivee, c.heure_depart) DESC LIMIT 1")->fetch();
-                $volCourt = $pdo->query("SELECT c.id, p.callsign, f.immat, c.depart, c.destination, TIMEDIFF(c.heure_arrivee, c.heure_depart) AS duree FROM CARNET_DE_VOL_GENERAL c LEFT JOIN PILOTES p ON c.pilote_id=p.id LEFT JOIN FLOTTE f ON c.appareil_id=f.id WHERE TIMEDIFF(c.heure_arrivee, c.heure_depart) > 0 ORDER BY TIMEDIFF(c.heure_arrivee, c.heure_depart) ASC LIMIT 1")->fetch();
-                $volsParMois = $pdo->query("SELECT COUNT(*)/COUNT(DISTINCT CONCAT(YEAR(date_vol),'-',MONTH(date_vol))) AS moy FROM CARNET_DE_VOL_GENERAL")->fetchColumn();
+                $volLong = $pdo->query("SELECT c.id, p.callsign, f.immat, c.depart, c.destination, TIMEDIFF(c.heure_arrivee, c.heure_depart) AS duree FROM CARNET_DE_VOL_GENERAL c LEFT JOIN PILOTES p ON c.pilote_id=p.id LEFT JOIN FLOTTE f ON c.appareil_id=f.id WHERE c.annule = 0 ORDER BY TIMEDIFF(c.heure_arrivee, c.heure_depart) DESC LIMIT 1")->fetch();
+                $volCourt = $pdo->query("SELECT c.id, p.callsign, f.immat, c.depart, c.destination, TIMEDIFF(c.heure_arrivee, c.heure_depart) AS duree FROM CARNET_DE_VOL_GENERAL c LEFT JOIN PILOTES p ON c.pilote_id=p.id LEFT JOIN FLOTTE f ON c.appareil_id=f.id WHERE c.annule = 0 AND TIMEDIFF(c.heure_arrivee, c.heure_depart) > 0 ORDER BY TIMEDIFF(c.heure_arrivee, c.heure_depart) ASC LIMIT 1")->fetch();
+                $volsParMois = $pdo->query("SELECT COUNT(*)/COUNT(DISTINCT CONCAT(YEAR(date_vol),'-',MONTH(date_vol))) AS moy FROM CARNET_DE_VOL_GENERAL WHERE annule = 0")->fetchColumn();
                 ?>
                 <?php if ($volLong): ?>
                 <li>🕑 <strong><?= t('stats_record_longest_flight') ?></strong><br><span class="stats-record-value"> <?= htmlspecialchars($volLong['callsign']) ?>, <?= htmlspecialchars($volLong['immat']) ?>, <?= htmlspecialchars($volLong['depart']) ?> → <?= htmlspecialchars($volLong['destination']) ?> (<?= $volLong['duree'] ?>)</span></li>

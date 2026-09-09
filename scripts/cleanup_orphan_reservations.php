@@ -83,6 +83,7 @@ try {
                   OR (c.depart = :icao_arr2 AND c.destination = :icao_dep2)
               )
               AND c.date_vol >= DATE(:date_ref)
+                            AND c.annule = 0
             ORDER BY c.date_vol DESC, c.id DESC
             LIMIT 1
         ";

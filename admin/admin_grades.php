@@ -26,7 +26,7 @@ function recalculerGradesPilotes($pdo) {
             p.grade_id,
             COALESCE(SUM(TIME_TO_SEC(cdvg.temps_vol)), 0) AS total_secondes
         FROM PILOTES p
-        LEFT JOIN CARNET_DE_VOL_GENERAL cdvg ON p.id = cdvg.pilote_id
+        LEFT JOIN CARNET_DE_VOL_GENERAL cdvg ON p.id = cdvg.pilote_id AND cdvg.annule = 0
         WHERE p.actif = 1
         GROUP BY p.id, p.grade_id
     ");
@@ -180,7 +180,7 @@ $stmt = $pdo->query('
         p.prenom,
         COALESCE(SUM(TIME_TO_SEC(c.temps_vol)), 0) as total_secondes
     FROM PILOTES p
-    LEFT JOIN CARNET_DE_VOL_GENERAL c ON p.id = c.pilote_id
+    LEFT JOIN CARNET_DE_VOL_GENERAL c ON p.id = c.pilote_id AND c.annule = 0
     WHERE p.actif = 1
     GROUP BY p.id, p.nom, p.prenom
     ORDER BY total_secondes DESC

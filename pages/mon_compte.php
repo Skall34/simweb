@@ -23,21 +23,21 @@ if (!empty($pilote['grade_id'])) {
 }
 
 // Nombre de vols
-$stmt = $pdo->prepare('SELECT COUNT(*) FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = ?');
+$stmt = $pdo->prepare('SELECT COUNT(*) FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = ? AND annule = 0');
 $stmt->execute([$id]);
 $nb_vols = $stmt->fetchColumn();
 // Nombre d'heures de vol
-$stmt = $pdo->prepare('SELECT SUM(TIME_TO_SEC(temps_vol)) FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = ?');
+$stmt = $pdo->prepare('SELECT SUM(TIME_TO_SEC(temps_vol)) FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = ? AND annule = 0');
 $stmt->execute([$id]);
 $total_sec = (int)$stmt->fetchColumn();
 $heures = $total_sec / 3600;
 // Recettes rapportées
-$stmt = $pdo->prepare('SELECT SUM(cout_vol) FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = ?');
+$stmt = $pdo->prepare('SELECT SUM(cout_vol) FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = ? AND annule = 0');
 $stmt->execute([$id]);
 $recettes = (float)$stmt->fetchColumn();
 
 // 3 aéroports les plus fréquentés avec ident
-$stmt = $pdo->prepare('SELECT c.destination, COUNT(*) as freq, a.ident FROM CARNET_DE_VOL_GENERAL c LEFT JOIN AEROPORTS a ON c.destination = a.ident WHERE c.pilote_id = ? GROUP BY c.destination ORDER BY freq DESC LIMIT 3');
+$stmt = $pdo->prepare('SELECT c.destination, COUNT(*) as freq, a.ident FROM CARNET_DE_VOL_GENERAL c LEFT JOIN AEROPORTS a ON c.destination = a.ident WHERE c.pilote_id = ? AND c.annule = 0 GROUP BY c.destination ORDER BY freq DESC LIMIT 3');
 $stmt->execute([$id]);
 $aeroports = $stmt->fetchAll();
 
@@ -201,7 +201,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                         }
                         $start_prev = $dt->modify('first day of this month')->modify('-1 month')->format('Y-m-01');
                         $end_prev = (new DateTime($start_prev))->format('Y-m-t');
-                        $stmt = $pdo->prepare('SELECT COALESCE(SUM(TIME_TO_SEC(temps_vol)),0) AS total_secs, COALESCE(SUM(payload),0) AS payload_sum FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = ? AND date_vol BETWEEN ? AND ?');
+                        $stmt = $pdo->prepare('SELECT COALESCE(SUM(TIME_TO_SEC(temps_vol)),0) AS total_secs, COALESCE(SUM(payload),0) AS payload_sum FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = ? AND annule = 0 AND date_vol BETWEEN ? AND ?');
                         $stmt->execute([$id, $start_prev . ' 00:00:00', $end_prev . ' 23:59:59']);
                         $row = $stmt->fetch(PDO::FETCH_ASSOC);
                         $total_secs = isset($row['total_secs']) ? (int)$row['total_secs'] : 0;

@@ -24,7 +24,7 @@ $sql_dormeurs = "
            DATEDIFF(CURDATE(), COALESCE(MAX(c.date_vol), f.date_achat)) AS jours_sans_vol
     FROM FLOTTE f
     LEFT JOIN FLEET_TYPE ft ON f.fleet_type = ft.id
-    LEFT JOIN CARNET_DE_VOL_GENERAL c ON c.appareil_id = f.id
+    LEFT JOIN CARNET_DE_VOL_GENERAL c ON c.appareil_id = f.id AND c.annule = 0
     WHERE f.Actif = 1
     GROUP BY f.id
     ORDER BY jours_sans_vol DESC
@@ -51,7 +51,7 @@ $sql_rentables = "
            COUNT(c.id) AS nb_vols
     FROM FLOTTE f
     LEFT JOIN FLEET_TYPE ft ON f.fleet_type = ft.id
-    LEFT JOIN CARNET_DE_VOL_GENERAL c ON c.appareil_id = f.id
+    LEFT JOIN CARNET_DE_VOL_GENERAL c ON c.appareil_id = f.id AND c.annule = 0
     WHERE f.Actif = 1
     GROUP BY f.id
     ORDER BY profit_net DESC
@@ -62,11 +62,11 @@ $rentables = $pdo->query($sql_rentables)->fetchAll(PDO::FETCH_ASSOC);
 $sql_gouffres = "
     SELECT f.immat, ft.fleet_type AS type_nom, f.etat, f.nb_maintenance,
            ft.cout_appareil, f.compteur_immo,
-           COALESCE((SELECT SUM(cdvg.cout_vol) FROM CARNET_DE_VOL_GENERAL cdvg WHERE cdvg.appareil_id = f.id), 0) AS recettes,
+           COALESCE((SELECT SUM(cdvg.cout_vol) FROM CARNET_DE_VOL_GENERAL cdvg WHERE cdvg.appareil_id = f.id AND cdvg.annule = 0), 0) AS recettes,
            COALESCE((SELECT SUM(fd.montant) FROM finances_depenses fd WHERE fd.reference_id = f.id AND fd.type IN ('maintenance', 'maintenance_crash', 'maintenance_retro')), 0) AS cout_maintenance,
            COALESCE((SELECT SUM(fd.montant) FROM finances_depenses fd WHERE fd.reference_id = f.id AND fd.type = 'achat'), 0) AS cout_achat,
            COALESCE((SELECT SUM(fd.montant) FROM finances_depenses fd WHERE fd.reference_id = f.id AND fd.type = 'mensualite_credit'), 0) AS cout_credit,
-           (COALESCE((SELECT SUM(cdvg.cout_vol) FROM CARNET_DE_VOL_GENERAL cdvg WHERE cdvg.appareil_id = f.id), 0)
+           (COALESCE((SELECT SUM(cdvg.cout_vol) FROM CARNET_DE_VOL_GENERAL cdvg WHERE cdvg.appareil_id = f.id AND cdvg.annule = 0), 0)
             - COALESCE((SELECT SUM(fd.montant) FROM finances_depenses fd WHERE fd.reference_id = f.id AND fd.type IN ('maintenance', 'maintenance_crash', 'maintenance_retro')), 0)
             - COALESCE((SELECT SUM(fd.montant) FROM finances_depenses fd WHERE fd.reference_id = f.id AND fd.type = 'achat'), 0)
             - COALESCE((SELECT SUM(fd.montant) FROM finances_depenses fd WHERE fd.reference_id = f.id AND fd.type = 'mensualite_credit'), 0)
@@ -82,16 +82,17 @@ $gouffres = $pdo->query($sql_gouffres)->fetchAll(PDO::FETCH_ASSOC);
 // 4. Stats globales rigolottes
 $stats = [];
 // Total heures de vol
-$stats['total_heures'] = $pdo->query("SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(temps_vol))) FROM CARNET_DE_VOL_GENERAL")->fetchColumn() ?: '00:00:00';
+$stats['total_heures'] = $pdo->query("SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(temps_vol))) FROM CARNET_DE_VOL_GENERAL WHERE annule = 0")->fetchColumn() ?: '00:00:00';
 // Nombre total de vols
-$stats['total_vols'] = intval($pdo->query("SELECT COUNT(*) FROM CARNET_DE_VOL_GENERAL")->fetchColumn());
+$stats['total_vols'] = intval($pdo->query("SELECT COUNT(*) FROM CARNET_DE_VOL_GENERAL WHERE annule = 0")->fetchColumn());
 // Fuel total consommé
-$stats['fuel_total'] = floatval($pdo->query("SELECT SUM(fuel_depart - fuel_arrivee) FROM CARNET_DE_VOL_GENERAL WHERE fuel_depart > fuel_arrivee")->fetchColumn());
+$stats['fuel_total'] = floatval($pdo->query("SELECT SUM(fuel_depart - fuel_arrivee) FROM CARNET_DE_VOL_GENERAL WHERE annule = 0 AND fuel_depart > fuel_arrivee")->fetchColumn());
 // Pilote le plus actif
 $pilote_actif = $pdo->query("
     SELECT p.callsign, COUNT(c.id) AS nb_vols
     FROM CARNET_DE_VOL_GENERAL c
     JOIN PILOTES p ON c.pilote_id = p.id
+    WHERE c.annule = 0
     GROUP BY c.pilote_id
     ORDER BY nb_vols DESC LIMIT 1
 ")->fetch(PDO::FETCH_ASSOC);
@@ -103,6 +104,7 @@ $avion_voyageur = $pdo->query("
     SELECT f.immat, COUNT(c.id) AS nb_vols
     FROM CARNET_DE_VOL_GENERAL c
     JOIN FLOTTE f ON c.appareil_id = f.id
+    WHERE c.annule = 0
     GROUP BY c.appareil_id
     ORDER BY nb_vols DESC LIMIT 1
 ")->fetch(PDO::FETCH_ASSOC);
@@ -112,9 +114,9 @@ $stats['avion_star_vols'] = $avion_voyageur ? $avion_voyageur['nb_vols'] : 0;
 // Aéroport le plus visité (départs + destinations)
 $aeroport_top = $pdo->query("
     SELECT icao, SUM(nb) AS total FROM (
-        SELECT depart AS icao, COUNT(*) AS nb FROM CARNET_DE_VOL_GENERAL GROUP BY depart
+        SELECT depart AS icao, COUNT(*) AS nb FROM CARNET_DE_VOL_GENERAL WHERE annule = 0 GROUP BY depart
         UNION ALL
-        SELECT destination AS icao, COUNT(*) AS nb FROM CARNET_DE_VOL_GENERAL GROUP BY destination
+        SELECT destination AS icao, COUNT(*) AS nb FROM CARNET_DE_VOL_GENERAL WHERE annule = 0 GROUP BY destination
     ) combined GROUP BY icao ORDER BY total DESC LIMIT 1
 ")->fetch(PDO::FETCH_ASSOC);
 $stats['aeroport_star'] = $aeroport_top ? $aeroport_top['icao'] : '?';

@@ -42,7 +42,7 @@ $stmtStats = $pdo->prepare("
         MIN(date_vol) AS premier_vol,
         MAX(date_vol) AS dernier_vol
     FROM CARNET_DE_VOL_GENERAL
-    WHERE appareil_id = :id
+    WHERE appareil_id = :id AND annule = 0
 ");
 $stmtStats->execute(['id' => $appareil_id]);
 $stats = $stmtStats->fetch(PDO::FETCH_ASSOC);
@@ -85,7 +85,7 @@ $stmtVols = $pdo->prepare("
     FROM CARNET_DE_VOL_GENERAL cvg
     LEFT JOIN PILOTES p ON cvg.pilote_id = p.id
     LEFT JOIN MISSIONS m ON cvg.mission_id = m.id
-    WHERE cvg.appareil_id = :id
+    WHERE cvg.appareil_id = :id AND cvg.annule = 0
     ORDER BY cvg.date_vol DESC, cvg.heure_depart DESC
 ");
 $stmtVols->execute(['id' => $appareil_id]);
@@ -124,7 +124,7 @@ $stmtPilotes = $pdo->prepare("
     SELECT p.callsign, COUNT(*) AS nb_vols, SUM(TIME_TO_SEC(cvg.temps_vol)) AS temps_total_sec
     FROM CARNET_DE_VOL_GENERAL cvg
     JOIN PILOTES p ON cvg.pilote_id = p.id
-    WHERE cvg.appareil_id = :id
+    WHERE cvg.appareil_id = :id AND cvg.annule = 0
     GROUP BY cvg.pilote_id, p.callsign
     ORDER BY nb_vols DESC
 ");

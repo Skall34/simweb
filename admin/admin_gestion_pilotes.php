@@ -22,7 +22,7 @@ if ($selected_id) {
     
     // Calcul du total des heures de vol
     if ($info) {
-        $stmt = $pdo->prepare('SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(temps_vol))) as total FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = ?');
+        $stmt = $pdo->prepare('SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(temps_vol))) as total FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = ? AND annule = 0');
         $stmt->execute([$selected_id]);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         $temps = $result['total'] ?? '00:00:00';

@@ -68,7 +68,7 @@ $promotions = [];
 
 foreach ($pilotes as $pilote) {
     // Calculer le total d'heures de vol
-    $stmtHeures = $pdo->prepare("SELECT SUM(TIME_TO_SEC(temps_vol)) FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = ?");
+    $stmtHeures = $pdo->prepare("SELECT SUM(TIME_TO_SEC(temps_vol)) FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = ? AND annule = 0");
     $stmtHeures->execute([$pilote['id']]);
     $total_sec = (int)$stmtHeures->fetchColumn();
     $total_heures = $total_sec / 3600;

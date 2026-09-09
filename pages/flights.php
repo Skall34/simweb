@@ -62,11 +62,11 @@ FROM CARNET_DE_VOL_GENERAL c
 LEFT JOIN FLOTTE f ON c.appareil_id = f.id
 LEFT JOIN MISSIONS m ON c.mission_id = m.id
 LEFT JOIN FLEET_TYPE ft ON f.fleet_type = ft.id
-WHERE c.pilote_id = :id_pilote";
+WHERE c.pilote_id = :id_pilote AND c.annule = 0";
 
 // Récupérer le nombre total de vols effectués par ce pilote (sans filtres)
 try {
-    $stmtCount = $pdo->prepare("SELECT COUNT(*) FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = :id_pilote");
+    $stmtCount = $pdo->prepare("SELECT COUNT(*) FROM CARNET_DE_VOL_GENERAL WHERE pilote_id = :id_pilote AND annule = 0");
     $stmtCount->execute(['id_pilote' => $userId]);
     $totalFlights = (int)$stmtCount->fetchColumn();
 } catch (PDOException $e) {

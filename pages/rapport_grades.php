@@ -75,7 +75,7 @@ $stmtPilotes = $pdo->query("
         p.grade_id,
         COALESCE(SUM(TIME_TO_SEC(cdvg.temps_vol)), 0) AS total_secondes
     FROM PILOTES p
-    LEFT JOIN CARNET_DE_VOL_GENERAL cdvg ON p.id = cdvg.pilote_id
+    LEFT JOIN CARNET_DE_VOL_GENERAL cdvg ON p.id = cdvg.pilote_id AND cdvg.annule = 0
     WHERE p.actif = 1
     GROUP BY p.id, p.callsign, p.prenom, p.nom, p.grade_id
     ORDER BY total_secondes DESC
