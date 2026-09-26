@@ -8,6 +8,8 @@ require_once __DIR__ . '/../includes/PHPMailer/Exception.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
+include __DIR__ . '/../includes/header.php';
+
 $msg = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -57,7 +59,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     } // Fin du if rate limit allowed
 }
-include __DIR__ . '/../includes/header.php';
 ?>
 
 <main>
