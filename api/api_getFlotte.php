@@ -30,7 +30,8 @@ require_once __DIR__ . '/../includes/db_connect.php';
 try {
     $stmt = $pdo->prepare("SELECT 
     F.immat, 
-    FT.type AS categorie, 
+    FT.type AS categorie,
+    FT.fleet_type AS fleet_type,
     F.en_vol, 
     P.callsign, 
     F.etat,
