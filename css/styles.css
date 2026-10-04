@@ -2470,3 +2470,31 @@ footer {
         font-size: 1.7rem;
     }
 }
+/* Flight comparison page */
+.compare-intro { margin: 0 0 12px 0; color: #555; }
+.compare-scroll { overflow-x: auto; }
+.compare-table { min-width: 100%; }
+.compare-table td, .compare-table th { text-align: center; vertical-align: middle; }
+.compare-table .compare-label { text-align: left; font-weight: 600; white-space: nowrap; }
+.compare-table .compare-section th { text-align: left; background: #e8eef5; color: #1a3552; }
+.compare-table .compare-total td { font-weight: 700; border-top: 2px solid #1a3552; }
+.compare-sub { font-size: 0.8em; font-weight: 400; color: #666; }
+.compare-best { background: #e3f6e3; }
+.compare-mismatch { background: #fff3d6; }
+.compare-footnote { margin-top: 10px; font-size: 0.85em; color: #666; }
+.compare-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+.compare-toolbar-actions { display: flex; align-items: center; justify-content: center; gap: 12px; font-weight: 600; flex: 1 1 100%; margin-top: 6px; }
+.compare-hint { margin: 0 0 10px 0; font-size: 0.85em; color: #666; visibility: hidden; }
+.compare-hint.compare-hint-active { visibility: visible; }
+.compare-toolbar .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.compare-output { display: block; width: 100%; }
+.compare-list { width: 100%; table-layout: fixed; }
+.compare-list th, .compare-list td { text-align: center; vertical-align: middle; }
+.compare-list th:first-child, .compare-list td:first-child { width: 40px; }
+.compare-list input[type="checkbox"] { vertical-align: middle; margin: 0; }
+.compare-output h3 { margin: 12px 0 6px 0; }
+.compare-reset-bottom { display: flex; justify-content: center; margin: 24px 0 8px 0; }
+.compare-tip { position: relative; display: inline-block; margin-left: 4px; color: #1a3552; cursor: help; font-weight: 400; }
+.compare-tip::after { content: attr(data-tip); position: absolute; left: 50%; bottom: 135%; transform: translateX(-50%); width: 320px; max-width: 80vw; padding: 8px 10px; background: #1a3552; color: #fff; border-radius: 6px; font-size: 0.85rem; line-height: 1.35; text-align: left; white-space: normal; box-shadow: 0 2px 10px rgba(0,0,0,0.25); opacity: 0; visibility: hidden; pointer-events: none; z-index: 50; }
+.compare-tip:hover::after, .compare-tip:focus::after { opacity: 1; visibility: visible; }
+.compare-table .compare-label .compare-tip::after { left: 0; transform: none; }

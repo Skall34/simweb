@@ -96,6 +96,7 @@ require_once __DIR__ . '/mission_coefficient.php';
             <a href="/pages/fleet_type.php">🛩️ <?= t('menu_fleettype') ?></a>
             <a href="/pages/pilotes.php">👨‍✈️ <?= t('menu_pilots') ?></a>
             <a href="/pages/simulation.php">🧮 <?= t('menu_simulation') ?></a>
+            <a href="/pages/comparer_vols.php">⚖️ <?= t('menu_compare') ?></a>
             <a href="/pages/grades.php">🧑‍✈️ <?= t('menu_grades') ?></a>
             <a href="/pages/saisie_manuelle.php">📝 <?= t('menu_manualentry') ?></a>
             <a href="/pages/rapport_grades.php">📊 <?= t('menu_reportgrades') ?></a>
