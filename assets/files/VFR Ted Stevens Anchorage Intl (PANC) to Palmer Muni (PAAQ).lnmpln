@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LittleNavmap xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://www.littlenavmap.org/schema/lnmpln.xsd">
+  <Flightplan>
+    <Header>
+      <FlightplanType>VFR</FlightplanType>
+      <CruisingAlt>8500</CruisingAlt>
+      <CruisingAltF>8500.00000000</CruisingAltF>
+      <Comment>Grand tour de l'Alaska Desert Air en DC-3. Boucle continue de 20 étapes depuis Palmer, via la Brooks Range, Deadhorse, Utqiaġvik, la mer de Béring et Kodiak. Altitude à adapter séparément pour chaque étape selon le relief et la météo.</Comment>
+      <CreationDate>2026-10-15T09:18:51+02:00</CreationDate>
+      <FileVersion>1.2</FileVersion>
+      <ProgramName>Little Navmap</ProgramName>
+      <ProgramVersion>3.0.18</ProgramVersion>
+      <Documentation>https://www.littlenavmap.org/lnmpln.html</Documentation>
+    </Header>
+    <SimData Cycle="2610">XP12</SimData>
+    <NavData Cycle="2610">NAVIGRAPH</NavData>
+    <AircraftPerformance>
+      <FilePath>Douglas DC-3 WORLD TRAVEL.lnmperf</FilePath>
+      <Type>Douglas DC3</Type>
+      <Name>Douglas DC-3 WORLD TRAVEL C-47</Name>
+    </AircraftPerformance>
+    <Waypoints>
+      <Waypoint>
+        <Name>Ted Stevens Anchorage Intl</Name>
+        <Ident>PANC</Ident>
+        <Type>AIRPORT</Type>
+        <Pos Lon="-149.998184" Lat="61.174156" Alt="148.00"/>
+      </Waypoint>
+      <Waypoint>
+        <Name>Palmer Muni</Name>
+        <Ident>PAAQ</Ident>
+        <Region>PA</Region>
+        <Type>AIRPORT</Type>
+        <Comment>Départ et arrivée de la boucle</Comment>
+        <Pos Lon="-149.088699" Lat="61.594898" Alt="8500.00"/>
+      </Waypoint>
+      <Waypoint>
+        <Name>Summit</Name>
+        <Ident>UMM</Ident>
+        <Region>PA</Region>
+        <Type>AIRPORT</Type>
+        <Comment>Étape 1 - piste en gravier, pas d'Avgas publié</Comment>
+        <Pos Lon="-149.128830" Lat="63.331001" Alt="8500.00"/>
+      </Waypoint>
+      <Waypoint>
+        <Name>Nenana Muni</Name>
+        <Ident>PANN</Ident>
+        <Region>PA</Region>
+        <Type>AIRPORT</Type>
+        <Comment>Étape 2 - 100LL H24</Comment>
+        <Pos Lon="-149.074005" Lat="64.547333" Alt="8500.00"/>
+      </Waypoint>
+      <Waypoint>
+        <Name>Fairbanks Intl</Name>
+        <Ident>PAFA</Ident>
+        <Region>PA</Region>
+        <Type>AIRPORT</Type>
+        <Comment>Étape 3 - 100LL</Comment>
+        <Pos Lon="-147.856674" Lat="64.815331" Alt="8500.00"/>
+      </Waypoint>
+      <Waypoint>
+        <Name>Bettles</Name>
+        <Ident>PABT</Ident>
+        <Region>PA</Region>
+        <Type>AIRPORT</Type>
+        <Comment>Étape 4 - piste en gravier, plein conseillé avant le secteur arctique</Comment>
+        <Pos Lon="-151.529007" Lat="66.914001" Alt="8500.00"/>
+      </Waypoint>
+      <Waypoint>
+        <Name>Coldfoot</Name>
+        <Ident>CXF</Ident>
+        <Region>PA</Region>
+        <Type>AIRPORT</Type>
+        <Comment>Étape 5 - code FAA CXF, identifiant X-Plane PCXF; piste en gravier, pas d'Avgas publié</Comment>
+        <Pos Lon="-150.203827" Lat="67.252167" Alt="8500.00"/>
+      </Waypoint>
+      <Waypoint>
+        <Name>Anaktuvuk Pass</Name>
+        <Ident>PAKP</Ident>
+        <Region>PA</Region>
+        <Type>AIRPORT</Type>
+        <Comment>Étape 6 - Brooks Range, pas d'Avgas publié</Comment>
+        <Pos Lon="-151.743332" Lat="68.133667" Alt="8500.00"/>
+      </Waypoint>
+      <Waypoint>
+        <Name>Umiat</Name>
+        <Ident>PAUM</Ident>
+        <Region>PA</Region>
+        <Type>AIRPORT</Type>
+        <Comment>Étape 7 - gravier et terre, pas d'Avgas publié</Comment>
+        <Pos Lon="-152.134995" Lat="69.371170" Alt="8500.00"/>
+      </Waypoint>
+      <Waypoint>
+        <Name>Deadhorse</Name>
+        <Ident>PASC</Ident>
+        <Region>PA</Region>
+        <Type>AIRPORT</Type>
+        <Comment>Étape 8 - Avgas 100, ravitaillement complet</Comment>
+        <Pos Lon="-148.465164" Lat="70.194832" Alt="8500.00"/>
+      </Waypoint>
+      <Waypoint>
+        <Name>Wiley Post-Will Rogers Memorial</Name>
+        <Ident>PABR</Ident>
+        <Region>PA</Region>
+        <Type>AIRPORT</Type>
+        <Comment>Étape 9 - point le plus septentrional, 100LL, plein impératif</Comment>
+        <Pos Lon="-156.768661" Lat="71.284836" Alt="8500.00"/>
+      </Waypoint>
+      <Waypoint>
+        <Name>Point Lay</Name>
+        <Ident>PPIZ</Ident>
+        <Region>PA</Region>
+        <Type>AIRPORT</Type>
+        <Comment>Étape 10 - piste en gravier, pas d'Avgas publié</Comment>
+        <Pos Lon="-163.005341" Lat="69.732834" Alt="8500.00"/>
+      </Waypoint>
+      <Waypoint>
+        <Name>Point Hope</Name>
+        <Ident>PAPO</Ident>
+        <Region>PA</Region>
+        <Type>AIRPORT</Type>
+        <Comment>Étape 11 - carburant d'urgence seulement</Comment>
+        <Pos Lon="-166.799164" Lat="68.348167" Alt="8500.00"/>
+      </Waypoint>
+      <Waypoint>
+        <Name>Ralph Wien Memorial</Name>
+        <Ident>PAOT</Ident>
+        <Region>PA</Region>
+        <Type>AIRPORT</Type>
+        <Comment>Étape 12 - Avgas 100, ravitaillement complet</Comment>
+        <Pos Lon="-162.598160" Lat="66.884834" Alt="8500.00"/>
+      </Waypoint>
+      <Waypoint>
+        <Name>Nome</Name>
+        <Ident>PAOM</Ident>
+        <Region>PA</Region>
+        <Type>AIRPORT</Type>
+        <Comment>Étape 13 - 100LL</Comment>
+        <Pos Lon="-165.444336" Lat="64.512497" Alt="8500.00"/>
+      </Waypoint>
+      <Waypoint>
+        <Name>Unalakleet</Name>
+        <Ident>PAUN</Ident>
+        <Region>PA</Region>
+        <Type>AIRPORT</Type>
+        <Comment>Étape 14 - 100LL</Comment>
+        <Pos Lon="-160.799164" Lat="63.888500" Alt="8500.00"/>
+      </Waypoint>
+      <Waypoint>
+        <Name>Bethel</Name>
+        <Ident>PABE</Ident>
+        <Region>PA</Region>
+        <Type>AIRPORT</Type>
+        <Comment>Étape 15 - 100/100LL</Comment>
+        <Pos Lon="-161.837173" Lat="60.778500" Alt="8500.00"/>
+      </Waypoint>
+      <Waypoint>
+        <Name>Dillingham</Name>
+        <Ident>PADL</Ident>
+        <Region>PA</Region>
+        <Type>AIRPORT</Type>
+        <Comment>Étape 16 - 100LL</Comment>
+        <Pos Lon="-158.505493" Lat="59.044666" Alt="8500.00"/>
+      </Waypoint>
+      <Waypoint>
+        <Name>King Salmon</Name>
+        <Ident>PAKN</Ident>
+        <Region>PA</Region>
+        <Type>AIRPORT</Type>
+        <Comment>Étape 17 - 100LL</Comment>
+        <Pos Lon="-156.648666" Lat="58.676498" Alt="8500.00"/>
+      </Waypoint>
+      <Waypoint>
+        <Name>Kodiak</Name>
+        <Ident>PADQ</Ident>
+        <Region>PA</Region>
+        <Type>AIRPORT</Type>
+        <Comment>Étape 18 - relief montagneux, 100LL</Comment>
+        <Pos Lon="-152.494003" Lat="57.749832" Alt="8500.00"/>
+      </Waypoint>
+      <Waypoint>
+        <Name>Homer</Name>
+        <Ident>PAHO</Ident>
+        <Region>PA</Region>
+        <Type>AIRPORT</Type>
+        <Comment>Étape 19 - 100LL</Comment>
+        <Pos Lon="-151.476669" Lat="59.645500" Alt="8500.00"/>
+      </Waypoint>
+      <Waypoint>
+        <Name>Palmer Muni</Name>
+        <Ident>PAAQ</Ident>
+        <Region>PA</Region>
+        <Type>AIRPORT</Type>
+        <Comment>Étape 20 - retour au hub</Comment>
+        <Pos Lon="-149.088699" Lat="61.594898" Alt="242.00"/>
+      </Waypoint>
+    </Waypoints>
+  </Flightplan>
+</LittleNavmap>
