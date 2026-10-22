@@ -931,6 +931,17 @@ footer {
   width: 100%;
 }
 
+.flights-aircraft-section {
+  margin-top: 24px;
+}
+.pilote-chip-link {
+  text-decoration: none;
+}
+.pilote-chip-link:hover {
+  background: #e6f0ff;
+  border-color: #004080;
+}
+
 @media (max-width: 800px) {
   .narrow-table-wrapper { max-width: 100%; padding: 0 12px; }
 }
@@ -2474,6 +2485,7 @@ footer {
 .compare-intro { margin: 0 0 12px 0; color: #555; }
 .compare-scroll { overflow-x: auto; }
 .compare-table { min-width: 100%; }
+.compare-table tbody.table-skywings { max-height: none; overflow-y: visible; }
 .compare-table td, .compare-table th { text-align: center; vertical-align: middle; }
 .compare-table .compare-label { text-align: left; font-weight: 600; white-space: nowrap; }
 .compare-table .compare-section th { text-align: left; background: #e8eef5; color: #1a3552; }

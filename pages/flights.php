@@ -123,6 +123,24 @@ foreach ($flights as $vol) {
     if (!empty($vol['destination'])) $airport_counts[$vol['destination']] = ($airport_counts[$vol['destination']] ?? 0) + 1;
 }
 
+// Liste distincte des avions utilisés sur tous les vols du pilote (indépendante des filtres)
+$usedAircraft = [];
+try {
+    $stmtAircraft = $pdo->prepare("
+        SELECT f.id AS appareil_id, f.immat, ft.fleet_type AS fleet_type_label, MAX(c.date_vol) AS last_use
+        FROM CARNET_DE_VOL_GENERAL c
+        JOIN FLOTTE f ON c.appareil_id = f.id
+        LEFT JOIN FLEET_TYPE ft ON f.fleet_type = ft.id
+        WHERE c.pilote_id = :id_pilote AND c.annule = 0
+        GROUP BY f.id, f.immat, ft.fleet_type
+        ORDER BY last_use DESC
+    ");
+    $stmtAircraft->execute(['id_pilote' => $userId]);
+    $usedAircraft = $stmtAircraft->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    // Ignore erreur
+}
+
 // Si le pilote n'a aucun vol (donc $aeroports vide), charger un jeu d'aéroports de secours
 $map_fallback_used = false;
 if (empty($aeroports)) {
@@ -294,6 +312,21 @@ include __DIR__ . '/../includes/menu_logged.php';
             </div>
         </div>
     <?php endif; ?>
+        <?php if (!empty($usedAircraft)): ?>
+        <!-- Liste des avions utilisés -->
+        <div class="flights-aircraft-section">
+            <h3 class="section-title"><?= t('flights_aircraft_title') ?> (<?= count($usedAircraft) ?>)</h3>
+            <div class="carnet-pilotes">
+                <?php foreach ($usedAircraft as $ac): ?>
+                    <a href="carnet_avion.php?id=<?= (int)$ac['appareil_id'] ?>" class="pilote-chip pilote-chip-link" title="<?= t('fleet_voir_carnet') ?>">
+                        <span class="pilote-callsign"><?= htmlspecialchars($ac['immat']) ?></span>
+                        <span class="pilote-stats"><?= htmlspecialchars($ac['fleet_type_label'] ?? '') ?></span>
+                        <span class="pilote-stats"><?= t('flights_aircraft_last_use') ?> : <?= htmlspecialchars(date('d/m/Y', strtotime($ac['last_use']))) ?></span>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <?php endif; ?>
         <!-- Carte regroupant tous les aéroports visités -->
         <div style="margin-top:24px;padding:12px;background:#fff;border-radius:8px;box-shadow:0 1px 6px rgba(0,0,0,0.04);">
             <h3 style="margin:6px 0 12px;"><?= t('flights_map_title') ?></h3>

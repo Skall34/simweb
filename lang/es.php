@@ -1753,6 +1753,8 @@ Costo total mantenimiento: 1.000,00 €
     'api_error_live_flights' => 'Error al recuperar vuelos en curso.',
     // Flights page
     'flights_map_title' => 'Mi mapa',
+    'flights_aircraft_title' => 'Aviones utilizados',
+    'flights_aircraft_last_use' => 'Último uso',
 
     // === Traducciones de correos para scripts ===
     

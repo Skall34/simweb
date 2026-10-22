@@ -1748,6 +1748,8 @@ Total maintenance cost: 1,000.00 €
     'api_error_live_flights' => 'Error retrieving live flights.',
     // Flights page
     'flights_map_title' => 'My map',
+    'flights_aircraft_title' => 'Aircraft used',
+    'flights_aircraft_last_use' => 'Last used',
 
     // === Email translations for scripts ===
     
