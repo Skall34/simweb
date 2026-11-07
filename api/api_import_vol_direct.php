@@ -39,7 +39,7 @@ require_once __DIR__ . '/../lang.php';
 
 date_default_timezone_set('Europe/Paris');
 $logFile = dirname(__DIR__) . '/scripts/logs/importer_vol_direct.log';
-$mailSummaryEnabled = true; // Active l'envoi du mail récapitulatif (mettre à false pour désactiver)
+$mailSummaryEnabled = false; // Active l'envoi du mail récapitulatif (mettre à false pour désactiver)
 
 // Réponse en JSON
 header('Content-Type: application/json');

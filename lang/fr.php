@@ -720,6 +720,28 @@ return [
     'cargo_mission_aircraft_1' => 'Fret leger et desserte regionale : Cessna 208 Caravan, Pilatus PC-12 ou Beechcraft 1900.',
     'cargo_mission_aircraft_2' => 'Fret regional : ATR 72F, Saab 340F, Embraer 120F ou Boeing 737F.',
     'cargo_mission_aircraft_3' => 'Fret long-courrier : Boeing 767F, Boeing 777F, Airbus A330F ou Boeing 747F.',
+    // Page : missions/CONVOYAGE
+    'convoyage_mission_eyebrow' => 'Livraison d\'appareils',
+    'convoyage_mission_title' => 'Convoyage',
+    'convoyage_mission_intro' => 'Livrez des avions pour le compte de divers clients, d\'un aéroport A vers un aéroport B.',
+    'convoyage_mission_difference_title' => 'Convoyage ou Taxi ?',
+    'convoyage_mission_difference_text' => 'Contrairement au Taxi aérien, le convoyage ne transporte aucun passager : l\'avion est lui-même la marchandise. Vous êtes seul à bord (ou avec un copilote) et votre mission est de livrer l\'appareil à destination, en bon état.',
+    'convoyage_mission_steps_title' => 'Déroulement de la mission',
+    'convoyage_mission_step_1' => 'Choisissez un client et un appareil à livrer : propriétaire privé, loueur, aéroclub, atelier de maintenance ou compagnie qui récupère un avion neuf.',
+    'convoyage_mission_step_2' => 'Définissez l\'aéroport de départ (A) et l\'aéroport d\'arrivée (B), puis préparez votre plan de vol, avec SimBrief si vous le souhaitez.',
+    'convoyage_mission_step_3' => 'Effectuez le vol dans le simulateur, sans passagers ni fret à bord.',
+    'convoyage_mission_step_4' => 'Envoyez votre rapport dans SimWeb en sélectionnant la mission Convoyage.',
+    'convoyage_mission_operations_title' => 'Priorités opérationnelles',
+    'convoyage_mission_operation_1' => 'Le vol doit s\'effectuer à vide : ni passagers ni fret.',
+    'convoyage_mission_operation_2' => 'Anticipez le carburant et les escales : les convoyages sont souvent longs, notamment pour les appareils à faible autonomie.',
+    'convoyage_mission_operation_3' => 'Ménagez la machine : l\'appareil appartient à votre client et doit arriver en parfait état.',
+    'convoyage_mission_examples_title' => 'Exemples de convoyages',
+    'convoyage_mission_example_1' => 'Livraison d\'un avion neuf de l\'usine vers la base d\'un aéroclub.',
+    'convoyage_mission_example_2' => 'Retour d\'un appareil à son loueur après une location de longue durée.',
+    'convoyage_mission_example_3' => 'Transfert d\'un avion vers un atelier pour une grande visite de maintenance.',
+    'convoyage_mission_example_4' => 'Livraison d\'un avion vendu à un nouveau propriétaire à l\'autre bout du pays, voire de l\'océan.',
+    'convoyage_mission_aircraft_title' => 'Appareils recommandés',
+    'convoyage_mission_aircraft_text' => 'Tous types d\'appareils sont possibles, des avions légers (Cessna 172, Diamond DA40, Pilatus PC-12) aux turbopropulseurs et jets (ATR 72, King Air, Citation), selon le client et la distance à parcourir.',
     // Admin
     'menu_admin' => 'Admin',
     'admin_fleettype' => 'Administration des Fleet Type',
@@ -1753,6 +1775,8 @@ Coût total maintenance : 1 000,00 €
     'api_error_live_flights' => 'Erreur lors de la récupération des vols en cours.',
     // Flights page
     'flights_map_title' => 'Ma carte',
+    'flights_aircraft_title' => 'Avions utilisés',
+    'flights_aircraft_last_use' => 'Dernière utilisation',
 
     // ==================== EMAILS SCRIPTS ====================
     
