@@ -1,0 +1,14 @@
+RewriteEngine On
+RewriteCond %{ENV:SIMWEB_DOCKER_TEST} !=1
+RewriteCond %{ENV:HTTPS} !on
+RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Fichiers internes et secrets générés par l'installation.
+<FilesMatch "^(config\.ini|\.installed)$">
+	Require all denied
+</FilesMatch>
+
+<FilesMatch "\.(sql|log|bkp)$">
+	Require all denied
+</FilesMatch>
+

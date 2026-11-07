@@ -1,0 +1,16 @@
+config.ini
+includes/config_exemple.php
+scripts/uploads/*.csv
+scripts/*.csv
+scripts/logs/
+*.log
+*.zip
+*.bkp
+sauvegarde_migration/
+*.txt
+tools/airportfixer/.vs
+tools/airportfixer/bin
+tools/airportfixer/obj
+assets/images/
+.vscode/settings.json
+docker-test/

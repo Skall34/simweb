@@ -1,0 +1,36 @@
+name: simweb-test
+
+services:
+  web:
+    build:
+      context: ./docker/test
+      dockerfile: Dockerfile
+    ports:
+      - "8090:80"
+    volumes:
+      - ./docker-test/app:/var/www/html
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  db:
+    image: mariadb:10.11
+    environment:
+      MARIADB_ROOT_PASSWORD: simweb_test_root
+      MARIADB_DATABASE: simweb_test
+      MARIADB_USER: simweb_test
+      MARIADB_PASSWORD: simweb_test_password
+    ports:
+      - "3308:3306"
+    volumes:
+      - simweb_test_db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: "no"
+
+volumes:
+  simweb_test_db:

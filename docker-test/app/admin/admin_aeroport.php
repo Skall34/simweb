@@ -1,0 +1,190 @@
+<?php
+
+require_once __DIR__ . '/../includes/require_admin.php';
+require_once __DIR__ . '/../lang.php';
+
+$message = '';
+$aeroport = [
+    'ident' => '', 'type_aeroport' => '', 'name' => '', 'municipality' => '',
+    'latitude_deg' => '', 'longitude_deg' => '', 'elevation_ft' => '',
+    'Piste' => '', 'Longueur_de_piste' => '', 'Type_de_piste' => '',
+    'Observations' => '', 'wikipedia_link' => '', 'fret' => ''
+];
+
+$etat = 'recherche'; // valeur par défaut
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $ident = strtoupper(trim($_POST['ident']));
+    $aeroport['ident'] = $ident;
+
+    if (isset($_POST['action']) && $_POST['action'] === 'rechercher') {
+        $stmt = $pdo->prepare("SELECT * FROM AEROPORTS WHERE ident = :ident");
+        $stmt->execute(['ident' => $ident]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($result) {
+            $aeroport = $result;
+            $etat = 'edition';
+        } else {
+            $etat = 'creation';
+        }
+
+    } elseif (isset($_POST['action']) && $_POST['action'] === 'mettre_a_jour') {
+        foreach ($aeroport as $key => $_) {
+            if ($key !== 'ident') {
+                $aeroport[$key] = $_POST[$key] ?? null;
+            }
+        }
+
+        $stmt = $pdo->prepare("
+            UPDATE AEROPORTS SET
+                type_aeroport = :type_aeroport,
+                name = :name,
+                municipality = :municipality,
+                latitude_deg = :latitude_deg,
+                longitude_deg = :longitude_deg,
+                elevation_ft = :elevation_ft,
+                Piste = :Piste,
+                Longueur_de_piste = :Longueur_de_piste,
+                Type_de_piste = :Type_de_piste,
+                Observations = :Observations,
+                wikipedia_link = :wikipedia_link,
+                fret = :fret
+            WHERE ident = :ident
+        ");
+        $stmt->execute($aeroport);
+
+        // Met à jour la date de dernière modification globale
+        $pdo->exec("UPDATE AEROPORTS_LAST_ADMIN_UPDATE SET last_update = NOW()");
+
+        $message = str_replace('{ident}', htmlspecialchars($ident), t('admin_airports_success_update'));
+        $etat = 'recherche'; // on revient à l'écran de recherche
+
+    } elseif (isset($_POST['action']) && $_POST['action'] === 'creer') {
+        foreach ($aeroport as $key => $_) {
+            if ($key !== 'ident') {
+                $aeroport[$key] = $_POST[$key] ?? null;
+            }
+        }
+
+        $stmt = $pdo->prepare("
+            INSERT INTO AEROPORTS (
+                ident, type_aeroport, name, municipality, latitude_deg, longitude_deg,
+                elevation_ft, Piste, Longueur_de_piste, Type_de_piste,
+                Observations, wikipedia_link, fret
+            ) VALUES (
+                :ident, :type_aeroport, :name, :municipality, :latitude_deg, :longitude_deg,
+                :elevation_ft, :Piste, :Longueur_de_piste, :Type_de_piste,
+                :Observations, :wikipedia_link, :fret
+            )
+        ");
+        $stmt->execute($aeroport);
+
+        // Met à jour la date de dernière modification globale
+        $pdo->exec("UPDATE AEROPORTS_LAST_ADMIN_UPDATE SET last_update = NOW()");
+
+        $message = str_replace('{ident}', htmlspecialchars($ident), t('admin_airports_success_create'));
+        $etat = 'recherche'; // on revient à l'écran de recherche
+    }
+}
+
+include __DIR__ . '/../includes/header.php';
+include __DIR__ . '/../includes/menu_logged.php';
+// Récupérer les types d'aéroports distincts pour la combo
+$types_aero = [];
+try {
+    $tstmt = $pdo->query("SELECT DISTINCT type_aeroport FROM AEROPORTS WHERE type_aeroport IS NOT NULL AND type_aeroport <> '' ORDER BY type_aeroport ASC");
+    $types_aero = $tstmt->fetchAll(PDO::FETCH_COLUMN);
+} catch (PDOException $e) {
+    // ignore: on affichera un select vide si erreur
+}
+?>
+
+
+<main>
+    <h2><?= t('admin_airports_title') ?></h2>
+
+    <?php if ($message): ?>
+        <div class="success"><?= $message ?></div>
+    <?php endif; ?>
+
+    <!-- Étape 1 : formulaire de recherche -->
+    <?php if ($etat === 'recherche'): ?>
+        <form method="post" class="form-inscription">
+            <label><?= t('admin_airports_ident_label') ?>
+                <input name="ident" class="form-input input-250" required>
+            </label>
+            <button type="submit" name="action" value="rechercher" class="btn"><?= t('admin_airports_search_button') ?></button>
+        </form>
+    <?php endif; ?>
+
+    <!-- Étape 2 : formulaire d'édition ou de création -->
+    <?php if (in_array($etat, ['edition', 'creation'])): ?>
+        <form method="post" class="form-inscription">
+            <input type="hidden" name="ident" value="<?= htmlspecialchars($aeroport['ident']) ?>">
+
+            <label><?= t('admin_airports_type_label') ?>
+                <select name="type_aeroport" class="form-input">
+                    <option value="">-- <?= t('admin_airports_select_option') ?> --</option>
+                    <?php foreach ($types_aero as $ta): ?>
+                        <option value="<?= htmlspecialchars($ta) ?>" <?= ($aeroport['type_aeroport']==$ta)?'selected':'' ?>><?= htmlspecialchars($ta) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </label>
+
+            <label><?= t('admin_airports_name_label') ?>
+                <input name="name" class="form-input" value="<?= htmlspecialchars($aeroport['name']) ?>">
+            </label>
+
+            <label><?= t('admin_airports_city_label') ?>
+                <input name="municipality" class="form-input" value="<?= htmlspecialchars($aeroport['municipality']) ?>">
+            </label>
+
+            <label><?= t('admin_airports_lat_label') ?>
+                <input name="latitude_deg" class="form-input" value="<?= htmlspecialchars($aeroport['latitude_deg']) ?>">
+            </label>
+
+            <label><?= t('admin_airports_lon_label') ?>
+                <input name="longitude_deg" class="form-input" value="<?= htmlspecialchars($aeroport['longitude_deg']) ?>">
+            </label>
+
+            <label><?= t('admin_airports_alt_label') ?>
+                <input name="elevation_ft" class="form-input" value="<?= htmlspecialchars($aeroport['elevation_ft']) ?>">
+            </label>
+
+            <label><?= t('admin_airports_runway_label') ?>
+                <textarea name="Piste" class="form-input"><?= htmlspecialchars($aeroport['Piste']) ?></textarea>
+            </label>
+
+            <label><?= t('admin_airports_runway_length_label') ?>
+                <input name="Longueur_de_piste" class="form-input" value="<?= htmlspecialchars($aeroport['Longueur_de_piste']) ?>">
+            </label>
+
+            <label><?= t('admin_airports_runway_type_label') ?>
+                <input name="Type_de_piste" class="form-input" value="<?= htmlspecialchars($aeroport['Type_de_piste']) ?>">
+            </label>
+
+            <label><?= t('admin_airports_obs_label') ?>
+                <textarea name="Observations" class="form-input"><?= htmlspecialchars($aeroport['Observations']) ?></textarea>
+            </label>
+
+            <label><?= t('admin_airports_wiki_label') ?>
+                <input name="wikipedia_link" class="form-input" value="<?= htmlspecialchars($aeroport['wikipedia_link']) ?>">
+            </label>
+
+            <label><?= t('admin_airports_freight_label') ?>
+                <input name="fret" type="number" class="form-input" value="<?= htmlspecialchars($aeroport['fret']) ?>">
+            </label>
+
+            <div class="form-actions admin-aeroport-actions">
+                <button type="submit" name="action" value="<?= $etat === 'edition' ? 'mettre_a_jour' : 'creer' ?>" class="btn">
+                    <?= $etat === 'edition' ? t('admin_airports_update_button') : t('admin_airports_create_button') ?>
+                </button>
+                <button type="button" class="btn btn-reset" onclick="window.location.href='admin_aeroport.php'"><?= t('admin_airports_back_button') ?></button>
+            </div>
+        </form>
+    <?php endif; ?>
+</main>
+
+
+<?php include __DIR__ . '/../includes/footer.php'; ?>
