@@ -214,6 +214,12 @@ $statusClasses = [
                     <?= $statusLabels[(int)$avion['status']] ?? '?' ?>
                 </span>
             </div>
+            <?php if ((int)($avion['controle_a_faire'] ?? 0) === 1): ?>
+            <div class="carnet-info-item">
+                <span class="label"><?= t('fleet_controle_a_faire') ?></span>
+                <span class="value"><span class="badge-controle"><?= t('fleet_controle_a_faire') ?></span></span>
+            </div>
+            <?php endif; ?>
         </div>
     </div>
 

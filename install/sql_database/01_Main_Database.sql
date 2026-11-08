@@ -200,6 +200,7 @@ CREATE TABLE IF NOT EXISTS `FLOTTE` (
   `date_vente` date DEFAULT NULL,
   `mode_achat` varchar(10) COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'comptant',
   `reservee` tinyint(1) DEFAULT '0' COMMENT '1 = réservé (non disponible)',
+  `controle_a_faire` tinyint(1) NOT NULL DEFAULT '0' COMMENT '1 = vol de contrôle post-maintenance obligatoire avant remise en service',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=128 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -277,8 +278,14 @@ CREATE TABLE IF NOT EXISTS `MISSIONS` (
   `libelle` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
   `majoration_mission` decimal(3,2) NOT NULL,
   `Active` tinyint(1) NOT NULL DEFAULT '1',
+  `est_controle` tinyint(1) NOT NULL DEFAULT '0' COMMENT '1 = mission spéciale de contrôle post-maintenance',
+  `types_autorises` varchar(255) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '*' COMMENT 'CSV des types FLEET_TYPE.type autorisés, * = tous',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Mission spéciale de contrôle post-maintenance (identifiée par est_controle = 1)
+INSERT INTO `MISSIONS` (`libelle`, `majoration_mission`, `Active`, `est_controle`) VALUES
+('Mission De Contrôle', 1.00, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -291,7 +298,7 @@ CREATE TABLE IF NOT EXISTS `MAINTENANCES_LOG` (
   `id` int NOT NULL AUTO_INCREMENT,
   `appareil_id` int NOT NULL,
   `date_maintenance` datetime DEFAULT CURRENT_TIMESTAMP,
-  `type_maintenance` enum('usure','crash','sortie','sortie_crash') NOT NULL DEFAULT 'usure',
+  `type_maintenance` enum('usure','crash','sortie','sortie_crash','controle') NOT NULL DEFAULT 'usure',
   `etat_avant` tinyint UNSIGNED DEFAULT NULL,
   `etat_apres` tinyint UNSIGNED DEFAULT NULL,
   `cout` decimal(10,2) DEFAULT NULL,
@@ -470,6 +477,7 @@ INSERT INTO VARIABLES_CONFIG (nom, valeur) VALUES
 ('taux_assurance', '0.0200'),
 ('reservation_timeout_hours', '24'),
 ('multiplicateur_crash', '3'),
+('prime_controle_vol', '500.00'),
 ('lien_acars', 'assets/acars/simaddon_setup.zip');
 --
 -- Structure de la table `VOLS_REJETES`

@@ -8,7 +8,7 @@
  API REST retournant la liste des missions actives disponibles.
  Ne retourne que les missions avec active != 0, triées alphabétiquement.
 
- Paramètres : Aucun
+ Paramètres : type (optionnel) = catégorie FLEET_TYPE.type pour filtrer les missions compatibles
 
  Réponse JSON :
  - {success: true, missions: [{libelle, active}, ...]} : Liste des missions actives
@@ -27,8 +27,16 @@ header('Content-Type: application/json');
 require_once __DIR__ . '/../includes/db_connect.php';
 
 try {
-    $stmt = $pdo->prepare("SELECT libelle, active FROM MISSIONS WHERE active != 0 ORDER BY libelle");
-    $stmt->execute();
+    // Paramètre optionnel ?type=Monomoteur|Bimoteur|Liner|Helico : ne renvoyer que les missions
+    // compatibles avec cette catégorie d'appareil (MISSIONS.types_autorises, '*' = toutes)
+    $type = isset($_GET['type']) ? trim($_GET['type']) : '';
+    if ($type !== '') {
+        $stmt = $pdo->prepare("SELECT libelle, active FROM MISSIONS WHERE active != 0 AND (types_autorises = '*' OR FIND_IN_SET(:type, types_autorises) > 0) ORDER BY libelle");
+        $stmt->execute(['type' => $type]);
+    } else {
+        $stmt = $pdo->prepare("SELECT libelle, active FROM MISSIONS WHERE active != 0 ORDER BY libelle");
+        $stmt->execute();
+    }
     $missions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     echo json_encode([

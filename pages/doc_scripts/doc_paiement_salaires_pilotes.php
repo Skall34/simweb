@@ -41,6 +41,24 @@ require_once __DIR__ . '/../../includes/menu_logged.php';
                 </ul>
             </li>
             <li>
+                <h4 class="sous-chapitre"><?= t('doc_paiement_etape_prime_title') ?></h4>
+                <ul>
+                    <?php
+                    // Connexion DB pour récupérer la prime de risque
+                    $primeRisque = 500;
+                    try {
+                        $stmtP = $pdo->prepare("SELECT valeur FROM VARIABLES_CONFIG WHERE nom = 'prime_controle_vol'");
+                        $stmtP->execute();
+                        $rowP = $stmtP->fetch(PDO::FETCH_ASSOC);
+                        if ($rowP && is_numeric($rowP['valeur'])) {
+                            $primeRisque = $rowP['valeur'];
+                        }
+                    } catch (Exception $e) {}
+                    ?>
+                    <li><?= t('doc_paiement_etape_prime_text') ?> <strong><?= htmlspecialchars($primeRisque) ?>&nbsp;€</strong> <?= t('doc_paiement_etape_prime_suite') ?> <code>MISSIONS.est_controle=1</code>.</li>
+                </ul>
+            </li>
+            <li>
                 <h4 class="sous-chapitre"><?= t('doc_paiement_etape3_title') ?></h4>
                 <ul>
                     <li><?= t('doc_paiement_etape3_text1') ?> <code>SALAIRES</code>.</li>

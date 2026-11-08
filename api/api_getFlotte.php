@@ -36,6 +36,7 @@ try {
     P.callsign, 
     F.etat,
     F.reservee,
+    F.controle_a_faire,
     F.status,
     PRESA.callsign AS reserved_by
 FROM 

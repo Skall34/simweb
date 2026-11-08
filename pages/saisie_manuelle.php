@@ -5,6 +5,7 @@ require_once __DIR__ . '/../includes/log_func.php';
 require_once __DIR__ . '/../includes/mail_utils.php';
 require_once __DIR__ . '/../includes/fonctions_financieres.php';
 require_once __DIR__ . '/../includes/fonctions_importer_vol.php';
+require_once __DIR__ . '/../includes/fonctions_controle_vol.php';
 require_once __DIR__ . '/../includes/calcul_cout.php';
 
 $logFile = __DIR__ . '/../scripts/logs/importer_vol_manual.log';
@@ -17,12 +18,12 @@ $success = false;
 $stmt = $pdo->query("SELECT callsign FROM PILOTES WHERE actif=1 ORDER BY callsign");
 $callsigns = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
-$stmt = $pdo->query("SELECT libelle FROM MISSIONS WHERE active = 1 ORDER BY libelle");
-$missionslist = $stmt->fetchAll(PDO::FETCH_COLUMN);
+$stmt = $pdo->query("SELECT libelle, est_controle, types_autorises FROM MISSIONS WHERE active = 1 ORDER BY libelle");
+$missionslist = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Récupérer les immatriculations actives
-$stmt = $pdo->query("SELECT immat FROM FLOTTE WHERE actif = 1 ORDER BY immat");
-$immats = $stmt->fetchAll(PDO::FETCH_COLUMN);
+// Récupérer les immatriculations actives avec leur catégorie (pour filtrer les missions compatibles)
+$stmt = $pdo->query("SELECT f.immat, ft.type AS categorie FROM FLOTTE f LEFT JOIN FLEET_TYPE ft ON f.fleet_type = ft.id WHERE f.actif = 1 ORDER BY f.immat");
+$immats = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Initialiser les valeurs du formulaire
 $form = [
@@ -37,7 +38,9 @@ $form = [
     'payload' => '',
     'commentaire' => '',
     'note_du_vol' => '',
-    'mission' => ''
+    'mission' => '',
+    'stall_ok' => '',
+    'engine_cut_ok' => ''
 ];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -131,10 +134,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (!$pilote) $erreurs_proc[] = "Pilote '$callsign' introuvable.";
 
                 // avion
-                $stmtAvion = $pdo->prepare("SELECT id FROM FLOTTE WHERE immat = :immat AND actif = 1");
+                $stmtAvion = $pdo->prepare("SELECT f.id, f.controle_a_faire, ft.type AS categorie FROM FLOTTE f LEFT JOIN FLEET_TYPE ft ON f.fleet_type = ft.id WHERE f.immat = :immat AND f.actif = 1");
                 $stmtAvion->execute(['immat' => $immat]);
-                $avion = $stmtAvion->fetch();
-                if (!$avion) $erreurs_proc[] = "Avion '$immat' introuvable ou inactif.";
+                $avion = $stmtAvion->fetch(PDO::FETCH_ASSOC);
+                if (!$avion) {
+                    $erreurs_proc[] = "Avion '$immat' introuvable ou inactif.";
+                } else {
+                    // vol de contrôle post-maintenance (mission de contrôle exigée, stall_ok, engine_cut_ok si bimoteur)
+                    $erreurControle = null;
+                    if (!verifierVolControle($pdo, (int)$avion['id'], $mission, !empty($form['stall_ok']), !empty($form['engine_cut_ok']), $erreurControle)) {
+                        $erreurs_proc[] = $erreurControle;
+                    }
+                    // compatibilité mission / type d'appareil
+                    if (!empty($avion['categorie']) && !missionCompatibleAvecType($pdo, $mission, $avion['categorie'])) {
+                        $erreurs_proc[] = "Mission '$mission' incompatible avec un appareil de type {$avion['categorie']}.";
+                    }
+                }
 
                 // doublon
                 if (function_exists('detecterDoublonVol') && detecterDoublonVol($pdo, $callsign, $departure_icao, $arrival_icao, $departure_fuel, $arrival_fuel, $payload, $note, $mission, $logFile, $departure_time)) {
@@ -173,6 +188,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     $vol_id = function_exists('remplirCarnetVolGeneral') ? remplirCarnetVolGeneral($horodateur, $callsign, $immat, $departure_icao, $arrival_icao, $departure_fuel, $arrival_fuel, $payload, $departure_time, $arrival_time, $mission, $commentaire, $note, $cout_vol, $temps_vol, $logFile) : null;
                     logMsg("[saisie_manuelle] Vol inséré et traité: callsign=$callsign immat=$immat depart=$departure_icao dest=$arrival_icao payload=$payload cout=$cout_vol", $logFile);
+
+                    // si c'était un vol de contrôle post-maintenance, l'appareil redevient disponible
+                    if ($vol_id && missionEstControle($pdo, $mission) && avionEnAttenteControle($pdo, (int)$avion['id'])) {
+                        marquerControleEffectue($pdo, (int)$avion['id'], $immat, $vol_id, $logFile);
+                    }
 
                     if (!empty($tracegps) && function_exists('ajouterTraceGPS') && $vol_id) {
                         ajouterTraceGPS($vol_id, $tracegps, $logFile);
@@ -255,8 +275,8 @@ include __DIR__ . '/../includes/menu_logged.php';
                 <select name="immatriculation" id="immatriculation" required class="form-input">
                     <option value=""><?= t('select_placeholder') ?></option>
                     <?php foreach ($immats as $i): ?>
-                        <option value="<?= htmlspecialchars($i) ?>" <?= ($form['immatriculation'] === $i) ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($i) ?>
+                        <option value="<?= htmlspecialchars($i['immat']) ?>" data-type="<?= htmlspecialchars($i['categorie'] ?? '') ?>" <?= ($form['immatriculation'] === $i['immat']) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($i['immat']) ?><?= !empty($i['categorie']) ? ' (' . htmlspecialchars($i['categorie']) . ')' : '' ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -302,11 +322,16 @@ include __DIR__ . '/../includes/menu_logged.php';
                 <select name="mission" id="mission" required class="form-input">
                     <option value=""><?= t('select_placeholder') ?></option>
                     <?php foreach ($missionslist as $m): ?>
-                        <option value="<?= htmlspecialchars($m) ?>" <?= ($form['mission'] === $m) ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($m) ?>
+                        <option value="<?= htmlspecialchars($m['libelle']) ?>" data-controle="<?= (int)$m['est_controle'] ?>" data-types="<?= htmlspecialchars($m['types_autorises']) ?>" <?= ($form['mission'] === $m['libelle']) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($m['libelle']) ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
+            </div>
+            <div class="form-group hidden" id="bloc-controle">
+                <label><input type="checkbox" name="stall_ok" value="1" <?= !empty($form['stall_ok']) ? 'checked' : '' ?>> <?= t('saisie_manuelle_stall_ok') ?></label>
+                <label><input type="checkbox" name="engine_cut_ok" value="1" <?= !empty($form['engine_cut_ok']) ? 'checked' : '' ?>> <?= t('saisie_manuelle_engine_cut_ok') ?></label>
+                <p class="form-hint"><?= t('saisie_manuelle_controle_hint') ?></p>
             </div>
             <div class="form-group" style="display:flex;gap:1em;">
                 <button type="submit" class="btn"><?= t('saisie_manuelle_add') ?></button>
@@ -315,4 +340,40 @@ include __DIR__ . '/../includes/menu_logged.php';
         </form>
     </div>
 </main>
+<script>
+(function () {
+    var missionSelect = document.getElementById('mission');
+    var avionSelect = document.getElementById('immatriculation');
+    var bloc = document.getElementById('bloc-controle');
+
+    // Filtre les missions proposées selon le type de l'avion choisi
+    function filtreMissions() {
+        if (!missionSelect || !avionSelect) return;
+        var optAvion = avionSelect.options[avionSelect.selectedIndex];
+        var typeAvion = optAvion ? (optAvion.dataset.type || '') : '';
+        var selIncompatible = false;
+        for (var i = 0; i < missionSelect.options.length; i++) {
+            var opt = missionSelect.options[i];
+            if (!opt.value) continue; // placeholder
+            var types = (opt.dataset.types || '*').split(',');
+            var ok = (types.indexOf('*') !== -1) || (typeAvion !== '' && types.indexOf(typeAvion) !== -1);
+            opt.hidden = !ok;
+            if (opt.selected && !ok) selIncompatible = true;
+        }
+        if (selIncompatible) missionSelect.selectedIndex = 0;
+    }
+
+    // Affiche le bloc de contrôle uniquement si la mission choisie est une mission de contrôle
+    function majBloc() {
+        if (!missionSelect || !bloc) return;
+        var opt = missionSelect.options[missionSelect.selectedIndex];
+        bloc.classList.toggle('hidden', !(opt && opt.dataset.controle === '1'));
+    }
+
+    if (avionSelect) avionSelect.addEventListener('change', filtreMissions);
+    if (missionSelect) missionSelect.addEventListener('change', majBloc);
+    filtreMissions();
+    majBloc();
+})();
+</script>
 <?php include __DIR__ . '/../includes/footer.php'; ?>
