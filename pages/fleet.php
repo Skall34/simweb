@@ -57,6 +57,14 @@ $stmtCount->execute();
 $countRow = $stmtCount->fetch();
 $count = $countRow['total'];
 
+// Avions en attente d'un vol de contrôle post-maintenance (bandeau en haut de page, indépendant des filtres)
+$immatsControle = [];
+try {
+    $immatsControle = $pdo->query("SELECT immat FROM FLOTTE WHERE controle_a_faire = 1 AND (actif = 1 OR actif IS NULL) ORDER BY immat")->fetchAll(PDO::FETCH_COLUMN);
+} catch (PDOException $e) {
+    // Ignore erreur
+}
+
 
 include __DIR__ . '/../includes/header.php';
 include __DIR__ . '/../includes/menu_logged.php';
@@ -65,6 +73,15 @@ include __DIR__ . '/../includes/menu_logged.php';
 
 <main>
     <h2><?= t('fleet_title') ?> : <?= str_replace('{count}', $count, t('fleet_count')) ?></h2>
+
+    <?php if (!empty($immatsControle)): ?>
+    <div class="controle-bandeau">
+        <strong><?= t('fleet_controle_bandeau_titre') ?></strong>
+        <?php foreach ($immatsControle as $immatC): ?>
+            <span class="pastille-controle" title="<?= htmlspecialchars(t('fleet_controle_a_faire')) ?>"><?= htmlspecialchars($immatC) ?></span>
+        <?php endforeach; ?>
+    </div>
+    <?php endif; ?>
 
     <form method="get" action="fleet.php">
         <label for="immat"><?= t('fleet_filter_immat') ?>:</label>
@@ -189,7 +206,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                                 };
                             }
                             if ((int)($avion['controle_a_faire'] ?? 0) === 1) {
-                                echo ' <span class="badge-controle">' . t('fleet_controle_a_faire') . '</span>';
+                                echo ' <span class="badge-controle" title="' . htmlspecialchars(t('fleet_controle_a_faire')) . '">' . t('fleet_controle_court') . '</span>';
                             }
                             ?>
                         </td>

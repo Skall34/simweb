@@ -1681,6 +1681,8 @@ Costo total mantenimiento: 1.000,00 €
     'script_salary_hours' => 'Has realizado :hours horas de vuelo este mes.',
     'script_salary_prime_risque' => 'Prima de riesgo: :count vuelo(s) de control post-mantenimiento = :amount.',
     'fleet_controle_a_faire' => 'Control post-mantenimiento pendiente',
+    'fleet_controle_bandeau_titre' => 'Control post-mantenimiento pendiente:',
+    'fleet_controle_court' => 'CPM pendiente',
     'admin_flotte_badge_controle' => 'Control pendiente',
     'admin_flotte_action_controle_ok' => '✅ Control realizado',
     'admin_flotte_action_controle_ok_title' => 'Quita la marca de vuelo de control obligatorio (anulacion manual)',

@@ -2216,6 +2216,27 @@ footer {
     white-space: nowrap;
 }
 
+/* Bandeau "contrôle post-maintenance" en haut de fleet.php : pastilles immats fond orange */
+.controle-bandeau {
+    margin: 10px 0 14px 0;
+    padding: 8px 12px;
+    background: #fff8e6;
+    border: 1px solid #ffc107;
+    border-radius: 6px;
+}
+.pastille-controle {
+    display: inline-block;
+    padding: 2px 10px;
+    margin-left: 6px;
+    border-radius: 12px;
+    background: #ffc107;
+    color: #212529;
+    border: 1px solid #e0a800;
+    font-size: 0.85em;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
 /* Badges */
 .badge {
     display: inline-block;
