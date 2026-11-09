@@ -197,7 +197,6 @@ include __DIR__ . '/../includes/menu_logged.php';
                         <th>Désignation</th>
                         <th>Longueur (m)</th>
                         <th>Surface</th>
-                        <th>Code</th>
                         <th></th>
                     </tr>
                     <?php foreach ($pistes as $p): ?>
@@ -212,7 +211,6 @@ include __DIR__ . '/../includes/menu_logged.php';
                                 <?php endforeach; ?>
                             </select>
                         </td>
-                        <td><?= htmlspecialchars($p['surface_code'] ?? '') ?></td>
                         <td><label><input type="checkbox" name="pistes[<?= (int)$p['id'] ?>][supprimer]"> Supprimer</label></td>
                     </tr>
                     <?php endforeach; ?>

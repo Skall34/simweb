@@ -207,7 +207,6 @@ try {
                         <th><?= t('admin_airports_runway_designation') ?></th>
                         <th><?= t('admin_airports_runway_length_m') ?></th>
                         <th><?= t('admin_airports_runway_surface') ?></th>
-                        <th><?= t('admin_airports_runway_code') ?></th>
                         <th></th>
                     </tr>
                     <?php foreach ($pistes as $p): ?>
@@ -222,7 +221,6 @@ try {
                                 <?php endforeach; ?>
                             </select>
                         </td>
-                        <td><?= htmlspecialchars($p['surface_code'] ?? '') ?></td>
                         <td><label><input type="checkbox" name="pistes[<?= (int)$p['id'] ?>][supprimer]"> <?= t('admin_airports_runway_delete') ?></label></td>
                     </tr>
                     <?php endforeach; ?>

@@ -396,7 +396,6 @@ return [
     'admin_airports_runway_length_m' => 'Length (m)',
     'admin_airports_runway_surface' => 'Surface',
     'admin_airports_runway_delete' => 'Delete',
-    'admin_airports_runway_code' => 'Code',
     'admin_airports_obs_label' => 'Observations:',
     'admin_airports_wiki_label' => 'Wikipedia:',
     'admin_airports_freight_label' => 'Freight on site:',
