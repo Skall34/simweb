@@ -1698,6 +1698,7 @@ Coût total maintenance : 1 000,00 €
     'fleet_controle_a_faire' => 'Contrôle post-maintenance à effectuer',
     'fleet_controle_bandeau_titre' => 'Contrôle post-maintenance à effectuer :',
     'fleet_controle_court' => 'CPM à faire',
+    'fleet_controle_bandeau_tooltip' => "Règles du vol de contrôle : un appareil marqué « CPM à faire » ne peut voler qu'avec la mission de contrôle. Le pilote doit déclarer au moins une limite de décrochage (stall) et, si l'appareil est bimoteur, un arrêt moteur. L'appareil est remis en service automatiquement après le vol de contrôle validé (ou déblocage manuel par un administrateur).",
     'admin_flotte_badge_controle' => 'Contrôle à faire',
     'admin_flotte_action_controle_ok' => '✅ Contrôle effectué',
     'admin_flotte_action_controle_ok_title' => 'Lève le flag de vol de contrôle obligatoire (déblocage manuel)',

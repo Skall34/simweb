@@ -75,7 +75,7 @@ include __DIR__ . '/../includes/menu_logged.php';
     <h2><?= t('fleet_title') ?> : <?= str_replace('{count}', $count, t('fleet_count')) ?></h2>
 
     <?php if (!empty($immatsControle)): ?>
-    <div class="controle-bandeau">
+    <div class="controle-bandeau" title="<?= htmlspecialchars(t('fleet_controle_bandeau_tooltip')) ?>">
         <strong><?= t('fleet_controle_bandeau_titre') ?></strong>
         <?php foreach ($immatsControle as $immatC): ?>
             <span class="pastille-controle" title="<?= htmlspecialchars(t('fleet_controle_a_faire')) ?>"><?= htmlspecialchars($immatC) ?></span>

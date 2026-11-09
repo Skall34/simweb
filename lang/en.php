@@ -1693,6 +1693,7 @@ Total maintenance cost: 1,000.00 €
     'fleet_controle_a_faire' => 'Post-maintenance check flight required',
     'fleet_controle_bandeau_titre' => 'Post-maintenance check flight required:',
     'fleet_controle_court' => 'CPM due',
+    'fleet_controle_bandeau_tooltip' => "Check-flight rules: an aircraft flagged 'CPM due' can only fly with the check-flight mission. The pilot must declare at least one stall and, if the aircraft is twin-engine, an engine cut. The aircraft is automatically returned to service once the check flight is validated (or manually unlocked by an administrator).",
     'admin_flotte_badge_controle' => 'Check flight pending',
     'admin_flotte_action_controle_ok' => '✅ Check done',
     'admin_flotte_action_controle_ok_title' => 'Clears the mandatory check flight flag (manual override)',
