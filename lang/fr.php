@@ -767,7 +767,7 @@ return [
     'admin_fleettype' => 'Administration des Fleet Type',
     'admin_fleet' => 'Administration des appareils',
     'admin_airports' => 'Administration de la base des aéroports',
-    'admin_surfaces' => 'Surfaces de piste',
+    'admin_surfaces' => 'Administration des surfaces de piste',
     'admin_missions' => 'Administration des missions',
     'admin_pilots' => 'Administration des pilotes',
     'admin_grades' => 'Administration des grades',
