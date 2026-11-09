@@ -65,6 +65,7 @@ return [
     'admin_variables_label_taux_assurance' => "Taux de l'assurance (%)",
     'admin_variables_label_reservation_timeout_hours' => "Durée de validité d'une réservation (heures)",
     'admin_variables_label_multiplicateur_crash' => 'Multiplicateur coût maintenance crash (×)',
+    'admin_variables_label_prime_controle_vol' => 'Prime par vol de contrôle effectué (€)',
     'admin_variables_update_success' => 'Variables mises à jour avec succès.',
     'admin_variables_save_button' => 'Enregistrer',
 
