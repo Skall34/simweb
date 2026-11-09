@@ -1,16 +1,14 @@
 -- Surfaces de piste : une seule entree par code canonique (SURFACES).
--- `alias` = liste des valeurs brutes reconnues pour ce code, separees par '|'.
--- Le recalc de PISTES.surface_code normalise le brut (majuscules, premier element
--- avant espace/tiret/slash) puis cherche dans `alias` ; sans correspondance -> UNK.
+-- PISTES.surface ne contient que ces codes ; surface_code = surface si le code existe, sinon UNK.
 -- Genere depuis les donnees OurAirports.
 
-INSERT INTO `SURFACES` (`code`, `libelle`, `alias`) VALUES
-('ASPH', 'Asphalte', 'APSH|asfalt|ASP|ASP 131.615 Mhz|ASP CON|ASP CONC|ASP concrete|ASP GRASS|ASP GRAVEL|ASP GRE|ASP GRS|ASP GVL|ASP TURF|ASPH|ASPH  CONC|ASPH 71 F C X T|ASPH CON|ASPH CONC|ASPH GRASS|ASPH GRVL|ASPH GRVL-F|ASPH TURF|ASPH-CONC|ASPH-CONC-F|ASPH-CONC-G|ASPH-DIRT|ASPH-E|ASPH-F|ASPH-G|ASPH-GRVL|ASPH-GRVL-F|ASPH-GRVL-G|ASPH-P|ASPH-TRTD-F|ASPH-TRTD-G|ASPH-TRTD-P|ASPH-TURF|ASPH-TURF-F|ASPH-TURF-G|asphalt|Asphalt concrete|Asphalt Grass|ASPHALT TURF|BIT|BITUM|Bituminous|Hard|Hard Gravel|Hard loam|MAC|Paved|Paved Compacted schist|Paved Gravel'),
-('CONC', 'BÃ©ton', 'C|CON|CON ASP|CON GRS|CON MET|CON PAD|CONC|CONC GRVL|CONC MTAL|CONC-ASPH|CONC-E|CONC-F|CONC-G|CONC-GRVD|CONC-GRVL|CONC-GRVL-G|CONC-P|CONC-TRTD|CONC-TRTD-G|CONC-TURF|CONC-TURF-G|CONCRETE|CONCRETE + GRASS. MTOM 2t|CONCRETE AND ASP|Concrete Asphalt|Concrete Grass|Concrete Turf|Concrete-Grooved'),
-('GRVL', 'Gravier', 'Crushed coral|CRUSHED ROCK|GRAVEL|GRAVEL   CINDERS   CRUSHED ROCK   CORAL SHELLS   SLAG|GRAVEL ASP|Gravel Asphalt mix|GRAVEL CLAY|GRAVEL CLAY SAND|Gravel dirt|GRAVEL EARTH|GRAVEL EARTH SAND|GRAVEL GRASS|GRAVEL GRASS SOD|GRAVEL SAND|GRAVEL SAND CL|Gravel Snow|GRAVEL TURF|GRAVEL TURF SNOW|GRAVEL-F|GRAVEL-G|GRAVEL-P|GRE|GRE ASP|GRV|GRV ASP|GRV GRASS|GRV MAICILLO|GRV PAD|GRVL|GRVL ASP|GRVL CLAY|GRVL GRASS|GRVL PIï¿½ï¿½|GRVL TURF|GRVL-DIRT|GRVL-DIRT-E|GRVL-DIRT-F|GRVL-DIRT-G|GRVL-DIRT-P|GRVL-E|GRVL-F|GRVL-G|GRVL-GRASS|GRVL-P|GRVL-TRTD|GRVL-TURF|GRVL-TURF-F|GRVL-TURF-G|GRVL-TURF-P|GVL|LAT|OILED|OILED DIRT|OILED GRAVEL|TREATED GRAVEL|TREATED SAND|TRTD|TRTD GRVL|TRTD-DIRT|TRTD-DIRT-F|TRTD-DIRT-P'),
-('ICE', 'Glace', 'ICE'),
-('SAND', 'Sable', 'COMPACTED|Compacted coral and sand|Compacted Earth|Compacted sand|SAN|SAN (Piï¿½ï¿½arra)|SAND|SAND DIRT|SAND EARTH|Sand grass|SAND GRAVEL|SAND GRAVEL DIRT|SAND GRAVEL EARTH|SAND GRVL|SAND TIDAL'),
-('SNOW', 'Neige', 'SNO|Snow'),
-('TURF', 'Herbe', 'G|Gras|GRAS reinforced|GRAS TURF|Grass|GRASS   SOD|GRASS  SOD|Grass and granite sand|GRASS ASP|Grass Asphalt Insert|Grass Clay|GRASS CONC|GRASS DIRT|GRASS DIRT GRAVEL|GRASS GRAVEL|GRASS HARDCORE|Grass Helipads Concrete|Grass on coral|GRASS OR EARTH NOT GRADED OR ROLLED|GRASS PAD|grass paved with a plastic grille|Grass red silty clay|GRASS SNOW|GRASS SOD|GRASS SOD GRAVEL|GRASS SOD NATURAL SOIL|GRASS TURF|Grass-caution moles|Grass-Herbe|grass-herbe  (avion)|grass-herbe  (planeur)|Grass-Herbe -> Avion-ULM|Grassed black clay|Grassed black clay sand|Grassed black clay silt|Grassed black sand|Grassed black silt|Grassed black silt clay|Grassed brown clay|Grassed brown clay gravel|Grassed brown gravel|Grassed brown silt clay|Grassed brown silty clay|Grassed clay|Grassed clay silt clay|Grassed grey clay|Grassed grey gravel|Grassed grey sand|Grassed grey silt clay|Grassed grey silt sand|Grassed limestone gravel|Grassed red clay|Grassed red silt clay|Grassed red silt sand|Grassed red silty clay|Grassed river gravel|Grassed Sand|Grassed silt clay|Grassed white coronas|Grassed white gravel|Grassed yellow clay|Grassed yellow gravel|GRS|GRS Emergency Strip|TURF|TURF ASP|TURF ASPHALT|TURF CHIPSEAL|TURF CLAY|Turf Dirt|TURF EARTH|TURF EARTH GRAVEL|Turf Grass|TURF GRAVEL|TURF GRAVEL AS|TURF GRAVEL CLAY|TURF GRAVEL SNOW|TURF GRVL|TURF OIL PACKE|TURF SAND GRAVEL|Turf Snow|TURF TREATED G|TURF-DIRT|TURF-DIRT-F|TURF-DIRT-G|TURF-DIRT-P|TURF-E|TURF-F|TURF-G|TURF-GRVL|TURF-GRVL-F|TURF-GRVL-G|TURF-GRVL-P|TURF-P'),
-('UNK', 'Inconnu', 'UNK'),
-('WATER', 'Eau', 'WATER|WATER-E|WATER-G');
+INSERT INTO `SURFACES` (`code`, `libelle`) VALUES
+('ASPH', 'Asphalte'),
+('CONC', 'BÃ©ton'),
+('GRVL', 'Gravier'),
+('ICE', 'Glace'),
+('SAND', 'Sable'),
+('SNOW', 'Neige'),
+('TURF', 'Herbe'),
+('UNK', 'Inconnu'),
+('WATER', 'Eau');

@@ -166,8 +166,7 @@ MISSIONS                   -- Missions disponibles
 GRADES                     -- Système de grades/promotions
 AEROPORTS                  -- Aéroports avec fret dynamique
 PISTES                     -- Pistes des aéroports (longueur_m en mètres, surface brute + surface_code, FK vers AEROPORTS)
-SURFACES                   -- Codes canoniques de surface de piste (ASPH, CONC, GRVL, TURF, ...),
-                              -- une entrée par surface + colonne `alias` (variantes reconnues, séparées par |)
+SURFACES                   -- Codes canoniques de surface de piste (ASPH, CONC, GRVL, TURF, ...), une entrée par surface ; PISTES.surface n'utilise que ces codes
 CARNET_DE_VOL_GENERAL      -- Historique de tous les vols
 
 -- Tables financières

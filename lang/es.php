@@ -409,7 +409,6 @@ return [
     'admin_surfaces_codes_section' => 'Códigos de superficie (SURFACES) — una entrada por superficie',
     'admin_surfaces_code' => 'Código',
     'admin_surfaces_libelle' => 'Etiqueta',
-    'admin_surfaces_alias' => 'Variantes reconocidas (separadas por |)',
     'admin_surfaces_usages' => 'Pistas',
     'admin_surfaces_add' => 'Añadir',
     'admin_surfaces_save' => 'Guardar',
@@ -419,7 +418,7 @@ return [
     'admin_surfaces_success_delete' => '✅ Código {code} eliminado.',
     'admin_surfaces_error_used2' => '⚠️ Código {code} usado por {n} pistas: no se puede eliminar.',
     'admin_surfaces_error_db' => 'Error SQL:',
-    'admin_surfaces_recalc_note' => 'El alias permite reconocer los valores brutos (ej. ASP, ASPH-G, asphalt → ASPH). Cualquier cambio recalcula automáticamente PISTES.surface_code.',
+    'admin_surfaces_recalc_note' => 'Cualquier cambio recalcula automáticamente PISTES.surface_code.',
 
     // --- Page : my account ---
     'account_title' => 'Mi cuenta',

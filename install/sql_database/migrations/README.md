@@ -77,7 +77,12 @@ colonnes seraient affectées (aucun cas documenté) — d'où `003_pistes_rollba
   aéroport propose désormais uniquement cette liste (select alimenté par SURFACES,
   administrable dans l'écran « Surfaces de piste »).
   Vérification : `SELECT DISTINCT surface FROM PISTES ORDER BY 1;` (attendu : 9 codes + NULL).
+- `009_surfaces_drop_alias.sql` — supprime la colonne `SURFACES.alias` (inutile depuis 008 :
+  `PISTES.surface` ne contient plus que des codes) et recalcule `surface_code` par simple
+  correspondance de code. **Ordre : 008 → déployer le code PHP → 009** (l'ancien recalc
+  référençait `alias` et planterait après le drop).
+  Vérification : `SHOW COLUMNS FROM SURFACES;` (plus de `alias`).
 
-> Ordre si tu pars d'une base ancienne : 004 → 005 → 006 → 007 → 008.
-> `03_Surfaces_data.sql` (install neuve) contient directement les 9 codes avec leur `alias`,
-> et `04_Pistes_data.sql` uniformise `surface`.
+> Ordre si tu pars d'une base ancienne : 004 → 005 → 006 → 007 → 008 → (code PHP) → 009.
+> Install neuve : `03_Surfaces_data.sql` = 9 codes (code, libellé), `04_Pistes_data.sql`
+> calcule `surface_code` puis uniformise `surface`.

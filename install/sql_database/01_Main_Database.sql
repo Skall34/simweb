@@ -53,7 +53,6 @@ CREATE TABLE IF NOT EXISTS `AEROPORTS` (
 CREATE TABLE IF NOT EXISTS `SURFACES` (
   `code` varchar(10) COLLATE utf8mb4_general_ci NOT NULL,
   `libelle` varchar(60) COLLATE utf8mb4_general_ci NOT NULL,
-  `alias` text COLLATE utf8mb4_general_ci COMMENT 'valeurs brutes reconnues, separees par |',
   PRIMARY KEY (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 

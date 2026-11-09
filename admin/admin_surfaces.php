@@ -5,14 +5,11 @@ require_once __DIR__ . '/../lang.php';
 $message = '';
 $erreur = '';
 
-// Recalcule PISTES.surface_code : normalise le brut (majuscules, 1er element avant
-// ' ', '-', '/') puis lookup dans SURFACES (code ou alias) ; sans correspondance -> UNK.
+// Recalcule PISTES.surface_code par simple correspondance du code dans SURFACES
+// (PISTES.surface ne contient que des codes canoniques depuis la migration 008).
 function recalcSurfaceCodes(PDO $pdo, ?string $ident = null): void {
     $sql = "UPDATE `PISTES` p
-            LEFT JOIN `SURFACES` s
-              ON s.`code` = SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(UPPER(TRIM(p.`surface`)), ' ', 1), '-', 1), '/', 1)
-              OR FIND_IN_SET(UPPER(TRIM(p.`surface`)), REPLACE(s.`alias`, '|', ',')) > 0
-              OR FIND_IN_SET(SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(UPPER(TRIM(p.`surface`)), ' ', 1), '-', 1), '/', 1), REPLACE(s.`alias`, '|', ',')) > 0
+            LEFT JOIN `SURFACES` s ON s.`code` = p.`surface`
             SET p.`surface_code` = COALESCE(s.`code`, IF(p.`surface` IS NULL, NULL, 'UNK'))";
     if ($ident !== null) {
         $sql .= " WHERE p.`aeroport_ident` = :ident";
@@ -27,19 +24,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
     try {
         if ($action === 'surface_ajouter') {
-            $stmt = $pdo->prepare("INSERT INTO SURFACES (code, libelle, alias) VALUES (:code, :libelle, :alias)");
+            $stmt = $pdo->prepare("INSERT INTO SURFACES (code, libelle) VALUES (:code, :libelle)");
             $stmt->execute([
                 'code' => strtoupper(trim($_POST['code'] ?? '')),
                 'libelle' => trim($_POST['libelle'] ?? ''),
-                'alias' => trim($_POST['alias'] ?? '') ?: null,
             ]);
             recalcSurfaceCodes($pdo);
             $message = str_replace('{code}', htmlspecialchars(strtoupper(trim($_POST['code'] ?? ''))), t('admin_surfaces_success_create'));
         } elseif ($action === 'surface_maj') {
-            $stmt = $pdo->prepare("UPDATE SURFACES SET libelle = :libelle, alias = :alias WHERE code = :code");
+            $stmt = $pdo->prepare("UPDATE SURFACES SET libelle = :libelle WHERE code = :code");
             $stmt->execute([
                 'libelle' => trim($_POST['libelle'] ?? ''),
-                'alias' => trim($_POST['alias'] ?? '') ?: null,
                 'code' => $_POST['code'],
             ]);
             recalcSurfaceCodes($pdo);
@@ -61,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $surfaces = $pdo->query("
-    SELECT s.code, s.libelle, s.alias,
+    SELECT s.code, s.libelle,
            (SELECT COUNT(*) FROM PISTES p WHERE p.surface_code = s.code) AS nb_pistes
     FROM SURFACES s
     ORDER BY s.code
@@ -86,7 +81,6 @@ include __DIR__ . '/../includes/menu_logged.php';
         <tr>
             <th><?= t('admin_surfaces_code') ?></th>
             <th><?= t('admin_surfaces_libelle') ?></th>
-            <th><?= t('admin_surfaces_alias') ?></th>
             <th><?= t('admin_surfaces_usages') ?></th>
             <th></th>
         </tr>
@@ -95,7 +89,6 @@ include __DIR__ . '/../includes/menu_logged.php';
             <form method="post">
                 <td><strong><?= htmlspecialchars($s['code']) ?></strong><input type="hidden" name="code" value="<?= htmlspecialchars($s['code']) ?>"></td>
                 <td><input name="libelle" class="form-input" value="<?= htmlspecialchars($s['libelle']) ?>"></td>
-                <td><textarea name="alias" class="form-input" rows="2" cols="60"><?= htmlspecialchars($s['alias'] ?? '') ?></textarea></td>
                 <td><?= (int)$s['nb_pistes'] ?></td>
                 <td>
                     <button type="submit" name="action" value="surface_maj" class="btn"><?= t('admin_surfaces_save') ?></button>
@@ -108,7 +101,6 @@ include __DIR__ . '/../includes/menu_logged.php';
             <form method="post">
                 <td><input name="code" class="form-input" maxlength="10" required placeholder="ex: ASPH"></td>
                 <td><input name="libelle" class="form-input" required placeholder="<?= t('admin_surfaces_libelle') ?>"></td>
-                <td><textarea name="alias" class="form-input" rows="2" cols="60" placeholder="ASP|ASPHALT|BIT"></textarea></td>
                 <td></td>
                 <td><button type="submit" name="action" value="surface_ajouter" class="btn"><?= t('admin_surfaces_add') ?></button></td>
             </form>

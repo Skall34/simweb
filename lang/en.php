@@ -409,7 +409,6 @@ return [
     'admin_surfaces_codes_section' => 'Surface codes (SURFACES) — one entry per surface',
     'admin_surfaces_code' => 'Code',
     'admin_surfaces_libelle' => 'Label',
-    'admin_surfaces_alias' => 'Recognized variants (separated by |)',
     'admin_surfaces_usages' => 'Runways',
     'admin_surfaces_add' => 'Add',
     'admin_surfaces_save' => 'Save',
@@ -419,7 +418,7 @@ return [
     'admin_surfaces_success_delete' => '✅ Code {code} deleted.',
     'admin_surfaces_error_used2' => '⚠️ Code {code} used by {n} runways: cannot delete.',
     'admin_surfaces_error_db' => 'SQL error:',
-    'admin_surfaces_recalc_note' => 'The alias recognizes raw values (e.g. ASP, ASPH-G, asphalt → ASPH). Any change automatically recomputes PISTES.surface_code.',
+    'admin_surfaces_recalc_note' => 'Any change automatically recomputes PISTES.surface_code.',
 
     // --- Pages: My Account ---
     'account_title' => 'My Account',

@@ -45,12 +45,9 @@ function savePistes(PDO $pdo, string $ident): void {
             $upd->execute(['d' => $d, 'l' => $l, 's' => $s, 'id' => $id, 'ident' => $ident]);
         }
     }
-    // Recalcule le code canonique de surface (normalisation du brut + alias SURFACES)
+    // Recalcule le code canonique de surface (correspondance du code dans SURFACES)
     $pdo->prepare("UPDATE PISTES p
-                  LEFT JOIN SURFACES s
-                    ON s.code = SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(UPPER(TRIM(p.surface)), ' ', 1), '-', 1), '/', 1)
-                    OR FIND_IN_SET(UPPER(TRIM(p.surface)), REPLACE(s.alias, '|', ',')) > 0
-                    OR FIND_IN_SET(SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(UPPER(TRIM(p.surface)), ' ', 1), '-', 1), '/', 1), REPLACE(s.alias, '|', ',')) > 0
+                  LEFT JOIN SURFACES s ON s.code = p.surface
                   SET p.surface_code = COALESCE(s.code, IF(p.surface IS NULL, NULL, 'UNK'))
                   WHERE p.aeroport_ident = :ident")
         ->execute(['ident' => $ident]);
