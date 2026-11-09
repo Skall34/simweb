@@ -29,7 +29,6 @@ USE `VA_Database`;
 --
 
 DROP TABLE IF EXISTS `PISTES`;
-DROP TABLE IF EXISTS `SURFACES_MAP`;
 DROP TABLE IF EXISTS `SURFACES`;
 DROP TABLE IF EXISTS `AEROPORTS`;
 CREATE TABLE IF NOT EXISTS `AEROPORTS` (
@@ -54,6 +53,7 @@ CREATE TABLE IF NOT EXISTS `AEROPORTS` (
 CREATE TABLE IF NOT EXISTS `SURFACES` (
   `code` varchar(10) COLLATE utf8mb4_general_ci NOT NULL,
   `libelle` varchar(60) COLLATE utf8mb4_general_ci NOT NULL,
+  `alias` text COLLATE utf8mb4_general_ci COMMENT 'valeurs brutes reconnues, separees par |',
   PRIMARY KEY (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -76,18 +76,6 @@ CREATE TABLE IF NOT EXISTS `PISTES` (
   CONSTRAINT `fk_pistes_surface` FOREIGN KEY (`surface_code`) REFERENCES `SURFACES` (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-
---
--- Correspondance valeur brute de surface -> code canonique
---
-
-CREATE TABLE IF NOT EXISTS `SURFACES_MAP` (
-  `brut` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-  `code` varchar(10) COLLATE utf8mb4_general_ci NOT NULL,
-  PRIMARY KEY (`brut`),
-  KEY `idx_map_code` (`code`),
-  CONSTRAINT `fk_map_surface` FOREIGN KEY (`code`) REFERENCES `SURFACES` (`code`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 --

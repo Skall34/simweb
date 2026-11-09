@@ -28551,6 +28551,11 @@ INSERT INTO `PISTES` (`aeroport_ident`, `designation`, `longueur_m`, `surface`) 
 ('ZLIC', '03-21', 3200, 'Concrete');
 
 
--- Code canonique de surface, dÃ©duit de la valeur brute via SURFACES_MAP
-UPDATE `PISTES` p JOIN `SURFACES_MAP` m ON m.brut = p.surface SET p.surface_code = m.code;
-UPDATE `PISTES` SET `surface_code` = 'UNK' WHERE `surface` IS NOT NULL AND `surface_code` IS NULL;
+-- Code canonique de surface : normalisation du brut (majuscules, 1er element avant ' ', '-', '/')
+-- lookup dans SURFACES (code ou alias) ; sans correspondance -> UNK
+UPDATE `PISTES` p
+LEFT JOIN `SURFACES` s
+  ON s.`code` = SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(UPPER(TRIM(p.`surface`)), ' ', 1), '-', 1), '/', 1)
+  OR FIND_IN_SET(UPPER(TRIM(p.`surface`)), REPLACE(s.`alias`, '|', ',')) > 0
+  OR FIND_IN_SET(SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(UPPER(TRIM(p.`surface`)), ' ', 1), '-', 1), '/', 1), REPLACE(s.`alias`, '|', ',')) > 0
+SET p.`surface_code` = COALESCE(s.`code`, IF(p.`surface` IS NULL, NULL, 'UNK'));
