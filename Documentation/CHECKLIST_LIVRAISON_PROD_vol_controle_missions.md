@@ -12,7 +12,9 @@ Deux évolutions, testées en docker local (`docker-test/`, non commité) :
    qui exige une limite de décrochage (`stall_ok`) et, pour un bimoteur, un arrêt moteur (`engine_cut_ok`).
    Le pilote gagne une prime de risque (`VARIABLES_CONFIG.prime_controle_vol`) à la paie mensuelle.
 2. **Missions filtrées par type d'avion** : `MISSIONS.types_autorises` (CSV, `*` = tous) ;
-   `api_getMissions.php?type=...` filtre ; rejet serveur si mission incompatible avec le type de l'avion.
+   `api_getMissions.php?type=...` filtre ; `api_getFlotte.php?mission=...` ne renvoie que les avions habilités
+   (l'ACARS recharge la combo des immatriculations à chaque changement de mission) ;
+   rejet serveur si mission incompatible avec le type de l'avion.
 
 **Rétrocompatibilité confirmée** : un ancien SimAddon contre le nouveau serveur (et inversement)
 continue de fonctionner normalement ; il ne bénéficie juste pas des évolutions.
@@ -59,7 +61,7 @@ vol de contrôle (nouveau SimAddon) ou manuellement par l'admin (`admin_flotte.p
 ## 5. Smoke tests en prod (après déploiement)
 
 - [ ] `GET /api/api_getMissions.php` → toutes les missions ; `?type=Liner` → filtré
-- [ ] `GET /api/api_getFlotte.php` → champ `controle_a_faire` présent
+- [ ] `GET /api/api_getFlotte.php` → champ `controle_a_faire` présent ; `?mission=<libellé>` → uniquement les avions dont le type est dans `types_autorises`
 - [ ] Login + `pages/saisie_manuelle.php` + `pages/fleet.php` (badge) + `admin_missions.php` (cases) OK
 - [ ] Un vol test via saisie manuelle (mission `*`) accepté
 - [ ] Laisser tourner un cycle de `maintenance.php`, vérifier `MAINTENANCES_LOG` et `FLOTTE.controle_a_faire`

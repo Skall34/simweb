@@ -430,6 +430,9 @@ Tous les endpoints sont dans le dossier `api/` et retournent du JSON.
 **Auth :** Token  
 **Fonction :** Liste la flotte disponible
 
+**Paramètre optionnel :**
+- `mission` : libellé d'une mission → ne retourne que les appareils actifs dont le type (`FLEET_TYPE.type`) est dans `MISSIONS.types_autorises` (`*` = tous ; mission inconnue = aucun filtre). Côté ACARS (SimAddon) : rappeler cet endpoint à chaque changement de mission pour recharger la liste des immatriculations autorisées.
+
 **Réponse :**
 ```json
 {
@@ -450,6 +453,9 @@ Tous les endpoints sont dans le dossier `api/` et retournent du JSON.
 **Méthode :** GET  
 **Auth :** Token  
 **Fonction :** Liste missions actives
+
+**Paramètre optionnel :**
+- `type` : catégorie d'appareil (`FLEET_TYPE.type`) → uniquement les missions compatibles (`MISSIONS.types_autorises`, `*` = toutes)
 
 #### 5. **api_getAirports.php**
 **Méthode :** GET  
