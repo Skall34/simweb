@@ -63,6 +63,7 @@ Le système est une application web PHP/MySQL suivant une architecture MVC simpl
 simweb/
 ├── admin/                    # Pages d'administration
 │   ├── admin_aeroport.php
+│   ├── admin_surfaces.php   # Gestion SURFACES / SURFACES_MAP (codes de surface des pistes)
 │   ├── admin_flotte.php
 │   ├── admin_missions.php
 │   └── ...
@@ -164,7 +165,9 @@ FLEET_TYPE                 -- Types d'appareils (configs)
 MISSIONS                   -- Missions disponibles
 GRADES                     -- Système de grades/promotions
 AEROPORTS                  -- Aéroports avec fret dynamique
-PISTES                     -- Pistes des aéroports (longueurs en mètres, FK vers AEROPORTS)
+PISTES                     -- Pistes des aéroports (longueur_m en mètres, surface brute + surface_code, FK vers AEROPORTS)
+SURFACES                   -- Codes canoniques de surface de piste (ASPH, CONC, GRVL, TURF, ...)
+SURFACES_MAP               -- Correspondance valeur brute de surface -> code SURFACES
 CARNET_DE_VOL_GENERAL      -- Historique de tous les vols
 
 -- Tables financières

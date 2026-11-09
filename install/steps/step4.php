@@ -470,12 +470,12 @@ if (VA_DEBUG_MODE) {
         
         $logs[] = ['type' => 'success', 'message' => '✓ Données des aéroports importées'];
         
-        // 6b. Importer le script des pistes
-        $logs[] = ['type' => 'info', 'message' => 'Import du script 03_Pistes_data.sql...'];
+        // 6b. Importer le script des surfaces de piste
+        $logs[] = ['type' => 'info', 'message' => 'Import du script 03_Surfaces_data.sql...'];
         
-        $sql_file3 = realpath(__DIR__ . '/../sql_database/03_Pistes_data.sql');
+        $sql_file3 = realpath(__DIR__ . '/../sql_database/03_Surfaces_data.sql');
         if (!$sql_file3 || !file_exists($sql_file3)) {
-            throw new Exception("Fichier SQL pistes introuvable : 03_Pistes_data.sql");
+            throw new Exception("Fichier SQL surfaces introuvable : 03_Surfaces_data.sql");
         }
         $sql_content3 = file_get_contents($sql_file3);
         
@@ -505,6 +505,56 @@ if (VA_DEBUG_MODE) {
         if ($return_var !== 0) {
             // Fallback PDO
             $queries = parseSqlFile($sql_content3);
+            
+            foreach ($queries as $query) {
+                $query = trim($query);
+                if (!empty($query)) {
+                    try {
+                        $pdo->exec($query);
+                    } catch (PDOException $e) {
+                        // Ignorer les erreurs non critiques
+                    }
+                }
+            }
+        }
+        
+        $logs[] = ['type' => 'success', 'message' => '✓ Données des surfaces importées'];
+        
+        // 6c. Importer le script des pistes
+        $logs[] = ['type' => 'info', 'message' => 'Import du script 04_Pistes_data.sql...'];
+        
+        $sql_file4 = realpath(__DIR__ . '/../sql_database/04_Pistes_data.sql');
+        if (!$sql_file4 || !file_exists($sql_file4)) {
+            throw new Exception("Fichier SQL pistes introuvable : 04_Pistes_data.sql");
+        }
+        $sql_content4 = file_get_contents($sql_file4);
+        
+        // Remplacer le nom de la base
+        $sql_content4 = str_replace('`VA_Database`', "`{$db['name']}`", $sql_content4);
+        $sql_content4 = str_replace('VA_Database', $db['name'], $sql_content4);
+        
+        // Créer un fichier temporaire
+        $temp_sql4 = tempnam(sys_get_temp_dir(), 'sql_');
+        file_put_contents($temp_sql4, $sql_content4);
+        
+        $import_cmd = sprintf(
+            'mysql -h%s -P%s -u%s %s %s < %s 2>&1',
+            escapeshellarg($db['host']),
+            escapeshellarg($db['port']),
+            escapeshellarg($db['user']),
+            !empty($db['pass']) ? '-p' . escapeshellarg($db['pass']) : '',
+            escapeshellarg($db['name']),
+            escapeshellarg($temp_sql4)
+        );
+        
+        exec($import_cmd, $output, $return_var);
+        
+        // Supprimer le fichier temporaire
+        @unlink($temp_sql4);
+        
+        if ($return_var !== 0) {
+            // Fallback PDO
+            $queries = parseSqlFile($sql_content4);
             
             foreach ($queries as $query) {
                 $query = trim($query);

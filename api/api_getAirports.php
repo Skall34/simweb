@@ -39,7 +39,7 @@ try {
         SELECT a.ident, a.type_aeroport, a.name, a.municipality,
                a.latitude_deg, a.longitude_deg, a.elevation_ft,
                a.Observations, a.wikipedia_link, a.fret,
-               COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT('id', p.id, 'designation', p.designation, 'longueur_m', p.longueur_m, 'surface', p.surface))
+               COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT('id', p.id, 'designation', p.designation, 'longueur_m', p.longueur_m, 'surface', p.surface, 'surface_code', p.surface_code))
                          FROM PISTES p WHERE p.aeroport_ident = a.ident), JSON_ARRAY()) AS pistes,
                (SELECT GROUP_CONCAT(p.designation ORDER BY p.id SEPARATOR ' ')
                 FROM PISTES p WHERE p.aeroport_ident = a.ident) AS `Piste`,

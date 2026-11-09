@@ -28550,3 +28550,7 @@ INSERT INTO `PISTES` (`aeroport_ident`, `designation`, `longueur_m`, `surface`) 
 ('ZLHZ', '07-25', 2500, NULL),
 ('ZLIC', '03-21', 3200, 'Concrete');
 
+
+-- Code canonique de surface, dÃ©duit de la valeur brute via SURFACES_MAP
+UPDATE `PISTES` p JOIN `SURFACES_MAP` m ON m.brut = p.surface SET p.surface_code = m.code;
+UPDATE `PISTES` SET `surface_code` = 'UNK' WHERE `surface` IS NOT NULL AND `surface_code` IS NULL;

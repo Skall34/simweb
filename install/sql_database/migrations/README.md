@@ -49,3 +49,10 @@ colonnes seraient affectées (aucun cas documenté) — d'où `003_pistes_rollba
   > 10 000 m → NULL).
 - `002_pistes_drop_colonnes.sql` — étape 2/2 (destructive) : drop des 3 anciennes colonnes.
 - `003_pistes_rollback.sql` — rollback d'urgence de l'étape 2 (recrée les 3 colonnes depuis PISTES).
+- `004_surfaces.sql` — normalisation des surfaces : crée `SURFACES` (codes canoniques :
+  ASPH, CONC, GRVL, TURF, DIRT, SAND, CLAY, WATER, ICE, SNOW, CORAL, METAL, WOOD, PSP, ROOF,
+  PAD, UNK) et `SURFACES_MAP` (423 valeurs brutes → code), ajoute `PISTES.surface_code`
+  (FK vers SURFACES) et le remplit. Non destructif. Vérification :
+  `SELECT surface_code, COUNT(*) FROM PISTES GROUP BY surface_code ORDER BY COUNT(*) DESC;`
+  (attendu : ASPH ~12 600, TURF ~6 700, CONC ~3 900, GRVL ~2 100, UNK ~2 000). Le brut reste
+  dans `PISTES.surface` ; les nouvelles saisies admin recalculent `surface_code` via SURFACES_MAP.

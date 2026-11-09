@@ -29,6 +29,8 @@ USE `VA_Database`;
 --
 
 DROP TABLE IF EXISTS `PISTES`;
+DROP TABLE IF EXISTS `SURFACES_MAP`;
+DROP TABLE IF EXISTS `SURFACES`;
 DROP TABLE IF EXISTS `AEROPORTS`;
 CREATE TABLE IF NOT EXISTS `AEROPORTS` (
   `ident` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
@@ -46,6 +48,17 @@ CREATE TABLE IF NOT EXISTS `AEROPORTS` (
 
 
 --
+-- Structure de la table `SURFACES` (codes canoniques de surface de piste)
+--
+
+CREATE TABLE IF NOT EXISTS `SURFACES` (
+  `code` varchar(10) COLLATE utf8mb4_general_ci NOT NULL,
+  `libelle` varchar(60) COLLATE utf8mb4_general_ci NOT NULL,
+  PRIMARY KEY (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+--
 -- Structure de la table `PISTES` (une ligne par piste physique, longueurs en metres)
 --
 
@@ -54,10 +67,26 @@ CREATE TABLE IF NOT EXISTS `PISTES` (
   `aeroport_ident` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
   `designation` varchar(32) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'ex: 6-24, 7W-25W, H1',
   `longueur_m` int unsigned DEFAULT NULL COMMENT 'longueur en metres',
-  `surface` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'ex: ASPH, GRVL, WATER',
+  `surface` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'valeur brute, ex: ASPH, GRVL, WATER',
+  `surface_code` varchar(10) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'code canonique (table SURFACES)',
   PRIMARY KEY (`id`),
   KEY `idx_pistes_aeroport` (`aeroport_ident`),
-  CONSTRAINT `fk_pistes_aeroport` FOREIGN KEY (`aeroport_ident`) REFERENCES `AEROPORTS` (`ident`) ON DELETE CASCADE ON UPDATE CASCADE
+  KEY `idx_pistes_surface` (`surface_code`),
+  CONSTRAINT `fk_pistes_aeroport` FOREIGN KEY (`aeroport_ident`) REFERENCES `AEROPORTS` (`ident`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_pistes_surface` FOREIGN KEY (`surface_code`) REFERENCES `SURFACES` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+--
+-- Correspondance valeur brute de surface -> code canonique
+--
+
+CREATE TABLE IF NOT EXISTS `SURFACES_MAP` (
+  `brut` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `code` varchar(10) COLLATE utf8mb4_general_ci NOT NULL,
+  PRIMARY KEY (`brut`),
+  KEY `idx_map_code` (`code`),
+  CONSTRAINT `fk_map_surface` FOREIGN KEY (`code`) REFERENCES `SURFACES` (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 

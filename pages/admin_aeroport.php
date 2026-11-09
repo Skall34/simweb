@@ -45,6 +45,9 @@ function savePistes(PDO $pdo, string $ident): void {
             $upd->execute(['d' => $d, 'l' => $l, 's' => $s, 'id' => $id, 'ident' => $ident]);
         }
     }
+    // Recalcule le code canonique de surface depuis SURFACES_MAP
+    $pdo->prepare("UPDATE PISTES p LEFT JOIN SURFACES_MAP m ON m.brut = p.surface SET p.surface_code = COALESCE(m.code, IF(p.surface IS NULL, NULL, 'UNK')) WHERE p.aeroport_ident = :ident")
+        ->execute(['ident' => $ident]);
 }
 
 $etat = 'recherche'; // valeur par défaut
@@ -183,6 +186,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                         <th>Désignation</th>
                         <th>Longueur (m)</th>
                         <th>Surface</th>
+                        <th>Code</th>
                         <th></th>
                     </tr>
                     <?php foreach ($pistes as $p): ?>
@@ -190,6 +194,7 @@ include __DIR__ . '/../includes/menu_logged.php';
                         <td><input name="pistes[<?= (int)$p['id'] ?>][designation]" value="<?= htmlspecialchars($p['designation'] ?? '') ?>"></td>
                         <td><input name="pistes[<?= (int)$p['id'] ?>][longueur_m]" type="number" min="0" max="10000" value="<?= htmlspecialchars($p['longueur_m'] ?? '') ?>"></td>
                         <td><input name="pistes[<?= (int)$p['id'] ?>][surface]" value="<?= htmlspecialchars($p['surface'] ?? '') ?>"></td>
+                        <td><?= htmlspecialchars($p['surface_code'] ?? '') ?></td>
                         <td><label><input type="checkbox" name="pistes[<?= (int)$p['id'] ?>][supprimer]"> Supprimer</label></td>
                     </tr>
                     <?php endforeach; ?>

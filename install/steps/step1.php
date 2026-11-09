@@ -88,7 +88,8 @@ if (!$php_ok) $all_ok = false;
 $sql_files = [
     '../sql_database/01_Main_Database.sql' => 'install_check_sql_main',
     '../sql_database/02_Airports_data.sql' => 'install_check_sql_airports',
-    '../sql_database/03_Pistes_data.sql' => 'install_check_sql_pistes'
+    '../sql_database/03_Surfaces_data.sql' => 'install_check_sql_surfaces',
+    '../sql_database/04_Pistes_data.sql' => 'install_check_sql_pistes'
 ];
 
 foreach ($sql_files as $path => $name_key) {

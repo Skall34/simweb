@@ -119,6 +119,7 @@ require_once __DIR__ . '/mission_coefficient.php';
                     <a href="/admin/admin_fleet_type.php"><?= t('admin_fleettype') ?></a>
                     <a href="/admin/admin_flotte.php"><?= t('admin_fleet') ?></a>
                     <a href="/admin/admin_aeroport.php"><?= t('admin_airports') ?></a>
+                    <a href="/admin/admin_surfaces.php"><?= t('admin_surfaces') ?></a>
                     <a href="/admin/admin_missions.php"><?= t('admin_missions') ?></a>
                     <a href="/admin/admin_gestion_pilotes.php"><?= t('admin_pilots') ?></a>
                     <a href="/admin/admin_grades.php"><?= t('admin_grades') ?></a>
