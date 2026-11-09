@@ -59,3 +59,7 @@ colonnes seraient affectées (aucun cas documenté) — d'où `003_pistes_rollba
   Le brut reste inchangé dans `PISTES.surface`. Non destructif, ~1 s.
   Vérification : `SELECT surface_code, COUNT(*) FROM PISTES GROUP BY surface_code ORDER BY COUNT(*) DESC;`
   et `SELECT COUNT(*) FROM SURFACES;` (attendu : 9).
+- `006_surfaces_map_clean.sql` — nettoyage de `SURFACES_MAP` : supprime les entrées `UNK`
+  (inutiles, le recalcul met UNK par défaut sans correspondance), il reste ~257 vraies
+  correspondances. Recalcule `surface_code` (inchangé). Non destructif, ~0,2 s.
+  Vérification : `SELECT COUNT(*) FROM SURFACES_MAP;` (attendu ~257).
