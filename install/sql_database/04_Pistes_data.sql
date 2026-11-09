@@ -28559,3 +28559,7 @@ LEFT JOIN `SURFACES` s
   OR FIND_IN_SET(UPPER(TRIM(p.`surface`)), REPLACE(s.`alias`, '|', ',')) > 0
   OR FIND_IN_SET(SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(UPPER(TRIM(p.`surface`)), ' ', 1), '-', 1), '/', 1), REPLACE(s.`alias`, '|', ',')) > 0
 SET p.`surface_code` = COALESCE(s.`code`, IF(p.`surface` IS NULL, NULL, 'UNK'));
+
+-- Uniformise `surface` sur le code canonique (une seule valeur par surface en base)
+UPDATE `PISTES` SET `surface` = `surface_code` WHERE `surface_code` IS NOT NULL AND BINARY TRIM(`surface`) <> `surface_code`;
+UPDATE `PISTES` SET `surface` = 'UNK', `surface_code` = 'UNK' WHERE `surface` IS NOT NULL AND `surface_code` IS NULL;

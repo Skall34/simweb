@@ -135,6 +135,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// Liste des surfaces de piste (codes canoniques, table SURFACES) pour le select
+$surfaces_list = [];
+try {
+    $surfaces_list = $pdo->query("SELECT code, libelle FROM SURFACES ORDER BY code")->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    // ignore
+}
+
 include __DIR__ . '/../includes/header.php';
 include __DIR__ . '/../includes/menu_logged.php';
 ?>
@@ -199,7 +207,14 @@ include __DIR__ . '/../includes/menu_logged.php';
                     <tr>
                         <td><input name="pistes[<?= (int)$p['id'] ?>][designation]" value="<?= htmlspecialchars($p['designation'] ?? '') ?>"></td>
                         <td><input name="pistes[<?= (int)$p['id'] ?>][longueur_m]" type="number" min="0" max="10000" value="<?= htmlspecialchars($p['longueur_m'] ?? '') ?>"></td>
-                        <td><input name="pistes[<?= (int)$p['id'] ?>][surface]" value="<?= htmlspecialchars($p['surface'] ?? '') ?>"></td>
+                        <td>
+                            <select name="pistes[<?= (int)$p['id'] ?>][surface]">
+                                <option value="">--</option>
+                                <?php foreach ($surfaces_list as $sl): ?>
+                                <option value="<?= htmlspecialchars($sl['code']) ?>" <?= (($p['surface'] ?? '') === $sl['code'] || ($p['surface_code'] ?? '') === $sl['code']) ? 'selected' : '' ?>><?= htmlspecialchars($sl['code'] . ' - ' . $sl['libelle']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </td>
                         <td><?= htmlspecialchars($p['surface_code'] ?? '') ?></td>
                         <td><label><input type="checkbox" name="pistes[<?= (int)$p['id'] ?>][supprimer]"> Supprimer</label></td>
                     </tr>
@@ -208,7 +223,14 @@ include __DIR__ . '/../includes/menu_logged.php';
                     <tr>
                         <td><input name="pistes[new][<?= $i ?>][designation]" placeholder="ex: 6-24"></td>
                         <td><input name="pistes[new][<?= $i ?>][longueur_m]" type="number" min="0" max="10000"></td>
-                        <td><input name="pistes[new][<?= $i ?>][surface]" placeholder="ex: ASPH"></td>
+                        <td>
+                            <select name="pistes[new][<?= $i ?>][surface]">
+                                <option value="">--</option>
+                                <?php foreach ($surfaces_list as $sl): ?>
+                                <option value="<?= htmlspecialchars($sl['code']) ?>"><?= htmlspecialchars($sl['code'] . ' - ' . $sl['libelle']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </td>
                         <td></td>
                     </tr>
                     <?php endfor; ?>

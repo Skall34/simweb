@@ -141,6 +141,14 @@ try {
 } catch (PDOException $e) {
     // ignore: on affichera un select vide si erreur
 }
+
+// Liste des surfaces de piste (codes canoniques, table SURFACES) pour le select
+$surfaces_list = [];
+try {
+    $surfaces_list = $pdo->query("SELECT code, libelle FROM SURFACES ORDER BY code")->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    // ignore
+}
 ?>
 
 
@@ -209,7 +217,14 @@ try {
                     <tr>
                         <td><input name="pistes[<?= (int)$p['id'] ?>][designation]" class="form-input" value="<?= htmlspecialchars($p['designation'] ?? '') ?>"></td>
                         <td><input name="pistes[<?= (int)$p['id'] ?>][longueur_m]" type="number" min="0" max="10000" class="form-input" value="<?= htmlspecialchars($p['longueur_m'] ?? '') ?>"></td>
-                        <td><input name="pistes[<?= (int)$p['id'] ?>][surface]" class="form-input" value="<?= htmlspecialchars($p['surface'] ?? '') ?>"></td>
+                        <td>
+                            <select name="pistes[<?= (int)$p['id'] ?>][surface]" class="form-input">
+                                <option value="">--</option>
+                                <?php foreach ($surfaces_list as $sl): ?>
+                                <option value="<?= htmlspecialchars($sl['code']) ?>" <?= (($p['surface'] ?? '') === $sl['code'] || ($p['surface_code'] ?? '') === $sl['code']) ? 'selected' : '' ?>><?= htmlspecialchars($sl['code'] . ' - ' . $sl['libelle']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </td>
                         <td><?= htmlspecialchars($p['surface_code'] ?? '') ?></td>
                         <td><label><input type="checkbox" name="pistes[<?= (int)$p['id'] ?>][supprimer]"> <?= t('admin_airports_runway_delete') ?></label></td>
                     </tr>
@@ -218,7 +233,14 @@ try {
                     <tr>
                         <td><input name="pistes[new][<?= $i ?>][designation]" class="form-input" placeholder="ex: 6-24"></td>
                         <td><input name="pistes[new][<?= $i ?>][longueur_m]" type="number" min="0" max="10000" class="form-input"></td>
-                        <td><input name="pistes[new][<?= $i ?>][surface]" class="form-input" placeholder="ex: ASPH"></td>
+                        <td>
+                            <select name="pistes[new][<?= $i ?>][surface]" class="form-input">
+                                <option value="">--</option>
+                                <?php foreach ($surfaces_list as $sl): ?>
+                                <option value="<?= htmlspecialchars($sl['code']) ?>"><?= htmlspecialchars($sl['code'] . ' - ' . $sl['libelle']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </td>
                         <td></td>
                     </tr>
                     <?php endfor; ?>

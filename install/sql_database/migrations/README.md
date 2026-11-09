@@ -71,6 +71,13 @@ colonnes seraient affectées (aucun cas documenté) — d'où `003_pistes_rollba
   Vérifications : `SELECT code, LEFT(alias,80) FROM SURFACES ORDER BY code;` (9 lignes),
   `SELECT surface_code, COUNT(*) FROM PISTES GROUP BY surface_code ORDER BY COUNT(*) DESC;`
   (inchangé), `SHOW TABLES LIKE 'SURFACES_MAP';` (vide).
+- `008_surfaces_uniform.sql` — uniformise `PISTES.surface` sur le code canonique :
+  après migration, `surface` ne contient plus que les codes de `SURFACES`
+  (ASPH, CONC, GRVL, TURF, SAND, WATER, ICE, SNOW, UNK) ou NULL. Le formulaire admin
+  aéroport propose désormais uniquement cette liste (select alimenté par SURFACES,
+  administrable dans l'écran « Surfaces de piste »).
+  Vérification : `SELECT DISTINCT surface FROM PISTES ORDER BY 1;` (attendu : 9 codes + NULL).
 
-> Ordre si tu pars d'une base ancienne : 004 → 005 → 006 → 007 (007 supprime SURFACES_MAP).
-> `03_Surfaces_data.sql` (install neuve) contient directement les 9 codes avec leur `alias`.
+> Ordre si tu pars d'une base ancienne : 004 → 005 → 006 → 007 → 008.
+> `03_Surfaces_data.sql` (install neuve) contient directement les 9 codes avec leur `alias`,
+> et `04_Pistes_data.sql` uniformise `surface`.
