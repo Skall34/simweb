@@ -11,7 +11,7 @@
  Paramètres : type (optionnel) = catégorie FLEET_TYPE.type pour filtrer les missions compatibles
 
  Réponse JSON :
- - {success: true, missions: [{libelle, active}, ...]} : Liste des missions actives
+ - {success: true, missions: [{libelle, active, est_controle}, ...]} : Liste des missions actives (est_controle = 1 pour la mission de contrôle)
  - {success: false, error: '...'} : Erreur lors de la récupération (HTTP 500)
 
  Utilisation :
@@ -31,10 +31,10 @@ try {
     // compatibles avec cette catégorie d'appareil (MISSIONS.types_autorises, '*' = toutes)
     $type = isset($_GET['type']) ? trim($_GET['type']) : '';
     if ($type !== '') {
-        $stmt = $pdo->prepare("SELECT libelle, active FROM MISSIONS WHERE active != 0 AND (types_autorises = '*' OR FIND_IN_SET(:type, types_autorises) > 0) ORDER BY libelle");
+        $stmt = $pdo->prepare("SELECT libelle, active, est_controle FROM MISSIONS WHERE active != 0 AND (types_autorises = '*' OR FIND_IN_SET(:type, types_autorises) > 0) ORDER BY libelle");
         $stmt->execute(['type' => $type]);
     } else {
-        $stmt = $pdo->prepare("SELECT libelle, active FROM MISSIONS WHERE active != 0 ORDER BY libelle");
+        $stmt = $pdo->prepare("SELECT libelle, active, est_controle FROM MISSIONS WHERE active != 0 ORDER BY libelle");
         $stmt->execute();
     }
     $missions = $stmt->fetchAll(PDO::FETCH_ASSOC);

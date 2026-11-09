@@ -1698,6 +1698,7 @@ Costo total mantenimiento: 1.000,00 €
     'fleet_controle_a_faire' => 'Control post-mantenimiento pendiente',
     'fleet_controle_bandeau_titre' => 'Control post-mantenimiento pendiente:',
     'fleet_controle_court' => 'CPM pendiente',
+    'fleet_controle_bandeau_tooltip' => "Reglas del vuelo de control: una aeronave marcada «CPM pendiente» solo puede volar con la misión de control. El piloto debe declarar al menos un stall y, si la aeronave es bimotor, un corte de motor. La aeronave vuelve al servicio automáticamente tras validar el vuelo de control (o desbloqueo manual por un administrador).",
     'admin_flotte_badge_controle' => 'Control pendiente',
     'admin_flotte_action_controle_ok' => '✅ Control realizado',
     'admin_flotte_action_controle_ok_title' => 'Quita la marca de vuelo de control obligatorio (anulacion manual)',
