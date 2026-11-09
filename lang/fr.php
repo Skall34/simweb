@@ -1681,6 +1681,8 @@ Coût total maintenance : 1 000,00 €
     'script_salary_hours' => 'Tu as effectué :hours heures de vol ce mois-ci.',
     'script_salary_prime_risque' => 'Prime de risque : :count vol(s) de contrôle post-maintenance = :amount.',
     'fleet_controle_a_faire' => 'Contrôle post-maintenance à effectuer',
+    'fleet_controle_bandeau_titre' => 'Contrôle post-maintenance à effectuer :',
+    'fleet_controle_court' => 'CPM à faire',
     'admin_flotte_badge_controle' => 'Contrôle à faire',
     'admin_flotte_action_controle_ok' => '✅ Contrôle effectué',
     'admin_flotte_action_controle_ok_title' => 'Lève le flag de vol de contrôle obligatoire (déblocage manuel)',

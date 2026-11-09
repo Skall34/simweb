@@ -1676,6 +1676,8 @@ Total maintenance cost: 1,000.00 €
     'script_salary_hours' => 'You flew :hours hours this month.',
     'script_salary_prime_risque' => 'Risk bonus: :count post-maintenance check flight(s) = :amount.',
     'fleet_controle_a_faire' => 'Post-maintenance check flight required',
+    'fleet_controle_bandeau_titre' => 'Post-maintenance check flight required:',
+    'fleet_controle_court' => 'CPM due',
     'admin_flotte_badge_controle' => 'Check flight pending',
     'admin_flotte_action_controle_ok' => '✅ Check done',
     'admin_flotte_action_controle_ok_title' => 'Clears the mandatory check flight flag (manual override)',
