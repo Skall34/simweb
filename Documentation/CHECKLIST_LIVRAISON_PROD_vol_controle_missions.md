@@ -58,6 +58,14 @@ vol de contrôle (nouveau SimAddon) ou manuellement par l'admin (`admin_flotte.p
       les `*.zip` sont gitignorés → à pousser manuellement)
 - [ ] Annoncer aux pilotes : nouvelle version recommandée, l'ancienne continue de fonctionner
 
+## 4b. Batterie de tests en local (avant déploiement)
+
+- [ ] `docker-test/run_tests.sh` (docker local, non commité) : **35 tests OK** — filtres `?mission=` / `?type=`
+      (cas `*`, CSV, mission inconnue, liste vide, avion inactif, avion sans type), rejets serveur
+      (doublon, mission incompatible, vol de contrôle sans stall/engine_cut, remise à 0 de `controle_a_faire`,
+      crash note=1), pages web (login, saisie manuelle, badge fleet, admin missions)
+- [ ] Côté SimAddon : build `SimAddon.sln` 0 erreur + batterie `FetchAvionsFromSheet` contre le docker : **7 tests OK**
+
 ## 5. Smoke tests en prod (après déploiement)
 
 - [ ] `GET /api/api_getMissions.php` → toutes les missions ; `?type=Liner` → filtré
