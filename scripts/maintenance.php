@@ -114,22 +114,25 @@ try {
             } elseif ($status === 1) {
                 if ($compteur_immo === 1) {
                     logMsg("L'avion $immat sort de maintenance après 1 jour (usure)", $logFile);
-                    $sql = "UPDATE FLOTTE SET status = 0, etat = 100, compteur_immo = 0, controle_a_faire = 1 WHERE id = :id";
+                    // L'appareil reste en maintenance (status=1, etat=0) jusqu'au vol de contrôle :
+                    // il ne redeviendra status=0/etat=100 qu'à la validation de ce vol (marquerControleEffectue)
+                    $sql = "UPDATE FLOTTE SET compteur_immo = 0, controle_a_faire = 1 WHERE id = :id";
                     $stmtUp = $pdo->prepare($sql);
                     $stmtUp->execute(['id' => $id]);
                     $count_sortie++;
                     $sortie_immat[] = $immat;
                     // Log sortie maintenance
-                    logMaintenance($pdo, $id, 'sortie', 0, 100, null, "Sortie maintenance usure — $immat", $logFile);
+                    logMaintenance($pdo, $id, 'sortie', 0, 0, null, "Sortie maintenance usure — $immat (en attente de vol de contrôle)", $logFile);
                 } elseif ($compteur_immo > 1) {
                     logMsg("L'avion $immat en maintenance, compteur_immo > 1, réinitialisation", $logFile);
-                    $sql = "UPDATE FLOTTE SET status = 0, etat = 1, compteur_immo = 0, controle_a_faire = 1 WHERE id = :id";
+                    // Reste en maintenance (etat=0) jusqu'au vol de contrôle
+                    $sql = "UPDATE FLOTTE SET etat = 0, compteur_immo = 0, controle_a_faire = 1 WHERE id = :id";
                     $stmtUp = $pdo->prepare($sql);
                     $stmtUp->execute(['id' => $id]);
                     $count_sortie++;
                     $sortie_immat[] = $immat;
                     // Log sortie maintenance
-                    logMaintenance($pdo, $id, 'sortie', 0, 1, null, "Sortie maintenance (réinit.) — $immat", $logFile);
+                    logMaintenance($pdo, $id, 'sortie', 0, 0, null, "Sortie maintenance (réinit.) — $immat (en attente de vol de contrôle)", $logFile);
                 }
 
             } elseif ($status === 2) {
@@ -161,13 +164,14 @@ try {
                     $stmtUp->execute(['id' => $id]);
                 } elseif ($compteur_immo >= 3) {
                     logMsg("L'avion $immat sort de maintenance après crash (3 jours). Réinitialisation compteurs.", $logFile);
-                    $sql = "UPDATE FLOTTE SET status = 0, etat = 100, compteur_immo = 0, controle_a_faire = 1 WHERE id = :id";
+                    // Réparé mais toujours indisponible (status=1 maintenance, etat=0) jusqu'au vol de contrôle
+                    $sql = "UPDATE FLOTTE SET status = 1, etat = 0, compteur_immo = 0, controle_a_faire = 1 WHERE id = :id";
                     $stmtUp = $pdo->prepare($sql);
                     $stmtUp->execute(['id' => $id]);
                     $count_sortie++;
                     $sortie_immat[] = $immat;
                     // Log sortie maintenance crash
-                    logMaintenance($pdo, $id, 'sortie_crash', 0, 100, null, "Sortie maintenance crash — $immat", $logFile);
+                    logMaintenance($pdo, $id, 'sortie_crash', 1, 0, null, "Sortie maintenance crash — $immat (en attente de vol de contrôle)", $logFile);
                 }
             }
         }

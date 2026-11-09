@@ -6,9 +6,9 @@
 
  Description :
  Fonctions partagées pour le vol de contrôle post-maintenance.
- Un appareil qui sort de maintenance (scripts/maintenance.php, crash)
- a FLOTTE.controle_a_faire = 1 et n'est réutilisable que pour une
- mission marquée MISSIONS.est_controle = 1, avec :
+ Un appareil qui sort de maintenance (scripts/maintenance.php) reste en
+ maintenance (FLOTTE.status = 1, etat = 0) et a FLOTTE.controle_a_faire = 1 :
+ il n'est réutilisable que pour une mission marquée MISSIONS.est_controle = 1, avec :
   - au moins une limite de décrochage (champ stall_ok)
   - pour les bimoteurs, un arrêt moteur (champ engine_cut_ok)
  Utilisé par api/api_import_vol_direct.php et pages/saisie_manuelle.php.
@@ -99,8 +99,8 @@ function verifierVolControle($pdo, int $appareilId, string $missionLibelle, bool
  * @param string $logFile    Chemin du fichier de log
  */
 function marquerControleEffectue($pdo, int $appareilId, string $immat, $volId, string $logFile): void {
-    $stmt = $pdo->prepare("UPDATE FLOTTE SET controle_a_faire = 0 WHERE id = :id");
+    $stmt = $pdo->prepare("UPDATE FLOTTE SET controle_a_faire = 0, status = 0, etat = 100 WHERE id = :id");
     $stmt->execute(['id' => $appareilId]);
-    logMaintenance($pdo, $appareilId, 'controle', 100, 100, null, "Vol de contrôle effectué (vol #$volId) — $immat remis en service", $logFile);
-    logMsg("[controle] Vol de contrôle validé pour $immat (vol #$volId), appareil remis en service", $logFile);
+    logMaintenance($pdo, $appareilId, 'controle', 0, 100, null, "Vol de contrôle effectué (vol #$volId) — $immat remis en service (status=0, etat=100)", $logFile);
+    logMsg("[controle] Vol de contrôle validé pour $immat (vol #$volId), appareil remis en service (status=0, etat=100)", $logFile);
 }

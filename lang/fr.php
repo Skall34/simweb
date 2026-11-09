@@ -1417,7 +1417,7 @@ return [
     'doc_maintenance_etape5_log' => 'Logue chaque étape et erreur dans',
     'doc_maintenance_etape6_title' => 'Vol de contrôle post-maintenance',
     'doc_maintenance_etape6_text' => 'À chaque sortie de maintenance (usure ou crash), le script passe',
-    'doc_maintenance_etape6_suite' => 'sur l\'appareil : tant qu\'un vol avec la mission de contrôle (MISSIONS.est_controle=1) n\'est pas enregistré, l\'appareil n\'est pas disponible pour les autres vols.',
+    'doc_maintenance_etape6_suite' => 'et le garde en maintenance (status=1, potentiel etat=0) : tant qu\'un vol avec la mission de contrôle (MISSIONS.est_controle=1) n\'est pas enregistré, l\'appareil reste indisponible (status=0 et etat=100 ne sont remis qu\'à la validation du vol de contrôle).',
     'doc_maintenance_etape5_mail' => 'Envoie un mail récapitulatif à l\'administrateur avec la liste des appareils entrés/sortis de maintenance.',
     'doc_maintenance_automatisation_title' => 'Automatisation & utilisation',
     'doc_maintenance_automatisation1' => 'Ce script est lancé automatiquement chaque nuit (ex : 2h du matin).',

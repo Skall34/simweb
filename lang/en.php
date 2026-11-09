@@ -1413,7 +1413,7 @@ return [
     'doc_maintenance_etape5_mail' => 'Sends a summary email to the administrator with the list of aircraft that entered/exited maintenance.',
     'doc_maintenance_etape6_title' => 'Post-maintenance check flight',
     'doc_maintenance_etape6_text' => 'On every maintenance exit (wear or crash), the script sets',
-    'doc_maintenance_etape6_suite' => 'on the aircraft: until a flight with the check mission (MISSIONS.est_controle=1) is logged, the aircraft is not available for other flights.',
+    'doc_maintenance_etape6_suite' => 'and keeps it in maintenance (status=1, potential etat=0): until a check flight (MISSIONS.est_controle=1) is logged, the aircraft stays unavailable (status=0, etat=100 are only restored when the check flight is validated).',
     'doc_maintenance_automatisation_title' => 'Automation & Usage',
     'doc_maintenance_automatisation1' => 'This script runs automatically every night (e.g., 2am).',
     'doc_maintenance_automatisation2' => 'In case of anomaly, check the log',

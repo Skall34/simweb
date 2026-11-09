@@ -1418,7 +1418,7 @@ return [
     'doc_maintenance_etape5_mail' => 'Envía un correo resumen al administrador con la lista de aeronaves que entraron/salieron del mantenimiento.',
     'doc_maintenance_etape6_title' => 'Vuelo de control post-mantenimiento',
     'doc_maintenance_etape6_text' => 'En cada salida de mantenimiento (desgaste o accidente), el script pone',
-    'doc_maintenance_etape6_suite' => 'en la aeronave: hasta que no se registre un vuelo con la misión de control (MISSIONS.est_controle=1), la aeronave no está disponible para otros vuelos.',
+    'doc_maintenance_etape6_suite' => 'y la mantiene en mantenimiento (status=1, potencial etat=0): hasta que no se registre un vuelo de control (MISSIONS.est_controle=1), la aeronave sigue no disponible (status=0, etat=100 solo vuelven al validar el vuelo de control).',
     'doc_maintenance_automatisation_title' => 'Automatización y uso',
     'doc_maintenance_automatisation1' => 'Este script se ejecuta automáticamente cada noche (por ejemplo, 2am).',
     'doc_maintenance_automatisation2' => 'En caso de anomalía, consulte el registro',
