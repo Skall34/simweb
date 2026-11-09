@@ -28,6 +28,7 @@ USE `VA_Database`;
 -- Structure de la table `AEROPORTS`
 --
 
+DROP TABLE IF EXISTS `PISTES`;
 DROP TABLE IF EXISTS `AEROPORTS`;
 CREATE TABLE IF NOT EXISTS `AEROPORTS` (
   `ident` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
@@ -37,13 +38,26 @@ CREATE TABLE IF NOT EXISTS `AEROPORTS` (
   `latitude_deg` decimal(15,6) DEFAULT NULL,
   `longitude_deg` decimal(15,6) DEFAULT NULL,
   `elevation_ft` int DEFAULT NULL,
-  `Piste` text COLLATE utf8mb4_general_ci,
-  `Longueur_de_piste` text COLLATE utf8mb4_general_ci,
-  `Type_de_piste` text COLLATE utf8mb4_general_ci,
   `Observations` text COLLATE utf8mb4_general_ci,
   `wikipedia_link` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `fret` int DEFAULT NULL,
   PRIMARY KEY (`ident`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+--
+-- Structure de la table `PISTES` (une ligne par piste physique, longueurs en metres)
+--
+
+CREATE TABLE IF NOT EXISTS `PISTES` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `aeroport_ident` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `designation` varchar(32) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'ex: 6-24, 7W-25W, H1',
+  `longueur_m` int unsigned DEFAULT NULL COMMENT 'longueur en metres',
+  `surface` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'ex: ASPH, GRVL, WATER',
+  PRIMARY KEY (`id`),
+  KEY `idx_pistes_aeroport` (`aeroport_ident`),
+  CONSTRAINT `fk_pistes_aeroport` FOREIGN KEY (`aeroport_ident`) REFERENCES `AEROPORTS` (`ident`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 

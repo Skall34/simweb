@@ -164,6 +164,7 @@ FLEET_TYPE                 -- Types d'appareils (configs)
 MISSIONS                   -- Missions disponibles
 GRADES                     -- Système de grades/promotions
 AEROPORTS                  -- Aéroports avec fret dynamique
+PISTES                     -- Pistes des aéroports (longueurs en mètres, FK vers AEROPORTS)
 CARNET_DE_VOL_GENERAL      -- Historique de tous les vols
 
 -- Tables financières
@@ -460,7 +461,7 @@ Tous les endpoints sont dans le dossier `api/` et retournent du JSON.
 #### 5. **api_getAirports.php**
 **Méthode :** GET  
 **Auth :** Token  
-**Fonction :** Liste aéroports avec fret
+**Fonction :** Liste aéroports avec fret ; chaque aéroport inclut un tableau `pistes` (`designation`, `longueur_m` en mètres, `surface`) issu de la table PISTES
 
 **Paramètres optionnels :**
 - `search`: Filtre par nom/ICAO

@@ -11,9 +11,41 @@ $message = '';
 $aeroport = [
     'ident' => '', 'type_aeroport' => '', 'name' => '', 'municipality' => '',
     'latitude_deg' => '', 'longitude_deg' => '', 'elevation_ft' => '',
-    'Piste' => '', 'Longueur_de_piste' => '', 'Type_de_piste' => '',
     'Observations' => '', 'wikipedia_link' => '', 'fret' => ''
 ];
+$pistes = [];
+
+// Enregistre les pistes postées (tableau 'pistes') pour un aéroport
+function savePistes(PDO $pdo, string $ident): void {
+    if (empty($_POST['pistes']) || !is_array($_POST['pistes'])) return;
+    $upd = $pdo->prepare("UPDATE PISTES SET designation = :d, longueur_m = :l, surface = :s WHERE id = :id AND aeroport_ident = :ident");
+    $del = $pdo->prepare("DELETE FROM PISTES WHERE id = :id AND aeroport_ident = :ident");
+    $ins = $pdo->prepare("INSERT INTO PISTES (aeroport_ident, designation, longueur_m, surface) VALUES (:ident, :d, :l, :s)");
+    foreach ($_POST['pistes'] as $key => $p) {
+        if ($key === 'new') {
+            foreach ((array)$p as $np) {
+                if (!is_array($np)) continue;
+                $d = trim((string)($np['designation'] ?? '')) ?: null;
+                $len = trim((string)($np['longueur_m'] ?? ''));
+                $l = ($len !== '' && is_numeric($len)) ? (int)$len : null;
+                $s = trim((string)($np['surface'] ?? '')) ?: null;
+                if ($d === null && $l === null && $s === null) continue; // ligne vide
+                $ins->execute(['ident' => $ident, 'd' => $d, 'l' => $l, 's' => $s]);
+            }
+            continue;
+        }
+        $d = trim((string)($p['designation'] ?? '')) ?: null;
+        $len = trim((string)($p['longueur_m'] ?? ''));
+        $l = ($len !== '' && is_numeric($len)) ? (int)$len : null;
+        $s = trim((string)($p['surface'] ?? '')) ?: null;
+        $id = (int)$key;
+        if (!empty($p['supprimer']) || ($d === null && $l === null && $s === null)) {
+            $del->execute(['id' => $id, 'ident' => $ident]);
+        } else {
+            $upd->execute(['d' => $d, 'l' => $l, 's' => $s, 'id' => $id, 'ident' => $ident]);
+        }
+    }
+}
 
 $etat = 'recherche'; // valeur par défaut
 
@@ -28,6 +60,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($result) {
             $aeroport = $result;
+            $pstmt = $pdo->prepare("SELECT * FROM PISTES WHERE aeroport_ident = :ident ORDER BY id");
+            $pstmt->execute(['ident' => $ident]);
+            $pistes = $pstmt->fetchAll(PDO::FETCH_ASSOC);
             $etat = 'edition';
         } else {
             $etat = 'creation';
@@ -48,15 +83,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 latitude_deg = :latitude_deg,
                 longitude_deg = :longitude_deg,
                 elevation_ft = :elevation_ft,
-                Piste = :Piste,
-                Longueur_de_piste = :Longueur_de_piste,
-                Type_de_piste = :Type_de_piste,
                 Observations = :Observations,
                 wikipedia_link = :wikipedia_link,
                 fret = :fret
             WHERE ident = :ident
         ");
         $stmt->execute($aeroport);
+
+        savePistes($pdo, $ident);
 
         // Met à jour la date de dernière modification globale
         $pdo->exec("UPDATE AEROPORTS_LAST_ADMIN_UPDATE SET last_update = NOW()");
@@ -74,15 +108,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $pdo->prepare("
             INSERT INTO AEROPORTS (
                 ident, type_aeroport, name, municipality, latitude_deg, longitude_deg,
-                elevation_ft, Piste, Longueur_de_piste, Type_de_piste,
-                Observations, wikipedia_link, fret
+                elevation_ft, Observations, wikipedia_link, fret
             ) VALUES (
                 :ident, :type_aeroport, :name, :municipality, :latitude_deg, :longitude_deg,
-                :elevation_ft, :Piste, :Longueur_de_piste, :Type_de_piste,
-                :Observations, :wikipedia_link, :fret
+                :elevation_ft, :Observations, :wikipedia_link, :fret
             )
         ");
         $stmt->execute($aeroport);
+
+        savePistes($pdo, $ident);
 
         // Met à jour la date de dernière modification globale
         $pdo->exec("UPDATE AEROPORTS_LAST_ADMIN_UPDATE SET last_update = NOW()");
@@ -142,17 +176,33 @@ include __DIR__ . '/../includes/menu_logged.php';
                 <input name="elevation_ft" value="<?= htmlspecialchars($aeroport['elevation_ft']) ?>">
             </label>
 
-            <label>Piste :
-                <textarea name="Piste"><?= htmlspecialchars($aeroport['Piste']) ?></textarea>
-            </label>
-
-            <label>Longueur de piste :
-                <input name="Longueur_de_piste" value="<?= htmlspecialchars($aeroport['Longueur_de_piste']) ?>">
-            </label>
-
-            <label>Type de piste :
-                <input name="Type_de_piste" value="<?= htmlspecialchars($aeroport['Type_de_piste']) ?>">
-            </label>
+            <fieldset class="admin-pistes">
+                <legend>Pistes :</legend>
+                <table class="pistes-table">
+                    <tr>
+                        <th>Désignation</th>
+                        <th>Longueur (m)</th>
+                        <th>Surface</th>
+                        <th></th>
+                    </tr>
+                    <?php foreach ($pistes as $p): ?>
+                    <tr>
+                        <td><input name="pistes[<?= (int)$p['id'] ?>][designation]" value="<?= htmlspecialchars($p['designation'] ?? '') ?>"></td>
+                        <td><input name="pistes[<?= (int)$p['id'] ?>][longueur_m]" type="number" min="0" max="10000" value="<?= htmlspecialchars($p['longueur_m'] ?? '') ?>"></td>
+                        <td><input name="pistes[<?= (int)$p['id'] ?>][surface]" value="<?= htmlspecialchars($p['surface'] ?? '') ?>"></td>
+                        <td><label><input type="checkbox" name="pistes[<?= (int)$p['id'] ?>][supprimer]"> Supprimer</label></td>
+                    </tr>
+                    <?php endforeach; ?>
+                    <?php for ($i = 0; $i < 3; $i++): ?>
+                    <tr>
+                        <td><input name="pistes[new][<?= $i ?>][designation]" placeholder="ex: 6-24"></td>
+                        <td><input name="pistes[new][<?= $i ?>][longueur_m]" type="number" min="0" max="10000"></td>
+                        <td><input name="pistes[new][<?= $i ?>][surface]" placeholder="ex: ASPH"></td>
+                        <td></td>
+                    </tr>
+                    <?php endfor; ?>
+                </table>
+            </fieldset>
 
             <label>Observations :
                 <textarea name="Observations"><?= htmlspecialchars($aeroport['Observations']) ?></textarea>
