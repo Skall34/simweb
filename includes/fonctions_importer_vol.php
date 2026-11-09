@@ -633,3 +633,27 @@ function ComputeFlightDistance($icao1, $icao2) {
     return $distance;
 }
 
+/**
+ * Indique si une mission est compatible avec la catégorie d'un appareil
+ * (FLEET_TYPE.type : Monomoteur, Bimoteur, Liner, Helico).
+ * La mission stocke types_autorises : CSV de types, ou '*' pour tous.
+ * Si le type de l'appareil est inconnu ou la mission inconnue, on ne bloque pas.
+ */
+function missionCompatibleAvecType($pdo, string $missionLibelle, string $typeAvion): bool {
+    if ($typeAvion === '') {
+        return true;
+    }
+    $stmt = $pdo->prepare("SELECT types_autorises FROM MISSIONS WHERE libelle = :libelle");
+    $stmt->execute(['libelle' => $missionLibelle]);
+    $types = $stmt->fetchColumn();
+    if ($types === false || $types === null) {
+        return true;
+    }
+    $types = trim((string)$types);
+    if ($types === '' || $types === '*') {
+        return true;
+    }
+    $liste = array_map('trim', explode(',', $types));
+    return in_array($typeAvion, $liste, true);
+}
+

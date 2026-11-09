@@ -50,6 +50,12 @@ require_once __DIR__ . '/../../includes/menu_logged.php';
                     <li><?= t('doc_maintenance_etape5_mail') ?></li>
                 </ul>
             </li>
+            <li>
+                <h4 class="sous-chapitre"><?= t('doc_maintenance_etape6_title') ?></h4>
+                <ul>
+                    <li><?= t('doc_maintenance_etape6_text') ?> <code>controle_a_faire=1</code> <?= t('doc_maintenance_etape6_suite') ?></li>
+                </ul>
+            </li>
         </ol>
     </section>
     <section>

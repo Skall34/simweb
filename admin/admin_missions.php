@@ -1,12 +1,37 @@
-
-
 <?php
+
 require_once __DIR__ . '/../includes/require_admin.php';
 require_once __DIR__ . '/../lang.php';
 
 $message = '';
 $errors = [];
 $selectedMission = null;
+
+// Catégories d'appareils possibles (identiques à admin_fleet_type.php)
+$missionTypeCats = ['Monomoteur', 'Bimoteur', 'Liner', 'Helico'];
+
+/**
+ * Normalise la liste des types autorisés envoyée par le formulaire en CSV propre ('*' si aucun).
+ */
+function normaliserTypesAutorises($typesPost, $cats) {
+    if (!is_array($typesPost) || empty($typesPost)) {
+        return '*';
+    }
+    $clean = array_filter(array_map('trim', $typesPost), function ($v) use ($cats) {
+        return in_array($v, $cats, true);
+    });
+    $csv = implode(',', $clean);
+    return $csv === '' ? '*' : $csv;
+}
+
+/**
+ * Indique si une catégorie doit être cochée pour une valeur types_autorises stockée.
+ */
+function missionTypeCoche($typesAutorises, $cat) {
+    $t = trim((string)$typesAutorises);
+    if ($t === '' || $t === '*') return true;
+    return in_array($cat, array_map('trim', explode(',', $t)), true);
+}
 
 /**
  * Crée une page de mission basée sur un template
@@ -97,7 +122,7 @@ TEMPLATE;
 // Récupérer toutes les missions pour la liste déroulante
 $missionsList = [];
 try {
-    $stmtAll = $pdo->query("SELECT id, libelle, majoration_mission, Active FROM MISSIONS ORDER BY libelle ASC");
+    $stmtAll = $pdo->query("SELECT id, libelle, majoration_mission, Active, est_controle, types_autorises FROM MISSIONS ORDER BY libelle ASC");
     $missionsList = $stmtAll->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {}
 
@@ -107,7 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'select') {
         $id = (int)($_POST['mission_id'] ?? 0);
         if ($id > 0) {
-            $stmt = $pdo->prepare("SELECT id, libelle, majoration_mission, Active FROM MISSIONS WHERE id = :id");
+            $stmt = $pdo->prepare("SELECT id, libelle, majoration_mission, Active, est_controle, types_autorises FROM MISSIONS WHERE id = :id");
             $stmt->execute(['id' => $id]);
             $selectedMission = $stmt->fetch(PDO::FETCH_ASSOC);
             if (!$selectedMission) {
@@ -119,33 +144,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $libelle = trim($_POST['libelle'] ?? '');
         $majoration = trim($_POST['majoration_mission'] ?? '');
         $active = isset($_POST['Active']) ? 1 : 0;
-        
+        $est_controle = isset($_POST['est_controle']) ? 1 : 0;
+        $types_autorises = normaliserTypesAutorises($_POST['types_autorises'] ?? [], $missionTypeCats);
+
         // Normaliser en Title Case (première lettre de chaque mot en majuscule)
         $libelle = mb_convert_case($libelle, MB_CASE_TITLE, 'UTF-8');
-        
+
         if ($libelle === '') $errors[] = t('admin_missions_error_libelle');
         if (!is_numeric($majoration) || $majoration < 0) $errors[] = t('admin_missions_error_majoration');
         if (empty($errors) && $id > 0) {
-            $stmt = $pdo->prepare("UPDATE MISSIONS SET libelle = :libelle, majoration_mission = :maj, Active = :active WHERE id = :id");
+            $stmt = $pdo->prepare("UPDATE MISSIONS SET libelle = :libelle, majoration_mission = :maj, Active = :active, est_controle = :est_controle, types_autorises = :types WHERE id = :id");
             $stmt->execute([
                 'libelle' => $libelle,
                 'maj' => $majoration,
                 'active' => $active,
+                'est_controle' => $est_controle,
+                'types' => $types_autorises,
                 'id' => $id
             ]);
             $message = t('admin_missions_success_update');
             // Rafraîchir la sélection
-            $stmt = $pdo->prepare("SELECT id, libelle, majoration_mission, Active FROM MISSIONS WHERE id = :id");
+            $stmt = $pdo->prepare("SELECT id, libelle, majoration_mission, Active, est_controle, types_autorises FROM MISSIONS WHERE id = :id");
             $stmt->execute(['id' => $id]);
             $selectedMission = $stmt->fetch(PDO::FETCH_ASSOC);
             // Rafraîchir la liste
-            $stmtAll = $pdo->query("SELECT id, libelle, majoration_mission, Active FROM MISSIONS ORDER BY libelle ASC");
+            $stmtAll = $pdo->query("SELECT id, libelle, majoration_mission, Active, est_controle, types_autorises FROM MISSIONS ORDER BY libelle ASC");
             $missionsList = $stmtAll->fetchAll(PDO::FETCH_ASSOC);
         }
     } elseif ($action === 'create') {
         $libelle = trim($_POST['libelle_new'] ?? '');
         $majoration = trim($_POST['majoration_mission_new'] ?? '');
         $active = isset($_POST['Active_new']) ? 1 : 0;
+        $est_controle = isset($_POST['est_controle_new']) ? 1 : 0;
+        $types_autorises = normaliserTypesAutorises($_POST['types_autorises_new'] ?? [], $missionTypeCats);
         
         // Normaliser en Title Case (première lettre de chaque mot en majuscule)
         $libelle = mb_convert_case($libelle, MB_CASE_TITLE, 'UTF-8');
@@ -158,11 +189,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($stmt->fetchColumn() > 0) $errors[] = t('admin_missions_error_exists');
         if (empty($errors)) {
             try {
-                $stmt = $pdo->prepare("INSERT INTO MISSIONS (libelle, majoration_mission, Active) VALUES (:libelle, :maj, :active)");
+                $stmt = $pdo->prepare("INSERT INTO MISSIONS (libelle, majoration_mission, Active, est_controle, types_autorises) VALUES (:libelle, :maj, :active, :est_controle, :types)");
                 $stmt->execute([
                     'libelle' => $libelle,
                     'maj' => $majoration,
-                    'active' => $active
+                    'active' => $active,
+                    'est_controle' => $est_controle,
+                    'types' => $types_autorises
                 ]);
                 
                 // Créer la page de mission
@@ -180,7 +213,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 
                 // Rafraîchir la liste
-                $stmtAll = $pdo->query("SELECT id, libelle, majoration_mission, Active FROM MISSIONS ORDER BY libelle ASC");
+                $stmtAll = $pdo->query("SELECT id, libelle, majoration_mission, Active, est_controle, types_autorises FROM MISSIONS ORDER BY libelle ASC");
                 $missionsList = $stmtAll->fetchAll(PDO::FETCH_ASSOC);
             } catch (Exception $e) {
                 $errors[] = 'Erreur lors de la création : ' . $e->getMessage();
@@ -237,6 +270,20 @@ include __DIR__ . '/../includes/menu_logged.php';
                         <?= t('admin_missions_label_active') ?>
                     </label>
 
+                    <label for="est_controle" class="admin-missions-checkbox-label">
+                        <input type="checkbox" name="est_controle" id="est_controle" value="1" <?php if ((int)$selectedMission['est_controle'] === 1) echo 'checked'; ?>>
+                        <?= t('admin_missions_label_est_controle') ?>
+                    </label>
+
+                    <label><strong><?= t('admin_missions_label_types_autorises') ?></strong></label>
+                    <?php foreach ($missionTypeCats as $c): ?>
+                    <label class="admin-missions-checkbox-label">
+                        <input type="checkbox" name="types_autorises[]" value="<?= htmlspecialchars($c) ?>" <?= missionTypeCoche($selectedMission['types_autorises'] ?? '*', $c) ? 'checked' : '' ?>>
+                        <?= t('admin_fleet_type_cat_' . strtolower($c)) ?>
+                    </label>
+                    <?php endforeach; ?>
+                    <p class="form-hint"><?= t('admin_missions_types_hint') ?></p>
+
                     <button type="submit" name="action" value="update"><?= t('admin_missions_btn_update') ?></button>
                 </form>
             <?php endif; ?>
@@ -253,6 +300,20 @@ include __DIR__ . '/../includes/menu_logged.php';
                     <input type="checkbox" name="Active_new" id="Active_new" value="1" checked>
                     <?= t('admin_missions_label_active') ?>
                 </label>
+
+                <label for="est_controle_new" class="admin-missions-checkbox-label">
+                    <input type="checkbox" name="est_controle_new" id="est_controle_new" value="1">
+                    <?= t('admin_missions_label_est_controle') ?>
+                </label>
+
+                <label><strong><?= t('admin_missions_label_types_autorises') ?></strong></label>
+                <?php foreach ($missionTypeCats as $c): ?>
+                <label class="admin-missions-checkbox-label">
+                    <input type="checkbox" name="types_autorises_new[]" value="<?= htmlspecialchars($c) ?>">
+                    <?= t('admin_fleet_type_cat_' . strtolower($c)) ?>
+                </label>
+                <?php endforeach; ?>
+                <p class="form-hint"><?= t('admin_missions_types_hint') ?></p>
 
                 <button type="submit" name="action" value="create"><?= t('admin_missions_btn_create') ?></button>
             </form>

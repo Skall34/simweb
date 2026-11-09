@@ -2203,6 +2203,19 @@ footer {
 .carnet-info-item .value.status-crash { color: #c0392b; }
 .carnet-info-item .value.status-vendu { color: #6c757d; }
 
+/* Badge vol de contrôle post-maintenance en attente */
+.badge-controle {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffc107;
+    font-size: 0.85em;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
 /* Badges */
 .badge {
     display: inline-block;

@@ -45,6 +45,25 @@ if ($action === 'liberer' && isset($_GET['id'])) {
     }
 }
 
+// --- MARQUER LE VOL DE CONTRÔLE COMME EFFECTUÉ (déblocage manuel admin) ---
+if ($action === 'controle_ok' && isset($_GET['id'])) {
+    $avion_id = intval($_GET['id']);
+    $logFile = dirname(__DIR__) . '/scripts/logs/admin_flotte.log';
+    try {
+        $stmtImmat = $pdo->prepare("SELECT immat FROM FLOTTE WHERE id = :id LIMIT 1");
+        $stmtImmat->execute(['id' => $avion_id]);
+        $immat = $stmtImmat->fetchColumn();
+        $stmt = $pdo->prepare("UPDATE FLOTTE SET controle_a_faire = 0 WHERE id = :id");
+        $stmt->execute(['id' => $avion_id]);
+        logMsg("Vol de contrôle forcé comme effectué par admin pour $immat (id=$avion_id)", $logFile);
+        $_SESSION['flash_message'] = t('admin_flotte_success_controle_ok');
+        header('Location: admin_flotte.php');
+        exit;
+    } catch (PDOException $e) {
+        $errorMessage = t('admin_flotte_error_controle_ok') . htmlspecialchars($e->getMessage());
+    }
+}
+
 // --- VENDRE UN AVION ---
 if ($action === 'vendre' && isset($_POST['avion_id'])) {
     $logFile = dirname(__DIR__) . '/scripts/logs/admin_flotte.log';
@@ -240,7 +259,7 @@ try {
     $stmt = $pdo->query("
         SELECT f.id, f.immat, f.localisation, f.hub, f.fleet_type, f.reste_a_payer, 
                f.date_achat, COALESCE((SELECT SUM(cdvg.cout_vol) FROM CARNET_DE_VOL_GENERAL cdvg WHERE cdvg.appareil_id = f.id AND cdvg.annule = 0), 0) AS recettes, f.nb_annees_credit, f.mode_achat, f.en_vol, f.reservee,
-               f.status, f.etat, ft.type as categorie, ft.fleet_type as type_nom, ft.cout_appareil
+               f.status, f.etat, f.controle_a_faire, ft.type as categorie, ft.fleet_type as type_nom, ft.cout_appareil
         FROM FLOTTE f
         LEFT JOIN FLEET_TYPE ft ON f.fleet_type = ft.id
         WHERE f.actif = 1 
@@ -342,7 +361,11 @@ include __DIR__ . '/../includes/menu_logged.php';
                             $prix_vente = round($avion['cout_appareil'] * 0.9, 2);
                         ?>
                             <tr>
-                                <td><strong><?= htmlspecialchars($avion['immat']) ?></strong></td>
+                                <td><strong><?= htmlspecialchars($avion['immat']) ?></strong>
+                                    <?php if ((int)($avion['controle_a_faire'] ?? 0) === 1): ?>
+                                        <span class="badge-controle"><?= t('admin_flotte_badge_controle') ?></span>
+                                    <?php endif; ?>
+                                </td>
                                 <td><?= htmlspecialchars($avion['type_nom']) ?></td>
                                 <td><?= htmlspecialchars($avion['categorie']) ?></td>
                                 <td><?= htmlspecialchars($avion['localisation'] ?? '-') ?></td>
@@ -355,6 +378,13 @@ include __DIR__ . '/../includes/menu_logged.php';
                                                     title="<?= t('admin_flotte_action_liberer_title') ?>"
                                                     onclick="return confirmLiberer(<?= $avion['id'] ?>, '<?= htmlspecialchars($avion['immat']) ?>')">
                                                     <?= t('admin_flotte_action_liberer') ?></a>
+                                    <?php if ((int)($avion['controle_a_faire'] ?? 0) === 1): ?>
+                                        &nbsp;|&nbsp;
+                                        <a href="?action=controle_ok&id=<?= $avion['id'] ?>"
+                                            title="<?= t('admin_flotte_action_controle_ok_title') ?>"
+                                            onclick="return confirm('<?= t('admin_flotte_confirm_controle_ok') ?>')">
+                                            <?= t('admin_flotte_action_controle_ok') ?></a>
+                                    <?php endif; ?>
                                     &nbsp;|&nbsp;
                                                 <a href="#" 
                                        onclick="return confirmVente(<?= $avion['id'] ?>, '<?= htmlspecialchars($avion['immat']) ?>', '<?= htmlspecialchars($avion['type_nom']) ?>', '<?= htmlspecialchars($avion['categorie']) ?>', <?= $avion['reste_a_payer'] ?? 0 ?>, <?= $avion['recettes'] ?? 0 ?>, <?= $prix_vente ?>, '<?= $avion['mode_achat'] ?>')"

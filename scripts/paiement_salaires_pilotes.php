@@ -95,12 +95,31 @@ foreach ($pilotes as $index => $pilote) {
         continue;
     }
 
-    $montant = round($heures_mois * $taux_horaire + $bonus_fret, 2);
+    try {
+        // Prime de risque : un vol de contrôle post-maintenance effectué sur le mois donne droit à une prime
+        $stmtPrime = $pdo->prepare("SELECT valeur FROM VARIABLES_CONFIG WHERE nom = 'prime_controle_vol'");
+        $stmtPrime->execute();
+        $prime_controle_vol = (float)$stmtPrime->fetchColumn();
+        if ($prime_controle_vol <= 0) $prime_controle_vol = 500.00; // valeur par défaut si variable absente
+        $stmtCtrl = $pdo->prepare("SELECT COUNT(*) FROM CARNET_DE_VOL_GENERAL c JOIN MISSIONS m ON m.id = c.mission_id WHERE c.pilote_id = ? AND c.annule = 0 AND m.est_controle = 1 AND DATE(c.date_vol) >= ? AND DATE(c.date_vol) < ?");
+        $stmtCtrl->execute([$pilote['id'], $debut_mois, $fin_mois]);
+        $nb_controles = (int)$stmtCtrl->fetchColumn();
+        $prime_risque = round($nb_controles * $prime_controle_vol, 2);
+        logMsg('[TRACE] Vols de controle : ' . $nb_controles . ' | Prime de risque : ' . $prime_risque, __DIR__ . '/logs/paiement_salaires.log');
+        echo "Vols de controle : $nb_controles | Prime de risque : $prime_risque\n";
+    } catch (Exception $e) {
+        logMsg('[ERREUR] Calcul prime de risque : ' . $e->getMessage(), __DIR__ . '/logs/paiement_salaires.log');
+        echo "ERREUR Calcul prime de risque : " . htmlspecialchars($e->getMessage()) . "\n";
+        $nb_controles = 0;
+        $prime_risque = 0;
+    }
+
+    $montant = round($heures_mois * $taux_horaire + $bonus_fret + $prime_risque, 2);
     logMsg('[TRACE] Montant calculé : ' . $montant, __DIR__ . '/logs/paiement_salaires.log');
     echo "Montant calculé : $montant\n";
 
-    // Ignorer les pilotes sans vol ni fret sur la période (ou avec 0 heures exactement)
-    if ($heures_mois <= 0 || (($total_sec === null || $total_sec == 0) && ($total_fret_kg === null || $total_fret_kg == 0))) {
+    // Ignorer les pilotes sans aucune rémunération sur la période (heures, fret ou prime de risque)
+    if (($heures_mois <= 0 || (($total_sec === null || $total_sec == 0) && ($total_fret_kg === null || $total_fret_kg == 0))) && $prime_risque <= 0) {
         logMsg('[INFO] Aucune heure de vol pour ce pilote sur la période, traitement ignoré.', __DIR__ . '/logs/paiement_salaires.log');
         echo "Aucune heure de vol pour ce pilote sur la période, traitement ignoré.\n--- Fin traitement pilote ---\n\n";
         continue;
@@ -146,6 +165,8 @@ foreach ($pilotes as $index => $pilote) {
         'taux_horaire' => $taux_horaire,
         'bonus_fret' => $bonus_fret,
         'fret_kg' => $total_fret_kg,
+        'prime_risque' => $prime_risque,
+        'nb_controles' => $nb_controles,
         'date_paiement' => date('d/m/Y', strtotime($date_paiement))
     ];
     
@@ -164,6 +185,9 @@ foreach ($pilotes as $index => $pilote) {
     $subject = t('script_salary_subject');
     $message = t('script_salary_greeting', ['firstname' => $pilote['prenom']]) . "\n\n";
     $message .= t('script_salary_hours', ['hours' => number_format($heures_mois, 2)]) . "\n";
+    if ($prime_risque > 0) {
+        $message .= t('script_salary_prime_risque', ['count' => $nb_controles, 'amount' => number_format($prime_risque, 2) . "€"]) . "\n";
+    }
     $message .= t('script_salary_total', ['amount' => number_format($montant, 2) . "€"]) . "\n\n";
     $message .= "Vous trouverez ci-joint votre fiche de paie détaillée.\n\n";
     $message .= t('script_salary_thanks') . "\n" . t('script_salary_team');
@@ -202,7 +226,7 @@ foreach ($pilotes as $index => $pilote) {
         }
     }
     // Log utile : fin traitement pilote
-    $recap[] = date('Y-m-d H:i:s') . ' | ' . $pilote['callsign'] . ' (' . $pilote['prenom'] . ' ' . $pilote['nom'] . ') - Heures: ' . number_format($heures_mois, 2) . ' - Fret: ' . number_format($total_fret_kg, 2) . 'kg - Bonus fret: ' . number_format($bonus_fret, 2) . '€ - Montant: ' . number_format($montant, 2) . "€\n";
+    $recap[] = date('Y-m-d H:i:s') . ' | ' . $pilote['callsign'] . ' (' . $pilote['prenom'] . ' ' . $pilote['nom'] . ') - Heures: ' . number_format($heures_mois, 2) . ' - Fret: ' . number_format($total_fret_kg, 2) . 'kg - Bonus fret: ' . number_format($bonus_fret, 2) . '€ - Prime risque: ' . number_format($prime_risque, 2) . '€ - Montant: ' . number_format($montant, 2) . "€\n";
     // On cumule le montant total des salaires versés
     if (!isset($total_salaires)) $total_salaires = 0;
     $total_salaires += $montant;

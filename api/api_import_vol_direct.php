@@ -34,6 +34,7 @@ require_once __DIR__ . '/../includes/mail_utils.php';
 require_once __DIR__ . '/../includes/fonctions_financieres.php';
 require_once __DIR__ . '/../includes/fonctions_importer_vol.php';
 require_once __DIR__ . '/../includes/fonctions_maintenance.php';
+require_once __DIR__ . '/../includes/fonctions_controle_vol.php';
 require_once __DIR__ . '/../includes/calcul_cout.php';
 require_once __DIR__ . '/../lang.php';
 
@@ -87,6 +88,9 @@ $payload = floatval($data['payload']);
 $note = intval($data['note_du_vol']);
 $commentaire = isset($data['commentaire']) ? trim($data['commentaire']) : '';
 $mission = trim($data['mission']);
+// Champs optionnels envoyés par le SimAddon pour valider un vol de contrôle post-maintenance
+$stall_ok = !empty($data['stall_ok']);
+$engine_cut_ok = !empty($data['engine_cut_ok']);
 $horodateur = date("Y-m-d H:i:s");
 $tracegps = isset($data['tracegps']) ? trim($data['tracegps']) : '';
 
@@ -119,11 +123,22 @@ try {
     }
 
     // 4. Vérification de l'avion actif
-    $stmtAvion = $pdo->prepare("SELECT id FROM FLOTTE WHERE immat = :immat AND actif = 1");
+    $stmtAvion = $pdo->prepare("SELECT f.id, f.controle_a_faire, ft.type AS categorie FROM FLOTTE f LEFT JOIN FLEET_TYPE ft ON f.fleet_type = ft.id WHERE f.immat = :immat AND f.actif = 1");
     $stmtAvion->execute(['immat' => $immat]);
-    $avion = $stmtAvion->fetch();
+    $avion = $stmtAvion->fetch(PDO::FETCH_ASSOC);
     if (!$avion) {
         $erreurs[] = "Avion '$immat' introuvable ou inactif dans FLOTTE.";
+    } else {
+        // 4b. Vol de contrôle post-maintenance : l'avion en attente n'accepte que la mission de contrôle,
+        // et une mission de contrôle exige stall_ok (+ engine_cut_ok pour un bimoteur)
+        $erreurControle = null;
+        if (!verifierVolControle($pdo, (int)$avion['id'], $mission, $stall_ok, $engine_cut_ok, $erreurControle)) {
+            $erreurs[] = $erreurControle;
+        }
+        // 4c. Compatibilité mission / type d'appareil (ex. pas de mission Liner sur un monomoteur)
+        if (!empty($avion['categorie']) && !missionCompatibleAvecType($pdo, $mission, $avion['categorie'])) {
+            $erreurs[] = "Mission '$mission' incompatible avec un appareil de type {$avion['categorie']}.";
+        }
     }
 
     // 5. Vérification des doublons
@@ -169,6 +184,11 @@ try {
     // 8. Ajout au carnet de vol avec le coût
     $vol_id = remplirCarnetVolGeneral($horodateur, $callsign, $immat, $departure_icao, $arrival_icao, $departure_fuel, $arrival_fuel, $payload, $departure_time, $arrival_time, $mission, $commentaire, $note, $cout_vol, $temps_vol, $logFile);
     logMsg("[api_import_vol_direct] Ajout au carnet de vol : callsign=$callsign, immat=$immat, depart=$departure_icao, dest=$arrival_icao, payload=$payload, cout_vol=$cout_vol", $logFile);
+
+    // 8b. Si c'était un vol de contrôle post-maintenance, l'appareil redevient disponible
+    if ($vol_id && missionEstControle($pdo, $mission) && avionEnAttenteControle($pdo, (int)$avion['id'])) {
+        marquerControleEffectue($pdo, (int)$avion['id'], $immat, $vol_id, $logFile);
+    }
 
     // 9. Ajout de la trace GPS si fournie
     if (empty($tracegps)) {

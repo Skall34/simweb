@@ -114,7 +114,7 @@ try {
             } elseif ($status === 1) {
                 if ($compteur_immo === 1) {
                     logMsg("L'avion $immat sort de maintenance après 1 jour (usure)", $logFile);
-                    $sql = "UPDATE FLOTTE SET status = 0, etat = 100, compteur_immo = 0 WHERE id = :id";
+                    $sql = "UPDATE FLOTTE SET status = 0, etat = 100, compteur_immo = 0, controle_a_faire = 1 WHERE id = :id";
                     $stmtUp = $pdo->prepare($sql);
                     $stmtUp->execute(['id' => $id]);
                     $count_sortie++;
@@ -123,7 +123,7 @@ try {
                     logMaintenance($pdo, $id, 'sortie', 0, 100, null, "Sortie maintenance usure — $immat", $logFile);
                 } elseif ($compteur_immo > 1) {
                     logMsg("L'avion $immat en maintenance, compteur_immo > 1, réinitialisation", $logFile);
-                    $sql = "UPDATE FLOTTE SET status = 0, etat = 1, compteur_immo = 0 WHERE id = :id";
+                    $sql = "UPDATE FLOTTE SET status = 0, etat = 1, compteur_immo = 0, controle_a_faire = 1 WHERE id = :id";
                     $stmtUp = $pdo->prepare($sql);
                     $stmtUp->execute(['id' => $id]);
                     $count_sortie++;
@@ -161,7 +161,7 @@ try {
                     $stmtUp->execute(['id' => $id]);
                 } elseif ($compteur_immo >= 3) {
                     logMsg("L'avion $immat sort de maintenance après crash (3 jours). Réinitialisation compteurs.", $logFile);
-                    $sql = "UPDATE FLOTTE SET status = 0, etat = 100, compteur_immo = 0 WHERE id = :id";
+                    $sql = "UPDATE FLOTTE SET status = 0, etat = 100, compteur_immo = 0, controle_a_faire = 1 WHERE id = :id";
                     $stmtUp = $pdo->prepare($sql);
                     $stmtUp->execute(['id' => $id]);
                     $count_sortie++;

@@ -23,7 +23,7 @@ try {
 
 // Nouvelle requête : on récupère tous les appareils (actifs et inactifs)
 $sql = "SELECT f.id, ft.fleet_type AS type_libelle, ft.type AS categorie, f.immat, f.localisation, f.hub, f.status, f.etat,
-               p.callsign AS pilote_callsign, f.fuel_restant, f.compteur_immo, f.en_vol, f.nb_maintenance, f.reservee,
+               p.callsign AS pilote_callsign, f.fuel_restant, f.compteur_immo, f.en_vol, f.nb_maintenance, f.reservee, f.controle_a_faire,
                f.date_achat, f.mode_achat, COALESCE((SELECT SUM(cdvg.cout_vol) FROM CARNET_DE_VOL_GENERAL cdvg WHERE cdvg.appareil_id = f.id AND cdvg.annule = 0), 0) AS recettes_calculees, f.nb_annees_credit, f.nb_mois_restants, f.taux_percent, f.remboursement, f.traite_payee_cumulee, f.reste_a_payer, f.recette_vente, f.date_vente, f.actif
         FROM FLOTTE f
         LEFT JOIN FLEET_TYPE ft ON f.fleet_type = ft.id
@@ -187,6 +187,9 @@ include __DIR__ . '/../includes/menu_logged.php';
                                     2 => t('fleet_status_crash'),
                                     default => htmlspecialchars($avion['status'] ?? '')
                                 };
+                            }
+                            if ((int)($avion['controle_a_faire'] ?? 0) === 1) {
+                                echo ' <span class="badge-controle">' . t('fleet_controle_a_faire') . '</span>';
                             }
                             ?>
                         </td>

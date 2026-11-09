@@ -103,9 +103,19 @@ function genererFichePaiePDF($data) {
         $pdf->Cell(30, 6, number_format($taux_fret, 2, ',', ' ') . ' ' . chr(128) . '/kg', 1, 0, 'R');
         $pdf->Cell(40, 6, number_format($bonus_fret, 2, ',', ' ') . ' ' . chr(128), 1, 1, 'R');
     }
-    
+
+    // Prime de risque (vols de contrôle post-maintenance)
+    $prime_risque = $data['prime_risque'] ?? 0;
+    $nb_controles = $data['nb_controles'] ?? 0;
+    if ($prime_risque > 0) {
+        $pdf->Cell(90, 6, utf8_decode('Prime de risque (vol de contrôle)'), 1, 0);
+        $pdf->Cell(30, 6, (int)$nb_controles . ' vol(s)', 1, 0, 'R');
+        $pdf->Cell(30, 6, '-', 1, 0, 'R');
+        $pdf->Cell(40, 6, number_format($prime_risque, 2, ',', ' ') . ' ' . chr(128), 1, 1, 'R');
+    }
+
     // Salaire brut
-    $salaire_brut = $salaire_base + $bonus_fret;
+    $salaire_brut = $salaire_base + $bonus_fret + $prime_risque;
     $pdf->SetFont('Arial', 'B', 9);
     $pdf->Cell(150, 6, utf8_decode('SALAIRE BRUT'), 1, 0, 'R');
     $pdf->Cell(40, 6, number_format($salaire_brut, 2, ',', ' ') . ' ' . chr(128), 1, 1, 'R');
@@ -172,6 +182,9 @@ function genererFichePaiePDF($data) {
     $infos = "Heures de vol effectuées : " . number_format($heures, 2, ',', ' ') . " h\n";
     if ($fret_kg > 0) {
         $infos .= "Fret transporté : " . number_format($fret_kg, 0, ',', ' ') . " kg\n";
+    }
+    if ($prime_risque > 0) {
+        $infos .= "Prime de risque : " . (int)$nb_controles . " vol(s) de contrôle post-maintenance\n";
     }
     $infos .= "Date de paiement : " . ($data['date_paiement'] ?? date('d/m/Y')) . "\n";
     $infos .= "Virement bancaire effectué sur le compte du pilote.";
