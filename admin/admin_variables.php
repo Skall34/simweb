@@ -65,6 +65,13 @@ $variables = [
         'min' => '1',
         'max' => '10',
         'default' => '3'
+    ],
+    'prime_controle_vol' => [
+        'label' => t('admin_variables_label_prime_controle_vol'),
+        'type' => 'number',
+        'step' => '1',
+        'min' => '0',
+        'default' => '500.00'
     ]
 ];
 

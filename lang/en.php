@@ -65,6 +65,7 @@ return [
     'admin_variables_label_taux_assurance' => 'Insurance rate (%)',
     'admin_variables_label_reservation_timeout_hours' => 'Reservation validity duration (hours)',
     'admin_variables_label_multiplicateur_crash' => 'Crash maintenance cost multiplier (×)',
+    'admin_variables_label_prime_controle_vol' => 'Bonus per post-maintenance check flight (€)',
     'admin_variables_update_success' => 'Variables updated successfully.',
     'admin_variables_save_button' => 'Save',
     'admin_lines_success_add_both' => '✅ Both lines added.',
