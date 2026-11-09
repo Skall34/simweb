@@ -25,6 +25,7 @@ require_once __DIR__ . '/../includes/menu_logged.php';
                         <li><strong><?= t('documentation_section_missions_ponctuelles') ?></strong> <?= t('documentation_section_missions_ponctuelles_desc') ?></li>
                         <li><strong><?= t('documentation_section_missions_permanentes') ?></strong> <?= t('documentation_section_missions_permanentes_desc') ?></li>
                         <?= t('documentation_section_missions_coef') ?>
+                        <li><strong><?= t('documentation_section_missions_filtre_titre') ?></strong> <?= t('documentation_section_missions_filtre_desc') ?></li>
                         <li><strong><?= t('documentation_section_missions_libre') ?></strong> <?= t('documentation_section_missions_libre_desc') ?></li>
                     </ul>
             </ul>
@@ -33,7 +34,7 @@ require_once __DIR__ . '/../includes/menu_logged.php';
         <?php
     // DB already included above by normalized include
         try {
-            $stmt = $pdo->query("SELECT libelle, majoration_mission, Active FROM MISSIONS ORDER BY libelle");
+            $stmt = $pdo->query("SELECT libelle, majoration_mission, Active, est_controle, types_autorises FROM MISSIONS ORDER BY libelle");
             $missions = $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             $missions = [];
@@ -43,16 +44,22 @@ require_once __DIR__ . '/../includes/menu_logged.php';
             echo '<h3 style="margin-top:30px;">' . t('documentation_section_missions_detail_title') . '</h3>';
             echo '<table style="max-width:480px;font-size:0.92em;border-collapse:collapse;margin-bottom:20px;box-shadow:0 1px 6px rgba(0,0,0,0.07);">';
             echo '<tr style="background:#e6f0fa;color:#1a3552;font-weight:bold;">';
-            echo '<th style="padding:4px 8px;">' . t('documentation_section_missions_table_libelle') . '</th><th style="padding:4px 8px;">' . t('documentation_section_missions_table_majoration') . '</th><th style="padding:4px 8px;">' . t('documentation_section_missions_table_active') . '</th>';
+            echo '<th style="padding:4px 8px;">' . t('documentation_section_missions_table_libelle') . '</th><th style="padding:4px 8px;">' . t('documentation_section_missions_table_majoration') . '</th><th style="padding:4px 8px;">' . t('documentation_section_missions_table_types') . '</th><th style="padding:4px 8px;">' . t('documentation_section_missions_table_active') . '</th>';
             echo '</tr>';
             foreach ($missions as $m) {
                 echo '<tr style="background:#fff;">';
-                echo '<td style="padding:3px 8px;">' . htmlspecialchars($m['libelle']) . '</td>';
+                echo '<td style="padding:3px 8px;">' . htmlspecialchars($m['libelle']);
+                if ((int)($m['est_controle'] ?? 0) === 1) {
+                    echo ' <span class="badge-controle">' . t('documentation_section_missions_table_controle') . '</span>';
+                }
+                echo '</td>';
                 $maj = $m['majoration_mission'];
                 if (is_numeric($maj)) {
                     $maj = rtrim(rtrim(number_format($maj, 2, '.', ''), '0'), '.');
                 }
                 echo '<td style="padding:3px 8px;text-align:center;">' . htmlspecialchars($maj) . '</td>';
+                $types = trim((string)($m['types_autorises'] ?? '*'));
+                echo '<td style="padding:3px 8px;text-align:center;">' . (($types === '' || $types === '*') ? t('documentation_section_missions_table_tous') : htmlspecialchars($types)) . '</td>';
                 if (isset($m['Active']) && (int)$m['Active'] != 0) {
                     echo '<td style="padding:3px 8px;text-align:center;">' . t('documentation_section_missions_table_active_yes') . '</td>';
                 } else {
@@ -85,6 +92,7 @@ require_once __DIR__ . '/../includes/menu_logged.php';
                 <li><a href="doc_scripts/doc_calcul_cout.php" style="color:#1a3552;font-weight:bold;text-decoration:underline;"><?= t('documentation_section_scripts_calcul_cout') ?></a></li>
                 <li><a href="doc_scripts/doc_credit_mensualite.php" style="color:#1a3552;font-weight:bold;text-decoration:underline;"><?= t('documentation_section_scripts_credit') ?></a></li>
                 <li><a href="doc_scripts/doc_importer_vol.php" style="color:#1a3552;font-weight:bold;text-decoration:underline;"><?= t('documentation_section_scripts_importer_vol') ?></a></li>
+                <li><a href="doc_scripts/doc_import_from_acars.php" style="color:#1a3552;font-weight:bold;text-decoration:underline;"><?= t('documentation_section_scripts_acars') ?></a></li>
                 <li><a href="doc_scripts/doc_maintenance.php" style="color:#1a3552;font-weight:bold;text-decoration:underline;"><?= t('documentation_section_scripts_maintenance') ?></a></li>
                 <li><a href="doc_scripts/doc_paiement_salaires_pilotes.php" style="color:#1a3552;font-weight:bold;text-decoration:underline;"><?= t('documentation_section_scripts_salaires') ?></a></li>
                 <li><a href="doc_scripts/doc_promotion_grades_pilotes.php" style="color:#1a3552;font-weight:bold;text-decoration:underline;"><?= t('documentation_section_scripts_promotion') ?></a></li>
