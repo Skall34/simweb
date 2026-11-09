@@ -6,8 +6,9 @@
 
  Description :
  Fonctions partagées pour le vol de contrôle post-maintenance.
- Un appareil qui sort de maintenance (scripts/maintenance.php) reste en
- maintenance (FLOTTE.status = 1, etat = 0) et a FLOTTE.controle_a_faire = 1 :
+ Un appareil qui sort de maintenance (scripts/maintenance.php) passe à
+ FLOTTE.status = 0 (sélectionnable dans l'ACARS) avec etat = 0 et
+ FLOTTE.controle_a_faire = 1 :
  il n'est réutilisable que pour une mission marquée MISSIONS.est_controle = 1, avec :
   - au moins une limite de décrochage (champ stall_ok)
   - pour les bimoteurs, un arrêt moteur (champ engine_cut_ok)

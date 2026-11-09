@@ -34,7 +34,8 @@
  - Automatisé avec GitHub Copilot
 -------------------------------------------------------------
 */
-$mailSummaryEnabled = true; // Active l'envoi du mail récapitulatif
+// Active l'envoi du mail récapitulatif (désactivable via SIMWEB_MAIL_SUMMARY=0, ex. en environnement de test)
+$mailSummaryEnabled = getenv('SIMWEB_MAIL_SUMMARY') !== '0';
 require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/log_func.php';
 require_once __DIR__ . '/../includes/mail_utils.php';
@@ -64,7 +65,7 @@ try {
 
     // Récupérer tous les avions avec le coût de maintenance du type
     $stmt = $pdo->query("
-        SELECT f.id, f.immat, f.status, f.etat, f.compteur_immo, f.nb_maintenance,
+        SELECT f.id, f.immat, f.status, f.etat, f.compteur_immo, f.nb_maintenance, f.controle_a_faire,
                ft.cout_maintenance, ft.fleet_type AS type_nom
         FROM FLOTTE f
         LEFT JOIN FLEET_TYPE ft ON f.fleet_type = ft.id
@@ -85,13 +86,16 @@ try {
         $etat = (float)$avion['etat'];
         $compteur_immo = (int)$avion['compteur_immo'];
         $nb_maintenance = (int)$avion['nb_maintenance'];
+        $controle_a_faire = (int)($avion['controle_a_faire'] ?? 0);
         $cout_maintenance = floatval($avion['cout_maintenance'] ?? 0);
         $type_nom = $avion['type_nom'] ?? '';
 
         if ($immat !== '') {
             logMsg("Avion $immat ($type_nom) : état=$etat / statut=$status / compteur_immo=$compteur_immo / coût_maint=$cout_maintenance", $logFile);
 
-            if ($status === 0 && $etat < 10) {
+            // Un appareil en attente de vol de contrôle (controle_a_faire=1) ne repasse pas
+            // en maintenance par usure : il attend son vol de contrôle.
+            if ($status === 0 && $etat < 10 && $controle_a_faire === 0) {
                 // Entrée en maintenance usure normale
                 logMsg("L'avion $immat passe en maintenance (usure normale)", $logFile);
                 $sql = "UPDATE FLOTTE SET status = 1, etat = 0, compteur_immo = 1, nb_maintenance = (nb_maintenance + 1) WHERE id = :id";
@@ -114,9 +118,10 @@ try {
             } elseif ($status === 1) {
                 if ($compteur_immo === 1) {
                     logMsg("L'avion $immat sort de maintenance après 1 jour (usure)", $logFile);
-                    // L'appareil reste en maintenance (status=1, etat=0) jusqu'au vol de contrôle :
-                    // il ne redeviendra status=0/etat=100 qu'à la validation de ce vol (marquerControleEffectue)
-                    $sql = "UPDATE FLOTTE SET compteur_immo = 0, controle_a_faire = 1 WHERE id = :id";
+                    // L'appareil passe à status=0 (sélectionnable dans l'ACARS) mais reste bloqué
+                    // aux missions normales via controle_a_faire=1, etat=0 jusqu'au vol de contrôle :
+                    // etat=100 ne sera remis qu'à la validation de ce vol (marquerControleEffectue)
+                    $sql = "UPDATE FLOTTE SET status = 0, compteur_immo = 0, controle_a_faire = 1 WHERE id = :id";
                     $stmtUp = $pdo->prepare($sql);
                     $stmtUp->execute(['id' => $id]);
                     $count_sortie++;
@@ -125,8 +130,8 @@ try {
                     logMaintenance($pdo, $id, 'sortie', 0, 0, null, "Sortie maintenance usure — $immat (en attente de vol de contrôle)", $logFile);
                 } elseif ($compteur_immo > 1) {
                     logMsg("L'avion $immat en maintenance, compteur_immo > 1, réinitialisation", $logFile);
-                    // Reste en maintenance (etat=0) jusqu'au vol de contrôle
-                    $sql = "UPDATE FLOTTE SET etat = 0, compteur_immo = 0, controle_a_faire = 1 WHERE id = :id";
+                    // status=0 (sélectionnable ACARS), etat=0 + controle_a_faire=1 jusqu'au vol de contrôle
+                    $sql = "UPDATE FLOTTE SET status = 0, etat = 0, compteur_immo = 0, controle_a_faire = 1 WHERE id = :id";
                     $stmtUp = $pdo->prepare($sql);
                     $stmtUp->execute(['id' => $id]);
                     $count_sortie++;
@@ -164,8 +169,9 @@ try {
                     $stmtUp->execute(['id' => $id]);
                 } elseif ($compteur_immo >= 3) {
                     logMsg("L'avion $immat sort de maintenance après crash (3 jours). Réinitialisation compteurs.", $logFile);
-                    // Réparé mais toujours indisponible (status=1 maintenance, etat=0) jusqu'au vol de contrôle
-                    $sql = "UPDATE FLOTTE SET status = 1, etat = 0, compteur_immo = 0, controle_a_faire = 1 WHERE id = :id";
+                    // Réparé : status=0 pour être sélectionnable dans l'ACARS, mais etat=0 +
+                    // controle_a_faire=1 jusqu'au vol de contrôle (bloqué aux missions normales)
+                    $sql = "UPDATE FLOTTE SET status = 0, etat = 0, compteur_immo = 0, controle_a_faire = 1 WHERE id = :id";
                     $stmtUp = $pdo->prepare($sql);
                     $stmtUp->execute(['id' => $id]);
                     $count_sortie++;

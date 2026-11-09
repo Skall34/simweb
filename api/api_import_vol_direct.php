@@ -91,6 +91,8 @@ $mission = trim($data['mission']);
 // Champs optionnels envoyés par le SimAddon pour valider un vol de contrôle post-maintenance
 $stall_ok = !empty($data['stall_ok']);
 $engine_cut_ok = !empty($data['engine_cut_ok']);
+// Diagnostic : loggue les champs de vol de contrôle reçus (stall_ok / engine_cut_ok) pour tracer ce que l'ACARS envoie
+logMsg("[api_import_vol_direct] Champs contrôle reçus: stall_ok=" . ($stall_ok ? '1' : '0') . " engine_cut_ok=" . ($engine_cut_ok ? '1' : '0'), $logFile);
 $horodateur = date("Y-m-d H:i:s");
 $tracegps = isset($data['tracegps']) ? trim($data['tracegps']) : '';
 

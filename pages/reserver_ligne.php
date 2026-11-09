@@ -23,7 +23,8 @@ if (!$ligne) {
 }
 
 // Récupérer la flotte disponible (non réservée) en joignant le libellé du fleet_type
-$stmt = $pdo->prepare('SELECT f.id, f.immat, f.fleet_type, COALESCE(ft.fleet_type, "") AS fleet_type_label FROM FLOTTE f LEFT JOIN FLEET_TYPE ft ON f.fleet_type = ft.id WHERE f.actif = 1 AND f.status=0 AND (f.reservee = 0 OR f.reservee IS NULL) ORDER BY f.immat');
+// status=0 : sélectionnable ; controle_a_faire=1 exclu (réservé au vol de contrôle post-maintenance)
+$stmt = $pdo->prepare('SELECT f.id, f.immat, f.fleet_type, COALESCE(ft.fleet_type, "") AS fleet_type_label FROM FLOTTE f LEFT JOIN FLEET_TYPE ft ON f.fleet_type = ft.id WHERE f.actif = 1 AND f.status=0 AND (f.controle_a_faire = 0 OR f.controle_a_faire IS NULL) AND (f.reservee = 0 OR f.reservee IS NULL) ORDER BY f.immat');
 $stmt->execute();
 $flotte = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

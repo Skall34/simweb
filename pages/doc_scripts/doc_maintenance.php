@@ -30,8 +30,8 @@ require_once __DIR__ . '/../../includes/menu_logged.php';
                 <h4 class="sous-chapitre"><?= t('doc_maintenance_etape3_title') ?></h4>
                 <ul>
                     <li><?= t('doc_maintenance_etape3_si_maint') ?> <b><?= t('doc_maintenance_etape3_en_maint') ?></b> (<code>status=1</code>) :</li>
-                    <li><?= t('doc_maintenance_etape3_compteur1') ?> <code>compteur_immo=1</code><?= t('doc_maintenance_etape3_compteur1_suite') ?> <code>etat=100</code>, <code>status=0</code>, <code>compteur_immo=0</code>.</li>
-                    <li><?= t('doc_maintenance_etape3_compteur2') ?> <code>compteur_immo>1</code><?= t('doc_maintenance_etape3_compteur2_suite') ?> <code>etat=1</code>, <code>status=0</code>, <code>compteur_immo=0</code>.</li>
+                    <li><?= t('doc_maintenance_etape3_compteur1') ?> <code>compteur_immo=1</code><?= t('doc_maintenance_etape3_compteur1_suite') ?> <code>status=0</code>, <code>etat=0</code>, <code>compteur_immo=0</code>, <code>controle_a_faire=1</code> (en attente de vol de contrôle).</li>
+                    <li><?= t('doc_maintenance_etape3_compteur2') ?> <code>compteur_immo>1</code><?= t('doc_maintenance_etape3_compteur2_suite') ?> <code>status=0</code>, <code>etat=0</code>, <code>compteur_immo=0</code>, <code>controle_a_faire=1</code> (en attente de vol de contrôle).</li>
                 </ul>
             </li>
             <li>
@@ -40,7 +40,7 @@ require_once __DIR__ . '/../../includes/menu_logged.php';
                     <li><?= t('doc_maintenance_etape4_si_crash') ?> <b><?= t('doc_maintenance_etape4_crash') ?></b> (<code>status=2</code>) :</li>
                     <li><?= t('doc_maintenance_etape4_compteur0') ?> <code>compteur_immo=0</code><?= t('doc_maintenance_etape4_compteur0_suite') ?> <code>compteur_immo=1</code><?= t('doc_maintenance_etape4_compteur0_incr') ?> <code>nb_maintenance</code>.</li>
                     <li><?= t('doc_maintenance_etape4_compteur12') ?> <code>compteur_immo=1</code> <?= t('doc_maintenance_etape4_compteur12_ou') ?> <code>2</code><?= t('doc_maintenance_etape4_compteur12_suite') ?></li>
-                    <li><?= t('doc_maintenance_etape4_compteur3') ?> <code>compteur_immo≥3</code><?= t('doc_maintenance_etape4_compteur3_suite') ?> <code>etat=100</code>, <code>status=0</code>, <code>compteur_immo=0</code>.</li>
+                    <li><?= t('doc_maintenance_etape4_compteur3') ?> <code>compteur_immo≥3</code><?= t('doc_maintenance_etape4_compteur3_suite') ?> <code>status=0</code>, <code>etat=0</code>, <code>compteur_immo=0</code>, <code>controle_a_faire=1</code> (en attente de vol de contrôle).</li>
                 </ul>
             </li>
             <li>

@@ -53,9 +53,9 @@ if ($action === 'controle_ok' && isset($_GET['id'])) {
         $stmtImmat = $pdo->prepare("SELECT immat FROM FLOTTE WHERE id = :id LIMIT 1");
         $stmtImmat->execute(['id' => $avion_id]);
         $immat = $stmtImmat->fetchColumn();
-        $stmt = $pdo->prepare("UPDATE FLOTTE SET controle_a_faire = 0 WHERE id = :id");
+        $stmt = $pdo->prepare("UPDATE FLOTTE SET controle_a_faire = 0, status = 0, etat = 100 WHERE id = :id");
         $stmt->execute(['id' => $avion_id]);
-        logMsg("Vol de contrôle forcé comme effectué par admin pour $immat (id=$avion_id)", $logFile);
+        logMsg("Vol de contrôle forcé comme effectué par admin pour $immat (id=$avion_id) — remis en service (status=0, etat=100)", $logFile);
         $_SESSION['flash_message'] = t('admin_flotte_success_controle_ok');
         header('Location: admin_flotte.php');
         exit;

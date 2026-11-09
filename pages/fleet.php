@@ -43,7 +43,7 @@ if (!$showVendus) {
     $sql .= " AND (f.actif = 1 OR f.actif IS NULL)";
 }
 if ($showMaintenance) {
-    $sql .= " AND f.status = 1";
+    $sql .= " AND (f.status = 1 OR f.controle_a_faire = 1)";
 }
 $sql .= " ORDER BY f.immat";
 
