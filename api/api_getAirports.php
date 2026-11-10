@@ -33,27 +33,53 @@ header('Content-Type: application/json');
 require_once __DIR__ . '/../includes/db_connect.php';
 
 try {
-    // Colonnes explicites (et non a.*) pour que le JSON soit identique avant/après
-    // la migration 002 : les 3 anciennes colonnes sont recalculées depuis PISTES.
-    $stmt = $pdo->prepare("
+    // 2 requêtes au lieu de 4 sous-requêtes corrélées par aéroport (~29k aéroports) :
+    // la version corrélée coûtait 29k x 4 balayages de PISTES à chaque appel.
+    $stmt = $pdo->query("
         SELECT a.ident, a.type_aeroport, a.name, a.municipality,
                a.latitude_deg, a.longitude_deg, a.elevation_ft,
-               a.Observations, a.wikipedia_link, a.fret,
-               COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT('id', p.id, 'designation', p.designation, 'longueur_m', p.longueur_m, 'surface', p.surface, 'surface_code', p.surface_code))
-                         FROM PISTES p WHERE p.aeroport_ident = a.ident), JSON_ARRAY()) AS pistes,
-               (SELECT GROUP_CONCAT(p.designation ORDER BY p.id SEPARATOR ' ')
-                FROM PISTES p WHERE p.aeroport_ident = a.ident) AS `Piste`,
-               (SELECT GROUP_CONCAT(CAST(ROUND(p.longueur_m / 0.3048, 0) AS UNSIGNED) ORDER BY p.id SEPARATOR '/')
-                FROM PISTES p WHERE p.aeroport_ident = a.ident AND p.longueur_m IS NOT NULL) AS `Longueur_de_piste`,
-               (SELECT GROUP_CONCAT(p.surface ORDER BY p.id SEPARATOR '/')
-                FROM PISTES p WHERE p.aeroport_ident = a.ident AND p.surface IS NOT NULL) AS `Type_de_piste`
+               a.Observations, a.wikipedia_link, a.fret
         FROM AEROPORTS a
         ORDER BY a.ident
     ");
-    $stmt->execute();
     $airports = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Pistes regroupées par aéroport (une seule lecture de PISTES)
+    $pistesByAirport = [];
+    $pstmt = $pdo->query("SELECT id, aeroport_ident, designation, longueur_m, surface FROM PISTES ORDER BY id");
+    foreach ($pstmt->fetchAll(PDO::FETCH_ASSOC) as $p) {
+        $pistesByAirport[$p['aeroport_ident']][] = [
+            'id' => $p['id'],
+            'designation' => $p['designation'],
+            'longueur_m' => $p['longueur_m'],
+            'surface' => $p['surface'],
+            // surface_code n'existe plus en base (migration 012) : alias pour compatibilité JSON SimAddon
+            'surface_code' => $p['surface'],
+        ];
+    }
+
+    // Champs historiques Piste / Longueur_de_piste / Type_de_piste (longueur remise en ft),
+    // reconstruits depuis PISTES : une requête groupée, sémantique identique aux anciennes
+    // sous-requêtes (GROUP_CONCAT ignore les NULL, ORDER BY p.id, séparateurs identiques).
+    $legacyByAirport = [];
+    $lstmt = $pdo->query("
+        SELECT p.aeroport_ident AS ident,
+               GROUP_CONCAT(p.designation ORDER BY p.id SEPARATOR ' ') AS `Piste`,
+               GROUP_CONCAT(IF(p.longueur_m IS NULL, NULL, CAST(ROUND(p.longueur_m / 0.3048, 0) AS UNSIGNED)) ORDER BY p.id SEPARATOR '/') AS `Longueur_de_piste`,
+               GROUP_CONCAT(IF(p.surface IS NULL, NULL, p.surface) ORDER BY p.id SEPARATOR '/') AS `Type_de_piste`
+        FROM PISTES p
+        GROUP BY p.aeroport_ident
+    ");
+    foreach ($lstmt->fetchAll(PDO::FETCH_ASSOC) as $l) {
+        $legacyByAirport[$l['ident']] = $l;
+    }
+
     foreach ($airports as &$a) {
-        $a['pistes'] = json_decode($a['pistes'], true) ?: [];
+        $legacy = $legacyByAirport[$a['ident']] ?? null;
+        $a['pistes'] = $pistesByAirport[$a['ident']] ?? [];
+        $a['Piste'] = $legacy['Piste'] ?? null;
+        $a['Longueur_de_piste'] = $legacy['Longueur_de_piste'] ?? null;
+        $a['Type_de_piste'] = $legacy['Type_de_piste'] ?? null;
     }
     unset($a);
 

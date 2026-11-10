@@ -86,3 +86,28 @@ colonnes seraient affectées (aucun cas documenté) — d'où `003_pistes_rollba
 > Ordre si tu pars d'une base ancienne : 004 → 005 → 006 → 007 → 008 → (code PHP) → 009.
 > Install neuve : `03_Surfaces_data.sql` = 9 codes (code, libellé), `04_Pistes_data.sql`
 > calcule `surface_code` puis uniformise `surface`.
+- `010_indexes_performance.sql` — index NON uniques de performance (PILOTES.callsign,
+  FLOTTE.immat/Actif/localisation/status, MISSIONS.libelle, password_resets.token/expires_at,
+  RESERVATIONS.statut+date_reservation/acars_cle, finances_depenses/recettes date/type/reference,
+  CARNET date_vol/depart/destination, simaddon_tokens.expires_at, VOLS_REJETES callsign/date_rejet,
+  VOLS_REJETES callsign/date_rejet). Sans risque, rollback = DROP INDEX.
+  La FK TRACE_GPS.id → CARNET_DE_VOL_GENERAL.id est dans `010b_trace_gps_orphans_fk.sql`
+  (separee car la prod contient des traces orphelines : recenser, DELETE des orphelines,
+  puis FK ; alternative si on veut garder les orphelines : ne pas poser la FK, TRACE_GPS.id
+  est deja PK donc les jointures restent indexees).
+- `011_uniques.sql` — contraintes UNIQUE (PILOTES.callsign, MISSIONS.libelle,
+  password_resets.token, FLOTTE.immat). **Vérifier d'abord l'absence de doublons** avec les
+  requêtes en commentaire ; si un ALTER échoue, corriger les données puis rejouer.
+- `012_pistes_surface_fk_unique.sql` — PISTES propre : supprime `surface_code` (redondant avec
+  `surface` depuis 008), `surface` devient varchar(10) FK → SURFACES(code) ON UPDATE CASCADE
+  ON DELETE RESTRICT, dedup (aeroport_ident, designation) puis UNIQUE. Ordre : code PHP
+  compatible d'abord (surface_code exposé en alias), puis migration.
+- `013_aeroports_type_lower.sql` — normalise `AEROPORTS.type_aeroport` en minuscules.
+- `014_last_update_variable.sql` — remplace `AEROPORTS_LAST_ADMIN_UPDATE` par la clé
+  `aeroports_last_admin_update` dans `VARIABLES_CONFIG`. Ordre : code PHP d'abord
+  (lecture avec repli), puis migration.
+
+> Ordre conseillé sur base existante : 010 → 010b → 011 → (code PHP) → 012 → 013 → 014.
+> Sur la prod, 010 s'est arrêté sur la FK TRACE_GPS (#1452, traces orphelines) : les index
+> sont posés, la FK non. Il suffit de jouer `010b` (recensement + nettoyage + FK), pas de
+> relancer 010 (les index existent déjà).

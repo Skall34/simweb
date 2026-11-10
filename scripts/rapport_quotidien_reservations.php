@@ -25,7 +25,8 @@ try {
         LEFT JOIN PILOTES p ON r.pilote_id = p.id
         LEFT JOIN LIGNES_REGULIERES l ON r.ligne_id = l.id
         WHERE r.statut = 'expired' 
-        AND DATE(r.date_reservation) BETWEEN DATE_SUB(?, INTERVAL 2 DAY) AND ?
+        AND r.date_reservation >= DATE_SUB(?, INTERVAL 2 DAY)
+        AND r.date_reservation < DATE_ADD(?, INTERVAL 1 DAY)
         ORDER BY r.date_reservation DESC
     ");
     $stmt->execute([$today, $today]);

@@ -27,13 +27,25 @@ header('Content-Type: application/json');
 require_once __DIR__ . '/../includes/db_connect.php';
 
 try {
-    $stmt = $pdo->query("SELECT last_update FROM AEROPORTS_LAST_ADMIN_UPDATE LIMIT 1");
+    // Depuis la migration 014, la date est dans VARIABLES_CONFIG ; repli sur l'ancienne
+    // table pour les bases pas encore migrées.
+    $stmt = $pdo->query("SELECT valeur FROM VARIABLES_CONFIG WHERE nom = 'aeroports_last_admin_update'");
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$result) {
+        try {
+            $old = $pdo->query("SELECT last_update FROM AEROPORTS_LAST_ADMIN_UPDATE LIMIT 1")->fetch(PDO::FETCH_ASSOC);
+            if ($old) {
+                $result = ['valeur' => $old['last_update']];
+            }
+        } catch (Exception $e) {
+            // table supprimée par la migration 014 : ignorer
+        }
+    }
 
     if ($result) {
         echo json_encode([
             'success' => true,
-            'last_update' => $result['last_update']
+            'last_update' => $result['valeur']
         ]);
     } else {
         echo json_encode([

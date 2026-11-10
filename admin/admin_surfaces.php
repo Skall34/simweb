@@ -5,20 +5,8 @@ require_once __DIR__ . '/../lang.php';
 $message = '';
 $erreur = '';
 
-// Recalcule PISTES.surface_code par simple correspondance du code dans SURFACES
-// (PISTES.surface ne contient que des codes canoniques depuis la migration 008).
-function recalcSurfaceCodes(PDO $pdo, ?string $ident = null): void {
-    $sql = "UPDATE `PISTES` p
-            LEFT JOIN `SURFACES` s ON s.`code` = p.`surface`
-            SET p.`surface_code` = COALESCE(s.`code`, IF(p.`surface` IS NULL, NULL, 'UNK'))";
-    if ($ident !== null) {
-        $sql .= " WHERE p.`aeroport_ident` = :ident";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute(['ident' => $ident]);
-    } else {
-        $pdo->exec($sql);
-    }
-}
+// PISTES.surface ne contient que des codes de SURFACES (FK fk_pistes_surface) :
+// plus de recalc de surface_code a chaque modification de SURFACES.
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
@@ -29,7 +17,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'code' => strtoupper(trim($_POST['code'] ?? '')),
                 'libelle' => trim($_POST['libelle'] ?? ''),
             ]);
-            recalcSurfaceCodes($pdo);
             $message = str_replace('{code}', htmlspecialchars(strtoupper(trim($_POST['code'] ?? ''))), t('admin_surfaces_success_create'));
         } elseif ($action === 'surface_maj') {
             $stmt = $pdo->prepare("UPDATE SURFACES SET libelle = :libelle WHERE code = :code");
@@ -37,11 +24,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'libelle' => trim($_POST['libelle'] ?? ''),
                 'code' => $_POST['code'],
             ]);
-            recalcSurfaceCodes($pdo);
             $message = str_replace('{code}', htmlspecialchars($_POST['code']), t('admin_surfaces_success_update'));
         } elseif ($action === 'surface_suppr') {
             $code = $_POST['code'];
-            $nbP = (int)$pdo->query("SELECT COUNT(*) FROM PISTES WHERE surface_code = " . $pdo->quote($code))->fetchColumn();
+            $nbStmt = $pdo->prepare("SELECT COUNT(*) FROM PISTES WHERE surface = :code");
+            $nbStmt->execute(['code' => $code]);
+            $nbP = (int)$nbStmt->fetchColumn();
             if ($nbP > 0) {
                 $erreur = str_replace(['{n}', '{code}'], [$nbP, htmlspecialchars($code)], t('admin_surfaces_error_used2'));
             } else {
@@ -57,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $surfaces = $pdo->query("
     SELECT s.code, s.libelle,
-           (SELECT COUNT(*) FROM PISTES p WHERE p.surface_code = s.code) AS nb_pistes
+           (SELECT COUNT(*) FROM PISTES p WHERE p.surface = s.code) AS nb_pistes
     FROM SURFACES s
     ORDER BY s.code
 ")->fetchAll(PDO::FETCH_ASSOC);

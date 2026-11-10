@@ -413,11 +413,11 @@ return [
     'admin_surfaces_save' => 'Save',
     'admin_surfaces_delete' => 'Delete',
     'admin_surfaces_success_create' => '✅ Code {code} created.',
-    'admin_surfaces_success_update' => '✅ Code {code} updated: surface_code recomputed on runways.',
+    'admin_surfaces_success_update' => '✅ Code {code} updated.',
     'admin_surfaces_success_delete' => '✅ Code {code} deleted.',
     'admin_surfaces_error_used2' => '⚠️ Code {code} used by {n} runways: cannot delete.',
     'admin_surfaces_error_db' => 'SQL error:',
-    'admin_surfaces_recalc_note' => 'Any change automatically recomputes PISTES.surface_code.',
+    'admin_surfaces_recalc_note' => 'PISTES.surface references SURFACES.code directly (foreign key): no recomputation needed.',
 
     // --- Pages: My Account ---
     'account_title' => 'My Account',

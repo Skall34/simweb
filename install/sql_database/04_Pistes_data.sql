@@ -28551,12 +28551,26 @@ INSERT INTO `PISTES` (`aeroport_ident`, `designation`, `longueur_m`, `surface`) 
 ('ZLIC', '03-21', 3200, 'Concrete');
 
 
--- Code canonique de surface = code SURFACES correspondant
--- lookup du code dans SURFACES ; sans correspondance -> UNK
+-- Code canonique de surface : lookup du code dans SURFACES ; sans correspondance -> UNK.
+-- `surface` ne contient ensuite plus que des codes de SURFACES (ou NULL).
 UPDATE `PISTES` p
 LEFT JOIN `SURFACES` s ON s.`code` = p.`surface`
-SET p.`surface_code` = COALESCE(s.`code`, IF(p.`surface` IS NULL, NULL, 'UNK'));
+SET p.`surface` = COALESCE(s.`code`, 'UNK')
+WHERE p.`surface` IS NOT NULL AND BINARY TRIM(p.`surface`) <> COALESCE(s.`code`, 'UNK');
 
--- Uniformise `surface` sur le code canonique (une seule valeur par surface en base)
-UPDATE `PISTES` SET `surface` = `surface_code` WHERE `surface_code` IS NOT NULL AND BINARY TRIM(`surface`) <> `surface_code`;
-UPDATE `PISTES` SET `surface` = 'UNK', `surface_code` = 'UNK' WHERE `surface` IS NOT NULL AND `surface_code` IS NULL;
+-- Dedup (aeroport_ident, designation) : on garde la piste la plus longue,
+-- a egalite l'id le plus petit (les designation NULL ne sont pas concernees).
+DELETE p1 FROM `PISTES` p1
+JOIN `PISTES` p2
+  ON p1.`aeroport_ident` = p2.`aeroport_ident`
+ AND p1.`designation` = p2.`designation`
+ AND (   COALESCE(p1.`longueur_m`, -1) < COALESCE(p2.`longueur_m`, -1)
+      OR (COALESCE(p1.`longueur_m`, -1) = COALESCE(p2.`longueur_m`, -1) AND p1.`id` > p2.`id`));
+
+-- Schema final : surface en varchar(10) + FK + unicite par designation
+ALTER TABLE `PISTES`
+  MODIFY `surface` varchar(10) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'code canonique (table SURFACES)';
+ALTER TABLE `PISTES`
+  ADD UNIQUE KEY `uq_piste_designation` (`aeroport_ident`, `designation`),
+  ADD CONSTRAINT `fk_pistes_surface` FOREIGN KEY (`surface`) REFERENCES `SURFACES` (`code`)
+    ON UPDATE CASCADE ON DELETE RESTRICT;

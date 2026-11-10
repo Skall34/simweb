@@ -389,11 +389,11 @@ if (!isset($_SESSION['user'])) {
 
         $sqlEvolution = "
 
-            SELECT DATE(date) as jour,
+            SELECT ops.date as jour,
 
-                   (SELECT IFNULL(SUM(montant), 0) FROM finances_recettes WHERE DATE(date) <= DATE(ops.date)) - 
+                   (SELECT IFNULL(SUM(montant), 0) FROM finances_recettes WHERE date < DATE_ADD(ops.date, INTERVAL 1 DAY)) -
 
-                   (SELECT IFNULL(SUM(montant), 0) FROM finances_depenses WHERE DATE(date) <= DATE(ops.date)) as balance
+                   (SELECT IFNULL(SUM(montant), 0) FROM finances_depenses WHERE date < DATE_ADD(ops.date, INTERVAL 1 DAY)) as balance
 
             FROM (
 
@@ -401,11 +401,11 @@ if (!isset($_SESSION['user'])) {
 
                 FROM (
 
-                    SELECT date FROM finances_recettes WHERE DATE(date) >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                    SELECT date FROM finances_recettes WHERE date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
 
                     UNION ALL
 
-                    SELECT date FROM finances_depenses WHERE DATE(date) >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                    SELECT date FROM finances_depenses WHERE date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
 
                 ) t
 

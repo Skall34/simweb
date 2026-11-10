@@ -1,5 +1,5 @@
 -- Surfaces de piste : une seule entree par code canonique (SURFACES).
--- PISTES.surface ne contient que ces codes ; surface_code = surface si le code existe, sinon UNK.
+-- PISTES.surface ne contient que ces codes (FK vers SURFACES.code) ; valeur inconnue -> UNK (voir 04).
 -- Genere depuis les donnees OurAirports.
 
 INSERT INTO `SURFACES` (`code`, `libelle`) VALUES

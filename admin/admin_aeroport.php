@@ -41,12 +41,8 @@ function savePistes(PDO $pdo, string $ident): void {
             $upd->execute(['d' => $d, 'l' => $l, 's' => $s, 'id' => $id, 'ident' => $ident]);
         }
     }
-    // Recalcule le code canonique de surface (correspondance du code dans SURFACES)
-    $pdo->prepare("UPDATE PISTES p
-                  LEFT JOIN SURFACES s ON s.code = p.surface
-                  SET p.surface_code = COALESCE(s.code, IF(p.surface IS NULL, NULL, 'UNK'))
-                  WHERE p.aeroport_ident = :ident")
-        ->execute(['ident' => $ident]);
+    // PISTES.surface ne contient que des codes de SURFACES (FK fk_pistes_surface) :
+    // plus de recalcul de surface_code, la valeur postee vient du select admin.
 }
 
 $etat = 'recherche'; // valeur par défaut
@@ -95,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         savePistes($pdo, $ident);
 
         // Met à jour la date de dernière modification globale
-        $pdo->exec("UPDATE AEROPORTS_LAST_ADMIN_UPDATE SET last_update = NOW()");
+        $pdo->prepare("INSERT INTO VARIABLES_CONFIG (nom, valeur) VALUES ('aeroports_last_admin_update', NOW()) ON DUPLICATE KEY UPDATE valeur = NOW()")->execute();
 
         $message = str_replace('{ident}', htmlspecialchars($ident), t('admin_airports_success_update'));
         $etat = 'recherche'; // on revient à l'écran de recherche
@@ -121,7 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         savePistes($pdo, $ident);
 
         // Met à jour la date de dernière modification globale
-        $pdo->exec("UPDATE AEROPORTS_LAST_ADMIN_UPDATE SET last_update = NOW()");
+        $pdo->prepare("INSERT INTO VARIABLES_CONFIG (nom, valeur) VALUES ('aeroports_last_admin_update', NOW()) ON DUPLICATE KEY UPDATE valeur = NOW()")->execute();
 
         $message = str_replace('{ident}', htmlspecialchars($ident), t('admin_airports_success_create'));
         $etat = 'recherche'; // on revient à l'écran de recherche
@@ -217,7 +213,7 @@ try {
                             <select name="pistes[<?= (int)$p['id'] ?>][surface]" class="form-input">
                                 <option value="">--</option>
                                 <?php foreach ($surfaces_list as $sl): ?>
-                                <option value="<?= htmlspecialchars($sl['code']) ?>" <?= (($p['surface'] ?? '') === $sl['code'] || ($p['surface_code'] ?? '') === $sl['code']) ? 'selected' : '' ?>><?= htmlspecialchars($sl['libelle']) ?></option>
+                                <option value="<?= htmlspecialchars($sl['code']) ?>" <?= (($p['surface'] ?? '') === $sl['code']) ? 'selected' : '' ?>><?= htmlspecialchars($sl['libelle']) ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </td>

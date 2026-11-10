@@ -413,11 +413,11 @@ return [
     'admin_surfaces_save' => 'Guardar',
     'admin_surfaces_delete' => 'Eliminar',
     'admin_surfaces_success_create' => '✅ Código {code} creado.',
-    'admin_surfaces_success_update' => '✅ Código {code} actualizado: surface_code recalculado en las pistas.',
+    'admin_surfaces_success_update' => '✅ Código {code} actualizado.',
     'admin_surfaces_success_delete' => '✅ Código {code} eliminado.',
     'admin_surfaces_error_used2' => '⚠️ Código {code} usado por {n} pistas: no se puede eliminar.',
     'admin_surfaces_error_db' => 'Error SQL:',
-    'admin_surfaces_recalc_note' => 'Cualquier cambio recalcula automáticamente PISTES.surface_code.',
+    'admin_surfaces_recalc_note' => 'PISTES.surface referencia directamente SURFACES.code (clave externa): no se necesita recálculo.',
 
     // --- Page : my account ---
     'account_title' => 'Mi cuenta',

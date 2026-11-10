@@ -66,25 +66,20 @@ CREATE TABLE IF NOT EXISTS `PISTES` (
   `aeroport_ident` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
   `designation` varchar(32) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'ex: 6-24, 7W-25W, H1',
   `longueur_m` int unsigned DEFAULT NULL COMMENT 'longueur en metres',
-  `surface` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'valeur brute, ex: ASPH, GRVL, WATER',
-  `surface_code` varchar(10) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'code canonique (table SURFACES)',
+  `surface` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'brut a l''import ; code canonique (SURFACES) apres 04_Pistes_data.sql',
   PRIMARY KEY (`id`),
   KEY `idx_pistes_aeroport` (`aeroport_ident`),
-  KEY `idx_pistes_surface` (`surface_code`),
-  CONSTRAINT `fk_pistes_aeroport` FOREIGN KEY (`aeroport_ident`) REFERENCES `AEROPORTS` (`ident`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_pistes_surface` FOREIGN KEY (`surface_code`) REFERENCES `SURFACES` (`code`)
+  KEY `idx_pistes_surface` (`surface`),
+  CONSTRAINT `fk_pistes_aeroport` FOREIGN KEY (`aeroport_ident`) REFERENCES `AEROPORTS` (`ident`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+-- La FK surface -> SURFACES(code), le passage de surface en varchar(10) et la cle
+-- UNIQUE (aeroport_ident, designation) sont poses a la fin de 04_Pistes_data.sql,
+-- apres normalisation des valeurs brutes.
 
 
 
---
--- Structure de la table `AEROPORTS_LAST_ADMIN_UPDATE`
---
-
-DROP TABLE IF EXISTS `AEROPORTS_LAST_ADMIN_UPDATE`;
-CREATE TABLE IF NOT EXISTS `AEROPORTS_LAST_ADMIN_UPDATE` (
-  `last_update` datetime NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- La table `AEROPORTS_LAST_ADMIN_UPDATE` n'existe plus : la date de derniere maj
+-- des aeroports est stockee dans VARIABLES_CONFIG (cle 'aeroports_last_admin_update').
 
 -- --------------------------------------------------------
 
@@ -138,6 +133,9 @@ CREATE TABLE IF NOT EXISTS `CARNET_DE_VOL_GENERAL` (
   `motif_annulation` text COLLATE utf8mb4_general_ci,
   PRIMARY KEY (`id`),
   KEY `idx_carnet_annule` (`annule`),
+  KEY `idx_date_vol` (`date_vol`),
+  KEY `idx_depart` (`depart`),
+  KEY `idx_destination` (`destination`),
   KEY `fk_pilote` (`pilote_id`),
   KEY `fk_appareil` (`appareil_id`),
   KEY `fk_mission` (`mission_id`)
@@ -158,7 +156,10 @@ CREATE TABLE IF NOT EXISTS `finances_depenses` (
   `reference_id` int DEFAULT NULL,
   `reference_type` varchar(50) DEFAULT NULL,
   `commentaire` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `idx_date` (`date`),
+  KEY `idx_type` (`type`),
+  KEY `idx_reference` (`reference_type`, `reference_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=52 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -176,7 +177,10 @@ CREATE TABLE IF NOT EXISTS `finances_recettes` (
   `reference_id` int DEFAULT NULL,
   `reference_type` varchar(50) DEFAULT NULL,
   `commentaire` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `idx_date` (`date`),
+  KEY `idx_type` (`type`),
+  KEY `idx_reference` (`reference_type`, `reference_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=616 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -231,7 +235,11 @@ CREATE TABLE IF NOT EXISTS `FLOTTE` (
   `mode_achat` varchar(10) COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'comptant',
   `reservee` tinyint(1) DEFAULT '0' COMMENT '1 = réservé (non disponible)',
   `controle_a_faire` tinyint(1) NOT NULL DEFAULT '0' COMMENT '1 = vol de contrôle post-maintenance obligatoire avant remise en service',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_immat` (`immat`),
+  KEY `idx_actif` (`Actif`),
+  KEY `idx_localisation` (`localisation`),
+  KEY `idx_status` (`status`)
 ) ENGINE=InnoDB AUTO_INCREMENT=128 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -310,7 +318,8 @@ CREATE TABLE IF NOT EXISTS `MISSIONS` (
   `Active` tinyint(1) NOT NULL DEFAULT '1',
   `est_controle` tinyint(1) NOT NULL DEFAULT '0' COMMENT '1 = mission spéciale de contrôle post-maintenance',
   `types_autorises` varchar(255) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '*' COMMENT 'CSV des types FLEET_TYPE.type autorisés, * = tous',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_libelle` (`libelle`)
 ) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Mission spéciale de contrôle post-maintenance (identifiée par est_controle = 1)
@@ -351,7 +360,9 @@ CREATE TABLE IF NOT EXISTS `password_resets` (
   `email` varchar(255) NOT NULL,
   `token` varchar(255) NOT NULL,
   `expires_at` datetime NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_token` (`token`),
+  KEY `idx_expires_at` (`expires_at`)
 ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -374,27 +385,11 @@ CREATE TABLE IF NOT EXISTS `PILOTES` (
   `derniere_connexion` datetime DEFAULT NULL,
   `actif` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `email` (`email`)
+  UNIQUE KEY `email` (`email`),
+  UNIQUE KEY `uq_callsign` (`callsign`)
 ) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
-
---
--- Structure de la table `rate_limits`
---
-
-DROP TABLE IF EXISTS `rate_limits`;
-CREATE TABLE IF NOT EXISTS `rate_limits` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `ip` varchar(45) NOT NULL,
-  `action` varchar(50) NOT NULL,
-  `attempts` int DEFAULT '1',
-  `first_attempt` datetime NOT NULL,
-  `last_attempt` datetime NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `idx_ip_action` (`ip`,`action`),
-  KEY `idx_last_attempt` (`last_attempt`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -416,7 +411,9 @@ CREATE TABLE IF NOT EXISTS `RESERVATIONS` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniq_ligne_immat` (`ligne_id`,`immat`),
   KEY `idx_ligne_id` (`ligne_id`),
-  KEY `idx_pilote_id` (`pilote_id`)
+  KEY `idx_pilote_id` (`pilote_id`),
+  KEY `idx_statut_date` (`statut`, `date_reservation`),
+  KEY `idx_acars_cle` (`acars_cle`)
 ) ENGINE=InnoDB AUTO_INCREMENT=62 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -452,7 +449,8 @@ CREATE TABLE IF NOT EXISTS `simaddon_tokens` (
   `user_agent` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_token` (`token`),
-  KEY `idx_user` (`user_id`)
+  KEY `idx_user` (`user_id`),
+  KEY `idx_expires_at` (`expires_at`)
 ) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -508,7 +506,8 @@ INSERT INTO VARIABLES_CONFIG (nom, valeur) VALUES
 ('reservation_timeout_hours', '24'),
 ('multiplicateur_crash', '3'),
 ('prime_controle_vol', '500.00'),
-('lien_acars', 'assets/acars/simaddon_setup.zip');
+('lien_acars', 'assets/acars/simaddon_setup.zip'),
+('aeroports_last_admin_update', NOW());
 --
 -- Structure de la table `VOLS_REJETES`
 --
@@ -532,7 +531,9 @@ CREATE TABLE IF NOT EXISTS `VOLS_REJETES` (
   `mission` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `motif_rejet` text COLLATE utf8mb4_general_ci,
   `date_rejet` datetime DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `idx_callsign` (`callsign`),
+  KEY `idx_date_rejet` (`date_rejet`)
 ) ENGINE=InnoDB AUTO_INCREMENT=135 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -558,6 +559,12 @@ ALTER TABLE `SALAIRES`
 --
 ALTER TABLE `simaddon_tokens`
   ADD CONSTRAINT `fk_simaddon_user` FOREIGN KEY (`user_id`) REFERENCES `PILOTES` (`id`) ON DELETE CASCADE;
+
+--
+-- Contraintes pour la table `TRACE_GPS`
+--
+ALTER TABLE `TRACE_GPS`
+  ADD CONSTRAINT `fk_trace_vol` FOREIGN KEY (`id`) REFERENCES `CARNET_DE_VOL_GENERAL` (`id`) ON DELETE CASCADE;
 
 -- --------------------------------------------------------
 
@@ -595,7 +602,7 @@ CREATE TABLE IF NOT EXISTS `rate_limits` (
   `last_attempt` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `ip_action` (`ip`,`action`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 COMMIT;
 

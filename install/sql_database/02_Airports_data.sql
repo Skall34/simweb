@@ -29049,3 +29049,6 @@ INSERT INTO `AEROPORTS` (`ident`, `type_aeroport`, `name`, `municipality`, `lati
 ('ZYYJ', 'medium_airport', 'Yanji Chaoyangchuan Airport', 'Yanji', 42.882801, 129.451004, 624, '', 'http://en.wikipedia.org/wiki/Yanji_Chaoyangchuan_Airport', 11852),
 ('ZYYY', 'medium_airport', 'Shenyang Dongta Airport', 'Shenyang', 41.784401, 123.496002, 0, '', '', 12348),
 ('ZZZZ', 'small_airport', 'Satsuma Iwo-jima Airport', 'Mishima-Mura', 30.784722, 130.270556, 338, '', 'http://wikimapia.org/6705190/Satsuma-Iwo-jima-Airport', 3172);
+
+-- Normalise la casse des types d'aeroport (coherence : tout en minuscules)
+UPDATE `AEROPORTS` SET `type_aeroport` = LOWER(`type_aeroport`) WHERE BINARY `type_aeroport` <> LOWER(`type_aeroport`);

@@ -411,11 +411,11 @@ return [
     'admin_surfaces_save' => 'Enregistrer',
     'admin_surfaces_delete' => 'Supprimer',
     'admin_surfaces_success_create' => '✅ Code {code} créé.',
-    'admin_surfaces_success_update' => '✅ Code {code} mis à jour : surface_code recalculé sur les pistes.',
+    'admin_surfaces_success_update' => '✅ Code {code} mis à jour.',
     'admin_surfaces_success_delete' => '✅ Code {code} supprimé.',
     'admin_surfaces_error_used2' => '⚠️ Code {code} utilisé par {n} pistes : suppression impossible.',
     'admin_surfaces_error_db' => 'Erreur SQL :',
-    'admin_surfaces_recalc_note' => 'Toute modification recalcule automatiquement PISTES.surface_code.',
+    'admin_surfaces_recalc_note' => 'PISTES.surface référence directement SURFACES.code (clé étrangère) : aucun recalcul nécessaire.',
 
     // --- Page : my account ---
     'account_title' => 'Mon compte',
