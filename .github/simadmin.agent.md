@@ -77,7 +77,7 @@ $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 | Page | Purpose | Tables |
 |------|---------|--------|
-| `admin_aeroport.php` | Airport management (CRUD) | `AEROPORTS` |
+| `admin_aeroport.php` | Airport management (CRUD) + runways | `AEROPORTS`, `PISTES` (surface FK→`SURFACES`, UNIQUE(aeroport_ident,designation)), `SURFACES`, `VARIABLES_CONFIG` (aeroports_last_admin_update) |
 | `admin_calc_distance.php` | Distance calculator between airports | `AEROPORTS` |
 | `admin_config.php` | Runtime `config.ini` editor with backup/download | File-based |
 | `admin_fleet_type.php` | Fleet type management (categories, costs) | `FLEET_TYPE` |

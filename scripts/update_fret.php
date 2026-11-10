@@ -48,6 +48,8 @@ try {
         ]);
         $count_updated++;
     }
+    // Bump du timestamp de maj des aéroports (lu par api_getLastAirportUpdate / SimAddon)
+    $pdo->prepare("INSERT INTO VARIABLES_CONFIG (nom, valeur) VALUES ('aeroports_last_admin_update', NOW()) ON DUPLICATE KEY UPDATE valeur = NOW()")->execute();
     // Vérification cohérence
     $stmtCount = $pdo->query("SELECT COUNT(*) FROM AEROPORTS");
     $nb_aeroports = (int)$stmtCount->fetchColumn();

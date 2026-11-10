@@ -72,13 +72,13 @@ try {
 | Endpoint | Method | Auth | Purpose |
 |----------|--------|------|---------|
 | `api_getFlotte.php` | GET | None | List active fleet aircraft with reservation status. Optional `?mission=<libellé>`: only aircraft whose FLEET_TYPE.type is in MISSIONS.types_autorises ('*' = all; unknown mission = no filter). SimAddon must re-call it on every mission change to reload the immatriculations combo |
-| `api_getAirports.php` | GET | None | List airports |
+| `api_getAirports.php` | GET | None | List airports. `pistes` is a **JSON-encoded string** (client model = `List<Dictionary<string,string>>`; an array value breaks the parse). Legacy `Piste`/`Longueur_de_piste`(ft)/`Type_de_piste` rebuilt from `PISTES`; `surface_code` kept as alias of `surface` |
 | `api_getAirportCoords.php` | GET | None | Get airport coordinates |
 | `api_getCallsigns.php` | GET | None | List pilot callsigns |
 | `api_getFretByIcao.php` | GET | None | Get freight data by ICAO code |
 | `api_getGPSTrace.php` | GET | None | Get GPS trace for a flight |
 | `api_getMissions.php` | GET | None | List active missions. Optional `?type=<catégorie>`: only missions whose types_autorises include this aircraft type |
-| `api_getLastAirportUpdate.php` | GET | None | Last airport data update timestamp |
+| `api_getLastAirportUpdate.php` | GET | None | Last airport data update timestamp, read from `VARIABLES_CONFIG` key `aeroports_last_admin_update` (fallback to old `AEROPORTS_LAST_ADMIN_UPDATE` table before migration 014) |
 | `api_live_flights.php` | GET | None | Live flight tracking data |
 | `api_check_session.php` | POST | Token | Validate SimAddon session |
 | `api_check_reservation.php` | POST | Token | Check reservation status |

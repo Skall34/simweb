@@ -63,7 +63,7 @@ Le système est une application web PHP/MySQL suivant une architecture MVC simpl
 simweb/
 ├── admin/                    # Pages d'administration
 │   ├── admin_aeroport.php
-│   ├── admin_surfaces.php   # Gestion SURFACES / SURFACES_MAP (codes de surface des pistes)
+│   ├── admin_surfaces.php   # Gestion SURFACES (codes de surface des pistes)
 │   ├── admin_flotte.php
 │   ├── admin_missions.php
 │   └── ...
@@ -165,8 +165,8 @@ FLEET_TYPE                 -- Types d'appareils (configs)
 MISSIONS                   -- Missions disponibles
 GRADES                     -- Système de grades/promotions
 AEROPORTS                  -- Aéroports avec fret dynamique
-PISTES                     -- Pistes des aéroports (longueur_m en mètres, surface brute + surface_code, FK vers AEROPORTS)
-SURFACES                   -- Codes canoniques de surface de piste (ASPH, CONC, GRVL, TURF, ...), une entrée par surface ; PISTES.surface n'utilise que ces codes
+PISTES                     -- Pistes des aéroports (longueur_m en mètres, surface = code SURFACES, FK vers AEROPORTS + FK surface vers SURFACES, UNIQUE(aeroport_ident, designation))
+SURFACES                   -- Codes canoniques de surface de piste (ASPH, CONC, GRVL, TURF, ...), une entrée par surface ; PISTES.surface ne contient que ces codes (FK)
 CARNET_DE_VOL_GENERAL      -- Historique de tous les vols
 
 -- Tables financières
@@ -190,7 +190,8 @@ VOLS_REJETES               -- Vols rejetés (audit)
 VARIABLES_CONFIG           -- Variables métier configurables
 password_resets            -- Reset mot de passe
 rate_limits                -- Protection brute-force
-AEROPORTS_LAST_ADMIN_UPDATE -- Suivi maj aéroports
+-- La date de dernière maj des aéroports n'est plus dans une table dédiée :
+-- elle est stockée dans VARIABLES_CONFIG (cle 'aeroports_last_admin_update').
 ```
 
 ### Tables Détaillées
@@ -463,7 +464,7 @@ Tous les endpoints sont dans le dossier `api/` et retournent du JSON.
 #### 5. **api_getAirports.php**
 **Méthode :** GET  
 **Auth :** Token  
-**Fonction :** Liste aéroports avec fret ; chaque aéroport inclut un tableau `pistes` (`designation`, `longueur_m` en mètres, `surface`) issu de la table PISTES
+**Fonction :** Liste aéroports avec fret ; chaque aéroport inclut `pistes` (`id`, `designation`, `longueur_m` en mètres, `surface`, `surface_code` en alias) issu de la table PISTES, **sérialisé comme une chaîne JSON** (le client SimAddon deserialize en `List<Dictionary<string,string>>` : toute valeur non scalaire fait planter le parse), plus les champs legacy `Piste` / `Longueur_de_piste` (ft) / `Type_de_piste` reconstruits depuis PISTES
 
 **Paramètres optionnels :**
 - `search`: Filtre par nom/ICAO
