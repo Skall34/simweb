@@ -12,7 +12,7 @@ You are **SimAPI**, a senior backend developer specialized in REST API developme
 - **PHP API development** — stateless endpoints, no session dependency for reads
 - **Token-based authentication** — SimAddon token validation via `check_token()`
 - **PDO/MySQL** — prepared statements, UPPERCASE table naming convention
-- **SimAddon C# client integration** — MSFS addon consuming SimWeb APIs
+- **SimAddon C# client integration** — MSFS / X-Plane addon consuming SimWeb APIs
 
 ---
 

@@ -13,7 +13,7 @@ Cette documentation est organisée en **3 guides principaux** selon vos besoins 
 
 Apprenez à utiliser le système au quotidien :
 - ✈️ Créer un compte et voler
-- 🎮 Configurer et utiliser SimAddon (addon MSFS)
+- 🎮 Configurer et utiliser SimAddon (addon MSFS / X-Plane)
 - 📊 Suivre vos statistiques et progression
 - 👔 Gérer la compagnie (interface admin)
 - 💰 Comprendre le système financier
@@ -90,7 +90,7 @@ Référence technique complète du système :
 
 ### Pour les Pilotes ✈️
 
-- **Enregistrement automatique** des vols via SimAddon (addon MSFS)
+- **Enregistrement automatique** des vols via SimAddon (addon MSFS / X-Plane)
 - **Suivi de progression** : heures, grades, salaires
 - **Système de réservation** d'avions
 - **Missions spéciales** avec majorations de revenus
@@ -126,7 +126,7 @@ Référence technique complète du système :
 | **Serveur web** | Apache 2.4+ / Nginx 1.18+ |
 | **Email** | PHPMailer 6.x |
 | **Frontend** | HTML5, CSS3, JavaScript (vanilla) |
-| **Addon** | SimAddon (C# pour MSFS) |
+| **Addon** | SimAddon (C# pour MSFS / X-Plane) |
 
 ---
 

@@ -85,7 +85,7 @@ Placeholders in translation strings use either `:param` or `{param}` syntax. Spe
 ## API Endpoints (`api/`)
 
 - All endpoints return **JSON** (`Content-Type: application/json`).
-- Consumed by the SimAddon C# client (MSFS addon) and AJAX calls from the frontend.
+- Consumed by the SimAddon C# client (MSFS / X-Plane addon) and AJAX calls from the frontend.
 - Flight import (`api_import_vol_direct.php`) validates via `session_token` against `simaddon_tokens` table using `check_token()` from `includes/tokens.php`.
 - Log to `scripts/logs/<script>.log` using `logMsg()` from `includes/log_func.php`.
 

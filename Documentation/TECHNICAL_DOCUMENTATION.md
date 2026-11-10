@@ -30,7 +30,7 @@ Le système est une application web PHP/MySQL suivant une architecture MVC simpl
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    Client (Navigateur)                       │
-│                  + SimAddon (MSFS Addon)                     │
+│                  + SimAddon (addon MSFS / X-Plane)                     │
 └─────────────────────────────────┬───────────────────────────┘
                                   │
                      ┌────────────┴────────────┐
@@ -123,7 +123,7 @@ simweb/
 
 #### 1. Import d'un Vol ACARS
 ```
-SimAddon (MSFS) 
+SimAddon (MSFS / X-Plane)
     ↓ POST /api/api_import_vol_direct.php
     ├─ Authentification (token)
     ├─ Validation données (callsign, immat, ICAO, fuel, payload)

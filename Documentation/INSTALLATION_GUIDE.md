@@ -699,7 +699,7 @@ header {
    - Cliquer "Générer un nouveau token"
    - **Copier le token (64 caractères)**
 
-2. **Configuration SimAddon (addon MSFS) :**
+2. **Configuration SimAddon (addon MSFS / X-Plane) :**
    - Ouvrir SimAddon dans MSFS
    - Onglet "Configuration"
    - Coller :

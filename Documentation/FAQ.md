@@ -125,7 +125,7 @@ $lang = $_SESSION['lang'] ?? 'fr';  // Changez 'fr' par 'en' ou 'es'
 **R:** Admin → Gestion Flotte → Remplir le formulaire "Acheter un nouvel appareil".
 
 ### Q: Qu'est-ce que SimAddon ?
-**R:** C'est l'addon MSFS qui enregistre automatiquement les vols depuis Flight Simulator vers le système. Documentation dans `assets/acars/`.
+**R:** C'est l'addon MSFS / X-Plane qui enregistre automatiquement les vols depuis Flight Simulator vers le système. Documentation dans `assets/acars/`.
 
 ### Q: Les pilotes peuvent-ils enregistrer des vols manuellement ?
 **R:** Oui, via la page "Saisie manuelle" (nécessite connexion).
