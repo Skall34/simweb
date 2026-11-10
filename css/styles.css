@@ -784,6 +784,53 @@ footer {
   box-sizing: border-box;
 }
 
+/* Admin aéroports : le tableau des pistes a besoin de plus de largeur que le formulaire (max-width 450px) */
+.form-inscription.form-aeroport {
+  max-width: 660px;
+}
+
+.admin-pistes {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.admin-pistes .pistes-table {
+  border-collapse: collapse;
+}
+
+.admin-pistes .pistes-table th,
+.admin-pistes .pistes-table td {
+  padding: 4px 6px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+/* Largeurs fixes par colonne, ajustées au contenu max (ex. libellé "Asphalte") */
+.admin-pistes .pistes-table th:nth-child(1),
+.admin-pistes .pistes-table td:nth-child(1) { width: 150px; }
+.admin-pistes .pistes-table th:nth-child(2),
+.admin-pistes .pistes-table td:nth-child(2) { width: 120px; }
+.admin-pistes .pistes-table th:nth-child(3),
+.admin-pistes .pistes-table td:nth-child(3) { width: 140px; }
+
+/* Colonne Supprimer : la case et son libellé sur une même ligne, à droite de la case.
+   (évite le display:flex column hérité de .form-inscription label) */
+.admin-pistes .pistes-table td:last-child {
+  white-space: nowrap;
+}
+.admin-pistes .pistes-table td:last-child label {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  font-weight: normal;
+}
+
+/* Les champs du tableau remplissent leur cellule (sans le plafond de 400px du formulaire) */
+.admin-pistes .pistes-table .form-input {
+  max-width: none !important;
+}
+
 .form-inscription button,
 .form-inscription .btn {
   width: 180px;

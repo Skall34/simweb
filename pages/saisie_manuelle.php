@@ -356,7 +356,8 @@ include __DIR__ . '/../includes/menu_logged.php';
             var opt = missionSelect.options[i];
             if (!opt.value) continue; // placeholder
             var types = (opt.dataset.types || '*').split(',');
-            var ok = (types.indexOf('*') !== -1) || (typeAvion !== '' && types.indexOf(typeAvion) !== -1);
+            // Sans avion choisi, toutes les missions actives sont proposées (même règle que missionCompatibleAvecType côté serveur)
+            var ok = (typeAvion === '') || (types.indexOf('*') !== -1) || (types.indexOf(typeAvion) !== -1);
             opt.hidden = !ok;
             if (opt.selected && !ok) selIncompatible = true;
         }

@@ -142,7 +142,7 @@ try {
 // Liste des surfaces de piste (codes canoniques, table SURFACES) pour le select
 $surfaces_list = [];
 try {
-    $surfaces_list = $pdo->query("SELECT code, libelle FROM SURFACES ORDER BY code")->fetchAll(PDO::FETCH_ASSOC);
+    $surfaces_list = $pdo->query("SELECT code, libelle FROM SURFACES ORDER BY libelle")->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     // ignore
 }
@@ -168,7 +168,7 @@ try {
 
     <!-- Étape 2 : formulaire d'édition ou de création -->
     <?php if (in_array($etat, ['edition', 'creation'])): ?>
-        <form method="post" class="form-inscription">
+        <form method="post" class="form-inscription form-aeroport">
             <input type="hidden" name="ident" value="<?= htmlspecialchars($aeroport['ident']) ?>">
 
             <label><?= t('admin_airports_type_label') ?>
@@ -217,7 +217,7 @@ try {
                             <select name="pistes[<?= (int)$p['id'] ?>][surface]" class="form-input">
                                 <option value="">--</option>
                                 <?php foreach ($surfaces_list as $sl): ?>
-                                <option value="<?= htmlspecialchars($sl['code']) ?>" <?= (($p['surface'] ?? '') === $sl['code'] || ($p['surface_code'] ?? '') === $sl['code']) ? 'selected' : '' ?>><?= htmlspecialchars($sl['code'] . ' - ' . $sl['libelle']) ?></option>
+                                <option value="<?= htmlspecialchars($sl['code']) ?>" <?= (($p['surface'] ?? '') === $sl['code'] || ($p['surface_code'] ?? '') === $sl['code']) ? 'selected' : '' ?>><?= htmlspecialchars($sl['libelle']) ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </td>
@@ -232,7 +232,7 @@ try {
                             <select name="pistes[new][<?= $i ?>][surface]" class="form-input">
                                 <option value="">--</option>
                                 <?php foreach ($surfaces_list as $sl): ?>
-                                <option value="<?= htmlspecialchars($sl['code']) ?>"><?= htmlspecialchars($sl['code'] . ' - ' . $sl['libelle']) ?></option>
+                                <option value="<?= htmlspecialchars($sl['code']) ?>"><?= htmlspecialchars($sl['libelle']) ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </td>
