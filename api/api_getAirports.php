@@ -76,7 +76,10 @@ try {
 
     foreach ($airports as &$a) {
         $legacy = $legacyByAirport[$a['ident']] ?? null;
-        $a['pistes'] = $pistesByAirport[$a['ident']] ?? [];
+        // /!\ SimAddon deserialize dans List<Dictionary<string,string>> : toute valeur doit
+        // etre un scalaire. `pistes` est donc emis comme CHAINE JSON (tableau serialise),
+        // sinon le parse plante : "Unexpected character [ ... Path 'aeroports[0].pistes'".
+        $a['pistes'] = json_encode($pistesByAirport[$a['ident']] ?? [], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         $a['Piste'] = $legacy['Piste'] ?? null;
         $a['Longueur_de_piste'] = $legacy['Longueur_de_piste'] ?? null;
         $a['Type_de_piste'] = $legacy['Type_de_piste'] ?? null;
