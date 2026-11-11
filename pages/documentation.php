@@ -12,6 +12,7 @@ require_once __DIR__ . '/../includes/menu_logged.php';
             <h2><?= t('documentation_section_general_title') ?></h2>
             <p><?= t('documentation_section_general_intro') ?></p>
             <p><?= t('documentation_section_general_simulators') ?></p>
+            <p><?= t('documentation_section_general_pistes') ?></p>
             <p><?= t('documentation_section_general_acars') ?> <a href="https://github.com/Skall34/SimAddon/releases" target="_blank" style="color:#1a3552;font-weight:bold;text-decoration:underline;"><?= t('documentation_link_repo_github') ?></a></p>
             <p><?= t('documentation_section_general_wiki') ?> <a href="https://github.com/Skall34/SimAddon/wiki" target="_blank" style="color:#1a3552;font-weight:bold;text-decoration:underline;"><?= t('documentation_link_wiki') ?></a></p>
             
@@ -26,6 +27,7 @@ require_once __DIR__ . '/../includes/menu_logged.php';
                         <li><strong><?= t('documentation_section_missions_permanentes') ?></strong> <?= t('documentation_section_missions_permanentes_desc') ?></li>
                         <?= t('documentation_section_missions_coef') ?>
                         <li><strong><?= t('documentation_section_missions_filtre_titre') ?></strong> <?= t('documentation_section_missions_filtre_desc') ?></li>
+                        <li><strong><?= t('documentation_section_missions_saisie_titre') ?></strong> <?= t('documentation_section_missions_saisie_desc') ?> <a href="saisie_manuelle.php" style="color:#1a3552;font-weight:bold;text-decoration:underline;"><?= t('menu_manualentry') ?></a></li>
                         <li><strong><?= t('documentation_section_missions_libre') ?></strong> <?= t('documentation_section_missions_libre_desc') ?></li>
                     </ul>
             </ul>
