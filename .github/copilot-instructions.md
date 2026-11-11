@@ -123,7 +123,12 @@ Runtime config is in `config.ini` (root, not committed). Reference template: `in
 
 ## Documentation Workflow
 
+Two dedicated doc agents exist — ALWAYS involve them on every evolution (verify or edit, without being asked):
+- **SimDocUser** (`.github/simdoc-user.agent.md`) — user-facing doc: `pages/documentation.php`, user-oriented `pages/doc_scripts/*`, lang `documentation_*`/`doc_*` keys (FR/EN/ES), and the SimAddon wiki (`Skall34/SimAddon.wiki`, pushed via git, branch `master`).
+- **SimDocTech** (`.github/simdoc-tech.agent.md`) — technical doc: `Documentation/*.md`, API contract (header blocks of `api/*.php`), DB schema/migrations, technical `doc_scripts` pages, `.github/*.agent.md` memory files.
+
 After any code or logic change:
-1. Update the in-app doc page in `pages/doc_scripts/` if the change affects a documented script.
-2. Update lang keys (`doc_*` prefix) in all three lang files.
-3. Keep `Documentation/COPILOT_MEMORY.md` in sync if permanent rules are added or changed.
+1. Consult the relevant doc agent to verify coverage and update the docs.
+2. Update the in-app doc page in `pages/doc_scripts/` if the change affects a documented script.
+3. Update lang keys (`doc_*` prefix) in all three lang files.
+4. Keep `Documentation/COPILOT_MEMORY.md` in sync if permanent rules are added or changed.
