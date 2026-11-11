@@ -15,8 +15,8 @@
      Piste, Longueur_de_piste, Type_de_piste}, ...]} : Liste des aéroports,
    chacun avec son tableau de pistes (longueurs en mètres).
    Les 3 clés historiques Piste / Longueur_de_piste / Type_de_piste sont conservées
-   (reconstruites depuis PISTES, longueur remise en ft) pour compatibilité SimAddon :
-   le JSON est identique avant/après la migration 002 (drop des anciennes colonnes).
+   (reconstruites depuis PISTES, longueur en mètres comme PISTES.longueur_m — envoyée
+   telle quelle au client SimAddon, qui l'affiche sans conversion) pour compatibilité SimAddon.
  - {success: false, error: '...'} : Erreur lors de la récupération (HTTP 500)
 
  Utilisation :
@@ -58,14 +58,15 @@ try {
         ];
     }
 
-    // Champs historiques Piste / Longueur_de_piste / Type_de_piste (longueur remise en ft),
+    // Champs historiques Piste / Longueur_de_piste / Type_de_piste (longueur en mètres,
+    // identique à PISTES.longueur_m : le client SimAddon affiche la valeur telle quelle),
     // reconstruits depuis PISTES : une requête groupée, sémantique identique aux anciennes
     // sous-requêtes (GROUP_CONCAT ignore les NULL, ORDER BY p.id, séparateurs identiques).
     $legacyByAirport = [];
     $lstmt = $pdo->query("
         SELECT p.aeroport_ident AS ident,
                GROUP_CONCAT(p.designation ORDER BY p.id SEPARATOR ' ') AS `Piste`,
-               GROUP_CONCAT(IF(p.longueur_m IS NULL, NULL, CAST(ROUND(p.longueur_m / 0.3048, 0) AS UNSIGNED)) ORDER BY p.id SEPARATOR '/') AS `Longueur_de_piste`,
+               GROUP_CONCAT(IF(p.longueur_m IS NULL, NULL, p.longueur_m) ORDER BY p.id SEPARATOR '/') AS `Longueur_de_piste`,
                GROUP_CONCAT(IF(p.surface IS NULL, NULL, p.surface) ORDER BY p.id SEPARATOR '/') AS `Type_de_piste`
         FROM PISTES p
         GROUP BY p.aeroport_ident
