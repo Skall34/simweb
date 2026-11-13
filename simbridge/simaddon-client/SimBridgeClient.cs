@@ -27,6 +27,7 @@ namespace SimDataManager
         public double IasKt, TasKt, GsKt, VsFpm;
         public double HdgTrue, Pitch, Bank, MagvarDeg;
         public int OnGround, StallWarning, OverspeedWarning, Crashed;
+        public double StallWarningRatio;
         public int NumEngines;
         public int[] EngRunning = new int[0];
         public double[] EngN1Pct = new double[0]; // % N1 max (XP12 n'expose pas de RPM direct)

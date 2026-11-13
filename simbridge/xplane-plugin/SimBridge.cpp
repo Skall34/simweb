@@ -71,7 +71,8 @@ static ScalarRef g_scalars[] = {
     { "bank",            "sim/flightmodel/position/phi",                 'f', 1.0,       0.0, nullptr },
     { "magvar_deg",      "sim/flightmodel/position/magnetic_variation",  'f', 1.0,       0.0, nullptr },
     { "on_ground",       "sim/flightmodel/failures/onground_any",        'i', 1.0,       0.0, nullptr },
-    { "stall_warning",   "sim/cockpit2/annunciators/stall_warning",      'i', 1.0,       0.0, nullptr }, // << le champ que XUIPC ne renvoie pas
+    // stall_warning / stall_warning_ratio : calculés plus bas (warning OU ratio >= 0.9)
+    // << le champ que XUIPC ne renvoie pas
     // overspeed_warning est calculé (ias > Vne), pas de DataRef direct dans XP12
     { "crashed",         "sim/flightmodel2/misc/has_crashed",            'i', 1.0,       0.0, nullptr },
     { "fuel_total_kg",   "sim/flightmodel/weight/m_fuel_total",          'f', 1.0,       0.0, nullptr },
@@ -90,6 +91,8 @@ static XPLMDataRef g_refNumEngines   = nullptr;  // sim/aircraft/engine/acf_num_
 static XPLMDataRef g_refEngRunning   = nullptr;  // sim/flightmodel/engine/ENGN_running (int[])
 static XPLMDataRef g_refEngN1        = nullptr;  // sim/flightmodel/engine/ENGN_N1_ (float[], % of max) — pas de RPM direct dans XP12
 static XPLMDataRef g_refVne          = nullptr;  // sim/aircraft/view/acf_Vne (kias) pour calculer overspeed_warning
+static XPLMDataRef g_refStallWarn    = nullptr;  // sim/cockpit2/annunciators/stall_warning (bool)
+static XPLMDataRef g_refStallRatio   = nullptr;  // sim/cockpit2/annunciators/stall_warning_ratio (0..1)
 static XPLMDataRef g_refEngFuelFlow  = nullptr;  // sim/flightmodel/engine/ENGN_FF_ (float[], kg/s)
 static XPLMDataRef g_refGearDeploy   = nullptr;  // sim/flightmodel2/gear/deploy_ratio (float[])
 
@@ -192,6 +195,12 @@ static size_t build_frame(char* buf)
     if (g_refVne) vneKt = (double)XPLMGetDataf(g_refVne);
     json_num(buf, len, "overspeed_warning", (vneKt > 0.0 && iasKt > vneKt) ? 1.0 : 0.0, "%.0f");
 
+    // stall : annonciateur booléen OU ratio >= 0.9 (selon les avions, le horn ne se lève qu'en full stall)
+    int stallWarn = 0;   if (g_refStallWarn)  stallWarn  = XPLMGetDatai(g_refStallWarn);
+    double stallRatio = 0.0; if (g_refStallRatio) stallRatio = (double)XPLMGetDataf(g_refStallRatio);
+    json_num(buf, len, "stall_warning", (stallWarn != 0 || stallRatio >= 0.9) ? 1.0 : 0.0, "%.0f");
+    json_num(buf, len, "stall_warning_ratio", stallRatio, "%.3f");
+
     // tableaux JSON
     n = snprintf(buf + len, SIMBRIDGE_BUF_SIZE - len, "\"eng_running\":[");
     if (n > 0) len += (size_t)n;
@@ -274,6 +283,8 @@ PLUGIN_API int XPluginEnable(void)
     g_refEngRunning  = XPLMFindDataRef("sim/flightmodel/engine/ENGN_running");
     g_refEngN1       = XPLMFindDataRef("sim/flightmodel/engine/ENGN_N1_");
     g_refVne         = XPLMFindDataRef("sim/aircraft/view/acf_Vne");
+    g_refStallWarn   = XPLMFindDataRef("sim/cockpit2/annunciators/stall_warning");
+    g_refStallRatio  = XPLMFindDataRef("sim/cockpit2/annunciators/stall_warning_ratio");
     g_refEngFuelFlow = XPLMFindDataRef("sim/flightmodel/engine/ENGN_FF_");
     g_refGearDeploy  = XPLMFindDataRef("sim/flightmodel2/gear/deploy_ratio");
 

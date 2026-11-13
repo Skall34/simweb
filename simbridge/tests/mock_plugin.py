@@ -34,6 +34,7 @@ def frame(t: float, seq: int) -> dict:
         "magvar_deg": -1.8,
         "on_ground": 1 if t <= 1 else 0,
         "stall_warning": 1 if stall else 0,
+        "stall_warning_ratio": 1.0 if stall else (0.95 if 1.5 <= t <= 2.0 else 0.0),
         "overspeed_warning": 0,
         "crashed": 0,
         "fuel_total_kg": max(0.0, 750.5 - t * 0.3),

@@ -22,7 +22,8 @@ Trame JSON UTF-8, une datagramme UDP par trame, émise par le plugin X-Plane
 | `hdg_true` / `pitch` / `bank` | number | degrés | `sim/flightmodel/position/psi` / `theta` / `phi` |
 | `magvar_deg` | number | degrés | `sim/flightmodel/position/magnetic_variation` |
 | `on_ground` | 0/1 | — | `sim/flightmodel/failures/onground_any` |
-| **`stall_warning`** | 0/1 | — | `sim/cockpit2/annunciators/stall_warning` — **le champ que XUIPC ne renvoie pas** |
+| **`stall_warning`** | 0/1 | — | calculé par le plugin : `sim/cockpit2/annunciators/stall_warning` != 0 **OU** `stall_warning_ratio` ≥ 0.9 — **le champ que XUIPC ne renvoie pas** |
+| `stall_warning_ratio` | number | 0..1 | `sim/cockpit2/annunciators/stall_warning_ratio` (0 = pas de stall, 1 = full stall) |
 | `overspeed_warning` | 0/1 | — | calculé par le plugin : `ias_kt > sim/aircraft/view/acf_Vne` (pas d'annonciateur overspeed dans XP12) |
 | `crashed` | 0/1 | — | `sim/flightmodel2/misc/has_crashed` |
 | `num_engines` | number | — | `sim/aircraft/engine/acf_num_engines` |

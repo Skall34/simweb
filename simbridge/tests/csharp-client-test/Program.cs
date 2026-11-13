@@ -22,11 +22,13 @@ class Program
             if (f.StallWarning == 1) Interlocked.Increment(ref stallSeen);
             if (f.IsAnyEngineCut) Interlocked.Increment(ref engineCutSeen);
         };
-        client.Start(SimBridgeClient.DefaultPort);
+        // Port configurable (49181 si 49180 est occupé par une instance SimAddon en cours)
+        int port = int.Parse(Environment.GetEnvironmentVariable("SIMBRIDGE_TEST_PORT") ?? SimBridgeClient.DefaultPort.ToString());
+        client.Start(port);
 
         // Émetteur mock (équivalent C# de mock_plugin.py)
         using var tx = new UdpClient();
-        var dest = new IPEndPoint(IPAddress.Loopback, SimBridgeClient.DefaultPort);
+        var dest = new IPEndPoint(IPAddress.Loopback, port);
         var t0 = DateTime.UtcNow;
         for (int seq = 0; seq < 60; seq++)
         {
@@ -37,7 +39,7 @@ class Program
                 + "\"lat\":45.7277,\"lon\":4.9444,\"alt_m\":210.5,\"alt_ft\":691.0,"
                 + "\"ias_kt\":" + (stall ? 68.0 : 98.2).ToString(System.Globalization.CultureInfo.InvariantCulture) + ",\"tas_kt\":101.0,\"gs_kt\":97.5,\"vs_fpm\":0.0,"
                 + "\"hdg_true\":182.4,\"pitch\":" + (stall ? 8.0 : 0.5).ToString(System.Globalization.CultureInfo.InvariantCulture) + ",\"bank\":-1.2,\"magvar_deg\":-1.8,"
-                + "\"on_ground\":" + (t <= 1.0 ? 1 : 0) + ",\"stall_warning\":" + (stall ? 1 : 0) + ",\"overspeed_warning\":0,\"crashed\":0,"
+                + "\"on_ground\":" + (t <= 1.0 ? 1 : 0) + ",\"stall_warning\":" + (stall ? 1 : 0) + ",\"stall_warning_ratio\":" + (stall ? 1.0 : 0.0).ToString(System.Globalization.CultureInfo.InvariantCulture) + ",\"overspeed_warning\":0,\"crashed\":0,"
                 + "\"fuel_total_kg\":740.0,\"plane_weight_kg\":4200.0,\"payload_kg\":622.0,"
                 + "\"battery_on\":1,\"avionics_on\":1,\"flaps_ratio\":0.0,\"com1_mhz\":118.05,\"squawk\":1234,"
                 + "\"num_engines\":2,"
