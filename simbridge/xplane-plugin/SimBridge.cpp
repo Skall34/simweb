@@ -118,7 +118,7 @@ static double read_scalar(const ScalarRef& s)
         case 'd': raw = XPLMGetDatad(s.handle); break;
         case 'f': raw = (double)XPLMGetDataf(s.handle); break;
         case 'i': raw = (double)XPLMGetDatai(s.handle); break;
-        case 'b': raw = (double)XPLMGetDatab(s.handle); break;
+        case 'b': { int bv = 0; XPLMGetDatavi(s.handle, &bv, 0, 1); raw = (double)bv; } break; // SDK 4.x : lecture byte via tableau d'entiers
         default: raw = 0.0; break;
     }
     return raw * s.scale + s.add;
