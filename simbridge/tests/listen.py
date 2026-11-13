@@ -16,7 +16,8 @@ def main() -> None:
     args = ap.parse_args()
 
     rx = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    rx.bind(("127.0.0.1", args.port))
+    rx.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)  # partage le port si SimAddon écoute déjà
+    rx.bind(("0.0.0.0", args.port))  # Any : requis sous Windows pour partager avec le bind Any de SimBridgeClient
     rx.settimeout(1.0)
     print(f"Écoute UDP 127.0.0.1:{args.port} — Ctrl+C pour arrêter")
     n = 0

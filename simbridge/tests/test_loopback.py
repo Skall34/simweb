@@ -10,6 +10,7 @@ Usage : python3 test_loopback.py
 Exit 0 = PASS, 1 = FAIL.
 """
 import json
+import os
 import socket
 import sys
 import threading
@@ -17,7 +18,8 @@ import time
 
 import mock_plugin
 
-PORT = 49180
+# Port de test (49181 si 49180 est occupé par une instance SimAddon en cours)
+PORT = int(os.environ.get("SIMBRIDGE_TEST_PORT", "49180"))
 REQUIRED = {
     "type": str, "v": (int, float), "ts_ms": (int, float),
     "lat": (int, float), "lon": (int, float), "alt_m": (int, float), "alt_ft": (int, float),
@@ -45,6 +47,7 @@ def main() -> int:
             t = time.time() - t0
             payload = json.dumps(mock_plugin.frame(t, seq), separators=(",", ":")).encode()
             sock.sendto(payload, ("127.0.0.1", PORT))
+            # mock_plugin.frame ne dépend pas du port ; le récepteur écoute PORT
             seq += 1
             time.sleep(0.1)
 
