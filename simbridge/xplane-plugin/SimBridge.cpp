@@ -79,7 +79,7 @@ static ScalarRef g_scalars[] = {
     { "payload_kg",      "sim/flightmodel/weight/m_fixed",               'f', 1.0,       0.0, nullptr }, // poids des stations (payload)
     { "battery_on",      "sim/cockpit/electrical/battery_on",            'i', 1.0,       0.0, nullptr },
     { "avionics_on",     "sim/cockpit2/switches/avionics_power_on",      'i', 1.0,       0.0, nullptr },
-    { "flaps_ratio",     "sim/cockpit2/controls/flap_ratio",             'f', 1.0,       0.0, nullptr },
+    { "flaps_ratio",     "sim/flightmodel2/controls/flap1_deploy_ratio", 'f', 1.0,       0.0, nullptr }, // cockpit2/controls/flap_ratio est REPLACED dans XP12
     { "com1_mhz",        "sim/cockpit2/radios/actuators/com1_frequency_hz", 'i', 1e-6,   0.0, nullptr }, // Hz -> MHz
     { "squawk",          "sim/cockpit2/radios/actuators/transponder_code",  'i', 1.0,    0.0, nullptr },
 };
