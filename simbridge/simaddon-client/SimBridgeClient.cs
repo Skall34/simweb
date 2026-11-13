@@ -32,6 +32,8 @@ namespace SimDataManager
         public double[] EngRpm = new double[0];
         public double[] EngFfKgS = new double[0];
         public double FuelTotalKg, GearDeploy, FlapsRatio;
+        public double PlaneWeightKg, PayloadKg;
+        public int BatteryOn, AvionicsOn;
         public double Com1Mhz;
         public int Squawk;
 
@@ -73,7 +75,9 @@ namespace SimDataManager
         public void Start(int port = DefaultPort)
         {
             if (_running) return;
-            _udp = new UdpClient(new IPEndPoint(IPAddress.Loopback, port));
+            _udp = new UdpClient();
+            _udp.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+            _udp.Client.Bind(new IPEndPoint(IPAddress.Any, port)); // reçoit les trames envoyées à 127.0.0.1:port
             _running = true;
             _thread = new Thread(ReceiveLoop) { IsBackground = true, Name = "SimBridgeClient" };
             _thread.Start();
@@ -148,6 +152,10 @@ namespace SimDataManager
             f.EngRpm           = GetDoubleArray(o, "eng_rpm");
             f.EngFfKgS         = GetDoubleArray(o, "eng_ff_kg_s");
             f.FuelTotalKg      = GetDouble(o, "fuel_total_kg");
+            f.PlaneWeightKg    = GetDouble(o, "plane_weight_kg");
+            f.PayloadKg        = GetDouble(o, "payload_kg");
+            f.BatteryOn        = (int)GetDouble(o, "battery_on");
+            f.AvionicsOn       = (int)GetDouble(o, "avionics_on");
             f.GearDeploy       = GetDouble(o, "gear_deploy");
             f.FlapsRatio       = GetDouble(o, "flaps_ratio");
             f.Com1Mhz          = GetDouble(o, "com1_mhz");

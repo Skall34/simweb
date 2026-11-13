@@ -26,7 +26,9 @@ REQUIRED = {
     "on_ground": (int, float), "stall_warning": (int, float), "overspeed_warning": (int, float),
     "crashed": (int, float), "num_engines": (int, float),
     "eng_running": list, "eng_rpm": list, "eng_ff_kg_s": list,
-    "fuel_total_kg": (int, float), "gear_deploy": (int, float), "flaps_ratio": (int, float),
+    "fuel_total_kg": (int, float), "plane_weight_kg": (int, float), "payload_kg": (int, float),
+    "battery_on": (int, float), "avionics_on": (int, float),
+    "gear_deploy": (int, float), "flaps_ratio": (int, float),
     "com1_mhz": (int, float), "squawk": (int, float),
 }
 

@@ -1,0 +1,17 @@
+{
+  // Ouvrir ce dossier dans VS (Fichier > Ouvrir > Dossier) puis build x64-Release.
+  // Renseigner cmakeCommandArgs ci-dessous avec le chemin du SDK X-Plane,
+  // ou la variable d'environnement XP_SDK.
+  "configurations": [
+    {
+      "name": "x64-Release",
+      "generator": "Visual Studio 18 2026",
+      "configurationType": "Release",
+      "buildRoot": "${projectDir}\\build\\${name}",
+      "installRoot": "${projectDir}\\build\\install\\${name}",
+      "cmakeCommandArgs": "-DXP_SDK=C:/X-Plane SDK/SDK",
+      "buildCommandArgs": "-v:minimal",
+      "variables": []
+    }
+  ]
+}

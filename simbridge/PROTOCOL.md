@@ -30,6 +30,10 @@ Trame JSON UTF-8, une datagramme UDP par trame, émise par le plugin X-Plane
 | `eng_rpm[]` | number[] | tr/min par moteur | `sim/flightmodel/engine/ENGN_RPM` |
 | `eng_ff_kg_s[]` | number[] | kg/s par moteur | `sim/flightmodel/engine/ENGN_FF_` |
 | `fuel_total_kg` | number | kg | `sim/flightmodel/weight/m_fuel_total` |
+| `plane_weight_kg` | number | kg (poids brut) | `sim/flightmodel/weight/m_total` |
+| `payload_kg` | number | kg | `sim/flightmodel/weight/m_payload` (0 si absent) |
+| `battery_on` | 0/1 | — | `sim/cockpit2/switches/battery_on` |
+| `avionics_on` | 0/1 | — | `sim/cockpit2/switches/avionics_power_on` |
 | `gear_deploy` | number | 0..1 (1 = sorti) | `sim/flightmodel2/gear/deploy_ratio[0]` |
 | `flaps_ratio` | number | 0..1 | `sim/cockpit2/controls/flap_ratio` |
 | `com1_mhz` | number | MHz | `sim/cockpit2/radios/actuators/com1_frequency_hz` |
