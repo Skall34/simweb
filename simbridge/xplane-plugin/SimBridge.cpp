@@ -221,13 +221,25 @@ static size_t build_frame(char* buf)
     return len;
 }
 
+static long g_loopTicks = 0;
+
 static float flight_loop_cb(float, float, int, void*)
 {
     if (!g_enabled || g_sock == INVALID_SOCKET) return SIMBRIDGE_INTERVAL_SEC;
     char buf[SIMBRIDGE_BUF_SIZE];
     size_t len = build_frame(buf);
     if (len > 0) {
-        sendto(g_sock, buf, (int)len, 0, (struct sockaddr*)&g_dest, sizeof(g_dest));
+        int rc = sendto(g_sock, buf, (int)len, 0, (struct sockaddr*)&g_dest, sizeof(g_dest));
+        g_loopTicks++;
+        if (rc == SOCKET_ERROR || g_loopTicks % 100 == 1) { // log 1ère trame puis toutes les ~10 s
+            char msg[160];
+#ifdef _WIN32
+            snprintf(msg, sizeof(msg), "SimBridge: tick=%ld sendto rc=%d wsaErr=%d len=%zu\n", g_loopTicks, rc, WSAGetLastError(), len);
+#else
+            snprintf(msg, sizeof(msg), "SimBridge: tick=%ld sendto rc=%d len=%zu\n", g_loopTicks, rc, len);
+#endif
+            XPLMDebugString(msg);
+        }
     }
     return SIMBRIDGE_INTERVAL_SEC; // re-cadence à 10 Hz
 }
