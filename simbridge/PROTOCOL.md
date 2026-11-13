@@ -23,16 +23,16 @@ Trame JSON UTF-8, une datagramme UDP par trame, émise par le plugin X-Plane
 | `magvar_deg` | number | degrés | `sim/flightmodel/position/magnetic_variation` |
 | `on_ground` | 0/1 | — | `sim/flightmodel/failures/onground_any` |
 | **`stall_warning`** | 0/1 | — | `sim/cockpit2/annunciators/stall_warning` — **le champ que XUIPC ne renvoie pas** |
-| `overspeed_warning` | 0/1 | — | `sim/cockpit2/annunciators/overspeed_warning` (0 si DataRef absent) |
-| `crashed` | 0/1 | — | `sim/flightmodel/failures/crashed` (0 si absent ; à valider dans le DataRef Editor XP12) |
+| `overspeed_warning` | 0/1 | — | calculé par le plugin : `ias_kt > sim/aircraft/view/acf_Vne` (pas d'annonciateur overspeed dans XP12) |
+| `crashed` | 0/1 | — | `sim/flightmodel2/misc/has_crashed` |
 | `num_engines` | number | — | `sim/aircraft/engine/acf_num_engines` |
 | `eng_running[]` | number[] | 0/1 par moteur | `sim/flightmodel/engine/ENGN_running` |
-| `eng_rpm[]` | number[] | tr/min par moteur | `sim/flightmodel/engine/ENGN_RPM` |
+| `eng_n1_pct[]` | number[] | % N1 max par moteur (XP12 n'expose pas de RPM direct) | `sim/flightmodel/engine/ENGN_N1_` |
 | `eng_ff_kg_s[]` | number[] | kg/s par moteur | `sim/flightmodel/engine/ENGN_FF_` |
 | `fuel_total_kg` | number | kg | `sim/flightmodel/weight/m_fuel_total` |
 | `plane_weight_kg` | number | kg (poids brut) | `sim/flightmodel/weight/m_total` |
-| `payload_kg` | number | kg | `sim/flightmodel/weight/m_payload` (0 si absent) |
-| `battery_on` | 0/1 | — | `sim/cockpit2/switches/battery_on` |
+| `payload_kg` | number | kg (somme des stations) | `sim/flightmodel/weight/m_fixed` |
+| `battery_on` | 0/1 | — | `sim/cockpit/electrical/battery_on` |
 | `avionics_on` | 0/1 | — | `sim/cockpit2/switches/avionics_power_on` |
 | `gear_deploy` | number | 0..1 (1 = sorti) | `sim/flightmodel2/gear/deploy_ratio[0]` |
 | `flaps_ratio` | number | 0..1 | `sim/cockpit2/controls/flap_ratio` |

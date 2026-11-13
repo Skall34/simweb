@@ -42,7 +42,7 @@ class Program
                 + "\"battery_on\":1,\"avionics_on\":1,\"flaps_ratio\":0.0,\"com1_mhz\":118.05,\"squawk\":1234,"
                 + "\"num_engines\":2,"
                 + "\"eng_running\":[" + (cut ? "1,0" : "1,1") + "],"
-                + "\"eng_rpm\":[" + (cut ? "0.0,0.0" : "2450.0,2448.0") + "],"
+                + "\"eng_n1_pct\":[" + (cut ? "0.0,0.0" : "65.2,64.9") + "],"
                 + "\"eng_ff_kg_s\":[" + (cut ? "0.0,0.0" : "0.033,0.033") + "],"
                 + "\"gear_deploy\":" + (t <= 1.0 ? "1.0" : "0.0") + "}";
             byte[] payload = Encoding.UTF8.GetBytes(json);

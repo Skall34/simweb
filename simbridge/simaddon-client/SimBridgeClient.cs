@@ -29,7 +29,7 @@ namespace SimDataManager
         public int OnGround, StallWarning, OverspeedWarning, Crashed;
         public int NumEngines;
         public int[] EngRunning = new int[0];
-        public double[] EngRpm = new double[0];
+        public double[] EngN1Pct = new double[0]; // % N1 max (XP12 n'expose pas de RPM direct)
         public double[] EngFfKgS = new double[0];
         public double FuelTotalKg, GearDeploy, FlapsRatio;
         public double PlaneWeightKg, PayloadKg;
@@ -149,7 +149,7 @@ namespace SimDataManager
             f.Crashed          = (int)GetDouble(o, "crashed");
             f.NumEngines       = (int)GetDouble(o, "num_engines");
             f.EngRunning       = GetIntArray(o, "eng_running");
-            f.EngRpm           = GetDoubleArray(o, "eng_rpm");
+            f.EngN1Pct         = GetDoubleArray(o, "eng_n1_pct");
             f.EngFfKgS         = GetDoubleArray(o, "eng_ff_kg_s");
             f.FuelTotalKg      = GetDouble(o, "fuel_total_kg");
             f.PlaneWeightKg    = GetDouble(o, "plane_weight_kg");

@@ -46,7 +46,7 @@ def frame(t: float, seq: int) -> dict:
         "squawk": 1234,
         "num_engines": 2,
         "eng_running": [1, 0] if engine_cut else [1, 1],
-        "eng_rpm": [0.0, 0.0] if engine_cut else [2450.0, 2448.0],
+        "eng_n1_pct": [0.0, 0.0] if engine_cut else [65.2, 64.9],
         "eng_ff_kg_s": [0.0, 0.0] if engine_cut else [0.033, 0.033],
         "gear_deploy": 1.0 if t <= 1 else 0.0,
     }

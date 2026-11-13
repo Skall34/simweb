@@ -72,12 +72,12 @@ static ScalarRef g_scalars[] = {
     { "magvar_deg",      "sim/flightmodel/position/magnetic_variation",  'f', 1.0,       0.0, nullptr },
     { "on_ground",       "sim/flightmodel/failures/onground_any",        'i', 1.0,       0.0, nullptr },
     { "stall_warning",   "sim/cockpit2/annunciators/stall_warning",      'i', 1.0,       0.0, nullptr }, // << le champ que XUIPC ne renvoie pas
-    { "overspeed_warning","sim/cockpit2/annunciators/overspeed_warning", 'i', 1.0,       0.0, nullptr }, // null-guardé : 0 si absent
-    { "crashed",         "sim/flightmodel/failures/crashed",             'i', 1.0,       0.0, nullptr }, // null-guardé : 0 si absent (à valider dans le DataRef Editor XP12)
+    // overspeed_warning est calculé (ias > Vne), pas de DataRef direct dans XP12
+    { "crashed",         "sim/flightmodel2/misc/has_crashed",            'i', 1.0,       0.0, nullptr },
     { "fuel_total_kg",   "sim/flightmodel/weight/m_fuel_total",          'f', 1.0,       0.0, nullptr },
     { "plane_weight_kg", "sim/flightmodel/weight/m_total",               'f', 1.0,       0.0, nullptr }, // poids brut
-    { "payload_kg",      "sim/flightmodel/weight/m_payload",             'f', 1.0,       0.0, nullptr }, // null-guardé : 0 si absent
-    { "battery_on",      "sim/cockpit2/switches/battery_on",             'i', 1.0,       0.0, nullptr },
+    { "payload_kg",      "sim/flightmodel/weight/m_fixed",               'f', 1.0,       0.0, nullptr }, // poids des stations (payload)
+    { "battery_on",      "sim/cockpit/electrical/battery_on",            'i', 1.0,       0.0, nullptr },
     { "avionics_on",     "sim/cockpit2/switches/avionics_power_on",      'i', 1.0,       0.0, nullptr },
     { "flaps_ratio",     "sim/cockpit2/controls/flap_ratio",             'f', 1.0,       0.0, nullptr },
     { "com1_mhz",        "sim/cockpit2/radios/actuators/com1_frequency_hz", 'i', 1e-6,   0.0, nullptr }, // Hz -> MHz
@@ -88,7 +88,8 @@ static const int g_numScalars = sizeof(g_scalars) / sizeof(g_scalars[0]);
 // DataRefs tableaux (moteurs + train) : lus avec XPLMGetDatavi / XPLMGetDatavf
 static XPLMDataRef g_refNumEngines   = nullptr;  // sim/aircraft/engine/acf_num_engines (int)
 static XPLMDataRef g_refEngRunning   = nullptr;  // sim/flightmodel/engine/ENGN_running (int[])
-static XPLMDataRef g_refEngRpm       = nullptr;  // sim/flightmodel/engine/ENGN_RPM (float[])
+static XPLMDataRef g_refEngN1        = nullptr;  // sim/flightmodel/engine/ENGN_N1_ (float[], % of max) — pas de RPM direct dans XP12
+static XPLMDataRef g_refVne          = nullptr;  // sim/aircraft/view/acf_Vne (kias) pour calculer overspeed_warning
 static XPLMDataRef g_refEngFuelFlow  = nullptr;  // sim/flightmodel/engine/ENGN_FF_ (float[], kg/s)
 static XPLMDataRef g_refGearDeploy   = nullptr;  // sim/flightmodel2/gear/deploy_ratio (float[])
 
@@ -178,11 +179,18 @@ static size_t build_frame(char* buf)
     float ff[SIMBRIDGE_MAX_ENGINES]      = {0};
     if (numEng > 0) {
         if (g_refEngRunning)  XPLMGetDatavi(g_refEngRunning, running, 0, numEng);
-        if (g_refEngRpm)      XPLMGetDatavf(g_refEngRpm,     rpm,     0, numEng);
+        if (g_refEngN1)       XPLMGetDatavf(g_refEngN1,      rpm,     0, numEng);
         if (g_refEngFuelFlow) XPLMGetDatavf(g_refEngFuelFlow, ff,     0, numEng);
     }
     float gear = 0.0f;
     if (g_refGearDeploy) XPLMGetDatavf(g_refGearDeploy, &gear, 0, 1);
+
+    // overspeed_warning calculé : IAS > Vne (pas d'annonciateur overspeed dans XP12)
+    double iasKt = 0.0, vneKt = 0.0;
+    for (int i = 0; i < g_numScalars; i++)
+        if (strcmp(g_scalars[i].key, "ias_kt") == 0) iasKt = read_scalar(g_scalars[i]);
+    if (g_refVne) vneKt = (double)XPLMGetDataf(g_refVne);
+    json_num(buf, len, "overspeed_warning", (vneKt > 0.0 && iasKt > vneKt) ? 1.0 : 0.0, "%.0f");
 
     // tableaux JSON
     n = snprintf(buf + len, SIMBRIDGE_BUF_SIZE - len, "\"eng_running\":[");
@@ -191,10 +199,10 @@ static size_t build_frame(char* buf)
         n = snprintf(buf + len, SIMBRIDGE_BUF_SIZE - len, "%d%s", running[i], i + 1 < numEng ? "," : "");
         if (n > 0) len += (size_t)n;
     }
-    n = snprintf(buf + len, SIMBRIDGE_BUF_SIZE - len, "],\"eng_rpm\":[");
+    n = snprintf(buf + len, SIMBRIDGE_BUF_SIZE - len, "],\"eng_n1_pct\":[");
     if (n > 0) len += (size_t)n;
     for (int i = 0; i < numEng; i++) {
-        n = snprintf(buf + len, SIMBRIDGE_BUF_SIZE - len, "%.1f%s", (double)rpm[i], i + 1 < numEng ? "," : "");
+        n = snprintf(buf + len, SIMBRIDGE_BUF_SIZE - len, "%.2f%s", (double)rpm[i], i + 1 < numEng ? "," : "");
         if (n > 0) len += (size_t)n;
     }
     n = snprintf(buf + len, SIMBRIDGE_BUF_SIZE - len, "],\"eng_ff_kg_s\":[");
@@ -252,7 +260,8 @@ PLUGIN_API int XPluginEnable(void)
     }
     g_refNumEngines  = XPLMFindDataRef("sim/aircraft/engine/acf_num_engines");
     g_refEngRunning  = XPLMFindDataRef("sim/flightmodel/engine/ENGN_running");
-    g_refEngRpm      = XPLMFindDataRef("sim/flightmodel/engine/ENGN_RPM");
+    g_refEngN1       = XPLMFindDataRef("sim/flightmodel/engine/ENGN_N1_");
+    g_refVne         = XPLMFindDataRef("sim/aircraft/view/acf_Vne");
     g_refEngFuelFlow = XPLMFindDataRef("sim/flightmodel/engine/ENGN_FF_");
     g_refGearDeploy  = XPLMFindDataRef("sim/flightmodel2/gear/deploy_ratio");
 

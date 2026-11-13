@@ -1,5 +1,6 @@
 bin/
 obj/
 build/
+.vs/
 __pycache__/
 *.pyc
