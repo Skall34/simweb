@@ -27,7 +27,7 @@ namespace SimDataManager
         public double IasKt, TasKt, GsKt, VsFpm;
         public double HdgTrue, Pitch, Bank, MagvarDeg;
         public int OnGround, StallWarning, OverspeedWarning, Crashed;
-        public double StallWarningRatio;
+        public double StallWarningRatio, Alpha, StallAlpha;
         public int NumEngines;
         public int[] EngRunning = new int[0];
         public double[] EngN1Pct = new double[0]; // % N1 max (XP12 n'expose pas de RPM direct)
@@ -146,6 +146,9 @@ namespace SimDataManager
             f.MagvarDeg        = GetDouble(o, "magvar_deg");
             f.OnGround         = (int)GetDouble(o, "on_ground");
             f.StallWarning     = (int)GetDouble(o, "stall_warning");
+            f.StallWarningRatio = GetDouble(o, "stall_warning_ratio");
+            f.Alpha            = GetDouble(o, "alpha");
+            f.StallAlpha       = GetDouble(o, "stall_alpha");
             f.OverspeedWarning = (int)GetDouble(o, "overspeed_warning");
             f.Crashed          = (int)GetDouble(o, "crashed");
             f.NumEngines       = (int)GetDouble(o, "num_engines");

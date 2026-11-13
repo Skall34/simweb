@@ -26,6 +26,7 @@ REQUIRED = {
     "ias_kt": (int, float), "tas_kt": (int, float), "gs_kt": (int, float), "vs_fpm": (int, float),
     "hdg_true": (int, float), "pitch": (int, float), "bank": (int, float), "magvar_deg": (int, float),
     "on_ground": (int, float), "stall_warning": (int, float), "stall_warning_ratio": (int, float),
+    "alpha": (int, float), "stall_alpha": (int, float),
     "overspeed_warning": (int, float),
     "crashed": (int, float), "num_engines": (int, float),
     "eng_running": list, "eng_n1_pct": list, "eng_ff_kg_s": list,

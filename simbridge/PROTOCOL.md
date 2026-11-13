@@ -22,8 +22,10 @@ Trame JSON UTF-8, une datagramme UDP par trame, émise par le plugin X-Plane
 | `hdg_true` / `pitch` / `bank` | number | degrés | `sim/flightmodel/position/psi` / `theta` / `phi` |
 | `magvar_deg` | number | degrés | `sim/flightmodel/position/magnetic_variation` |
 | `on_ground` | 0/1 | — | `sim/flightmodel/failures/onground_any` |
-| **`stall_warning`** | 0/1 | — | calculé par le plugin : `sim/cockpit2/annunciators/stall_warning` != 0 **OU** `stall_warning_ratio` ≥ 0.9 — **le champ que XUIPC ne renvoie pas** |
-| `stall_warning_ratio` | number | 0..1 | `sim/cockpit2/annunciators/stall_warning_ratio` (0 = pas de stall, 1 = full stall) |
+| **`stall_warning`** | 0/1 | — | calculé par le plugin : `sim/cockpit2/annunciators/stall_warning` != 0 **OU** `sim/flightmodel/failures/stallwarning` != 0 **OU** `stall_warning_ratio` ≥ 0.9 **OU** `alpha` ≥ `stall_alpha` — **le champ que XUIPC ne renvoie pas** (robuste avions SASL/REP) |
+| `stall_warning_ratio` | number | 0..1 | `sim/cockpit2/annunciators/stall_warning_ratio` |
+| `alpha` | number | degrés | `sim/flightmodel/position/alpha` (angle d'attaque) |
+| `stall_alpha` | number | degrés | `sim/aircraft/overflow/acf_stall_warn_alpha` (AoA d'alerte de l'avion) |
 | `overspeed_warning` | 0/1 | — | calculé par le plugin : `ias_kt > sim/aircraft/view/acf_Vne` (pas d'annonciateur overspeed dans XP12) |
 | `crashed` | 0/1 | — | `sim/flightmodel2/misc/has_crashed` |
 | `num_engines` | number | — | `sim/aircraft/engine/acf_num_engines` |
