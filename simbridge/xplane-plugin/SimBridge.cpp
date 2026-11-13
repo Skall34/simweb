@@ -205,8 +205,12 @@ static size_t build_frame(char* buf)
     double stallRatio = 0.0; if (g_refStallRatio) stallRatio = (double)XPLMGetDataf(g_refStallRatio);
     double alpha = 0.0;      if (g_refAlpha)      alpha      = (double)XPLMGetDataf(g_refAlpha);
     double stallAlpha = 0.0; if (g_refStallAlpha) stallAlpha = (double)XPLMGetDataf(g_refStallAlpha);
-    bool stall = (stallWarn != 0) || (stallFm != 0) || (stallRatio >= 0.9)
-                 || (stallAlpha > 0.0 && alpha >= stallAlpha);
+    // Au sol, alpha vaut n'importe quoi (±180 au parking) : on ne garde que les vrais flags warning.
+    double onGround = 0.0;
+    for (int i = 0; i < g_numScalars; i++)
+        if (strcmp(g_scalars[i].key, "on_ground") == 0) onGround = read_scalar(g_scalars[i]);
+    bool stall = (stallWarn != 0) || (stallFm != 0)
+                 || (onGround == 0.0 && ((stallRatio >= 0.9) || (stallAlpha > 0.0 && alpha >= stallAlpha)));
     json_num(buf, len, "stall_warning", stall ? 1.0 : 0.0, "%.0f");
     json_num(buf, len, "stall_warning_ratio", stallRatio, "%.3f");
     json_num(buf, len, "alpha", alpha, "%.2f");
