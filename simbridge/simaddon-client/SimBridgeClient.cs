@@ -19,7 +19,7 @@ using System.Threading;
 
 namespace SimDataManager
 {
-    /// <summary>Trame SimBridge (schéma v1, voir PROTOCOL.md).</summary>
+    /// <summary>Trame SimBridge (schéma v2, voir simbridge/PROTOCOL.md).</summary>
     public class SimBridgeFrame
     {
         public long TsMs;
@@ -37,15 +37,15 @@ namespace SimDataManager
         public int BatteryOn, AvionicsOn;
         public double Com1Mhz, Com1StdbyMhz;   // 0x034E / 0x311A
         public int Squawk, SquawkMode;         // 0x0354 / 0x6D8C
-        public int Paused;                     // 0x0264 (approx 0x3365 inMenu)
+        public int Paused;                     // 0x0264
         public int GearRetractable;            // 0x060C
         public int FlapsAvailable;             // 0x0778
         public double VertAccelMs2;            // 0x3068
         public int ViewType;                   // 0x8320
         public string TailNumber = "";         // 0x313C (aussi 0x3130 flight number)
         public string AircraftModel = "";      // 0x3500 (acf_descrip)
-        public string AircraftType = "";       // 0x3D00 (basename du path ACF sans .acf, identique XPUIPC)
-        public string AircraftUiName = "";    // nom vu dans l'UI X-Plane (debug)
+        public string AircraftType = "";       // 0x3D00 : nom du DOSSIER de l'avion (identique XPUIPC, ex "Cessna 172 SP GTN REP ")
+        public string AircraftUiName = "";    // acf_ui_name : nom affiché dans l'UI X-Plane
         public double[] EngMapInHg = new double[0]; // 0x08C0 MPR inHg par moteur
 
         /// <summary>Au sol sous cet IAS (kt), aucun stall n'est possible (alpha wrappe a ±180 au parking).</summary>
@@ -82,7 +82,7 @@ namespace SimDataManager
     }
 
     /// <summary>
-    /// Client UDP SimBridge : thread récepteur + última trame thread-safe.
+    /// Client UDP SimBridge : thread récepteur + dernière trame conservée (accès thread-safe).
     /// Usage PoC : var client = new SimBridgeClient(); client.Start(); ...
     /// client.TryGetLatest(out var f); puis comparer avec la source FSUIPC.
     /// </summary>
