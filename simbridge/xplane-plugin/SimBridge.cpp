@@ -44,6 +44,12 @@
 #define SIMBRIDGE_INTERVAL_SEC 0.1f   // 10 Hz
 #define SIMBRIDGE_MAX_ENGINES 8
 #define SIMBRIDGE_BUF_SIZE 2048
+// Guard au sol : sous ce IAS au sol (parking/taxi), aucun stall possible — alpha wrappe
+// a ±180 au parking et les flags warning peuvent s'activer seuls. Au-dela (rotation,
+// roulement rapide), on laisse passer les vrais flags.
+#define SIMBRIDGE_STALL_GROUND_IAS_KT 40.0
+// Seuil AoA générique (deg) si l'avion n'expose pas acf_stall_warn_alpha (avions sans REP)
+#define SIMBRIDGE_STALL_ALPHA_FALLBACK_DEG 15.0
 
 // ---------------------------------------------------------------------------
 // Table des DataRefs scalaires : cle JSON, nom DataRef, type, échelle, offset.
@@ -198,19 +204,23 @@ static size_t build_frame(char* buf)
     if (g_refVne) vneKt = (double)XPLMGetDataf(g_refVne);
     json_num(buf, len, "overspeed_warning", (vneKt > 0.0 && iasKt > vneKt) ? 1.0 : 0.0, "%.0f");
 
-    // stall : annonciateur cockpit OU flag flightmodel OU ratio >= 0.9 OU AoA >= AoA d'alerte
-    // (les avions SASL/REP ne pilotent pas toujours l'annonciateur cockpit)
+    // stall : flag flightmodel physique (universel, indépendant SASL/REP) OU annonciateur
+    // cockpit OU ratio >= 0.9 OU AoA >= AoA d'alerte.
+    // Guard "ceinture" : au sol a basse vitesse, aucun stall possible (alpha wrappe a ±180
+    // au parking et stallWarn/stallFm peuvent s'activer seuls) -> stall force a 0.
+    // Fallback universel : si acf_stall_warn_alpha absent (avion sans REP), seuil 15 deg.
     int stallWarn = 0;       if (g_refStallWarn)  stallWarn  = XPLMGetDatai(g_refStallWarn);
     int stallFm = 0;         if (g_refStallFm)    stallFm    = XPLMGetDatai(g_refStallFm);
     double stallRatio = 0.0; if (g_refStallRatio) stallRatio = (double)XPLMGetDataf(g_refStallRatio);
     double alpha = 0.0;      if (g_refAlpha)      alpha      = (double)XPLMGetDataf(g_refAlpha);
     double stallAlpha = 0.0; if (g_refStallAlpha) stallAlpha = (double)XPLMGetDataf(g_refStallAlpha);
-    // Au sol, alpha vaut n'importe quoi (±180 au parking) : on ne garde que les vrais flags warning.
+    double stallAlphaEff = (stallAlpha > 0.0) ? stallAlpha : SIMBRIDGE_STALL_ALPHA_FALLBACK_DEG;
     double onGround = 0.0;
     for (int i = 0; i < g_numScalars; i++)
         if (strcmp(g_scalars[i].key, "on_ground") == 0) onGround = read_scalar(g_scalars[i]);
-    bool stall = (stallWarn != 0) || (stallFm != 0)
-                 || (onGround == 0.0 && ((stallRatio >= 0.9) || (stallAlpha > 0.0 && alpha >= stallAlpha)));
+    bool groundSlow = (onGround != 0.0 && iasKt < SIMBRIDGE_STALL_GROUND_IAS_KT);
+    bool stall = !groundSlow && ((stallFm != 0) || (stallWarn != 0)
+                 || (stallRatio >= 0.9) || (alpha >= stallAlphaEff));
     json_num(buf, len, "stall_warning", stall ? 1.0 : 0.0, "%.0f");
     json_num(buf, len, "stall_warning_ratio", stallRatio, "%.3f");
     json_num(buf, len, "alpha", alpha, "%.2f");

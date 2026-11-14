@@ -22,10 +22,10 @@ Trame JSON UTF-8, une datagramme UDP par trame, émise par le plugin X-Plane
 | `hdg_true` / `pitch` / `bank` | number | degrés | `sim/flightmodel/position/psi` / `theta` / `phi` |
 | `magvar_deg` | number | degrés | `sim/flightmodel/position/magnetic_variation` |
 | `on_ground` | 0/1 | — | `sim/flightmodel/failures/onground_any` |
-| **`stall_warning`** | 0/1 | — | calculé par le plugin : `sim/cockpit2/annunciators/stall_warning` != 0 **OU** `sim/flightmodel/failures/stallwarning` != 0 **OU** `stall_warning_ratio` ≥ 0.9 **OU** `alpha` ≥ `stall_alpha` — **le champ que XUIPC ne renvoie pas** (robuste avions SASL/REP) |
+| **`stall_warning`** | 0/1 | — | calculé par le plugin : `sim/flightmodel/failures/stallwarning` != 0 **OU** `sim/cockpit2/annunciators/stall_warning` != 0 **OU** `stall_warning_ratio` ≥ 0.9 **OU** `alpha` ≥ `stall_alpha` (fallback 15° si l'avion n'expose pas `acf_stall_warn_alpha`) — **le champ que XUIPC ne renvoie pas** (robuste avions SASL/REP). **Guard au sol** : si `on_ground` = 1 et `ias_kt` < 40, `stall_warning` est forcé à 0 (au parking, `alpha` wrappe à ±180 et les flags peuvent s'activer seuls) |
 | `stall_warning_ratio` | number | 0..1 | `sim/cockpit2/annunciators/stall_warning_ratio` |
-| `alpha` | number | degrés | `sim/flightmodel/position/alpha` (angle d'attaque) |
-| `stall_alpha` | number | degrés | `sim/aircraft/overflow/acf_stall_warn_alpha` (AoA d'alerte de l'avion) |
+| `alpha` | number | degrés | `sim/flightmodel/position/alpha` (angle d'attaque ; wrappe à ±180 au sol, ne pas l'interpréter si `on_ground` = 1) |
+| `stall_alpha` | number | degrés | `sim/aircraft/overflow/acf_stall_warn_alpha` (AoA d'alerte de l'avion ; 0 si non exposé) |
 | `overspeed_warning` | 0/1 | — | calculé par le plugin : `ias_kt > sim/aircraft/view/acf_Vne` (pas d'annonciateur overspeed dans XP12) |
 | `crashed` | 0/1 | — | `sim/flightmodel2/misc/has_crashed` |
 | `num_engines` | number | — | `sim/aircraft/engine/acf_num_engines` |
@@ -59,6 +59,12 @@ Trame JSON UTF-8, une datagramme UDP par trame, émise par le plugin X-Plane
 réception en arrière-plan, `TryGetLatest(out SimBridgeFrame)` → dernière trame.
 `SimBridgeFrame.IsAnyEngineCut` reproduit la règle `simData.IsAnyEngineCut()`
 (au moins 2 moteurs, un arrêté pendant qu'un autre tourne) pour `engine_cut_ok`.
+
+Bretelles côté récepteur (même si le `.xpl` n'est pas recompilé) :
+
+- `StallWarningEffective` — `stall_warning` filtré : au sol (`on_ground`=1) sous 40 kt, vaut 0 quoi qu'émette le plugin. **Utiliser celle-ci dans le recorder.**
+- `StallAlphaEffective` — `stall_alpha` de l'avion, ou 15° si l'avion n'expose pas `acf_stall_warn_alpha` (avions sans REP).
+- `StallByAoA` — vrai si en vol `alpha` ≥ `StallAlphaEffective` : détecte le stall par AoA même sans annonciateur (avions SASL/REP sans REP cockpit).
 
 ## Transport
 

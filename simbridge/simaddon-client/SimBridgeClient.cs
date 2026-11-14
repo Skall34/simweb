@@ -38,6 +38,24 @@ namespace SimDataManager
         public double Com1Mhz;
         public int Squawk;
 
+        /// <summary>Au sol sous cet IAS (kt), aucun stall n'est possible (alpha wrappe a ±180 au parking).</summary>
+        public const double StallGroundIasKt = 40.0;
+        /// <summary>Seuil AoA générique (deg) si l'avion n'expose pas acf_stall_warn_alpha (avions sans REP).</summary>
+        public const double DefaultStallAlphaDeg = 15.0;
+
+        /// <summary>AoA d'alerte effectif : celui de l'avion, sinon le seuil générique 15 deg.</summary>
+        public double StallAlphaEffective => StallAlpha > 0.0 ? StallAlpha : DefaultStallAlphaDeg;
+
+        /// <summary>
+        /// stall_warning filtré (bretelle côté récepteur) : au sol à basse vitesse, aucun stall
+        /// possible, même si le plugin émet un flag parasite. Utiliser cette propriété plutôt
+        /// que StallWarning brut dans le recorder.
+        /// </summary>
+        public int StallWarningEffective => (OnGround == 1 && IasKt < StallGroundIasKt) ? 0 : StallWarning;
+
+        /// <summary>Stall détecté par AoA seul, en vol uniquement — couvre les avions sans REP/annonciateur.</summary>
+        public bool StallByAoA => OnGround == 0 && Alpha >= StallAlphaEffective;
+
         public bool IsAnyEngineCut
         {
             get
