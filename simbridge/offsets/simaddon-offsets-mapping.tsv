@@ -1,0 +1,42 @@
+# Mapping offsets lus par SimAddon (simData.cs, branche poc/simbridge-client) -> DataRefs X-Plane 12
+# DataRefs valides contre X:\X-Plane12\Resources\plugins\DataRefs.txt (5690 lignes)
+# offset	variable simData.cs	semantique FSUIPC	DataRef X-Plane 12	champ SimBridge	statut
+0x023B/023C/023A	HourUTC/MinUTC/SecUTC	heure UTC sim (h/min/s)	sim/cockpit2/clock_timer/zulu_time_hours/minutes/seconds	ts_ms (déjà, via GetSimDateTimeUTC)	OK
+0x23E/0x240	DayOfYear/Year	date UTC sim	sim/time/zulu_date_days	ts_ms	OK
+0x0024	startSituation	string custom FSUIPC (écrit par un autre soft)	aucun équivalent X-Plane	-	N/A
+0x0264	pauseIndicator	sim en pause	sim/time/paused	paused	A AJOUTER
+0x02A0	magVariation	var. magnétique *360/65536	sim/flightmodel/position/magnetic_variation	magvar_deg	OK
+0x02BC	airspeed	IAS kt *128	sim/flightmodel/position/indicated_airspeed (m/s->kt)	ias_kt	OK
+0x02C8	verticalSpeed	VS fpm	sim/flightmodel/position/vh_ind_fpm	vs_fpm	OK
+0x030C	landingVerticalSpeed	VS au touché (stocké)	= vs_fpm, mémorisé côté client au 0->1 onGround	vs_fpm	OK (client)
+0x034E	COM1	COM1 BCD	sim/cockpit2/radios/actuators/com1_frequency_hz	com1_mhz	OK
+0x311A	COM1Stdby	COM1 standby BCD	sim/cockpit2/radios/actuators/com1_standby_frequency_hz	com1_stdby_mhz	A AJOUTER
+0x3123	COM1Switch	swap COM1 (write-only)	commande, pas de lecture	-	N/A
+0x0354	squawk	squawk BCD	sim/cockpit2/radios/actuators/transponder_code	squawk	OK
+0x6D8C	squawkMode	mode transpondeur 0..7	sim/cockpit2/radios/actuators/transponder_mode	squawk_mode	A AJOUTER
+0x0366	onGround	on ground flag	sim/flightmodel/failures/onground_any	on_ground	OK
+0x036C	stallWarning	stall warning 0/1	calculé: stallwarning FM OU annunciateur OU ratio>=0.9 OU alpha>=stall_alpha + guard sol	stall_warning	OK
+0x036D	overSpeedWarning	overspeed 0/1	calculé: ias_kt > sim/aircraft/view/acf_Vne	overspeed_warning	OK
+0x04D2/04D4	initialized1/2	sim running	sim/time/timer_is_running_sec > 0 (ou trame reçue)	ts_ms	OK
+0x060C	gearRetractableFlag	train rentrant	sim/aircraft/parts/acf_gear_type[0] != 0	gear_retractable	A AJOUTER
+0x0778	flapsAvailable	volets dispo	sim/aircraft/parts/acf_flapEQ	flaps_available	A AJOUTER
+0x0840	crashed	crashed flag	sim/flightmodel2/misc/has_crashed	crashed	OK
+0x0848	offRunwayCrashed	crash hors piste	pas de distinction directe -> 0 (crashed seul)	crashed	partiel
+0x0894/092C/09C4/0A5C	engine1..4Firing	moteur allumé	sim/flightmodel/engine/ENGN_running	eng_running[]	OK
+0x0918/09B0/0A48/0AE0	engine1..4FuelFlow	fuel flow PPH	sim/flightmodel/engine/ENGN_FF_ (kg/s -> PPH côté client *7936.64)	eng_ff_kg_s[]	OK
+0x08C0	engine1ManifoldPressure	MAP inHg*1024	sim/cockpit2/engine/indicators/MPR_in_hg[0]	eng_map_inhg[]	A AJOUTER
+0x0898/08C8	engine1RPM/Scaler	RPM	pas de RPM direct XP12 -> ENGN_N1_ % (documenté)	eng_n1_pct[]	OK (N1)
+0x0AEC	engineNumber	nb moteurs	sim/aircraft/engine/acf_num_engines	num_engines	OK
+0x0BE0	flapsPosition	flaps 0..16383	sim/flightmodel2/controls/flap1_deploy_ratio*16383	flaps_ratio	OK
+0x0BF0	gearPosition	gear 0..16383	sim/flightmodel2/gear/deploy_ratio[0]*16383	gear_deploy	OK
+0x3068	verticalAcceleration	accél. verticale	sim/flightmodel/position/local_ay (m/s2)	vert_accel_ms2	A AJOUTER
+0x2E80	avionicsMaster	master avionics	sim/cockpit2/switches/avionics_power_on	avionics_on	OK
+0x281C	batteryMaster	master batterie	sim/cockpit/electrical/battery_on	battery_on	OK
+0x3130	flightNumber	flight number / callsign	pas de dataref solo -> acf_tailnum	tail_number	A AJOUTER
+0x313C	tailNumber	immatriculation	sim/aircraft/view/acf_tailnum (string)	tail_number	A AJOUTER
+0x3364	readyToFLy	prêt à voler (cockpit sous tension)	avionics_power_on (sémantique retenue)	avionics_on	OK
+0x3365	inMenu	sim dans un menu	sim/time/paused (approx)	paused	A AJOUTER
+0x3500	aircraftModel	modèle avion	sim/aircraft/view/acf_ui_name (string)	aircraft_model	A AJOUTER
+0x3D00	aircraftType	type avion	sim/aircraft/view/acf_descrip (string)	aircraft_type	A AJOUTER
+0x8320	viewMode	mode de vue caméra	sim/graphics/view/view_type	view_type	A AJOUTER
+GetPosition()	-	lat/lon/alt/hdg/pitch/bank/ias/onGround	tous déjà dans la trame	lat,lon,alt_ft,hdg_true,pitch,bank,ias_kt,on_ground	OK trame / TROU dans simData.cs GetPosition()

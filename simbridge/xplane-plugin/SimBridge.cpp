@@ -43,7 +43,7 @@
 #define SIMBRIDGE_UDP_PORT 49180
 #define SIMBRIDGE_INTERVAL_SEC 0.1f   // 10 Hz
 #define SIMBRIDGE_MAX_ENGINES 8
-#define SIMBRIDGE_BUF_SIZE 2048
+#define SIMBRIDGE_BUF_SIZE 4096
 // Guard au sol : sous ce IAS au sol (parking/taxi), aucun stall possible — alpha wrappe
 // a ±180 au parking et les flags warning peuvent s'activer seuls. Au-dela (rotation,
 // roulement rapide), on laisse passer les vrais flags.
@@ -88,9 +88,29 @@ static ScalarRef g_scalars[] = {
     { "avionics_on",     "sim/cockpit2/switches/avionics_power_on",      'i', 1.0,       0.0, nullptr },
     { "flaps_ratio",     "sim/flightmodel2/controls/flap1_deploy_ratio", 'f', 1.0,       0.0, nullptr }, // cockpit2/controls/flap_ratio est REPLACED dans XP12
     { "com1_mhz",        "sim/cockpit2/radios/actuators/com1_frequency_hz", 'i', 1e-6,   0.0, nullptr }, // Hz -> MHz
+    { "com1_stdby_mhz",  "sim/cockpit2/radios/actuators/com1_standby_frequency_hz", 'i', 1e-6, 0.0, nullptr }, // offset FSUIPC 0x311A
     { "squawk",          "sim/cockpit2/radios/actuators/transponder_code",  'i', 1.0,    0.0, nullptr },
+    { "squawk_mode",     "sim/cockpit2/radios/actuators/transponder_mode",  'i', 1.0,    0.0, nullptr }, // offset FSUIPC 0x6D8C (off=0,stdby=1,on=2,alt=3...)
+    { "paused",          "sim/time/paused",                                 'i', 1.0,       0.0, nullptr }, // offset FSUIPC 0x0264 (approx 0x3365 inMenu)
+    { "gear_retractable","sim/aircraft/parts/acf_gear_type",                'i', 1.0,       0.0, nullptr }, // [0] != 0 => train rentrant (offset 0x060C) ; lu via index 0
+    { "flaps_available", "sim/aircraft/parts/acf_flapEQ",                   'i', 1.0,       0.0, nullptr }, // offset FSUIPC 0x0778
+    { "vert_accel_ms2",  "sim/flightmodel/position/local_ay",              'f', 1.0,       0.0, nullptr }, // offset FSUIPC 0x3068 (accél. verticale, m/s2)
+    { "view_type",       "sim/graphics/view/view_type",                     'i', 1.0,       0.0, nullptr }, // offset FSUIPC 0x8320 (mode caméra)
 };
 static const int g_numScalars = sizeof(g_scalars) / sizeof(g_scalars[0]);
+
+// DataRefs chaînes (lus avec XPLMGetDatab) : immat / modèle / type avion
+struct StringRef {
+    const char* key;
+    const char* dataref;
+    XPLMDataRef handle;
+};
+static StringRef g_strings[] = {
+    { "tail_number",    "sim/aircraft/view/acf_tailnum",   nullptr }, // offset FSUIPC 0x313C (et 0x3130 flight number)
+    { "aircraft_model", "sim/aircraft/view/acf_ui_name",   nullptr }, // offset FSUIPC 0x3500
+    { "aircraft_type",  "sim/aircraft/view/acf_descrip",   nullptr }, // offset FSUIPC 0x3D00
+};
+static const int g_numStrings = sizeof(g_strings) / sizeof(g_strings[0]);
 
 // DataRefs tableaux (moteurs + train) : lus avec XPLMGetDatavi / XPLMGetDatavf
 static XPLMDataRef g_refNumEngines   = nullptr;  // sim/aircraft/engine/acf_num_engines (int)
@@ -104,6 +124,7 @@ static XPLMDataRef g_refAlpha        = nullptr;  // sim/flightmodel/position/alp
 static XPLMDataRef g_refStallAlpha   = nullptr;  // sim/aircraft/overflow/acf_stall_warn_alpha (AoA d'alerte, degrés)
 static XPLMDataRef g_refEngFuelFlow  = nullptr;  // sim/flightmodel/engine/ENGN_FF_ (float[], kg/s)
 static XPLMDataRef g_refGearDeploy   = nullptr;  // sim/flightmodel2/gear/deploy_ratio (float[])
+static XPLMDataRef g_refEngMap       = nullptr;  // sim/cockpit2/engine/indicators/MPR_in_hg (float[], inHg) — offset FSUIPC 0x08C0
 
 static SOCKET g_sock = INVALID_SOCKET;
 static struct sockaddr_in g_dest;
@@ -150,6 +171,32 @@ static void json_int(char* buf, size_t& len, const char* key, long long v)
 {
     int n = snprintf(buf + len, SIMBRIDGE_BUF_SIZE - len, "\"%s\":%lld,", key, v);
     if (n > 0) len += (size_t)n < (SIMBRIDGE_BUF_SIZE - len) ? (size_t)n : (SIMBRIDGE_BUF_SIZE - len - 1);
+}
+
+// Ajoute "key":"valeur" au buffer JSON (échappe " et \)
+static void json_str(char* buf, size_t& len, const char* key, const char* v)
+{
+    int n = snprintf(buf + len, SIMBRIDGE_BUF_SIZE - len, "\"%s\":\"", key);
+    if (n > 0) len += (size_t)n < (SIMBRIDGE_BUF_SIZE - len) ? (size_t)n : (SIMBRIDGE_BUF_SIZE - len - 1);
+    for (const char* p = v; *p && len < SIMBRIDGE_BUF_SIZE - 4; p++) {
+        if (*p == '"' || *p == '\\') {
+            buf[len++] = '\\';
+            buf[len++] = *p;
+        } else if ((unsigned char)*p >= 0x20) {
+            buf[len++] = *p;
+        }
+    }
+    n = snprintf(buf + len, SIMBRIDGE_BUF_SIZE - len, "\",");
+    if (n > 0) len += (size_t)n < (SIMBRIDGE_BUF_SIZE - len) ? (size_t)n : (SIMBRIDGE_BUF_SIZE - len - 1);
+}
+
+// Lit un DataRef chaîne dans out (tronqué à max-1, terminé par \0)
+static void read_string(XPLMDataRef ref, char* out, int max)
+{
+    out[0] = '\0';
+    if (!ref) return;
+    XPLMGetDatab(ref, out, 0, max - 1);
+    out[max - 1] = '\0';
 }
 
 // Construit la trame JSON complète ; retourne la longueur écrite
@@ -248,6 +295,25 @@ static size_t build_frame(char* buf)
     n = snprintf(buf + len, SIMBRIDGE_BUF_SIZE - len, "],\"gear_deploy\":%.3f,", (double)gear);
     if (n > 0) len += (size_t)n;
 
+    // manifold pressure (inHg) par moteur — offset FSUIPC 0x08C0
+    float map[SIMBRIDGE_MAX_ENGINES] = {0};
+    if (numEng > 0 && g_refEngMap) XPLMGetDatavf(g_refEngMap, map, 0, numEng);
+    n = snprintf(buf + len, SIMBRIDGE_BUF_SIZE - len, "\"eng_map_inhg\":[");
+    if (n > 0) len += (size_t)n;
+    for (int i = 0; i < numEng; i++) {
+        n = snprintf(buf + len, SIMBRIDGE_BUF_SIZE - len, "%.2f%s", (double)map[i], i + 1 < numEng ? "," : "");
+        if (n > 0) len += (size_t)n;
+    }
+    n = snprintf(buf + len, SIMBRIDGE_BUF_SIZE - len, "],");
+    if (n > 0) len += (size_t)n;
+
+    // chaînes : immat, modèle, type avion (offsets FSUIPC 0x313C/0x3500/0x3D00)
+    for (int i = 0; i < g_numStrings; i++) {
+        char s[260];
+        read_string(g_strings[i].handle, s, sizeof(s));
+        json_str(buf, len, g_strings[i].key, s);
+    }
+
     // retire la dernière virgule et ferme l'objet
     if (len > 0 && buf[len - 1] == ',') len--;
     n = snprintf(buf + len, SIMBRIDGE_BUF_SIZE - len, "}");
@@ -315,6 +381,15 @@ PLUGIN_API int XPluginEnable(void)
     g_refStallAlpha  = XPLMFindDataRef("sim/aircraft/overflow/acf_stall_warn_alpha");
     g_refEngFuelFlow = XPLMFindDataRef("sim/flightmodel/engine/ENGN_FF_");
     g_refGearDeploy  = XPLMFindDataRef("sim/flightmodel2/gear/deploy_ratio");
+    g_refEngMap      = XPLMFindDataRef("sim/cockpit2/engine/indicators/MPR_in_hg");
+    for (int i = 0; i < g_numStrings; i++) {
+        g_strings[i].handle = XPLMFindDataRef(g_strings[i].dataref);
+        if (!g_strings[i].handle) {
+            char msg[256];
+            snprintf(msg, sizeof(msg), "SimBridge: DataRef string introuvable (champ vide): %s\n", g_strings[i].dataref);
+            XPLMDebugString(msg);
+        }
+    }
 
     // Socket UDP vers 127.0.0.1:49180
 #ifdef _WIN32

@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using SimDataManager;
 
 static class Tests
@@ -37,7 +38,7 @@ static class Tests
     // Trame de reference : couvre TOUS les champs du schema v1 de PROTOCOL.md
     // avec des valeurs connues et distinctes.
     const string GoldenFrame =
-        "{\"type\":\"simbridge\",\"v\":1,\"ts_ms\":1761000000000," +
+        "{\"type\":\"simbridge\",\"v\":2,\"ts_ms\":1761000000000," +
         "\"lat\":45.72777778,\"lon\":4.94444444,\"alt_m\":210.5,\"alt_ft\":690.95," +
         "\"ias_kt\":98.2,\"tas_kt\":101.0,\"gs_kt\":97.5,\"vs_fpm\":120.0," +
         "\"hdg_true\":182.4,\"pitch\":0.5,\"bank\":-1.2,\"magvar_deg\":-1.8," +
@@ -46,8 +47,11 @@ static class Tests
         "\"overspeed_warning\":1,\"crashed\":0," +
         "\"fuel_total_kg\":750.5,\"plane_weight_kg\":4200.0,\"payload_kg\":622.0," +
         "\"battery_on\":1,\"avionics_on\":1,\"flaps_ratio\":0.5,\"gear_deploy\":1.0," +
-        "\"com1_mhz\":118.05,\"squawk\":1234," +
-        "\"num_engines\":2,\"eng_running\":[1,0],\"eng_n1_pct\":[65.2,0.0],\"eng_ff_kg_s\":[0.033,0.0]}";
+        "\"com1_mhz\":118.05,\"com1_stdby_mhz\":121.5,\"squawk\":1234,\"squawk_mode\":3," +
+        "\"paused\":0,\"gear_retractable\":1,\"flaps_available\":1," +
+        "\"vert_accel_ms2\":0.15,\"view_type\":1," +
+        "\"tail_number\":\"F-GJF\\\"K\",\"aircraft_model\":\"Cessna 172\",\"aircraft_type\":\"C172 Skyhawk\"," +
+        "\"num_engines\":2,\"eng_running\":[1,0],\"eng_n1_pct\":[65.2,0.0],\"eng_ff_kg_s\":[0.033,0.0],\"eng_map_inhg\":[24.5,0.0]}";
 
     static void GoldenSchema()
     {
@@ -88,6 +92,43 @@ static class Tests
         Check(f.EngRunning.Length == 2 && f.EngRunning[0] == 1 && f.EngRunning[1] == 0, "eng_running=[1,0]");
         Check(f.EngN1Pct.Length == 2 && Math.Abs(f.EngN1Pct[0] - 65.2) < 1e-6, "eng_n1_pct[0]=65.2");
         Check(f.EngFfKgS.Length == 2 && Math.Abs(f.EngFfKgS[0] - 0.033) < 1e-6, "eng_ff_kg_s[0]=0.033");
+        Eq(121.5, f.Com1StdbyMhz, "com1_stdby_mhz");
+        Eq(3, f.SquawkMode, "squawk_mode");
+        Eq(0, f.Paused, "paused");
+        Eq(1, f.GearRetractable, "gear_retractable");
+        Eq(1, f.FlapsAvailable, "flaps_available");
+        Eq(0.15, f.VertAccelMs2, "vert_accel_ms2");
+        Eq(1, f.ViewType, "view_type");
+        Check(f.TailNumber == "F-GJF\"K", $"tail_number avec échappement (obtenu='{f.TailNumber}')");
+        Check(f.AircraftModel == "Cessna 172", "aircraft_model");
+        Check(f.AircraftType == "C172 Skyhawk", "aircraft_type");
+        Check(f.EngMapInHg.Length == 2 && Math.Abs(f.EngMapInHg[0] - 24.5) < 1e-6, "eng_map_inhg[0]=24.5");
+    }
+
+    // Tout champ du mapping offsets SimAddon (offsets/simaddon-offsets-mapping.tsv)
+    // doit exister comme propriete publique de SimBridgeFrame -> couverture complete.
+    static void CouvertureMappingOffsets()
+    {
+        Console.WriteLine("== 6. Couverture mapping offsets SimAddon -> SimBridgeFrame ==");
+        string[] champs = {
+            "TsMs", "Lat", "Lon", "AltM", "AltFt", "IasKt", "TasKt", "GsKt", "VsFpm",
+            "HdgTrue", "Pitch", "Bank", "MagvarDeg", "OnGround",
+            "StallWarning", "StallWarningRatio", "Alpha", "StallAlpha",
+            "OverspeedWarning", "Crashed", "Paused",
+            "NumEngines", "EngRunning", "EngN1Pct", "EngFfKgS", "EngMapInHg",
+            "FuelTotalKg", "PlaneWeightKg", "PayloadKg",
+            "BatteryOn", "AvionicsOn", "GearRetractable", "FlapsAvailable",
+            "GearDeploy", "FlapsRatio",
+            "Com1Mhz", "Com1StdbyMhz", "Squawk", "SquawkMode",
+            "VertAccelMs2", "ViewType",
+            "TailNumber", "AircraftModel", "AircraftType",
+            "StallWarningEffective", "StallAlphaEffective", "StallByAoA", "IsAnyEngineCut",
+        };
+        var props = new HashSet<string>(
+            typeof(SimBridgeFrame).GetProperties().Select(p => p.Name)
+                .Concat(typeof(SimBridgeFrame).GetFields().Select(f => f.Name)));
+        foreach (var c in champs)
+            Check(props.Contains(c), $"propriete SimBridgeFrame.{c} existe");
     }
 
     static void ParserRobustesse()
@@ -206,6 +247,7 @@ static class Tests
         GuardsStall();
         SimAddonDbgCompat();
         EngineCut();
+        CouvertureMappingOffsets();
         Console.WriteLine();
         Console.WriteLine(_fails == 0
             ? $"PASS — {_total}/{_total} tests OK"
