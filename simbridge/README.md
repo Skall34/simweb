@@ -22,10 +22,15 @@ simbridge/
 │   └── README.md              ← build + installation du .xpl
 ├── simaddon-client/
 │   └── SimBridgeClient.cs     ← récepteur UDP (drop-in SimDataManager, sans dépendance)
+├── offsets/
+│   ├── README.md              ← pourquoi/comment utiliser la table d'offsets
+│   └── xpuipc-offsets.tsv     ← 575 offsets XPUIPC extraits du PDF officiel (0x036C stall, 0x42C5 overspeed...)
 └── tests/
     ├── mock_plugin.py         ← émetteur Python qui simule le plugin (mêmes trames)
     ├── test_loopback.py       ← test de boucle loopback (python seul)
-    └── csharp-client-test/    ← test du vrai SimBridgeClient.cs (dotnet) contre un émetteur mock
+    ├── csharp-client-test/    ← test du vrai SimBridgeClient.cs (dotnet) contre un émetteur mock
+    └── csharp-client-tests/   ← tests de NON-REGRESSION SimAddon (golden schema v1, robustesse parser,
+                                 ← guards stall, sequence type SimAddon.log, engine cut) — 60 tests
 ```
 
 ## Lancer le PoC
@@ -38,8 +43,9 @@ simbridge/
    `simData.GetStallWarning()`.
 3. **Sans X-Plane** (test du protocole seul) :
    ```bash
-   python3 simbridge/tests/test_loopback.py          # test python end-to-end
-   cd simbridge/tests/csharp-client-test && dotnet run   # test du client C# réel
+   python3 simbridge/tests/test_loopback.py                 # test python end-to-end
+   cd simbridge/tests/csharp-client-test && dotnet run      # test du client C# réel (loopback UDP)
+   cd simbridge/tests/csharp-client-tests && dotnet run     # NON-REGRESSION SimAddon (60 tests, a lancer avant toute distrib)
    ```
 
 ## Feuille de route après PoC

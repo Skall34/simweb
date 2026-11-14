@@ -1,0 +1,577 @@
+# Offsets documentes par XPUIPC 2.0.3.8 (XPUIPC Offsets 20140803.pdf, X-Plane 12)
+# offset	size_octets	acces	description
+0x0001	28	rr	ightTurnoff also set. This allows existing A/P or fly-by-wire applications to work with those user implementations using a trim axis.Q = RNP+RVSM rw
+0x0004	10	rw	Slew mode indicator and control\, 0=off, 1=on. See 05DE also\.
+0x000E	30	rw	
+0x0012	03		C1rw1
+0x0020	4		Ground altitude in Metres x 256.r Autopilot mach value, as Mach*
+0x002C	2	rw	
+0x002E	30	rw	4 Strobes
+0x0040	96	r	Logo N = Tacan/No Mode C Minute of Zulu time in FS2rw
+0x004C	30	rw	Radio audio switches FS2002+ only\. Read/write bit settings as follows:characters, including a zero terminator. 1
+0x006A	30	rw	2^6 COM2 transmitXsquawkbox: Set the enroute mins for flightplan in XSB VATSIM, write the enroute mins here as minutes integer
+0x0088	30	rw	
+0x00AA	2	rw	Roll acceleration in radians/sec/sec relative to the body axes see Note at end of table
+0x00AE	6	rw	
+0x00BB	02	r	
+0x00BE	6	rw	
+0x00CA	6	rw	
+0x0238	1	r	
+0x0239	1	r	You must use the obove structure. Minimum time between two writes is 100 ms. Values will be recognised depending which type of dataref int, float, etc.\. Values not Text display control word. You can display messages from an external program just like an Adventure. Write the message as a zero-terminated string to offset 3380 see below\, Autopilot vertical speed value, as ft/minFail mode: 0 ok, COM1 radio inoperable = 1Middle wind direction, *360/
+0x023A	1	r	needed are ignored. 11
+0x023B	1		Write the dataref and optional index you want to read here: 0 display till replaced Autopilot Back course hold. The note for offset 07FC may also apply here.Middle wind gusts, enabled if True.EC135: Beep trim rightEC135: XFER A Engine 1 Rotor RPM %
+0x023E	2		unsigned __int8 datarefIndex; // 100..101 byte => => 1 byte => If dataref has an index e.g. XPLMSetDatavi\ write it here
+0x0240	2		Year in FS
+0x0246	2		Local time offset from Zulu minutes\. +ve = behind Zulu, -ve = aheadr FSUIPC Version
+0x0252	56		
+0x0262	2		Pause the simrw FS Version
+0x0264	2		Pause indicator 0=Not paused, 1=Paused\r This is the altimeter reading in feet or metres, if the user is running with the preference for altitudes in metres\, as a 32-bit signed integer. Please check offset 0C18 to determine when double doublefloatValue; // 8..15 byte => 8 byte => If dataref is a double float value e.g. XPLMSetDatad\ read it here 1
+0x0274	2		Frame rate is given by
+0x0280	1		Operates NAV, Taxi, Panel and Wing light but only reflects NAV settings\. See $0D0C for more controlr Elevator Axis input value, post calibration, just before being applied to the simulation if allowed to by the byte at offset 310A\.
+0x0281	1		Operates Strobe and Beacon Lights. See $0D0C for more controlrw Aileron Axis input value, post calibration, just before being applied to the simulation if allowed to by the byte at offset 310A\.
+0x028C	2		Operates Landing Lights. See $0D0Crw Yaw acceleration in radians/sec/sec relative to the body axes see Note at end of table
+0x029C	2		Pitot Heat switch 0=off, 1=on\rw ThrottleAxisinputvalue,postcalibration,justbeforebeingappliedtothesimulationifallowedtobythebyteatoffset310A\.Thisisthesinglethrottle,appliedtowhicheverengines rw
+0x02A0	2	r	are denoted by the bits in offset 0888.
+0x02B4	4		GS: Ground Speed, as
+0x02B8	4		TAS: True Air Speed, as knots * 128r Throttle 2 Axis input value, post calibration, just before being applied to the simulation if allowed to by the byte at offset 310A\.
+0x02BC	4		IAS: Indicated Air Speed, as knots * 128r Throttle 3 Axis input value, post calibration, just before being applied to the simulation if allowed to by the byte at offset 310A\.
+0x02C4	4		Barber pole airspeed, as knots * 128r
+0x02C8	4		Vertical speed, signed, as 256 * metres/sec.r Yaw velocity in rads/sec relative to the body axes see Note at end of table
+0x02CC	8	r	paused or in Slew mode\.
+0x02D8	2	r	The non-zero values are: EC135: Engine Start Panel BAT MSTR, ON 1
+0x02DC	6	r	1 = FS frozen because of menu activity EC135: Engine Start Panel BAT MSTR, RESET 1
+0x0300	2	r	
+0x0306	2	r	
+0x030C	4	r	
+0x032A	1	rw	NAV1 frequency, 4 digits in BCD format. A frequency of 113.45 is represented by 0x1345. The leading 1 is assumed. See also offset 0388\
+0x032B	1	r	
+0x0330	2		Altimeter pressure setting Kollsman window\. As millibars hectoPascals\ * 16
+0x034C	2	rw	
+0x034E	2	rw	
+0x0350	2	rw	
+0x0352	2	rw	
+0x0354	2	rw	
+0x0356	2		
+0x0366	2		Aircraft on ground flag 0=airborne, 1=on ground\r
+0x036C	1		Stall warning 0=no, 1=stall\r
+0x036D	1	r	
+0x036E	1	r	Alternator 1 = on, 0 = off\, read for state, write to control
+0x0378	2	rw	
+0x037C	2	r	
+0x04C8	2		Dew point as degrees C *256, for the surface temperature layer, FS2k/CFS2 read onlyr Fuel pump 1 = on, 0 = off\, read for state, write to control
+0x04CB	1		Note that in FS2004, rate 0 = light drizzle. Type=0 is no rain/snowr
+0x04CC	1		Precipitation type, 0=none, 1=rain, 2=snow, FS2k/CFS2 read only.r
+0x04D2	2	rw	0
+0x04D4	2	rw	
+0x04D8	2		Surface layer wind speed, in knots FS2k/CFS2\. This may be different to the currentwind_surf_vel for FS2k Adventures.r
+0x04DA	2		provides wind_surf_dir for FS2k Adventures.rRecognition Elevator trimG = GPS
+0x04E0	88	rw	Taxi Throttle #1I = LORAN/Mode C
+0x0558	4	ww	ing Throttle #2 see next byte for others\M = Tacan/No Squawk Hour of Zulu time in FS also known at UTC or GMT\rw
+0x055C	4	w	NAV2 code flags, bits used as follows:C0
+0x0560	8		Latitude of aircraft in FS units. Multiply by 90.0/10
+0x0568	8		Longitude of aircraft in FS format. Multiply by 360.0/
+0x0570	80		A0C4r
+0x0578	4		same option can also be used from an optional Hot Key\.U = No DME/Mode C
+0x057C	4		X = No DME/No Squawk
+0x05DC	2	rw	Lights FS2k/CFS2\, a switch for each one bits from lo to hi\:Xsquawkbox: Set the ICAO Code of depature airport for flightplan in XSB VATSIM, write the ICAO Code of depature airport here as a string, e.g. "EDDT" This is limited to a maximum
+0x0609	1	r	
+0x060C	2		
+0x0764	4	r	
+0x0768	4		Xsquawkbox: Set the ICAO Code of alternate airport for flightplan in XSB VATSIM, write the ICAO Code of alternate airport here as a string, e.g. "EDDF" This is limited to a maximum
+0x076C	4		of 6 characters, including a zero terminator. 1
+0x0770	4		Verticalspeed,copyofoffset02C8whilstairborne,notupdatedwhilsttheflag0366\isset.Canbeusedtocheckhardnessoftouchdownbutwatchoutforbounces
+0x077C	4	r	
+0x0780	4	r	Xsquawkbox: Set the TCAS type for flightplan in XSB VATSIM, write the ascii code here e.g. 0x54 for T Xsquawkbox: Route for flightplan in XSB VATSIM, write a the route here as a string, e.g. "LUCOS.SEY067.SEY.PARCH.CCC.ROBER" This is limited to a maximum of 500 characters, rw
+0x0784	40		A862FSUIPC to be compatible with FS2002 et ceterar
+0x0788	40		A882r
+0x078C	40		A902r
+0x0790	40		A984rB = Heavy/TCAS 2^0 NAV2 swap Xsquawkbox: Sends the flightplan to ATC if you write a 1 here, will be reset by xpuipc
+0x0794	4		F = B757
+0x0798	4		L = B757/TCAS
+0x079C	40		C524r
+0x07A0	4	r	
+0x07A4	4	r	
+0x07BC	4	rw	NAV2 Back Course flags:
+0x07C0	4	rw	0 BC availableLower cloud layer, cloud altitude variation metres\
+0x07C4	4	rw	1 Localiser tuned inSurface Temperature in degrees C * 256
+0x07C8	4	rw	2 On Back Course ?\Pressure QNH\ as millibars hectoPascals\ *16.
+0x07CC	2	rw	7 Station active even if no BC\Upper wind ceiling, metres AMSL
+0x07D0	4	rw	
+0x07D4	4	rw	
+0x07DC	4	rw	
+0x07E2	2	rw	
+0x07E4	4	rw	
+0x07E8	4	rw	
+0x07EC	4	rw	
+0x07F2	2	rw	
+0x0800	4	rw	
+0x0804	4	rw	Engine Vibration:
+0x0808	4	rw	should be concerned varies according to aircraft and engine.
+0x080C	4		Engine 3 Hydraulic pressure: appears to be 4*psi
+0x0810	4	rw	Engine 3 Hydraulic quantity:
+0x0840	2	r	Engine 3 CHT, degrees F in double floating point FLOAT64\
+0x0842	2	r	
+0x0844	2	r	
+0x0846	2	r	
+0x084A	2		Engine 4 Starter switch position Magnetos\,
+0x084C	4	r	Jet/turbo: 0=Off, 1=Start, 2=Gen; Prop: 0=Off, 1=right, 2=Left, 3=Both, 4=StartNAV1 Back Course flags:
+0x0850	4	r	Engine 4 combustion flag TRUE if engine firing\ 0 BC available
+0x0854	4	r	1 Localiser tuned in
+0x0858	4	r	2 On Back Course ?\Xsquawkbox: Set the login pilot ID in XSB VATSIM, write the login pilot ID here as a string, e.g. "
+0x085C	4	r	7 Station active even if no BC\
+0x0860	4	r	NAV1 To/From flag: 0=not active, 1=To, 2=From
+0x0864	4	r	NAV1 GS flag: TRUE if GS alive
+0x0868	4	r	
+0x086C	4	r	
+0x0870	2	r	
+0x0872	2	r	Engine 2 Vibration:
+0x0874	4	r	should be concerned varies according to aircraft and engine. 3 No signal availableAmbient wind speed at aircraft\ in knots Autothrottle airspeed hold availableI = IFR
+0x0878	4	rw	orks only with x73
+0x087C	4	r	Engine 2 Hydraulic pressure: appears to be 4*psi
+0x088C	2		Engine 2 Hydraulic quantity:
+0x088E	2	rw	Engine 2 CHT, degrees F in double floating point FLOAT64\
+0x0890	2		Engine 2 Fuel Flow Pounds per Hour, as floating point double FLOAT64\
+0x0892	2	rw	NAV1 radial *360/
+0x0894	2	r	
+0x0896	2	r	
+0x0898	2	r	
+0x089A	2	rw	Jet/turbo: 0=Off, 1=Start, 2=Gen; Prop: 0=Off, 1=right, 2=Left, 3=Both, 4=Start NAV2 available09C22rw Engine 4 CHT, degrees F in double floating point FLOAT64\
+0x08A0	2	r	Engine 3 combustion flag TRUE if engine firing\ Autopilot Master switch Autopilot Master switch 0 = Off, 1 = CWS, 2 = On
+0x08B2	2		Autopilot wing leveller
+0x08B8	2	r	Autopilot NAV1 lock
+0x08BA	2	r	
+0x08BC	2	r	
+0x08BE	2	r	
+0x08C0	2	r	
+0x08D0	4	r	
+0x08D4	4	r	
+0x08D8	4	r	
+0x08DC	4	r	
+0x08E8	8	r	
+0x0908	40		B6B1rw
+0x0918	8	r	0B74
+0x0920	4	r	
+0x0924	20		B7C
+0x0926	2	rw	
+0x0928	20		B84
+0x092A	2	rw	
+0x092C	2	r	
+0x092E	2	r	
+0x0932	2	rw	1
+0x0938	2	r	1
+0x094A	2		
+0x0950	2	r	
+0x0952	2	r	Xsquawkbox: Set the login password in XSB VATSIM, write the login password here as a string, e.g. "
+0x0954	2	r	Engine4Throttlelever,to+
+0x0956	2	rw	ritten value obtainable from offset 3336
+0x0958	2	r	Xsquawkbox: Set the login real name in XSB VATSIM, write the realname here as a string, e.g. "Hans Wurst" This is limited to a maximum of 30 characters, including a zero terminator. NAV1 code flags, bits used as follows:8 Logo Engine type: 0=Piston and some FS2004 Helos\, 1=Jet, 2=Sailplane, 3=Helo, 4=Rocket, 5=Turboprop1
+0x0960	2	r	Xsquawkbox: Set the login model in XSB VATSIM, write the model here as a string, e.g. "B737 NG" This is limited to a maximum of 30 characters, including a zero terminator. 0 DME available9 Cabin Gear type. 0=non-retractable standard, 1=retractable, 2=slides
+0x0968	4	r	Engine 4 Anti-Ice or Carb Heat switch 1=On\rw 1 TACANCurrent visibility Statue miles * 100\ Autopilot available
+0x096C	4	r	Engine 4 Oil pressure,
+0x0970	4	r	Engine 4 Pressure Ratio where calculated\:
+0x0974	4	r	Engine4EGT,
+0x0980	8	r	Carb heat availablevariation and how to convert.
+0x09B0	8	r	Pitot heat availableEngine 4 Manifold Pressure: Inches Hg * 1024Upper cloud layer ceiling in metres AMSL
+0x09B8	4	r	Spoiler availableUpper cloud layer base in metres AMSL
+0x09BC	2	rw	Strobes availableNAV1 signal strength: Engine Vibration:
+0x09BE	2	rw	Prop type availableFor Localisers, seems to be either 0 or 256 should be concerned varies according to aircraft and engine.Upper cloud layer, cloud altitude variation metres\
+0x09C0	2	rw	Toe brakes availableFor VORs varies from 0 to over 1,000,000 when really close! Engine 4 Hydraulic pressure: appears to be 4*psiLower cloud layer ceiling in metres AMSL
+0x09C4	2	r	Engine 4 Fuel Flow Pounds per Hour, as floating point double FLOAT64\
+0x09C6	2	r	Engine 4 Torque, in FLOAT32 format, probably in ft-lbs. not jets\
+0x09C8	2	r	Number of engines
+0x09CA	2	rw	Gyro suction in inches of mercury Hg\, floating point double FLOAT64\
+0x09D0	2	r	Navigation Controls the joystick connection to the main flight controls. Normally all zero, set the following bits to actually disconnect the specific joystick axes from least significant bit = 0\:A = DME/Mode C OffsetBytesaccess FSUIPC value Pushback status FS2002+\. 3=off, 0=pushing back, 1=pushing back, tail to swing to left port\, 2=pushing back, tail to swing to right starboard\. Works only with Xpushback plugin Autopilot attitude holdGround altitude metres\. See 0020 for more accuracy.Flaps position indicator left\.
+0x09E2	2		unsigned __int8 broadcast; // 100..101 byte => 1 byte => 0 = only written on local machine, 1 = will be broadcasted to all machines in the IP segment
+0x09E8	2	r	unsigned __int8 datarefIndex; // 102..103 byte => 1 byte => If dataref has an index e.g. XPLMSetDatavi\ write it here LeftFixedLanding 1 AileronC = LORAN/No Mode C Autopilot airspeed value, in knotsFail mode: 0 ok, ADF inoperable = 1Gear control: 0=Up,
+0x09EA	2	r	__int32 interger32Value; // 104..107 byte => 4 byte => If dataref is a integer value e.g. XPLMSetDatavi or XPLMSetDatai\ write it here LeftRetLanding 2 RudderD = DME/No Squawk FSUIPC standard offsets Autopilot mach holdFail mode: 0 ok, ASI inoperable = 1Gear position nose\: 0=full up,
+0x09EC	2	r	float floatValue; // 108..111 byte => 4 byte => If dataref is a float value e.g. XPLMSetDatavf or XPLMSetDataf\ write it here RightFixedLanding Throttles all\.E = FMS+MAP
+0x09EE	2	r	
+0x09F0	2	r	
+0x09F8	2	r	
+0x0A00	4	r	
+0x0A04	40		C042rwDME available
+0x0A08	4	r	
+0x0A18	8	r	
+0x0A48	8	r	
+0x0A50	4	r	
+0x0A54	2	rw	Y = LORAN/No Squawk
+0x0A56	2	rw	
+0x0A58	2	rw	17FFF
+0x0A5A	2	rw	1 BeaconXsquawkbox: Set the depature time for flightplan in XSB VATSIM, write the departure time here as zulu time, e.g. 1340 = 13:40, integer
+0x0A5C	2	r	COM1 standby frequency FS2002+ only\, 4 digits in BCD format. A frequency of 123.45 is represented by 0x2345. The leading 1 is assumed. 2 LandingXsquawkbox: Set the depature time actual for flightplan in XSB VATSIM, write theactual departure time here as zulu time, e.g. 1340 = 13:40, integer
+0x0A5E	2	r	COM2 standby frequency FS2002+ only\, 4 digits in BCD format. A frequency of 123.45 is represented by 0x2345. The leading 1 is assumed. 3 Taxi
+0x0A60	2	r	NAV1 standby frequency FS2002+ only\, 4 digits in BCD format. A frequency of 113.45 is represented by 0x1345. The leading 1 is assumed.1
+0x0A62	2	rw	7 Wing 2^7 COM1 transmitXsquawkbox: Set the enroute hours for flightplan in XSB VATSIM, write the enroute hours here as hours integer
+0x0A68	2	r	1
+0x0A7A	2		Xsquawkbox: Set the flight type for flightplan in XSB VATSIM, write the ascii code here e.g. 0x56 for V
+0x0A82	2	r	2^1 DME sound
+0x0A84	2	r	2^0 ADF1 sound
+0x0A9C	40		EA02
+0x0AA0	4	r	
+0x0AA4	4	r	
+0x0AB0	8	r	
+0x0AE0	8	r	Pitch velocity in rads/sec relative to world axes in double floating point format FLOAT64\.
+0x0AE8	4	rr	oll velocity in rads/sec relative to world axes in double floating point format FLOAT64\.
+0x0AEC	2	rr	adio altitude in metres *
+0x0AF4	2	r	
+0x0B11	00		AC2rw
+0x0B18	8	r	
+0x0B20	2	rw	
+0x0B24	2	r	
+0x0B4C	2	r	
+0x0B64	1	rw	
+0x0B65	1	rw	
+0x0B66	1	rw	
+0x0B67	1	rw	
+0x0B68	1	rw	
+0x0B78	4	r	
+0x0B80	4	r	
+0x0B88	4	r	
+0x0B8C	4	rw	
+0x0B90	4	r	
+0x0B98	4	r	
+0x0B9C	4	rw	
+0x0BA8	4	r	
+0x0BAC	2	r	
+0x0BAE	2	r	
+0x0BB2	2	rw	
+0x0BB4	2	r	
+0x0BB6	2	rw	
+0x0BB8	2		Aileron position indicator maybe adjusted from input!\r
+0x0BBC	2	r	
+0x0BBE	2	rw	
+0x0BC0	2	rw	
+0x0BC2	2		Elevator trim indicator follows input\r
+0x0BC4	2	rw	2r
+0x0BC6	2	rw	
+0x0BC8	2		
+0x0BCA	2	r	Engine 3 Starter switch position Magnetos\, NAV1 available Engine 4 Hydraulic quantity:
+0x0BCC	4	rw	
+0x0BD0	4	rw	Engine3Throttlelever,to+
+0x0BD4	4	r	written value obtainable from offset 3334 Autopilot heading value, as degrees*
+0x0BD8	4	r	
+0x0BDC	40		C5C2r0ECE
+0x0BE0	4	r	
+0x0BE4	4	r	
+0x0BE8	4	rw	0E
+0x0BEC	4	r	0ED62
+0x0BF0	4	r	0ED8
+0x0BF4	4	r	
+0x0C02	2	rw	
+0x0C18	2		International units: 0=US, 1=Metric+feet, 2=Metric+metresrwTACANF
+0x0C1A	2		Voice availableF08040rStrobes R = RNP1
+0x0C20	9	r	No signal available T = No DME/No Mode C
+0x0C29	5	r	DME transmitter at GS transmitterEnricos Offsets 0x
+0x0C2E	5	r	No back course
+0x0C33	5	r	GS available
+0x0C38	5	r	
+0x0C3E	2	rw	
+0x0C48	1	r	1
+0x0C49	1	r	0 Navigationof 6 characters, including a zero terminator.
+0x0C4A	1	r	NAV2 standby frequency FS2002+ only\, 4 digits in BCD format. A frequency of 113.45 is represented by 0x1345. The leading 1 is assumed. 5 Instruments
+0x0C4B	1	r	6 Recognition1
+0x0C4C	1	r	
+0x0C4D	1	r	
+0x0C4E	2	rw	
+0x0C50	2	r	
+0x0C56	2	r	
+0x0C59	1	r	
+0x0C5A	1	r	
+0x0C5B	1	r	0ECC
+0x0C5E	2	rw	0E
+0x0C60	2	r	0ED2
+0x0C62	4	r	
+0x0C6A	2	r	1F80*
+0x0C6E	1	r	
+0x0C6F	1	r	
+0x0C70	1	r	Xsquawkbox: Set the speed in knots for flightplan in XSB VATSIM as an integer
+0x0D01	00	rw	
+0x0D0C	2	rw	2^5 COM receive bothXsquawkbox: Set the fuel hours for flightplan in XSB VATSIM, write the fuel hours here as hours integer
+0x0E8A	2	rw	
+0x0E8C	2		Outside Air Temperature OAT\, degrees C * 256r2^3 NAV2 sound
+0x0E90	2	r	2^2 Marker sound
+0x0E92	2	r	0 = None 2^3 COM1 swap including a zero terminator. 10
+0x0E9A	2	rw	T = TCAS 2^2 COM2 swap Xsquawkbox: Set the mic status: 0=mute the mic, 1=let XSB decide, 2=force to open
+0x0E9C	2	rw	H = Heavy 2^1 NAV1 swap Xsquawkbox: Check mic status: 0=closed, 1=open
+0x0E9E	2	rw	
+0x0EA2	2	rw	
+0x0EA4	2	rw	
+0x0EA6	2	rw	
+0x0EA8	2		
+0x0EC0	2	r	
+0x0EC6	2	r	Hidden UNC path for the clients, will mapped to 3E00 on the client 11
+0x0ECA	2		
+0x0EDA	2	r	
+0x0EDC	2	r	
+0x0EDE	2	r	
+0x0EE0	23		A184rwFor ICAO ID or Lat/Lon* as specified.
+0x0EE2	23		AB08rAdditional A.I. Airborne traffic
+0x0EE4	23		AB84rwA.I. Airborne traffic
+0x0EE6	2	r	
+0x0EE8	2	r	
+0x0EEA	2	r	
+0x0EEC	2	r	
+0x0EEE	2		Xsquawkbox: Connect to XSB to VATSIM, write a 1 here to connect, 0 to disconnect
+0x0EF0	2	r	Xsquawkbox: Check connection status: 0=disconnected, 1=connecting, 2=connected1202A1rw1
+0x0EF2	2	r	Xsquawkbox: Show the login box if you write a 1 here, will be reset by xpuip
+0x0EF4	2	r	Xsquawkbox: Set the callsign in XSB VATSIM, write the callsign here as a string, e.g. "LH4711" This is limited to a maximum of 10 characters, including a zero terminator.1
+0x0EF6	2	r	1
+0x0F5C	2	rw	32xFailuregenerationBit0:MicroburstBit1:BirdstrikeBit2:Engine1separationBit3:Engine2separationBit4:Engine1hungstartBit5:Engine2hungsstartBit6:Engine1hot
+0x0F5E	2	rw	startBit7:Engine2hotstartBit8:Engine1fireBit9:Engine2fireBit10:Engine1compressorstallBit11:Engine2compressorstallBit12:Engine_Seizure_eng1Bit13:
+0x0F60	2	rw	Engine_Seizure_eng2Bit14:Oil_Pump_eng1Bit15:Oil_Pump_eng2Bit16:Fuel_Flow_Fluct_eng1Bit17:Fuel_Flow_Fluct_eng2Bit18:Brake_LeftBit19:Brake_rightBit20:
+0x0F62	2	rw	Tire_Nose Bit 21: Tire_Left Bit 22: Tire_Right Bit 23: Gear_Actuator_Nose Bit 24: Gear_Actuator_Left Bit 25: Gear_Actuator_Right
+0x0F64	2	r	unway condition 0=clean&dry 1=dump 2=wet
+0x0F66	2		APU starter switch 0 = off, 1 = on, 2 = start1
+0x0F68	2	rw	Reset all failures set in 6DA4. 1
+0x0F6A	2	rw	The percentage of thunderstorms present. 0...1
+0x0F6C	2	rw	6F00-6FFF Reserved for XPUIP
+0x0F6E	2	rw	6F00 Nosewheel speed * 10, signed +forward -backwar
+0x0F70	26		F02Wheel skid, 0=inactive, 1=active
+0x0F72	2	rw	XPUIPC Version string with 0 terminator
+0x0F74	2	rw	Anti-Ice left wing 0 = Off 1 = On
+0x0F76	2	rw	Anti-Ice right wing 0 = Off 1 = On Parking brake indicator
+0x0F78	2	rw	Reload scenery, write a 0-1 here positive edge\ will reload the scenery
+0x1000	01	rw	20IP adress of X-Plane where XPUIPC is running as a null terminated string W = RVSM
+0x100A	62	rw	
+0x100B	86	rw	Roll velocity in rads/sec relative to the body axes see Note at end of table
+0x100C	72	rw	[FS2004 only
+0x1024	0		BB42r
+0x1032	81	rw	See also offset 0389\
+0x11BA	2	rr	eload datarefs, write a 0-1 here positive edge\ will reload the datarefs
+0x11BE	2	r	
+0x11C6	2	r	
+0x11D0	2	r	
+0x1200	01	rw	Surface wind gusts, enabled if True.EC135: NDXMSN OIL P Fuel: right aux tank level, % * 128 *
+0x1201	01	rw	Lower wind direction, *360/
+0x1202	01	rw	1
+0x1203	41	rw	VOR1 Elevation in metres. If NAV1 is tuned to an ILS this gives the glideslope transmitter Elevation.
+0x1204	91	rw	x737 Lights without plugin ver 4.8.2+\, a switch for each one bits from lo to hi\: Xsquawkbox: Set the NAV type for flightplan in XSB VATSIM, write the ascii code here e.g. 0x54 for T Autopilot altitude value, as metres*
+0x1205	71	r	rw
+0x1206	01	r	Engine 2 Anti-Ice or Carb Heat switch 1=On\rw
+0x1207	6		EC135: Landing LightBAT TEMP Fuel: right main tank level, % * 128 *
+0x1234	56		as double float FLOAT64\, write to reposition aircraft see also 560\; read 560 0F562
+0x1251	20	w	subject to the maximum of 128 characters including the zero terminator, then write a number to this offset, 32FA, as follows: Autopilot Approach hold. See the note above, for offset 07FC.Middle wind turbulence setting, 0 none, 64, 128, 192, 224, 255 worstEC135: Beep trim leftEC135: XFER F Engine 1 CHT, degrees F in double floating point FLOAT64\VOR2 IDENTITY string supplied: 6 bytes including zero terminator\
+0x1345	00	rw	ADF1 Frequency: main 3 digits, in Binary Coded Decimal. See also offset 0356. A frequency of 1234.5 will have 0x0234 here and 0x0105 in offset 0356.
+0x1400	48	rw	
+0x1410	01	r	Jet/turbo: 0=Off, 1=Start, 2=Gen; Prop: 0=Off, 1=right, 2=Left, 3=Both, 4=Start
+0x1600	0	r	
+0x1601	4	r	
+0x1602	4		
+0x1638	3		full: parking brake=
+0x19D1	01	w	Autothrottle Arm Lower wind speed, knotsEC135: Force Trim release*EC135: Rotor brake rwFuel: left main tank level, % * 128 *
+0x2000	8	r	
+0x2008	8	r	
+0x200A	1	rw	Middle wind speed, knotsEC135: A TRIMN2 TW1 - Wert bei 100 %: 5928.00 Propeller 2 RPM as a double FLOAT64\. This value is for props and turboprops and is negative for counter-rotating propellers.
+0x200B	1	rw	Middle wind direction, *360/
+0x200C	1	rw	Middle wind gusts, enabled if True.EC135: ALT A Druck auf Drehknopf\Instrument brightness pfd pilot Aileron position indicator maybe adjusted from input!\Master battery switch 1=On, 0=Off\
+0x200D	1	rw	Lower wind ceiling, metres AMSLIEC135: ASInstrument brightness nd pilot Rudder position indicator maybe adjusted from input!\
+0x200E	1	rw	Lower wind base, metres AMSLEC135: HDG Druck auf Drehknopf\ rw
+0x200F	1	rw	Lower wind speed, knotsEC135: VSJames Offsets 0x
+0x2018	8	r	
+0x201A	1	rw	
+0x201B	1	rw	
+0x201C	1	rw	1
+0x201D	1	rw	1
+0x201E	1	rw	1
+0x201F	1	rw	1
+0x202C	1	rw	1
+0x2030	8	r	
+0x203A	1	rw	
+0x203B	1	rw	
+0x204A	1	rw	
+0x204B	1	rw	
+0x204C	1	rw	
+0x204D	1	rw	
+0x204E	1	rw	
+0x204F	1	rw	Surfacelayerwinddirection,*360/
+0x205A	1	r	
+0x205B	1	r	0B94
+0x205C	1	r	
+0x205D	1	r	
+0x205E	1	r	written value obtainable from offset
+0x205F	1	r	Engine 2 Fuel Flow PPH SSL pounds per hour, standardised to sea level\0BA4
+0x206A	4	r	NAV1 ILS glideslope inclination if VOR1 is ILS. Convert to degrees by *360/
+0x206E	4	r	VOR1 Latitude, as in 085C above, except when NAV1 is tuned to an ILS, in which case this gives the localiser
+0x208C	4	rw	
+0x2093	02	r	
+0x2108	8	r	
+0x2118	8	r	
+0x2124	44	rw	
+0x2125	04	r	
+0x2128	8	r	
+0x2138	8	r	
+0x218C	4	rw	
+0x2200	8	r	6D88-6DAF Reserved for XPUIPCXsquawkbox: Set the server in XSB VATSIM, write the DNS address or IP here as a string, e.g. "server1" This is limited to a maximum of 30 characters, including a zero terminator.
+0x228C	4	rw	
+0x2300	8	r	
+0x2308	8	r	
+0x238C	4	rw	
+0x2393	84	rw	
+0x2400	8	r	
+0x2408	8	r	
+0x2410	8	r	
+0x2500	8	r	
+0x2508	8	r	
+0x2510	8	r	
+0x2808	4		andreversethesignforthenormalfpmmeasure.ThisworkseveninslewmodeexceptrwFuel: left aux tank level, % * 128 *
+0x281C	4	rw	
+0x2AAC	4	r	
+0x2AB0	4	r	
+0x2AB4	4	r	
+0x2AB8	4	r	
+0x2E80	4	rw	Engine 2 Torque, in FLOAT32 format, probably in ft-lbs. not jets\
+0x2E98	8		Elevator deflection, in radians, as a double FLOAT64\. Up positive, down negative.r
+0x2EA0	8		Elevator trim deflection, in radians, as a double FLOAT64\. Up positive, down negative.rw 1
+0x2EA8	8		Aileron deflection, in radians, as a double FLOAT64\. Right turn positive, left turn negative.r
+0x2EB0	8		Aileron trim deflection, in radians, as a double FLOAT64\. Right turn positive, left turn negative.r
+0x2EB8	8	r	udder deflection, in radians, as a double FLOAT64\.r
+0x2EC0	8	r	udder trim deflection, in radians, as a double FLOAT64\.rw written value obtainable from offset
+0x2EC8	4		Prop sync active 1=Active, 0=Inactive\rw Engine 1 Fuel Flow PPH SSL pounds per hour, standardised to sea level\Spoilers control, 0 off, 4800 arm, then 5620 7%\ to
+0x2ED0	8		This is the aircraft body angle of attacAoA\ not the wing AoA.r Engine 1 Anti-Ice or Carb Heat switch 1=On\rwThe4800valueissetbyarming.Valuesfrom0tosomewherecloseto,butbelow,4800donothing.Thepercentageextensionistheproportionofthedistanceintherange4800to
+0x2ED8	8		This is the side slip angle.r Engine 1 Oil temperature,
+0x2EE0	4	rw	Engine 1 Oil pressure,
+0x2EE8	8	r	Engine 1 Pressure Ratio where calculated\:
+0x2EF0	8	r	
+0x2EF8	8		CG percent, as a double FLOAT64\. This is the position of the actual CoG as a fraction %/100\ of MAC X-Plane: CoG in meters\rw
+0x2F70	8		Attitude indicator pitch value, in degrees. Double floating point format. r
+0x2F78	8		Attitude indicator bank value, in degrees. Double floating point format. r
+0x2F80	1	rw	double doublefloatValue; // 112..119 byte => 8 byte => If dataref is a double float value e.g. XPLMSetDatad\ write it here RightRetLanding See below throttle sync control\F = FMS
+0x3000	6	r	
+0x3006	25	r	
+0x301F	8	r	
+0x3025	25		VOR2 name string supplied: 25 bytes needed including zero terminator\r
+0x303E	6		ADF1 IDENTITY string supplied: 6 bytes including zero terminator\r
+0x3044	25		ADF1 name string supplied: 25 bytes including zero terminator\
+0x3060	32		
+0x3068	8	r	
+0x3070	8	r	
+0x3078	8	r	rw
+0x3080	8	r	
+0x3088	8	r	Rudder Axis input value, post calibration, just before being applied to the simulation if allowed to by the byte at offset 310A\.
+0x3090	8		EC135: Engine Start Panel FADEC I
+0x3098	8	r	Pressure QNH\ as millibars hectoPascals\ *16.rwEC135: einfacher PfeilCARGO SMOKE sowie alle Dummies X\ Fuel: right aux tank capacity: US Gallons 0F4
+0x30A0	8	r	Upper wind ceiling, metres AMSLEC135: doppelter PfeilFIRE TW1\ Fuel: right tip tank level, % * 128 *
+0x30A8	8	r	
+0x30B0	8	r	Throttle 4 Axis input value, post calibration, just before being applied to the simulation if allowed to by the byte at offset 310A\.
+0x30B8	8	r	FS2004toFlyindicator.Thisisnon-zerowhenFSisloading,orreloadingaflightoraircraftorscenery,andbecomeszerowhenflightmodeisenabledevenifthesimulatoris EC135: Engine Start Panel GEN I, NORM
+0x30C0	8	r	Upper wind gusts, enabled if True.EC135: ZOOM OUTHI NR Propeller 1 RPM as a double FLOAT64\. This value is for props and turboprops and is negative for counter-rotating propellers.Latitude of aircraft e.g 50.
+0x30E0	2		Middle wind ceiling, metres AMSLEC135 AUTOMATIC FLIGHT CONTROL SYSTEMHI NR control lamp Elevator position indicator maybe adjusted from input!\Propeller 1 RPM as a fraction of the maximum RPM. double\Longitude of aircraft e.g. 13.
+0x30E2	2		Middle wind base, metres AMSLEC135: APAnalog Instruments Propeller 1 thrust in pounds, as a double FLOAT64\. This is for props and turboprops.Altitude in feet as signed 32 bit integer, write to reposition aircraft see also 570\; read 570 0F5A2
+0x30E8	8		Both bits may be set in dialogues accessed through the menu. Note that the 2 bit may flicker a little on exit from the dialogue, due to the way it is detected. EC135: CAD SELECT CAD\ 1
+0x30EA	2	r	
+0x30EC	2	r	
+0x30EE	2	r	
+0x30F0	2	r	Message text area. This can be useful for programs wishing to display the adventure texts on a separate PC, via XPWideFS the freeware ShowText.exe is an example\. EC135 SMD45 Pilot Lower wind turbulence setting, 0 none, 64, 128, 192, 224, 255 worstEC135: BCX-PlaneFailuresByName Clear Master avionics switch 0=Off, 1=On\ Left brake application read-out 0 off,
+0x30F2	2	r	The text is truncated if longer than 127 characters, there always being a zero terminator provided. EC135: OFF PFD Pilot\
+0x30F4	2	r	You can also write messages to this area, always zero terminated, for display on the FS windshield. After placing the message text, you must write the 16-bit timer value to offset 32FA EC135: OFF ND Pilot\
+0x30F6	2	r	to make XPUIPC send the message through to X-Plane see 32FA above\. 3
+0x30F8	2		Sea level pressure QNH\, double float FS2002+\
+0x30FA	2		EC135: OFF ND Co\
+0x30FC	2		EC135 VEMD Surface wind gusts, enabled if True.EC135: EXT WARN 1
+0x30FE	2		is free to change, and, in fact, the aircraft flies as normal except for not changing its position over the ground. This is apparently a very useful facility for training environments.
+0x3101	7		EC135: SCROLL VEMD\
+0x3102	1		Battery 1 = on, 0 = off\, read for state, write to controlrw EC135: - VEMD\
+0x3103	1	rw	EC135: SELECT VEMD\
+0x3104	1	rw	EC135: BRT + VEMD\ 1
+0x310A	1	rw	1
+0x3118	2		COM2 frequency FS2002+ only\, 4 digits in BCD format. A frequency of 123.45 is represented by 0x2345. The leading 1 is assumed.rw 1
+0x311A	2	rw	
+0x311C	2	rw	Xsquawkbox: Set the cruise altitude for flightplan in XSB VATSIM, write the cruise altitude here as a string, e.g. FL360" or "
+0x311E	2	rw	including a zero terminator.
+0x3120	2	rw	Xsquawkbox: Set the ICAO Code of arrival airport for flightplan in XSB VATSIM, write the ICAO Code of arrival airport here as a string, e.g. "EDDM" This is limited to a maximum of 6
+0x3122	1	rw	Xsquawkbox: Remark for flightplan in XSB VATSIM, write a remark here as a string, e.g. "BlaBla Bla" This is limited to a maximum of 100 characters, including a zero terminator. 10
+0x3123	1	rw	1
+0x3130	12	rw	XSquawkbox: Message status NAV2 frequency, 4 digits in BCD format. A frequency of 113.45 is represented by 0x1345. The leading 1 is assumed. See also offset 0388\
+0x313C	12	rw	Bit 0: METAR message arrived Transponder setting, 4 digits in BCD format: 0x1200 means 1200 on the dials.
+0x3148	24	rw	Bit 1: Text message arrived
+0x3160	24	rw	Bit 2: 1
+0x31A0	8	r	Xsquawkbox: METAR message, read the METAR message here. This is a maximum of 256 char zero terminated string. If you read here METAR message bit will be reset 10
+0x31A8	8	r	Xsquawkbox: Text message, read the Text message here. This is a maximum of 512 char zero terminated string. If you read here Text message bit will be reset 10
+0x31B0	8	r	
+0x31E4	4	r	External flightmodel control via lat/lon/pitch/bank/heading 1
+0x31F0	4	r	Beacon ACL\ 0 ElevatorB = DME/No Mode C Dew point control: degrees C * 256. Sets surface layer dewpoint onlyAutopilot airspeed holdFlaps position indicator right\.
+0x31F4	4	rw	Autopilot vertical speed holdFail mode: 0 ok, Attitude Indicator inoperable = 1Gear position left\: 0=full up,
+0x3276	7		thedifferencebetweenthecurrentAofAandthemaximumangleofattackforthecurrentaircraft.Forarelative Middle cloud layer ceiling in metres AMSL
+0x32C2	56	r	
+0x32FA	2	rw	Yaw damperLower wind ceiling, metres AMSLEC135: Beep trim forwar
+0x32FC	2		Autothrottle TOGA take off power\Lower wind base, metres AMSLEC135: Beep trim afterwar
+0x3300	2		Additional radio and autopilot status indicators read only access\r The result can be found in offset 0x
+0x3304	4	r	__int32 interger32Value; // 0..3 byte => 4 byte => If dataref is a integer value e.g. XPLMSetDatavi or XPLMSetDatai\ read it here Crashed flagLower wind direction, *360/
+0x3308	2	r	float floatValue; // 4..7 byte => 4 byte => If dataref is a float value e.g. XPLMSetDatavf or XPLMSetDataf\ read it here Lower wind turbulence setting, 0 none, 64, 128, 192, 224, 255 worstEC135: P&R/YAW RSTAP A.TRIM Verticalspeedinmetresperminute,butwithforUP,+veforDOWN.Multiplyby3.
+0x3324	4	r	Surface wind ceiling, metres AMSLEC135 CollectiveLOW FUEL 2 Fuel: left tip tank level, % * 128 *
+0x3328	2	r	EC135: LimitROTOR RPM Fuel: left tip tank capacity: US Gallons Engine 2 combustion flag TRUE if engine firing\
+0x332A	2	r	EC135 Offsets 0x
+0x332C	2	r	EC135 Engine Start Panel Surface wind turbulence setting, 0 none, 64, 128, 192, 224, 255 worstEC135 Instrument Control Panel ICP\BAT DISCH Fuel: right main tank capacity: US GallonsTurbine Engine 2 ITT interstage turbine temperature\ in degrees Rankine, as a double FLOAT64\. This is for jets and turboprops.Zero Fuel Weight, lbs * 256. This is the aircraft weight plus the payload weight, minus fuel. In FS2004 this changes as the payload is adjusted. Off-runway crash detection
+0x332E	2		EC135: Engine Start Panel FADEC II
+0x3330	2	r	EC135: Engine Start Panel ENG I, FLIGHT
+0x3332	0		BA04r
+0x3334	2	r	EC135: Engine Start Panel ENG II, FLIGHT
+0x3336	2	r	EC135: Engine Start Panel ENG II, OFF
+0x3364	1	r	EC135: Engine Start Panel GEN I, RESET
+0x3365	1	r	EC135: CAD BRT + CAD\ 1
+0x337D	1	rw	EC135: CAD BRT - CAD\ 1
+0x337E	2		XPUIPC activity count. Simply a number that is incremented every time XPUIPC receives a call or message from Flight Simulatorr EC135: CAD OFF CAD\
+0x34A0	8	r	EC135: OFF PFD Co\
+0x3541	1	rw	EC135: RESET VEMD\
+0x3542	2		EC135: WARN UNIT AngleofAttack.Thisisactuallyarelativevalue,givingin%*
+0x3590	4	rw	EC135: SYS 2 Mach speed *
+0x3594	4	rw	EC135: SYS 2 Total Air Temperature TAT\, degrees Celsius * 256
+0x35B0	8	rw	page 1page 2page 3page 4page 5page 6page 7page 8page 9page 10page 11page 12page 13page 14page 15page 16page 17page 18page 19page 20
+0x3670	8	rw	
+0x3728	8	r	
+0x3730	8	rw	1
+0x37E8	8	r	
+0x37F0	8	rw	1
+0x3801	28	rw	EC135 SMD45 Copilot EC135: GA am Collective\PilotEdgeTransmitStatus 0=not 1=transmitting
+0x3930	8	r	1
+0x3958	4	rw	
+0x39F0	8	r	For GLOB or ICAO ID as specified.
+0x39F8	4	rw	
+0x3AD8	4	rw	A.I. Airborne traffic
+0x3B70	8	r	
+0x3B78	4	rw	Xsquawkbox Offsets 0x
+0x3B98	4	rw	Xsquawkbox: Subscribe to XSB VATSIM, write a 1 here to subscribe, 0 to unsubscribe
+0x3BFA	2	r	
+0x3BFC	4	rw	0848
+0x3E00	8	r	
+0x4000	50	rw	
+0x4050	50	rw	Engine 1 Starter switch position Magnetos\,
+0x410A	2	rw	
+0x4202	88	r	
+0x4203	88	r	
+0x4210	08	r	
+0x4213	08	r	
+0x4220	88	r	
+0x42C5	12	r	Overspeed warning 0=no, 1=overspeed\
+0x6553	6		Engine 1 Manifold Pressure: Inches Hg * 1024Sound flag: reads 0 is off, 1 if onFlaps control, 0=up,
+0x6D88	1	rw	Xsquawkbox: Set the port in XSB VATSIM, write the port of server here as a integer
+0x6D8A	2	r	
+0x6D8C	1	rw	
+0x6D8E	1	w	
+0x6D8F	1	w	
+0x6D90	8	w	
+0x6D98	8	w	
+0x6DA0	4	w	
+0x6DA8	1	rw	
+0x6DA9	1	rw	
+0x6DAA	1	rw	
+0x6DAF	1	rw	
+0x6F03	8	r	
+0x6F0B	1	rw	
+0x6F0C	1	rw	
+0x6F0E	1	rw	
+0x6F0F	2	rw	
+0x6F13	2	rw	
+0x6F14	1	rw	Here you can write a dataref directly in one write 120bytes\ of a fsuipc process, as follows:1
+0x6F15	1	rw	1
+0x6FFF	1	r	1
+0x76DA	44	rw	
+0x7D84	08		C82r
+0x8212	02		D1rw1
+0xC120	2		B1rw1
+0xC212	02		E1rw1
+0xC6F1	12	rw	
+0xD021	24		C4rw
+0xD120	3		F1rw
+0xD421	32		C4rw
+0xD840	20	r	LeftTurnoff If the user option is set to automatically disconnect the trim axis in FS A/P vertical modes, the disconnection of Elevator inputs via bit 0 above also disconnects Trim even if bit 5 is not P = Tacan/Mode C Day number in Year in FS counting from 1\rw
