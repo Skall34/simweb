@@ -313,14 +313,21 @@ static size_t build_frame(char* buf)
         char s[512];
         read_string(g_strings[i].handle, s, sizeof(s));
         if (strcmp(g_strings[i].key, "aircraft_type") == 0) {
-            // basename du path ACF, sans l'extension .acf -> colle a XPUIPC 0x3D00
-            char* base = s;
-            for (char* p = s; *p; p++) if (*p == '\\' || *p == '/') base = p + 1;
-            size_t l = strlen(base);
-            if (l >= 4 && base[l-4] == '.' && (base[l-3]=='a'||base[l-3]=='A')
-                         && (base[l-2]=='c'||base[l-2]=='C') && (base[l-1]=='f'||base[l-1]=='F'))
-                base[l-4] = '\0';
-            json_str(buf, len, g_strings[i].key, base);
+            // Nom du DOSSIER contenant l'acf -> colle a XPUIPC 0x3D00
+            // (ex: ".../Cessna 172 SP GTN REP /Cessna_172SP.acf" -> "Cessna 172 SP GTN REP ")
+            char* last = nullptr;  // séparateur avant le fichier .acf
+            char* prev = nullptr;  // séparateur avant le dossier
+            for (char* p = s; *p; p++) if (*p == '\\' || *p == '/') { prev = last; last = p; }
+            if (last && prev && last > prev + 1) {
+                size_t l = (size_t)(last - prev - 1);
+                if (l > 500) l = 500;
+                char dir[512];
+                memcpy(dir, prev + 1, l);
+                dir[l] = '\0';
+                json_str(buf, len, g_strings[i].key, dir);
+            } else {
+                json_str(buf, len, g_strings[i].key, s);
+            }
         } else {
             json_str(buf, len, g_strings[i].key, s);
         }

@@ -101,8 +101,8 @@ static class Tests
         Eq(1, f.ViewType, "view_type");
         Check(f.TailNumber == "F-GJF\"K", $"tail_number avec échappement (obtenu='{f.TailNumber}')");
         Check(f.AircraftModel == "Cessna 172", "aircraft_model");
-        // 0x3D00 doit coller a XPUIPC : basename du path ACF (avec espace final eventuel), pas l'UI name
-        Check(f.AircraftType == "Cessna 172 SP GTN REP ", $"aircraft_type = basename ACF (obtenu='{f.AircraftType}')");
+        // 0x3D00 doit coller a XPUIPC : nom du DOSSIER acf (avec espace final eventuel), pas l'UI name
+        Check(f.AircraftType == "Cessna 172 SP GTN REP ", $"aircraft_type = nom dossier ACF (obtenu='{f.AircraftType}')");
         Check(f.AircraftUiName == "Cessna Skyhawk + GTN + REP", "aircraft_ui_name");
         Check(f.EngMapInHg.Length == 2 && Math.Abs(f.EngMapInHg[0] - 24.5) < 1e-6, "eng_map_inhg[0]=24.5");
     }

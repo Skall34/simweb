@@ -37,6 +37,6 @@
 0x3364	readyToFLy	prêt à voler (cockpit sous tension)	avionics_power_on (sémantique retenue)	avionics_on	OK
 0x3365	inMenu	sim dans un menu	sim/time/paused (approx)	paused	A AJOUTER
 0x3500	aircraftModel	modèle avion	sim/aircraft/view/acf_descrip (string)	aircraft_model	A AJOUTER
-0x3D00	aircraftType	type avion	sim/aircraft/view/acf_ui_name (string, nom ACF UI = ce que XPUIPC met dans 0x3D00)	aircraft_type	A AJOUTER
+0x3D00	aircraftType	type avion	sim/aircraft/view/acf_relative_path, segment DOSSIER extrait (= XPUIPC 0x3D00, ex 'Cessna 172 SP GTN REP ')	aircraft_type	OK v2
 0x8320	viewMode	mode de vue caméra	sim/graphics/view/view_type	view_type	A AJOUTER
 GetPosition()	-	lat/lon/alt/hdg/pitch/bank/ias/onGround	tous déjà dans la trame	lat,lon,alt_ft,hdg_true,pitch,bank,ias_kt,on_ground	OK trame / TROU dans simData.cs GetPosition()
