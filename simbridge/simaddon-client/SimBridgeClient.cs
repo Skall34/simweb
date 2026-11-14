@@ -43,8 +43,9 @@ namespace SimDataManager
         public double VertAccelMs2;            // 0x3068
         public int ViewType;                   // 0x8320
         public string TailNumber = "";         // 0x313C (aussi 0x3130 flight number)
-        public string AircraftModel = "";      // 0x3500
-        public string AircraftType = "";       // 0x3D00
+        public string AircraftModel = "";      // 0x3500 (acf_descrip)
+        public string AircraftType = "";       // 0x3D00 (basename du path ACF sans .acf, identique XPUIPC)
+        public string AircraftUiName = "";    // nom vu dans l'UI X-Plane (debug)
         public double[] EngMapInHg = new double[0]; // 0x08C0 MPR inHg par moteur
 
         /// <summary>Au sol sous cet IAS (kt), aucun stall n'est possible (alpha wrappe a ±180 au parking).</summary>
@@ -201,6 +202,7 @@ namespace SimDataManager
             f.TailNumber       = GetString(o, "tail_number");
             f.AircraftModel    = GetString(o, "aircraft_model");
             f.AircraftType     = GetString(o, "aircraft_type");
+            f.AircraftUiName   = GetString(o, "aircraft_ui_name");
             f.EngMapInHg       = GetDoubleArray(o, "eng_map_inhg");
             return f;
         }

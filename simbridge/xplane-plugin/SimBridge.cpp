@@ -106,9 +106,10 @@ struct StringRef {
     XPLMDataRef handle;
 };
 static StringRef g_strings[] = {
-    { "tail_number",    "sim/aircraft/view/acf_tailnum",   nullptr }, // offset FSUIPC 0x313C (et 0x3130 flight number)
-    { "aircraft_model", "sim/aircraft/view/acf_descrip",   nullptr }, // offset FSUIPC 0x3500 (description)
-    { "aircraft_type",  "sim/aircraft/view/acf_ui_name",   nullptr }, // offset FSUIPC 0x3D00 : nom ACF vu dans l'UI (= ce que XPUIPC mettait dans 0x3D00, ex "Cessna 172 SP GTN REP ")
+    { "tail_number",       "sim/aircraft/view/acf_tailnum",        nullptr }, // offset FSUIPC 0x313C (et 0x3130 flight number)
+    { "aircraft_model",    "sim/aircraft/view/acf_descrip",        nullptr }, // offset FSUIPC 0x3500 (description)
+    { "aircraft_type",     "sim/aircraft/view/acf_relative_path",  nullptr }, // offset FSUIPC 0x3D00 : basename du path ACF sans .acf (= ce que XPUIPC mettait dans 0x3D00, ex "Cessna 172 SP GTN REP ")
+    { "aircraft_ui_name",  "sim/aircraft/view/acf_ui_name",        nullptr }, // nom vu dans l'UI (debug, ex "Cessna Skyhawk + GTN + REP")
 };
 static const int g_numStrings = sizeof(g_strings) / sizeof(g_strings[0]);
 
@@ -309,9 +310,20 @@ static size_t build_frame(char* buf)
 
     // chaînes : immat, modèle, type avion (offsets FSUIPC 0x313C/0x3500/0x3D00)
     for (int i = 0; i < g_numStrings; i++) {
-        char s[260];
+        char s[512];
         read_string(g_strings[i].handle, s, sizeof(s));
-        json_str(buf, len, g_strings[i].key, s);
+        if (strcmp(g_strings[i].key, "aircraft_type") == 0) {
+            // basename du path ACF, sans l'extension .acf -> colle a XPUIPC 0x3D00
+            char* base = s;
+            for (char* p = s; *p; p++) if (*p == '\\' || *p == '/') base = p + 1;
+            size_t l = strlen(base);
+            if (l >= 4 && base[l-4] == '.' && (base[l-3]=='a'||base[l-3]=='A')
+                         && (base[l-2]=='c'||base[l-2]=='C') && (base[l-1]=='f'||base[l-1]=='F'))
+                base[l-4] = '\0';
+            json_str(buf, len, g_strings[i].key, base);
+        } else {
+            json_str(buf, len, g_strings[i].key, s);
+        }
     }
 
     // retire la dernière virgule et ferme l'objet

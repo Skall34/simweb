@@ -50,7 +50,7 @@ static class Tests
         "\"com1_mhz\":118.05,\"com1_stdby_mhz\":121.5,\"squawk\":1234,\"squawk_mode\":3," +
         "\"paused\":0,\"gear_retractable\":1,\"flaps_available\":1," +
         "\"vert_accel_ms2\":0.15,\"view_type\":1," +
-        "\"tail_number\":\"F-GJF\\\"K\",\"aircraft_model\":\"Cessna 172\",\"aircraft_type\":\"C172 Skyhawk\"," +
+        "\"tail_number\":\"F-GJF\\\"K\",\"aircraft_model\":\"Cessna 172\",\"aircraft_type\":\"Cessna 172 SP GTN REP \",\"aircraft_ui_name\":\"Cessna Skyhawk + GTN + REP\"," +
         "\"num_engines\":2,\"eng_running\":[1,0],\"eng_n1_pct\":[65.2,0.0],\"eng_ff_kg_s\":[0.033,0.0],\"eng_map_inhg\":[24.5,0.0]}";
 
     static void GoldenSchema()
@@ -101,7 +101,9 @@ static class Tests
         Eq(1, f.ViewType, "view_type");
         Check(f.TailNumber == "F-GJF\"K", $"tail_number avec échappement (obtenu='{f.TailNumber}')");
         Check(f.AircraftModel == "Cessna 172", "aircraft_model");
-        Check(f.AircraftType == "C172 Skyhawk", "aircraft_type");
+        // 0x3D00 doit coller a XPUIPC : basename du path ACF (avec espace final eventuel), pas l'UI name
+        Check(f.AircraftType == "Cessna 172 SP GTN REP ", $"aircraft_type = basename ACF (obtenu='{f.AircraftType}')");
+        Check(f.AircraftUiName == "Cessna Skyhawk + GTN + REP", "aircraft_ui_name");
         Check(f.EngMapInHg.Length == 2 && Math.Abs(f.EngMapInHg[0] - 24.5) < 1e-6, "eng_map_inhg[0]=24.5");
     }
 
@@ -121,7 +123,7 @@ static class Tests
             "GearDeploy", "FlapsRatio",
             "Com1Mhz", "Com1StdbyMhz", "Squawk", "SquawkMode",
             "VertAccelMs2", "ViewType",
-            "TailNumber", "AircraftModel", "AircraftType",
+            "TailNumber", "AircraftModel", "AircraftType", "AircraftUiName",
             "StallWarningEffective", "StallAlphaEffective", "StallByAoA", "IsAnyEngineCut",
         };
         var props = new HashSet<string>(

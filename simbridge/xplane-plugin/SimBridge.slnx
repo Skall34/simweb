@@ -2,5 +2,5 @@
   <Configurations>
     <Platform Name="x64" />
   </Configurations>
-  <Project Path="SimBridge.vcxproj" />
+  <Project Path="SimBridge.vcxproj" Id="a1b2c3d4-1111-4a1b-9c2d-5e6f70809001" />
 </Solution>

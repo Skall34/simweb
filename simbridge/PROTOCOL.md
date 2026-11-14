@@ -50,8 +50,9 @@ Trame JSON UTF-8, une datagramme UDP par trame, émise par le plugin X-Plane
 | `view_type` | number | enum caméra | `sim/graphics/view/view_type` (FSUIPC 0x8320) |
 | `eng_map_inhg[]` | number[] | inHg par moteur | `sim/cockpit2/engine/indicators/MPR_in_hg` (FSUIPC 0x08C0) |
 | `tail_number` | string | immat | `sim/aircraft/view/acf_tailnum` (FSUIPC 0x313C, aussi 0x3130 flight number) |
-| `aircraft_model` | string | nom UI de l'avion | `sim/aircraft/view/acf_ui_name` (FSUIPC 0x3500) |
-| `aircraft_type` | string | description avion | `sim/aircraft/view/acf_descrip` (FSUIPC 0x3D00) |
+| `aircraft_model` | string | description avion | `sim/aircraft/view/acf_descrip` (FSUIPC 0x3500) |
+| `aircraft_type` | string | **basename du path ACF sans `.acf`** — identique à ce que XPUIPC met dans 0x3D00 (clé de `planesdb.json`, ex `"Cessna 172 SP GTN REP "`) | `sim/aircraft/view/acf_relative_path` traité (FSUIPC 0x3D00) |
+| `aircraft_ui_name` | string | nom vu dans l'UI X-Plane (debug, ex `"Cessna Skyhawk + GTN + REP"`) | `sim/aircraft/view/acf_ui_name` |
 
 ## Champs sans équivalent X-Plane (laissés de côté)
 
