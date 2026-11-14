@@ -107,8 +107,8 @@ struct StringRef {
 };
 static StringRef g_strings[] = {
     { "tail_number",    "sim/aircraft/view/acf_tailnum",   nullptr }, // offset FSUIPC 0x313C (et 0x3130 flight number)
-    { "aircraft_model", "sim/aircraft/view/acf_ui_name",   nullptr }, // offset FSUIPC 0x3500
-    { "aircraft_type",  "sim/aircraft/view/acf_descrip",   nullptr }, // offset FSUIPC 0x3D00
+    { "aircraft_model", "sim/aircraft/view/acf_descrip",   nullptr }, // offset FSUIPC 0x3500 (description)
+    { "aircraft_type",  "sim/aircraft/view/acf_ui_name",   nullptr }, // offset FSUIPC 0x3D00 : nom ACF vu dans l'UI (= ce que XPUIPC mettait dans 0x3D00, ex "Cessna 172 SP GTN REP ")
 };
 static const int g_numStrings = sizeof(g_strings) / sizeof(g_strings[0]);
 
