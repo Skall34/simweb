@@ -82,5 +82,12 @@
   <ItemGroup>
     <ClCompile Include="SimBridge.cpp" />
   </ItemGroup>
+  <!-- Deploiement auto dans X-Plane 12 apres chaque vrai build (si le dossier existe) -->
+  <ItemDefinitionGroup>
+    <PostBuildEvent>
+      <Command>if exist "X:\X-Plane12\Resources\plugins\SimBridge\win_x64" copy /Y "$(OutDir)SimBridge.xpl" "X:\X-Plane12\Resources\plugins\SimBridge\win_x64\SimBridge.xpl" &amp;&amp; echo SimBridge.xpl deploye dans X-Plane 12</Command>
+      <Message>Copie du .xpl vers X:\X-Plane12\Resources\plugins\SimBridge\win_x64</Message>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>
