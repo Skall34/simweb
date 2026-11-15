@@ -68,7 +68,7 @@ static ScalarRef g_scalars[] = {
     { "lat",             "sim/flightmodel/position/latitude",            'd', 1.0,       0.0, nullptr },
     { "lon",             "sim/flightmodel/position/longitude",           'd', 1.0,       0.0, nullptr },
     { "alt_m",           "sim/flightmodel/position/elevation",           'd', 1.0,       0.0, nullptr },
-    { "ias_kt",          "sim/flightmodel/position/indicated_airspeed",  'f', 1.9438445, 0.0, nullptr }, // m/s -> kt
+    { "ias_kt",          "sim/flightmodel/position/indicated_airspeed",  'f', 1.0,       0.0, nullptr }, // XP12 : déjà en kias (PAS m/s)
     { "tas_kt",          "sim/flightmodel/position/true_airspeed",       'f', 1.9438445, 0.0, nullptr },
     { "gs_kt",           "sim/flightmodel/position/groundspeed",         'f', 1.9438445, 0.0, nullptr },
     { "vs_fpm",          "sim/flightmodel/position/vh_ind_fpm",          'f', 1.0,       0.0, nullptr },

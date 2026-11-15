@@ -17,7 +17,7 @@ Trame JSON UTF-8, une datagramme UDP par trame, émise par le plugin X-Plane
 |---|---|---|---|
 | `lat` / `lon` | number | degrés décimaux | `sim/flightmodel/position/latitude` / `longitude` |
 | `alt_m` / `alt_ft` | number | m / ft | `sim/flightmodel/position/elevation` (ft dérivé) |
-| `ias_kt` / `tas_kt` / `gs_kt` | number | nœuds | `sim/flightmodel/position/{indicated,true}_airspeed`, `groundspeed` (m/s → kt) |
+| `ias_kt` / `tas_kt` / `gs_kt` | number | nœuds | `indicated_airspeed` est déjà en **kias** dans XP12 (scale 1.0) ; `true_airspeed` et `groundspeed` sont en m/s (× 1,9438445 → kt) |
 | `vs_fpm` | number | ft/min | `sim/flightmodel/position/vh_ind_fpm` |
 | `hdg_true` / `pitch` / `bank` | number | degrés | `sim/flightmodel/position/psi` / `theta` / `phi` |
 | `magvar_deg` | number | degrés | `sim/flightmodel/position/magnetic_variation` |

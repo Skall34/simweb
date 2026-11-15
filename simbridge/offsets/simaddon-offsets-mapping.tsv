@@ -6,7 +6,7 @@
 0x0024	startSituation	string custom FSUIPC (écrit par un autre soft)	aucun équivalent X-Plane	-	N/A
 0x0264	pauseIndicator	sim en pause	sim/time/paused	paused	A AJOUTER
 0x02A0	magVariation	var. magnétique *360/65536	sim/flightmodel/position/magnetic_variation	magvar_deg	OK
-0x02BC	airspeed	IAS kt *128	sim/flightmodel/position/indicated_airspeed (m/s->kt)	ias_kt	OK
+0x02BC	airspeed	IAS kt *128	sim/flightmodel/position/indicated_airspeed (déjà en kias dans XP12, scale 1.0)	ias_kt	OK
 0x02C8	verticalSpeed	VS fpm	sim/flightmodel/position/vh_ind_fpm	vs_fpm	OK
 0x030C	landingVerticalSpeed	VS au touché (stocké)	= vs_fpm, mémorisé côté client au 0->1 onGround	vs_fpm	OK (client)
 0x034E	COM1	COM1 BCD	sim/cockpit2/radios/actuators/com1_frequency_hz	com1_mhz	OK
