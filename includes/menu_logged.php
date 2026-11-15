@@ -71,6 +71,7 @@ require_once __DIR__ . '/mission_coefficient.php';
                 'Vol Libre' => t('mission_vollibre'),
                 'Longs Moyens Courriers' => t('mission_longmoyen'),
                 'Operation Kangourou' => t('mission_kangourou'),
+                'Mission De Contrôle' => t('mission_controle'),
             ];
             foreach ($missions as $missionRow) {
                 $mission = $missionRow['libelle'];
