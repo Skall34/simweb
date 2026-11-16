@@ -31,10 +31,10 @@ try {
     // compatibles avec cette catégorie d'appareil (MISSIONS.types_autorises, '*' = toutes)
     $type = isset($_GET['type']) ? trim($_GET['type']) : '';
     if ($type !== '') {
-        $stmt = $pdo->prepare("SELECT libelle, active, est_controle FROM MISSIONS WHERE active != 0 AND (types_autorises = '*' OR FIND_IN_SET(:type, types_autorises) > 0) ORDER BY libelle");
+        $stmt = $pdo->prepare("SELECT libelle, active, est_controle, types_autorises FROM MISSIONS WHERE active != 0 AND (types_autorises = '*' OR FIND_IN_SET(:type, types_autorises) > 0) ORDER BY libelle");
         $stmt->execute(['type' => $type]);
     } else {
-        $stmt = $pdo->prepare("SELECT libelle, active, est_controle FROM MISSIONS WHERE active != 0 ORDER BY libelle");
+        $stmt = $pdo->prepare("SELECT libelle, active, est_controle, types_autorises FROM MISSIONS WHERE active != 0 ORDER BY libelle");
         $stmt->execute();
     }
     $missions = $stmt->fetchAll(PDO::FETCH_ASSOC);

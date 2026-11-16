@@ -54,6 +54,8 @@ function getTypeAppareil($pdo, int $appareilId): string {
  *
  * Règles :
  * - Si l'appareil a controle_a_faire = 1, seule une mission de contrôle est acceptée.
+ * - Réciproquement, une mission de contrôle n'est acceptée que pour un appareil
+ *   en attente de contrôle (controle_a_faire = 1).
  * - Si la mission est une mission de contrôle, le vol doit déclarer au moins
  *   une limite de décrochage (stall_ok), et un arrêt moteur (engine_cut_ok)
  *   si l'appareil est bimoteur.
@@ -72,6 +74,11 @@ function verifierVolControle($pdo, int $appareilId, string $missionLibelle, bool
 
     if ($enAttente && !$estControle) {
         $erreur = "Appareil indisponible : après une maintenance, seul un vol avec la mission de contrôle est autorisé.";
+        return false;
+    }
+
+    if ($estControle && !$enAttente) {
+        $erreur = "Mission de contrôle non autorisée : l'appareil n'est pas en attente de vol de contrôle après maintenance.";
         return false;
     }
 

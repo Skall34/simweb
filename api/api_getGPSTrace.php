@@ -48,6 +48,24 @@ try {
     if ($path === false) {
         echo json_encode(['error' => t('api_error_no_gps')]);
     } else {
+        // Filtre les points invalides (hors limites ou dans le carre 1°x1° autour de
+        // 0°N 0°E, zone d'ocean) : une ancienne version du client pouvait enregistrer
+        // un point ~ (0,0) quand SimAddon demarrait avant le chargement de l'avion dans
+        // X-Plane, ce qui affichait la trace en ligne droite vers le golfe de Guinee.
+        $points = json_decode($path, true);
+        if (is_array($points)) {
+            $points = array_values(array_filter($points, function ($p) {
+                if (!is_array($p) || !isset($p['Lat'], $p['Long']) || !is_numeric($p['Lat']) || !is_numeric($p['Long'])) {
+                    return false;
+                }
+                $lat = (float)$p['Lat'];
+                $lon = (float)$p['Long'];
+                if (abs($lat) > 90 || abs($lon) > 180) return false;
+                if (abs($lat) < 1 && abs($lon) < 1) return false;
+                return true;
+            }));
+            $path = json_encode($points);
+        }
         echo json_encode(['path' => $path]);
     }
 } catch (PDOException $e) {

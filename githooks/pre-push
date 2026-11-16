@@ -1,0 +1,14 @@
+#!/bin/sh
+# Hook git pre-push : bloque le push (branche ou tag) si les tests ne passent pas.
+# Une fois par clone :  git config core.hooksPath githooks
+# Bypass exceptionnel : git push --no-verify
+cd "$(git rev-parse --show-toplevel)"
+if [ -f simbridge/tests/run_all_tests.sh ]; then
+    if sh simbridge/tests/run_all_tests.sh; then
+        echo "pre-push : tests OK, push autorise."
+    else
+        echo "pre-push : TESTS EN ECHEC, push annule (git push --no-verify pour forcer)."
+        exit 1
+    fi
+fi
+exit 0

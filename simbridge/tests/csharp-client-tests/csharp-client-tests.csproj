@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AssemblyName>simbridge-client-tests</AssemblyName>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Le VRAI fichier client, celui pose dans SimAddon/SimDataManager -->
+    <Compile Include="..\..\simaddon-client\SimBridgeClient.cs" />
+    <Compile Include="Tests.cs" />
+  </ItemGroup>
+
+</Project>
